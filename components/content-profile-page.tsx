@@ -294,6 +294,15 @@ const platformComments = [
   },
 ]
 
+const radarColors: Record<(typeof pillarOrder)[number], string> = {
+  cognition: "var(--color-cognition)",
+  recovery: "var(--color-recovery)",
+  fueling: "var(--color-fueling)",
+  mental: "var(--color-mental)",
+  physicality: "var(--color-physicality)",
+  finance: "var(--color-finance)",
+}
+
 interface ContentItem {
   id: string
   title: string
@@ -529,7 +538,7 @@ export function ContentProfilePage({ id }: { id: string }) {
                     <CardTitle className="text-lg">Impact Distribution</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-6 items-center">
+                    <div className="grid grid-cols-1 gap-6 items-center">
                       <div className="relative w-full max-w-[420px] mx-auto">
                         <div className="aspect-square relative p-4 rounded-2xl bg-background/30 border border-border/40">
                           <svg viewBox="0 0 200 200" className="w-full h-full">
@@ -545,39 +554,51 @@ export function ContentProfilePage({ id }: { id: string }) {
                               />
                             ))}
                             {/* Axis lines */}
-                            {Object.keys(content.impactDistribution).map((_, i) => {
+                            {pillarOrder.map((key, i) => {
                               const angle = (Math.PI * 2 * i) / 6 - Math.PI / 2
                               const x2 = 100 + 85 * Math.cos(angle)
                               const y2 = 100 + 85 * Math.sin(angle)
+
                               return (
-                                <line
-                                  key={i}
-                                  x1={100}
-                                  y1={100}
-                                  x2={x2}
-                                  y2={y2}
-                                  stroke="currentColor"
-                                  strokeOpacity={0.12}
-                                  strokeWidth={1}
-                                />
+                                  <line
+                                      key={key}
+                                      x1={100}
+                                      y1={100}
+                                      x2={x2}
+                                      y2={y2}
+                                      style={{ stroke: "var(--border)" }}
+                                      strokeOpacity={0.12}
+                                      strokeWidth={1}
+                                  />
                               )
                             })}
                             {/* Data polygon */}
                             <polygon
-                              points={getDataPoints(100, 100, 85, content.impactDistribution)}
-                              fill="hsl(var(--primary))"
-                              fillOpacity={0.18}
-                              stroke="hsl(var(--primary))"
-                              strokeWidth={2}
+                                points={getDataPoints(100, 100, 85, content.impactDistribution, pillarOrder)}
+                                style={{
+                                  fill: "color-mix(in oklch, var(--color-primary) 25%, transparent)",
+                                  stroke: "var(--color-primary)",
+                                }}
+                                strokeWidth={2}
                             />
                             {/* Outer dots */}
-                            {Object.values(content.impactDistribution).map((value, i) => {
+                            {pillarOrder.map((key, i) => {
+                              const value = content.impactDistribution[key] || 0
                               const angle = (Math.PI * 2 * i) / 6 - Math.PI / 2
                               const r = (85 * value) / 100
                               const x = 100 + r * Math.cos(angle)
                               const y = 100 + r * Math.sin(angle)
+                              const color = radarColors[key]
+
                               return (
-                                <circle key={i} cx={x} cy={y} r={3} fill="hsl(var(--primary))" fillOpacity={0.8} />
+                                  <circle
+                                      key={key}
+                                      cx={x}
+                                      cy={y}
+                                      r={3}
+                                      style={{ fill: color, stroke: color }}
+                                      fillOpacity={0.9}
+                                  />
                               )
                             })}
                           </svg>
@@ -597,36 +618,6 @@ export function ContentProfilePage({ id }: { id: string }) {
                               >
                                 <Icon className={`h-3 w-3 ${pillar.color}`} />
                                 <span className="font-medium">{pillar.name}</span>
-                              </div>
-                            )
-                          })}
-                        </div>
-                        <p className="text-xs text-muted-foreground text-center mt-3">
-                          Spider diagram of the six impact pillars so you can see what this content teaches at a glance.
-                        </p>
-                      </div>
-
-                      <div className="space-y-3 text-sm text-muted-foreground">
-                        <p>
-                          Each vertex represents one of the six verticals. The filled area highlights where this content is
-                          likely to help you grow across cognition, recovery, fueling, mental state, physicality, and finance.
-                        </p>
-                        <div className="grid grid-cols-2 gap-2">
-                          {Object.entries(content.impactDistribution).map(([key]) => {
-                            const pillar = pillarConfig[key as keyof typeof pillarConfig]
-                            const Icon = pillar.icon
-                            return (
-                              <div
-                                key={key}
-                                className="flex items-center gap-2 p-2 rounded-lg bg-background/50 border border-border/40"
-                              >
-                                <span className={`flex h-8 w-8 items-center justify-center rounded-full ${pillar.bgColor}`}>
-                                  <Icon className={`h-4 w-4 ${pillar.color}`} />
-                                </span>
-                                <div>
-                                  <p className="font-medium text-foreground">{pillar.name}</p>
-                                  <p className="text-xs text-muted-foreground">Key learning vertical</p>
-                                </div>
                               </div>
                             )
                           })}
