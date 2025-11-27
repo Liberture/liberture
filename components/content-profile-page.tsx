@@ -82,6 +82,8 @@ const pillarConfig = {
   },
 }
 
+const pillarOrder = ["cognition", "recovery", "fueling", "mental", "physicality", "finance"] as const
+
 // Demo content data
 const contentDatabase: Record<string, ContentItem> = {
   "1": {
@@ -527,74 +529,104 @@ export function ContentProfilePage({ id }: { id: string }) {
                     <CardTitle className="text-lg">Impact Distribution</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      {Object.entries(content.impactDistribution).map(([key, value]) => {
-                        const p = pillarConfig[key as keyof typeof pillarConfig]
-                        const Icon = p.icon
-                        return (
-                          <div key={key}>
-                            <div className="flex items-center justify-between mb-1">
-                              <div className="flex items-center gap-2">
-                                <Icon className={`h-4 w-4 ${p.color}`} />
-                                <span className="text-sm">{p.name}</span>
-                              </div>
-                              <span className="text-sm font-medium">{value}%</span>
-                            </div>
-                            <div className="h-2 rounded-full bg-background/50 overflow-hidden">
-                              <div
-                                className={`h-full rounded-full ${p.bgColor.replace("/10", "/60")}`}
-                                style={{ width: `${value}%` }}
-                              />
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-
-                    {/* Hexagonal Radar Preview */}
-                    <div className="mt-6 p-4 rounded-xl bg-background/30 border border-border/30">
-                      <div className="aspect-square relative flex items-center justify-center">
-                        <svg viewBox="0 0 200 200" className="w-full h-full max-w-[200px]">
-                          {/* Hexagon grid lines */}
-                          {[0.2, 0.4, 0.6, 0.8, 1].map((scale, i) => (
-                            <polygon
-                              key={i}
-                              points={getHexagonPoints(100, 100, 80 * scale)}
-                              fill="none"
-                              stroke="currentColor"
-                              strokeOpacity={0.1}
-                              strokeWidth={1}
-                            />
-                          ))}
-                          {/* Data polygon */}
-                          <polygon
-                            points={getDataPoints(100, 100, 80, content.impactDistribution)}
-                            fill="hsl(var(--primary))"
-                            fillOpacity={0.2}
-                            stroke="hsl(var(--primary))"
-                            strokeWidth={2}
-                          />
-                          {/* Axis lines */}
-                          {Object.keys(content.impactDistribution).map((_, i) => {
-                            const angle = (Math.PI * 2 * i) / 6 - Math.PI / 2
-                            const x2 = 100 + 80 * Math.cos(angle)
-                            const y2 = 100 + 80 * Math.sin(angle)
-                            return (
-                              <line
+                    <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
+                      <div className="relative w-full max-w-[420px] mx-auto">
+                        <div className="aspect-square relative p-3 sm:p-4 rounded-2xl bg-background/30 border border-border/40">
+                          <svg viewBox="0 0 200 200" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+                            {/* Hexagon grid lines */}
+                            {[0.25, 0.5, 0.75, 1].map((scale, i) => (
+                              <polygon
                                 key={i}
-                                x1={100}
-                                y1={100}
-                                x2={x2}
-                                y2={y2}
+                                points={getHexagonPoints(100, 100, 85 * scale)}
+                                fill="none"
                                 stroke="currentColor"
                                 strokeOpacity={0.1}
                                 strokeWidth={1}
+                                vectorEffect="non-scaling-stroke"
                               />
+                            ))}
+                            {/* Axis lines */}
+                            {pillarOrder.map((_, i) => {
+                              const angle = (Math.PI * 2 * i) / pillarOrder.length - Math.PI / 2
+                              const x2 = 100 + 85 * Math.cos(angle)
+                              const y2 = 100 + 85 * Math.sin(angle)
+                              return (
+                                <line
+                                  key={i}
+                                  x1={100}
+                                  y1={100}
+                                  x2={x2}
+                                  y2={y2}
+                                  stroke="currentColor"
+                                  strokeOpacity={0.15}
+                                  strokeWidth={1}
+                                  vectorEffect="non-scaling-stroke"
+                                />
+                              )
+                            })}
+                            {/* Data polygon */}
+                            <polygon
+                              points={getDataPoints(100, 100, 85, content.impactDistribution, pillarOrder)}
+                              fill="hsl(var(--primary))"
+                              fillOpacity={0.2}
+                              stroke="hsl(var(--primary))"
+                              strokeWidth={2}
+                              vectorEffect="non-scaling-stroke"
+                            />
+                            {/* Outer dots */}
+                            {pillarOrder.map((key, i) => {
+                              const value = content.impactDistribution[key]
+                              const angle = (Math.PI * 2 * i) / pillarOrder.length - Math.PI / 2
+                              const r = (85 * value) / 100
+                              const x = 100 + r * Math.cos(angle)
+                              const y = 100 + r * Math.sin(angle)
+                              return (
+                                <circle key={key} cx={x} cy={y} r={3} fill="hsl(var(--primary))" fillOpacity={0.9} />
+                              )
+                            })}
+                          </svg>
+
+                          {pillarOrder.map((key, i) => {
+                            const pillar = pillarConfig[key]
+                            const Icon = pillar.icon
+                            const angle = (Math.PI * 2 * i) / pillarOrder.length - Math.PI / 2
+                            const positionRadius = 42
+                            const left = 50 + positionRadius * Math.cos(angle)
+                            const top = 50 + positionRadius * Math.sin(angle)
+                            return (
+                              <div
+                                key={key}
+                                className="absolute flex items-center gap-1.5 px-2 py-1 rounded-full bg-background/95 border border-border/50 shadow-sm text-[11px] sm:text-xs"
+                                style={{ left: `${left}%`, top: `${top}%`, transform: "translate(-50%, -50%)" }}
+                              >
+                                <Icon className={`h-3.5 w-3.5 ${pillar.color}`} />
+                                <span className="font-medium">{pillar.name}</span>
+                              </div>
                             )
                           })}
-                        </svg>
+                        </div>
+                        <p className="text-xs text-muted-foreground text-center mt-3">
+                          Six-pillar spider diagram showing what you will learn most from this content.
+                        </p>
                       </div>
-                      <p className="text-xs text-muted-foreground text-center mt-2">Hexagonal Impact Map</p>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm text-muted-foreground">
+                        {pillarOrder.map((key) => {
+                          const pillar = pillarConfig[key]
+                          const Icon = pillar.icon
+                          return (
+                            <div
+                              key={key}
+                              className="flex items-center gap-2 p-2 rounded-lg bg-background/60 border border-border/40"
+                            >
+                              <span className={`flex h-8 w-8 items-center justify-center rounded-full ${pillar.bgColor}`}>
+                                <Icon className={`h-4 w-4 ${pillar.color}`} />
+                              </span>
+                              <p className="font-medium text-foreground text-sm">{pillar.name}</p>
+                            </div>
+                          )
+                        })}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -841,12 +873,17 @@ function getHexagonPoints(cx: number, cy: number, r: number): string {
   return points.join(" ")
 }
 
-function getDataPoints(cx: number, cy: number, maxR: number, data: Record<string, number>): string {
-  const values = Object.values(data)
+function getDataPoints(
+  cx: number,
+  cy: number,
+  maxR: number,
+  data: Record<string, number>,
+  order: readonly string[]
+): string {
   const points: string[] = []
-  for (let i = 0; i < 6; i++) {
-    const angle = (Math.PI * 2 * i) / 6 - Math.PI / 2
-    const r = (maxR * (values[i] || 0)) / 100
+  for (let i = 0; i < order.length; i++) {
+    const angle = (Math.PI * 2 * i) / order.length - Math.PI / 2
+    const r = (maxR * (data[order[i]] || 0)) / 100
     const x = cx + r * Math.cos(angle)
     const y = cy + r * Math.sin(angle)
     points.push(`${x},${y}`)
