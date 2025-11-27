@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Zap, Brain, Heart, Leaf, Dumbbell } from "lucide-react"
+import {ArrowRight, Zap, Brain, Heart, Leaf, Dumbbell, Wallet} from "lucide-react"
 import { FoldedDrift, RippleBloom } from "@/components/patterns"
 
 export function LandingHero() {
@@ -54,6 +54,7 @@ export function LandingHero() {
               { icon: Leaf, color: "text-fueling", label: "Fueling" },
               { icon: Zap, color: "text-mental", label: "Mental" },
               { icon: Dumbbell, color: "text-physicality", label: "Physicality" },
+              { icon: Wallet, color: "text-finance", label: "Finance" },
             ].map((pillar) => (
               <div key={pillar.label} className="flex flex-col items-center gap-2 group">
                 <div
