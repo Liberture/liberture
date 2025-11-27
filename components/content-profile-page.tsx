@@ -527,74 +527,109 @@ export function ContentProfilePage({ id }: { id: string }) {
                     <CardTitle className="text-lg">Impact Distribution</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      {Object.entries(content.impactDistribution).map(([key, value]) => {
-                        const p = pillarConfig[key as keyof typeof pillarConfig]
-                        const Icon = p.icon
-                        return (
-                          <div key={key}>
-                            <div className="flex items-center justify-between mb-1">
-                              <div className="flex items-center gap-2">
-                                <Icon className={`h-4 w-4 ${p.color}`} />
-                                <span className="text-sm">{p.name}</span>
-                              </div>
-                              <span className="text-sm font-medium">{value}%</span>
-                            </div>
-                            <div className="h-2 rounded-full bg-background/50 overflow-hidden">
-                              <div
-                                className={`h-full rounded-full ${p.bgColor.replace("/10", "/60")}`}
-                                style={{ width: `${value}%` }}
-                              />
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-
-                    {/* Hexagonal Radar Preview */}
-                    <div className="mt-6 p-4 rounded-xl bg-background/30 border border-border/30">
-                      <div className="aspect-square relative flex items-center justify-center">
-                        <svg viewBox="0 0 200 200" className="w-full h-full max-w-[200px]">
-                          {/* Hexagon grid lines */}
-                          {[0.2, 0.4, 0.6, 0.8, 1].map((scale, i) => (
-                            <polygon
-                              key={i}
-                              points={getHexagonPoints(100, 100, 80 * scale)}
-                              fill="none"
-                              stroke="currentColor"
-                              strokeOpacity={0.1}
-                              strokeWidth={1}
-                            />
-                          ))}
-                          {/* Data polygon */}
-                          <polygon
-                            points={getDataPoints(100, 100, 80, content.impactDistribution)}
-                            fill="hsl(var(--primary))"
-                            fillOpacity={0.2}
-                            stroke="hsl(var(--primary))"
-                            strokeWidth={2}
-                          />
-                          {/* Axis lines */}
-                          {Object.keys(content.impactDistribution).map((_, i) => {
-                            const angle = (Math.PI * 2 * i) / 6 - Math.PI / 2
-                            const x2 = 100 + 80 * Math.cos(angle)
-                            const y2 = 100 + 80 * Math.sin(angle)
-                            return (
-                              <line
+                    <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-6 items-center">
+                      <div className="relative w-full max-w-[420px] mx-auto">
+                        <div className="aspect-square relative p-4 rounded-2xl bg-background/30 border border-border/40">
+                          <svg viewBox="0 0 200 200" className="w-full h-full">
+                            {/* Hexagon grid lines */}
+                            {[0.25, 0.5, 0.75, 1].map((scale, i) => (
+                              <polygon
                                 key={i}
-                                x1={100}
-                                y1={100}
-                                x2={x2}
-                                y2={y2}
+                                points={getHexagonPoints(100, 100, 85 * scale)}
+                                fill="none"
                                 stroke="currentColor"
-                                strokeOpacity={0.1}
+                                strokeOpacity={0.08}
                                 strokeWidth={1}
                               />
+                            ))}
+                            {/* Axis lines */}
+                            {Object.keys(content.impactDistribution).map((_, i) => {
+                              const angle = (Math.PI * 2 * i) / 6 - Math.PI / 2
+                              const x2 = 100 + 85 * Math.cos(angle)
+                              const y2 = 100 + 85 * Math.sin(angle)
+                              return (
+                                <line
+                                  key={i}
+                                  x1={100}
+                                  y1={100}
+                                  x2={x2}
+                                  y2={y2}
+                                  stroke="currentColor"
+                                  strokeOpacity={0.12}
+                                  strokeWidth={1}
+                                />
+                              )
+                            })}
+                            {/* Data polygon */}
+                            <polygon
+                              points={getDataPoints(100, 100, 85, content.impactDistribution)}
+                              fill="hsl(var(--primary))"
+                              fillOpacity={0.18}
+                              stroke="hsl(var(--primary))"
+                              strokeWidth={2}
+                            />
+                            {/* Outer dots */}
+                            {Object.values(content.impactDistribution).map((value, i) => {
+                              const angle = (Math.PI * 2 * i) / 6 - Math.PI / 2
+                              const r = (85 * value) / 100
+                              const x = 100 + r * Math.cos(angle)
+                              const y = 100 + r * Math.sin(angle)
+                              return (
+                                <circle key={i} cx={x} cy={y} r={3} fill="hsl(var(--primary))" fillOpacity={0.8} />
+                              )
+                            })}
+                          </svg>
+
+                          {Object.entries(content.impactDistribution).map(([key], i) => {
+                            const pillar = pillarConfig[key as keyof typeof pillarConfig]
+                            const Icon = pillar.icon
+                            const angle = (Math.PI * 2 * i) / 6 - Math.PI / 2
+                            const positionRadius = 45
+                            const left = 50 + positionRadius * Math.cos(angle)
+                            const top = 50 + positionRadius * Math.sin(angle)
+                            return (
+                              <div
+                                key={key}
+                                className="absolute flex items-center gap-2 px-2 py-1 rounded-full bg-background/90 border border-border/50 shadow-sm text-xs"
+                                style={{ left: `${left}%`, top: `${top}%`, transform: "translate(-50%, -50%)" }}
+                              >
+                                <Icon className={`h-3 w-3 ${pillar.color}`} />
+                                <span className="font-medium">{pillar.name}</span>
+                              </div>
                             )
                           })}
-                        </svg>
+                        </div>
+                        <p className="text-xs text-muted-foreground text-center mt-3">
+                          Spider diagram of the six impact pillars so you can see what this content teaches at a glance.
+                        </p>
                       </div>
-                      <p className="text-xs text-muted-foreground text-center mt-2">Hexagonal Impact Map</p>
+
+                      <div className="space-y-3 text-sm text-muted-foreground">
+                        <p>
+                          Each vertex represents one of the six verticals. The filled area highlights where this content is
+                          likely to help you grow across cognition, recovery, fueling, mental state, physicality, and finance.
+                        </p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {Object.entries(content.impactDistribution).map(([key]) => {
+                            const pillar = pillarConfig[key as keyof typeof pillarConfig]
+                            const Icon = pillar.icon
+                            return (
+                              <div
+                                key={key}
+                                className="flex items-center gap-2 p-2 rounded-lg bg-background/50 border border-border/40"
+                              >
+                                <span className={`flex h-8 w-8 items-center justify-center rounded-full ${pillar.bgColor}`}>
+                                  <Icon className={`h-4 w-4 ${pillar.color}`} />
+                                </span>
+                                <div>
+                                  <p className="font-medium text-foreground">{pillar.name}</p>
+                                  <p className="text-xs text-muted-foreground">Key learning vertical</p>
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
