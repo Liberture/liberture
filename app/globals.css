@@ -96,27 +96,69 @@
   }
 }
 
-/* Topographic background pattern */
 .topo-pattern {
-  background-image: repeating-radial-gradient(
-      circle at 50% 50%,
-      transparent 0,
-      transparent 10px,
-      rgba(99, 102, 241, 0.03) 10px,
-      rgba(99, 102, 241, 0.03) 11px
-    ),
-    repeating-radial-gradient(
-      circle at 30% 70%,
-      transparent 0,
-      transparent 15px,
-      rgba(34, 211, 238, 0.02) 15px,
-      rgba(34, 211, 238, 0.02) 16px
-    ),
-    repeating-radial-gradient(
-      circle at 70% 30%,
-      transparent 0,
-      transparent 20px,
-      rgba(74, 222, 128, 0.02) 20px,
-      rgba(74, 222, 128, 0.02) 21px
-    );
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background-color: var(--background);
+}
+
+.topo-layer {
+  position: absolute;
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.14;
+  filter: drop-shadow(0 25px 40px rgba(0, 0, 0, 0.25));
+  mix-blend-mode: screen;
+}
+
+.topo-vortex {
+  width: min(48rem, 70vw);
+  height: min(48rem, 70vw);
+  top: -18%;
+  right: -12%;
+  background-image: url("/assets/patterns/topographic/vortex-shell.svg");
+}
+
+.topo-island {
+  width: min(30rem, 48vw);
+  height: min(30rem, 48vw);
+  top: -10%;
+  left: -12%;
+  background-image: url("/assets/patterns/topographic/island-ridge.svg");
+}
+
+.topo-micro {
+  width: min(36rem, 54vw);
+  height: min(36rem, 54vw);
+  inset: 35% auto auto 18%;
+  background-image: url("/assets/patterns/topographic/microterrain-ridge.svg");
+  opacity: 0.1;
+}
+
+.topo-ripple {
+  width: min(28rem, 44vw);
+  height: min(28rem, 44vw);
+  bottom: -8%;
+  left: -6%;
+  background-image: url("/assets/patterns/topographic/ripple-bloom.svg");
+}
+
+.topo-triad {
+  width: min(22rem, 36vw);
+  height: min(22rem, 36vw);
+  top: 12%;
+  right: 12%;
+  background-image: url("/assets/patterns/topographic/triad-basins.svg");
+  opacity: 0.2;
+}
+
+.topo-folded {
+  width: min(72rem, 90vw);
+  height: min(36rem, 60vw);
+  bottom: -14%;
+  left: 8%;
+  background-image: url("/assets/patterns/topographic/folded-drift.svg");
+  background-size: cover;
+  opacity: 0.16;
 }

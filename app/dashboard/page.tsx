@@ -4,6 +4,7 @@ import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { AuthProvider, useAuth } from "@/lib/auth-context"
 import { Dashboard } from "@/components/dashboard"
+import { TopographicBackground } from "@/components/topographic-background"
 
 function DashboardContent() {
   const { user, isLoading } = useAuth()
@@ -18,6 +19,7 @@ function DashboardContent() {
   if (isLoading) {
     return (
       <div className="min-h-screen topo-pattern flex items-center justify-center">
+        <TopographicBackground />
         <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     )
@@ -27,6 +29,7 @@ function DashboardContent() {
 
   return (
     <main className="min-h-screen topo-pattern">
+      <TopographicBackground />
       <Dashboard />
     </main>
   )
