@@ -2,11 +2,13 @@ import { LoginForm } from "@/components/login-form"
 import { AuthProvider } from "@/lib/auth-context"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
+import { TopographicBackground } from "@/components/topographic-background"
 
 export default function LoginPage() {
   return (
     <AuthProvider>
       <main className="min-h-screen topo-pattern flex flex-col">
+        <TopographicBackground />
         <nav className="p-4">
           <Link
             href="/"
