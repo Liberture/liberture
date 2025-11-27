@@ -1,11 +1,20 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Zap, Brain, Heart, Leaf, Dumbbell } from "lucide-react"
+import { FoldedDrift, RippleBloom } from "@/components/patterns"
 
 export function LandingHero() {
   return (
-    <section className="pt-32 pb-20 px-4">
-      <div className="container mx-auto max-w-7xl">
+    <section className="relative overflow-hidden pt-32 pb-20 px-4">
+      <FoldedDrift placement="full" gradient="plasma" className="-inset-10" opacity={0.16} />
+      <RippleBloom
+        placement="corner"
+        gradient="neon"
+        size="420px"
+        className="-right-10 -top-10 rotate-6"
+        opacity={0.24}
+      />
+      <div className="container relative z-10 mx-auto max-w-7xl">
         <div className="text-center max-w-4xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
             <Zap className="h-4 w-4 text-primary" />
