@@ -1,30 +1,31 @@
-# Liberture platform description
+# Liberture Platform
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+Liberture is a biological operating system that unifies data, coaching, and personalized insights to help people master their biology. This repository contains the Next.js codebase for the Liberture web experience, including customer-facing pages, data visualizations, and authentication flows.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/leon-3297s-projects/v0-liberture)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/b34lOe1cTWw)
+## What sets Liberture apart
+- **Holistic performance**: Combine biometric inputs, lifestyle tracking, and expert guidance to build habits that stick.
+- **Personalized journeys**: Adaptive programs that adjust to your progress, recovery, and daily readiness.
+- **Actionable insights**: Dashboards that translate raw health data into clear recommendations.
+- **Security and privacy**: Authentication, protected routes, and secure data handling built into the platform.
 
-## Overview
+## SEO focus
+- Primary keywords: biological operating system, human performance platform, wellness optimization, bio-tracking, habit coaching, Liberture.
+- Optimized metadata for sharing on social platforms via Open Graph and Twitter cards.
+- Accessible typography and responsive layout powered by Next.js and Tailwind CSS.
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
+## Technology
+- **Framework**: Next.js 16 with the App Router
+- **Styling**: Tailwind CSS with custom design tokens
+- **State & data**: React 19, React Hook Form, and context providers
+- **Analytics**: Vercel Analytics for privacy-friendly telemetry
+
+## Local development
+1. Install dependencies with `pnpm install`.
+2. Run the development server with `pnpm dev`.
+3. Visit `http://localhost:3000` to view the app.
 
 ## Deployment
+The project is optimized for Vercel deployments. Build with `pnpm build` and deploy directly through Vercel or your preferred platform.
 
-Your project is live at:
-
-**[https://vercel.com/leon-3297s-projects/v0-liberture](https://vercel.com/leon-3297s-projects/v0-liberture)**
-
-## Build your app
-
-Continue building your app on:
-
-**[https://v0.app/chat/b34lOe1cTWw](https://v0.app/chat/b34lOe1cTWw)**
-
-## How It Works
-
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+## Contributing
+Contributions are welcome. Please open an issue or pull request with clear descriptions of your changes.

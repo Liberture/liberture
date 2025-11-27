@@ -12,7 +12,28 @@ const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" })
 export const metadata: Metadata = {
   title: "Liberture | Biological Operating System",
   description: "Master your biology. Unlock your potential. The unified platform for human optimization.",
-  generator: "v0.app",
+  keywords: [
+    "biological operating system",
+    "human performance platform",
+    "wellness optimization",
+    "bio-tracking",
+    "habit coaching",
+    "Liberture",
+  ],
+  openGraph: {
+    title: "Liberture | Biological Operating System",
+    description:
+      "A unified platform combining data-driven insights, coaching, and tools to help you unlock peak performance.",
+    url: "https://liberture.com",
+    siteName: "Liberture",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Liberture | Biological Operating System",
+    description:
+      "Master your biology with Liberture, the platform built for tracking, coaching, and optimizing your wellbeing.",
+  },
   icons: {
     icon: [
       {
