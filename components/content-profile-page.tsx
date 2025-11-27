@@ -82,6 +82,8 @@ const pillarConfig = {
   },
 }
 
+const pillarOrder = ["cognition", "recovery", "fueling", "mental", "physicality", "finance"] as const
+
 // Demo content data
 const contentDatabase: Record<string, ContentItem> = {
   "1": {
@@ -876,12 +878,17 @@ function getHexagonPoints(cx: number, cy: number, r: number): string {
   return points.join(" ")
 }
 
-function getDataPoints(cx: number, cy: number, maxR: number, data: Record<string, number>): string {
-  const values = Object.values(data)
+function getDataPoints(
+  cx: number,
+  cy: number,
+  maxR: number,
+  data: Record<string, number>,
+  order: readonly string[]
+): string {
   const points: string[] = []
-  for (let i = 0; i < 6; i++) {
-    const angle = (Math.PI * 2 * i) / 6 - Math.PI / 2
-    const r = (maxR * (values[i] || 0)) / 100
+  for (let i = 0; i < order.length; i++) {
+    const angle = (Math.PI * 2 * i) / order.length - Math.PI / 2
+    const r = (maxR * (data[order[i]] || 0)) / 100
     const x = cx + r * Math.cos(angle)
     const y = cy + r * Math.sin(angle)
     points.push(`${x},${y}`)
