@@ -14,8 +14,17 @@ import {
   Dumbbell,
   Wallet,
   BookOpen,
+  Bed,
+  ChefHat,
+  Clapperboard,
+  FileText,
+  Infinity,
+  Microscope,
+  Pill,
   Search,
   Star,
+  User,
+  Wand,
   ExternalLink,
   Trophy,
   Users,
@@ -75,6 +84,128 @@ const tags = [
   "Index Funds",
   "Tax Optimization",
   "Compound Interest",
+]
+
+type KnowledgeVertical =
+  | "nutrition"
+  | "sleep"
+  | "exercise"
+  | "longevity"
+  | "mental-health"
+  | "supplements"
+
+type KnowledgeType = "books" | "videos" | "experts" | "tools" | "articles"
+
+const knowledgeVerticals: {
+  id: KnowledgeVertical
+  label: string
+  icon: any
+  accent: string
+  glow: string
+}[] = [
+  { id: "nutrition", label: "Nutrition", icon: ChefHat, accent: "from-amber-500 to-orange-500", glow: "shadow-amber-300/40" },
+  { id: "sleep", label: "Sleep", icon: Bed, accent: "from-sky-400 to-blue-600", glow: "shadow-sky-300/40" },
+  { id: "exercise", label: "Exercise", icon: Dumbbell, accent: "from-emerald-400 to-lime-500", glow: "shadow-emerald-300/40" },
+  { id: "longevity", label: "Longevity", icon: Infinity, accent: "from-purple-400 to-indigo-600", glow: "shadow-purple-300/40" },
+  { id: "mental-health", label: "Mental Health", icon: Wand, accent: "from-pink-400 to-rose-500", glow: "shadow-pink-300/40" },
+  { id: "supplements", label: "Supplements", icon: Pill, accent: "from-teal-300 to-cyan-500", glow: "shadow-cyan-300/40" },
+]
+
+const knowledgeTypes: { id: KnowledgeType; label: string; icon: any }[] = [
+  { id: "books", label: "Books", icon: BookOpen },
+  { id: "videos", label: "Videos", icon: Clapperboard },
+  { id: "experts", label: "Experts", icon: User },
+  { id: "tools", label: "Tools", icon: Microscope },
+  { id: "articles", label: "Articles", icon: FileText },
+]
+
+const knowledgeTypeIconMap = knowledgeTypes.reduce<Record<KnowledgeType, any>>((acc, type) => {
+  acc[type.id] = type.icon
+  return acc
+}, {} as Record<KnowledgeType, any>)
+
+const knowledgeCards = [
+  {
+    id: "outlive",
+    title: "Outlive by Peter Attia",
+    blurb: "The long game roadmap for healthspan and practical longevity protocols.",
+    image:
+      "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=900&q=80&sat=-10",
+    vertical: "longevity" as const,
+    type: "books" as const,
+  },
+  {
+    id: "sleep-foundations",
+    title: "12 Rules for Perfect Sleep",
+    blurb: "A visual walkthrough of bedroom setup, circadian cues, and wind-down routines.",
+    image:
+      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=900&q=80&sat=-10",
+    vertical: "sleep" as const,
+    type: "videos" as const,
+  },
+  {
+    id: "huberman-protocols",
+    title: "Huberman Lab Protocol Pack",
+    blurb: "Evidence-backed schedules for light, caffeine, movement, and focus.",
+    image:
+      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80&sat=-10",
+    vertical: "mental-health" as const,
+    type: "articles" as const,
+  },
+  {
+    id: "macro-tracker",
+    title: "Precision Macro Tracker",
+    blurb: "AI-assisted food logging tuned for metabolic flexibility instead of restriction.",
+    image:
+      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80&sat=-10",
+    vertical: "nutrition" as const,
+    type: "tools" as const,
+  },
+  {
+    id: "strength-blueprint",
+    title: "Strength Blueprint 2.0",
+    blurb: "Block-periodized lifting templates for busy knowledge workers.",
+    image:
+      "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=900&q=80&sat=-10",
+    vertical: "exercise" as const,
+    type: "books" as const,
+  },
+  {
+    id: "stacked-supplements",
+    title: "Stacked Supplement Guide",
+    blurb: "Minimalist stacks with lab-backed compounds for clarity, recovery, and immunity.",
+    image:
+      "https://images.unsplash.com/photo-1502741338009-cac2772e18bc?auto=format&fit=crop&w=900&q=80&sat=-10",
+    vertical: "supplements" as const,
+    type: "articles" as const,
+  },
+  {
+    id: "sleep-coach",
+    title: "Deep Sleep Coaching with Wearables",
+    blurb: "Pair HRV data with weekly coaching to dial in recovery faster.",
+    image:
+      "https://images.unsplash.com/photo-1526256262350-7da7584cf5eb?auto=format&fit=crop&w=900&q=80&sat=-10",
+    vertical: "sleep" as const,
+    type: "experts" as const,
+  },
+  {
+    id: "vo2-intervals",
+    title: "VO2 Max Intervals Playlist",
+    blurb: "Five battle-tested interval structures for maximal cardio output.",
+    image:
+      "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=900&q=80&sat=-10",
+    vertical: "exercise" as const,
+    type: "videos" as const,
+  },
+  {
+    id: "longevity-stack",
+    title: "Longevity Lab Essentials",
+    blurb: "Track bloodwork, methylation age, and mitochondrial function in one dashboard.",
+    image:
+      "https://images.unsplash.com/photo-1508387028171-0bd9d7ae2a55?auto=format&fit=crop&w=900&q=80&sat=-10",
+    vertical: "longevity" as const,
+    type: "tools" as const,
+  },
 ]
 
 // Liberture 100 Books
@@ -437,6 +568,18 @@ export function KnowledgeBaseContent() {
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState("")
   const [sortBy, setSortBy] = useState<"influence" | "date" | "pillar">("influence")
+  const [selectedVertical, setSelectedVertical] = useState<KnowledgeVertical>("longevity")
+  const [selectedType, setSelectedType] = useState<KnowledgeType>("books")
+
+  const activeVertical = knowledgeVerticals.find((vertical) => vertical.id === selectedVertical)
+
+  const filteredHeroCards = knowledgeCards.filter((card) => {
+    const matchesVertical = selectedVertical ? card.vertical === selectedVertical : true
+    const matchesType = selectedType ? card.type === selectedType : true
+    return matchesVertical && matchesType
+  })
+
+  const heroCardsToShow = filteredHeroCards.length > 0 ? filteredHeroCards : knowledgeCards.slice(0, 6)
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]))
@@ -481,11 +624,128 @@ export function KnowledgeBaseContent() {
   return (
     <div className="min-h-screen py-8 px-4">
       <div className="container mx-auto max-w-7xl">
+        {/* Hero Router */}
+        <section className="mb-12">
+          <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-card/70 shadow-2xl backdrop-blur">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/5" />
+            <div className="relative p-6 md:p-10 space-y-6">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div className="space-y-2">
+                  <p className="text-sm uppercase tracking-[0.2em] text-primary/70">Knowledge Router</p>
+                  <h1 className="text-4xl md:text-5xl font-semibold leading-tight">Explore knowledge fast</h1>
+                  <p className="text-lg text-muted-foreground">Choose your lane and your format.</p>
+                  <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                    <span className="rounded-full bg-muted px-3 py-1 font-medium">{activeVertical?.label} first</span>
+                    <span className="rounded-full border px-3 py-1 capitalize">{selectedType}</span>
+                    <span className="hidden sm:inline text-border">•</span>
+                    <span className="hidden sm:inline">Auto-curated on load</span>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 md:gap-3 lg:justify-end">
+                  {knowledgeVerticals.map((vertical) => {
+                    const Icon = vertical.icon
+                    const isActive = vertical.id === selectedVertical
+                    return (
+                      <button
+                        key={vertical.id}
+                        onClick={() => setSelectedVertical(vertical.id)}
+                        className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all shadow-sm ${
+                          isActive
+                            ? `bg-gradient-to-r ${vertical.accent} text-white border-transparent scale-[1.03]`
+                            : "bg-card/70 hover:border-primary/40 hover:-translate-y-0.5"
+                        }`}
+                      >
+                        <Icon className={`h-4 w-4 ${isActive ? "text-white" : "text-muted-foreground"}`} />
+                        {vertical.label}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div className="grid gap-6 lg:grid-cols-[170px_1fr]">
+                <div className="flex lg:flex-col gap-3">
+                  {knowledgeTypes.map((type) => {
+                    const Icon = type.icon
+                    const isActive = selectedType === type.id
+                    return (
+                      <button
+                        key={type.id}
+                        onClick={() => setSelectedType(type.id)}
+                        className={`group flex items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left text-base font-semibold transition-all ${
+                          isActive
+                            ? "bg-primary text-primary-foreground border-primary/70 shadow-lg shadow-primary/20"
+                            : "bg-card/70 hover:border-primary/40 hover:-translate-y-0.5"
+                        }`}
+                      >
+                        <span className="flex items-center gap-3">
+                          <Icon className="h-5 w-5" />
+                          {type.label}
+                        </span>
+                        <span className="text-xs text-muted-foreground group-hover:text-foreground">{isActive ? "Active" : "View"}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {heroCardsToShow.map((card) => {
+                    const verticalMeta = knowledgeVerticals.find((v) => v.id === card.vertical)
+                    const TypeIcon = knowledgeTypeIconMap[card.type]
+
+                    return (
+                      <div
+                        key={card.id}
+                        className={`group relative overflow-hidden rounded-2xl border border-border/60 bg-card/80 transition-all hover:-translate-y-1 hover:shadow-2xl ${
+                          verticalMeta?.glow || ""
+                        }`}
+                      >
+                        <div className="relative h-40">
+                          <div
+                            className="absolute inset-0 bg-cover bg-center"
+                            style={{ backgroundImage: `url(${card.image})` }}
+                          />
+                          <div
+                            className={`absolute inset-0 bg-gradient-to-t from-black/65 via-black/35 to-transparent ${
+                              verticalMeta ? `mix-blend-multiply` : ""
+                            }`}
+                          />
+                          {verticalMeta && (
+                            <div
+                              className={`absolute inset-x-0 bottom-0 h-16 opacity-90 bg-gradient-to-r ${verticalMeta.accent}`}
+                            />
+                          )}
+                          <div className="absolute left-4 bottom-4 flex items-center gap-2 text-white drop-shadow-md">
+                            {TypeIcon && <TypeIcon className="h-5 w-5" />}
+                            <span className="text-sm font-medium capitalize">{card.type}</span>
+                          </div>
+                        </div>
+                        <div className="space-y-3 p-4">
+                          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                            <div className="flex items-center gap-1 rounded-full border px-3 py-1">
+                              {verticalMeta && <verticalMeta.icon className="h-4 w-4" />}
+                              <span className="capitalize">{card.vertical.replace("-", " ")}</span>
+                            </div>
+                            <span className="text-border">•</span>
+                            <span className="rounded-full bg-muted px-3 py-1 capitalize">{card.type}</span>
+                          </div>
+                          <h3 className="text-xl font-semibold leading-tight">{card.title}</h3>
+                          <p className="text-sm text-muted-foreground leading-relaxed">{card.blurb}</p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Header */}
         <div className="text-center mb-10">
           <div className="flex items-center justify-center gap-3 mb-4">
             <BookOpen className="h-10 w-10 text-primary" />
-            <h1 className="text-4xl md:text-5xl font-bold">Knowledge Base</h1>
+            <h2 className="text-3xl md:text-4xl font-bold">Dig deeper</h2>
           </div>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             The definitive curated library for biohackers. Books, research, white papers, and expert insights across all
