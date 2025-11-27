@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Target, Trophy, BarChart3, Layers, Gamepad2, LineChart } from "lucide-react"
+import { IslandRidge, TriadBasins } from "@/components/patterns"
 
 const features = [
   {
@@ -36,8 +37,22 @@ const features = [
 
 export function LandingFeatures() {
   return (
-    <section id="features" className="py-20 px-4">
-      <div className="container mx-auto max-w-7xl">
+    <section id="features" className="relative overflow-hidden py-20 px-4">
+      <TriadBasins
+        placement="corner"
+        gradient="acidLime"
+        size="360px"
+        className="-left-10 top-0"
+        opacity={0.22}
+      />
+      <IslandRidge
+        placement="corner"
+        gradient="magma"
+        size="420px"
+        className="-right-10 bottom-0 rotate-6"
+        opacity={0.2}
+      />
+      <div className="container relative z-10 mx-auto max-w-7xl">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Everything You Need to Optimize</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
