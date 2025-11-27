@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Textarea } from "@/components/ui/textarea"
+import { TopographicBackground } from "@/components/topographic-background"
 import {
   Brain,
   Heart,
@@ -333,6 +334,7 @@ export function ContentProfilePage({ id }: { id: string }) {
 
   return (
     <main className="min-h-screen topo-pattern">
+      <TopographicBackground />
       <LandingNav />
 
       <div className="container mx-auto max-w-6xl px-4 py-8">
