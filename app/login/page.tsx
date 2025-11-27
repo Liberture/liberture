@@ -1,0 +1,25 @@
+import { LoginForm } from "@/components/login-form"
+import { AuthProvider } from "@/lib/auth-context"
+import Link from "next/link"
+import { ArrowLeft } from "lucide-react"
+
+export default function LoginPage() {
+  return (
+    <AuthProvider>
+      <main className="min-h-screen topo-pattern flex flex-col">
+        <nav className="p-4">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to home
+          </Link>
+        </nav>
+        <div className="flex-1 flex items-center justify-center p-4">
+          <LoginForm />
+        </div>
+      </main>
+    </AuthProvider>
+  )
+}
