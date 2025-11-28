@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Zap } from "lucide-react"
-import { FoldedDrift, RippleBloom } from "./patterns"
+import { FoldedDrift, RippleBloom } from "@/components/patterns"
 import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
 import { translations } from "@/lib/translations"
 
