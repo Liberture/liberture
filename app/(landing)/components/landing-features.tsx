@@ -1,7 +1,7 @@
-import { Card, CardContent } from "@/components/ui/card"
 import { Target, Trophy, BarChart3, Layers, Gamepad2, LineChart } from "lucide-react"
 import { IslandRidge, TriadBasins } from "./patterns"
 import { translations } from "@/lib/translations"
+import { IconCardGrid } from "./icon-card-grid"
 
 const featureIcons = {
   "Six Optimization Pillars": Layers,
@@ -14,6 +14,19 @@ const featureIcons = {
 
 export function LandingFeatures() {
   const { features } = translations.en.landing
+  const featureItems = features.items.map((feature) => {
+    const iconKey = feature.title as keyof typeof featureIcons
+    const Icon = featureIcons[iconKey] ?? Layers
+
+    return {
+      title: feature.title,
+      description: feature.description,
+      icon: Icon,
+      iconClassName: "text-primary",
+      iconWrapperClassName: "h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4",
+      cardClassName: "backdrop-blur-sm border-border/50 hover:border-border",
+    }
+  })
   return (
     <section id="features" className="relative overflow-hidden py-20 px-4">
       <TriadBasins
@@ -36,26 +49,11 @@ export function LandingFeatures() {
           <p className="text-muted-foreground max-w-2xl mx-auto">{features.description}</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.items.map((feature) => {
-            const iconKey = feature.title as keyof typeof featureIcons
-            const Icon = featureIcons[iconKey] ?? Layers
-            return (
-              <Card
-                key={feature.title}
-                className="bg-card/50 backdrop-blur-sm border-border/50 hover:border-border transition-colors"
-              >
-                <CardContent className="p-6">
-                  <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                    <Icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-muted-foreground text-sm">{feature.description}</p>
-                </CardContent>
-              </Card>
-            )
-          })}
-        </div>
+        <IconCardGrid
+          items={featureItems}
+          gridClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          defaultCardClassName="transition-colors"
+        />
       </div>
     </section>
   )
