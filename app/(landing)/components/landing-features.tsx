@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Target, Trophy, BarChart3, Layers, Gamepad2, LineChart } from "lucide-react"
-import { IslandRidge, TriadBasins } from "@/components/patterns"
+import { IslandRidge, TriadBasins } from "./patterns"
 import { translations } from "@/lib/translations"
 
 const featureIcons = {
