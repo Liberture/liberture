@@ -1,5 +1,5 @@
 import { Target, Trophy, BarChart3, Layers, Gamepad2, LineChart } from "lucide-react"
-import { IslandRidge, TriadBasins } from "./patterns"
+import { IslandRidge, TriadBasins } from "@/components/patterns"
 import { translations } from "@/lib/translations"
 import { IconCardGrid } from "./icon-card-grid"
 import { LandingSection, LandingSectionHeader } from "./landing-section"
