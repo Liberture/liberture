@@ -1,0 +1,91 @@
+{
+  "items": [
+    {
+      "id": "1",
+      "title": "Flow State Activation Protocol",
+      "description": "A comprehensive 21-day program designed to help you reliably access deep focus and flow states on demand. Based on the latest neuroscience research on attention, motivation, and cognitive performance.",
+      "pillar": "cognition",
+      "type": "Premium Protocol",
+      "author": { "name": "Dr. Andrew Huberman", "isInfluencer": true, "avatarUrl": "/andrew-huberman-portrait.jpg" },
+      "price": 79,
+      "duration": "21 days",
+      "userRating": 4.9,
+      "reviewCount": 234,
+      "relevanceScore": 94,
+      "efficacyRating": 87,
+      "efficacyDescription": "87% of users reported improved focus duration after completing this protocol",
+      "impactDistribution": { "cognition": 95, "recovery": 30, "fueling": 15, "mental": 70, "physicality": 10, "finance": 5 },
+      "tags": ["Focus", "Dopamine", "Neuroplasticity", "Attention", "Productivity"],
+      "references": [
+        { "title": "Attention and Self-Regulation", "author": "Posner & Rothbart", "year": 2007, "type": "Academic Paper" },
+        { "title": "Flow: The Psychology of Optimal Experience", "author": "Mihaly Csikszentmihalyi", "year": 1990, "type": "Book" }
+      ],
+      "relatedProtocols": [
+        { "id": "2", "title": "Beginner Nootropic Stack Guide", "pillar": "cognition" },
+        { "id": "11", "title": "Stress Resilience Protocol", "pillar": "mental" }
+      ],
+      "similarContent": [
+        { "id": "3", "title": "Speed Reading Neural Trainer", "pillar": "cognition", "type": "Interactive" },
+        { "id": "10", "title": "HRV Biofeedback Training Game", "pillar": "mental", "type": "Interactive" }
+      ]
+    },
+    {
+      "id": "4",
+      "title": "Sleep Architecture Masterclass",
+      "description": "A complete video course on optimizing every stage of your sleep cycle. Learn the science behind deep sleep, REM, and how to hack your circadian rhythm for peak recovery and cognitive performance.",
+      "pillar": "recovery",
+      "type": "Video Course",
+      "author": { "name": "Prof. Matthew Walker", "isInfluencer": true, "avatarUrl": "/matthew-walker-professor.jpg" },
+      "price": 149,
+      "duration": "8 hours",
+      "userRating": 4.9,
+      "reviewCount": 1247,
+      "relevanceScore": 98,
+      "efficacyRating": 92,
+      "efficacyDescription": "92% of users reported improved sleep quality within 2 weeks",
+      "impactDistribution": { "cognition": 60, "recovery": 98, "fueling": 20, "mental": 75, "physicality": 40, "finance": 5 },
+      "tags": ["Sleep", "Circadian Rhythm", "Deep Sleep", "REM", "Melatonin"],
+      "references": [
+        { "title": "Why We Sleep", "author": "Matthew Walker", "year": 2017, "type": "Book" },
+        { "title": "Sleep, Work, and Normal Aging", "author": "Scullin & Bliwise", "year": 2015, "type": "Academic Paper" }
+      ],
+      "relatedProtocols": [
+        { "id": "5", "title": "Cold Exposure Sleep Protocol", "pillar": "recovery" },
+        { "id": "6", "title": "1:1 Sleep Optimization Coaching", "pillar": "recovery" }
+      ],
+      "similarContent": [
+        { "id": "5", "title": "Cold Exposure Sleep Protocol", "pillar": "recovery", "type": "Open Source" },
+        { "id": "11", "title": "Stress Resilience Protocol", "pillar": "mental", "type": "Premium" }
+      ]
+    },
+    {
+      "id": "16",
+      "title": "Financial Independence Blueprint",
+      "description": "A complete roadmap to achieving financial independence through strategic investing, tax optimization, and lifestyle design. Learn the FIRE principles from one of the movement's pioneers.",
+      "pillar": "finance",
+      "type": "Premium Protocol",
+      "author": { "name": "Mr. Money Mustache", "isInfluencer": true, "avatarUrl": "/mr-money-mustache-blogger.jpg" },
+      "price": 99,
+      "duration": "Self-paced",
+      "userRating": 4.9,
+      "reviewCount": 1892,
+      "relevanceScore": 96,
+      "efficacyRating": 84,
+      "efficacyDescription": "84% of users increased their savings rate by at least 10% within 3 months",
+      "impactDistribution": { "cognition": 20, "recovery": 15, "fueling": 10, "mental": 60, "physicality": 5, "finance": 98 },
+      "tags": ["FIRE", "Investing", "Savings", "Financial Freedom", "Compound Growth"],
+      "references": [
+        { "title": "The Simple Path to Wealth", "author": "JL Collins", "year": 2016, "type": "Book" },
+        { "title": "Your Money or Your Life", "author": "Vicki Robin", "year": 1992, "type": "Book" }
+      ],
+      "relatedProtocols": [
+        { "id": "17", "title": "Wealth Building Fundamentals", "pillar": "finance" },
+        { "id": "18", "title": "1:1 Financial Optimization Coaching", "pillar": "finance" }
+      ],
+      "similarContent": [
+        { "id": "19", "title": "Passive Income Simulator", "pillar": "finance", "type": "Interactive" },
+        { "id": "20", "title": "Crypto & DeFi Safety Guide", "pillar": "finance", "type": "Open Source" }
+      ]
+    }
+  ]
+}

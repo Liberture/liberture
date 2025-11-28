@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -80,298 +80,52 @@ const contentTypes = [
   })),
 ]
 
-const marketplaceItems = [
-  // Work
-  {
-    id: 1,
-    title: "Flow State Activation Protocol",
-    description: "A 21-day program to reliably access deep focus and flow states on demand.",
-    pillar: "cognition" as const,
-    type: "premium" as const,
-    author: "Dr. Andrew Huberman",
-    rating: 4.9,
-    reviews: 234,
-    price: 79,
-    duration: "21 days",
-    color: "bg-cognition/10 border-cognition/30 hover:border-cognition/50",
-    iconColor: "text-cognition",
-  },
-  {
-    id: 2,
-    title: "Beginner Nootropic Stack Guide",
-    description: "Community-vetted introduction to cognitive enhancement supplements.",
-    pillar: "cognition" as const,
-    type: "opensource" as const,
-    author: "Liberture Community",
-    rating: 4.6,
-    reviews: 892,
-    price: 0,
-    duration: "Self-paced",
-    color: "bg-cognition/10 border-cognition/30 hover:border-cognition/50",
-    iconColor: "text-cognition",
-  },
-  {
-    id: 3,
-    title: "Speed Reading Neural Trainer",
-    description: "Interactive game to increase reading speed while maintaining comprehension.",
-    pillar: "cognition" as const,
-    type: "interactive" as const,
-    author: "Liberture Labs",
-    rating: 4.7,
-    reviews: 156,
-    price: 0,
-    duration: "10 min/day",
-    color: "bg-cognition/10 border-cognition/30 hover:border-cognition/50",
-    iconColor: "text-cognition",
-  },
-  // Sleep
-  {
-    id: 4,
-    title: "Sleep Architecture Masterclass",
-    description: "Complete video course on optimizing every stage of your sleep cycle.",
-    pillar: "recovery" as const,
-    type: "video" as const,
-    author: "Prof. Matthew Walker",
-    rating: 4.9,
-    reviews: 1247,
-    price: 149,
-    duration: "8 hours",
-    color: "bg-recovery/10 border-recovery/30 hover:border-recovery/50",
-    iconColor: "text-recovery",
-  },
-  {
-    id: 5,
-    title: "Cold Exposure Sleep Protocol",
-    description: "Step-by-step guide to implementing cold therapy for faster recovery.",
-    pillar: "recovery" as const,
-    type: "opensource" as const,
-    author: "Wim Hof Method Community",
-    rating: 4.5,
-    reviews: 567,
-    price: 0,
-    duration: "4 weeks",
-    color: "bg-recovery/10 border-recovery/30 hover:border-recovery/50",
-    iconColor: "text-recovery",
-  },
-  {
-    id: 6,
-    title: "1:1 Sleep Optimization Coaching",
-    description: "Personal consultation with a certified sleep specialist.",
-    pillar: "recovery" as const,
-    type: "coaching" as const,
-    author: "Dr. Rebecca Chen, PhD",
-    rating: 5.0,
-    reviews: 89,
-    price: 199,
-    duration: "60 min session",
-    color: "bg-recovery/10 border-recovery/30 hover:border-recovery/50",
-    iconColor: "text-recovery",
-  },
-  // Nutrition
-  {
-    id: 7,
-    title: "7-Day Ketogenic Induction Protocol",
-    description: "Comprehensive guide to transitioning into nutritional ketosis safely.",
-    pillar: "fueling" as const,
-    type: "premium" as const,
-    author: "Dr. Dom D'Agostino",
-    rating: 4.8,
-    reviews: 423,
-    price: 49,
-    duration: "7 days",
-    color: "bg-fueling/10 border-fueling/30 hover:border-fueling/50",
-    iconColor: "text-fueling",
-  },
-  {
-    id: 8,
-    title: "The Metabolic Flexibility Bible",
-    description: "Deep dive into metabolic switching and fuel utilization optimization.",
-    pillar: "fueling" as const,
-    type: "books" as const,
-    author: "Dr. Peter Attia",
-    rating: 4.7,
-    reviews: 312,
-    price: 29,
-    duration: "350 pages",
-    color: "bg-fueling/10 border-fueling/30 hover:border-fueling/50",
-    iconColor: "text-fueling",
-  },
-  {
-    id: 9,
-    title: "History of Fasting Practices",
-    description: "Academic exploration of fasting from ancient traditions to modern science.",
-    pillar: "fueling" as const,
-    type: "references" as const,
-    author: "Dr. Jason Fung",
-    rating: 4.4,
-    reviews: 178,
-    price: 0,
-    duration: "Research paper",
-    color: "bg-fueling/10 border-fueling/30 hover:border-fueling/50",
-    iconColor: "text-fueling",
-  },
-  // Mind
-  {
-    id: 10,
-    title: "HRV Biofeedback Training Game",
-    description: "Real-time heart rate variability training through gamified exercises.",
-    pillar: "mental" as const,
-    type: "interactive" as const,
-    author: "HeartMath Institute",
-    rating: 4.8,
-    reviews: 234,
-    price: 0,
-    duration: "15 min/day",
-    color: "bg-mental/10 border-mental/30 hover:border-mental/50",
-    iconColor: "text-mental",
-  },
-  {
-    id: 11,
-    title: "Stress Resilience Protocol",
-    description: "30-day program to build psychological resilience and stress tolerance.",
-    pillar: "mental" as const,
-    type: "premium" as const,
-    author: "Dr. Kelly McGonigal",
-    rating: 4.7,
-    reviews: 567,
-    price: 89,
-    duration: "30 days",
-    color: "bg-mental/10 border-mental/30 hover:border-mental/50",
-    iconColor: "text-mental",
-  },
-  {
-    id: 12,
-    title: "Performance Psychology Coaching",
-    description: "Group sessions on mental performance with elite sports psychologist.",
-    pillar: "mental" as const,
-    type: "coaching" as const,
-    author: "Dr. Michael Gervais",
-    rating: 4.9,
-    reviews: 145,
-    price: 79,
-    duration: "90 min group",
-    color: "bg-mental/10 border-mental/30 hover:border-mental/50",
-    iconColor: "text-mental",
-  },
-  // Exercise
-  {
-    id: 13,
-    title: "Strength Periodization Masterplan",
-    description: "12-week progressive overload program for maximum strength gains.",
-    pillar: "physicality" as const,
-    type: "premium" as const,
-    author: "Dr. Andy Galpin",
-    rating: 4.9,
-    reviews: 892,
-    price: 99,
-    duration: "12 weeks",
-    color: "bg-physicality/10 border-physicality/30 hover:border-physicality/50",
-    iconColor: "text-physicality",
-  },
-  {
-    id: 14,
-    title: "Mobility & Movement Library",
-    description: "Over 200 video tutorials for joint mobility and movement quality.",
-    pillar: "physicality" as const,
-    type: "video" as const,
-    author: "Dr. Kelly Starrett",
-    rating: 4.8,
-    reviews: 1567,
-    price: 119,
-    duration: "200+ videos",
-    color: "bg-physicality/10 border-physicality/30 hover:border-physicality/50",
-    iconColor: "text-physicality",
-  },
-  {
-    id: 15,
-    title: "Beginner Calisthenics Routine",
-    description: "Community-built bodyweight training progression for beginners.",
-    pillar: "physicality" as const,
-    type: "opensource" as const,
-    author: "Reddit BWF Community",
-    rating: 4.6,
-    reviews: 2341,
-    price: 0,
-    duration: "Ongoing",
-    color: "bg-physicality/10 border-physicality/30 hover:border-physicality/50",
-    iconColor: "text-physicality",
-  },
-  {
-    id: 16,
-    title: "Financial Independence Blueprint",
-    description: "Complete roadmap to achieving FIRE through strategic investing and saving.",
-    pillar: "finance" as const,
-    type: "premium" as const,
-    author: "Mr. Money Mustache",
-    rating: 4.9,
-    reviews: 1892,
-    price: 99,
-    duration: "Self-paced",
-    color: "bg-finance/10 border-finance/30 hover:border-finance/50",
-    iconColor: "text-finance",
-  },
-  {
-    id: 17,
-    title: "Wealth Building Fundamentals",
-    description: "Essential principles of compound growth, asset allocation, and tax optimization.",
-    pillar: "finance" as const,
-    type: "books" as const,
-    author: "Morgan Housel",
-    rating: 4.8,
-    reviews: 2341,
-    price: 24,
-    duration: "280 pages",
-    color: "bg-finance/10 border-finance/30 hover:border-finance/50",
-    iconColor: "text-finance",
-  },
-  {
-    id: 18,
-    title: "1:1 Financial Optimization Coaching",
-    description: "Personal consultation with a certified financial planner for biohackers.",
-    pillar: "finance" as const,
-    type: "coaching" as const,
-    author: "Ramit Sethi Team",
-    rating: 4.9,
-    reviews: 456,
-    price: 299,
-    duration: "90 min session",
-    color: "bg-finance/10 border-finance/30 hover:border-finance/50",
-    iconColor: "text-finance",
-  },
-  {
-    id: 19,
-    title: "Passive Income Simulator",
-    description: "Interactive game to model wealth accumulation strategies and outcomes.",
-    pillar: "finance" as const,
-    type: "interactive" as const,
-    author: "Liberture Labs",
-    rating: 4.6,
-    reviews: 234,
-    price: 0,
-    duration: "Unlimited",
-    color: "bg-finance/10 border-finance/30 hover:border-finance/50",
-    iconColor: "text-finance",
-  },
-  {
-    id: 20,
-    title: "Crypto & DeFi Safety Guide",
-    description: "Community-vetted introduction to secure cryptocurrency investing.",
-    pillar: "finance" as const,
-    type: "opensource" as const,
-    author: "Liberture Community",
-    rating: 4.4,
-    reviews: 567,
-    price: 0,
-    duration: "Self-paced",
-    color: "bg-finance/10 border-finance/30 hover:border-finance/50",
-    iconColor: "text-finance",
-  },
-]
+interface MarketplaceItem {
+  id: number
+  title: string
+  description: string
+  pillar: PillarId
+  type: MarketplaceTypeId
+  author: string
+  rating: number
+  reviews: number
+  price: number
+  duration: string
+  color: string
+  iconColor: string
+}
+
+
 
 export function MarketplaceContent() {
+  const [marketplaceItems, setMarketplaceItems] = useState<MarketplaceItem[]>([])
   const [selectedPillar, setSelectedPillar] = useState<Pillar>("all")
   const [selectedType, setSelectedType] = useState<ContentType>("all")
   const [searchQuery, setSearchQuery] = useState("")
+
+  useEffect(() => {
+    let isMounted = true
+
+    const loadItems = async () => {
+      try {
+        const response = await fetch("/api/marketplace")
+        if (!response.ok) return
+
+        const data: MarketplaceItem[] = await response.json()
+        if (isMounted) {
+          setMarketplaceItems(data)
+        }
+      } catch (error) {
+        console.error("Failed to load marketplace items", error)
+      }
+    }
+
+    loadItems()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   const filteredItems = marketplaceItems.filter((item) => {
     const matchesPillar = selectedPillar === "all" || item.pillar === selectedPillar
