@@ -81,7 +81,7 @@ const contentTypes = [
 ]
 
 const marketplaceItems = [
-  // Cognition
+  // Work
   {
     id: 1,
     title: "Flow State Activation Protocol",
@@ -124,7 +124,7 @@ const marketplaceItems = [
     color: "bg-cognition/10 border-cognition/30 hover:border-cognition/50",
     iconColor: "text-cognition",
   },
-  // Recovery
+  // Sleep
   {
     id: 4,
     title: "Sleep Architecture Masterclass",
@@ -141,7 +141,7 @@ const marketplaceItems = [
   },
   {
     id: 5,
-    title: "Cold Exposure Recovery Protocol",
+    title: "Cold Exposure Sleep Protocol",
     description: "Step-by-step guide to implementing cold therapy for faster recovery.",
     pillar: "recovery" as const,
     type: "opensource" as const,
@@ -167,7 +167,7 @@ const marketplaceItems = [
     color: "bg-recovery/10 border-recovery/30 hover:border-recovery/50",
     iconColor: "text-recovery",
   },
-  // Fueling
+  // Nutrition
   {
     id: 7,
     title: "7-Day Ketogenic Induction Protocol",
@@ -210,7 +210,7 @@ const marketplaceItems = [
     color: "bg-fueling/10 border-fueling/30 hover:border-fueling/50",
     iconColor: "text-fueling",
   },
-  // Mental State
+  // Mind
   {
     id: 10,
     title: "HRV Biofeedback Training Game",
@@ -253,7 +253,7 @@ const marketplaceItems = [
     color: "bg-mental/10 border-mental/30 hover:border-mental/50",
     iconColor: "text-mental",
   },
-  // Physicality
+  // Exercise
   {
     id: 13,
     title: "Strength Periodization Masterplan",

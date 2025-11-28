@@ -3,7 +3,7 @@ import { Brain, Moon, Flame, Heart, Dumbbell, Wallet } from "lucide-react"
 
 const pillars = [
   {
-    name: "Cognition",
+    name: "Work",
     icon: Brain,
     score: 78,
     trend: "+5",
@@ -12,16 +12,16 @@ const pillars = [
     metrics: ["Focus: 82%", "Memory: 74%", "Processing: 78%"],
   },
   {
-    name: "Recovery",
+    name: "Sleep",
     icon: Moon,
     score: 85,
     trend: "+3",
     color: "cyan",
     description: "Sleep & Restoration",
-    metrics: ["Sleep: 7.5h", "HRV: 65ms", "Recovery: 88%"],
+    metrics: ["Sleep: 7.5h", "HRV: 65ms", "Sleep: 88%"],
   },
   {
-    name: "Fueling",
+    name: "Nutrition",
     icon: Flame,
     score: 72,
     trend: "-2",
@@ -30,7 +30,7 @@ const pillars = [
     metrics: ["Calories: 2100", "Protein: 145g", "Hydration: 85%"],
   },
   {
-    name: "Mental State",
+    name: "Mind",
     icon: Heart,
     score: 81,
     trend: "+7",
@@ -39,7 +39,7 @@ const pillars = [
     metrics: ["Mood: Balanced", "Stress: Low", "Mindfulness: 20m"],
   },
   {
-    name: "Physicality",
+    name: "Exercise",
     icon: Dumbbell,
     score: 68,
     trend: "+1",
