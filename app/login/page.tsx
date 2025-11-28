@@ -1,4 +1,4 @@
-import { LoginForm } from "./components/login-form"
+import { LoginForm } from "./login-form"
 import { AuthProvider } from "@/lib/auth-context"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
