@@ -1,6 +1,6 @@
 import Link from "next/link"
 
-import { MicroterrainRidge } from "@/components/patterns"
+import { MicroterrainRidge } from "@/app/(landing)/components/patterns"
 import { translations } from "@/lib/translations"
 
 export function LandingFooter() {
