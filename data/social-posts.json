@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "platform": "twitter",
+    "author": "@biohacker_mike",
+    "avatar": "/mike-avatar.jpg",
+    "content": "Just finished week 2 of the Flow State Protocol. The morning routine changes alone have been game-changing for my focus! 🧠",
+    "likes": 234,
+    "time": "2h ago",
+    "sentiment": "positive"
+  },
+  {
+    "id": 2,
+    "platform": "youtube",
+    "author": "OptimizeLife",
+    "avatar": "/optimize-life-avatar.jpg",
+    "content": "Great breakdown of the science behind this protocol. The dopamine scheduling aspect is particularly well-researched.",
+    "likes": 89,
+    "time": "1d ago",
+    "sentiment": "positive"
+  },
+  {
+    "id": 3,
+    "platform": "reddit",
+    "author": "u/neurohacker42",
+    "avatar": "/reddit-avatar.jpg",
+    "content": "Has anyone combined this with their existing nootropic stack? Wondering about potential interactions with racetams.",
+    "likes": 45,
+    "time": "3d ago",
+    "sentiment": "neutral"
+  },
+  {
+    "id": 4,
+    "platform": "twitter",
+    "author": "@focus_coach",
+    "avatar": "/coach-avatar.png",
+    "content": "I've recommended this to several clients. The results have been consistently positive, especially for knowledge workers.",
+    "likes": 156,
+    "time": "5d ago",
+    "sentiment": "positive"
+  },
+  {
+    "id": 5,
+    "platform": "reddit",
+    "author": "u/skeptical_scientist",
+    "avatar": "/scientist-avatar.png",
+    "content": "The claims about 'reliably accessing flow states' seem overstated. Flow is complex and context-dependent. That said, the habits here are solid.",
+    "likes": 78,
+    "time": "1w ago",
+    "sentiment": "critical"
+  }
+]
