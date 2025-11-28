@@ -2,14 +2,12 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { LandingNav } from "@/components/landing-nav"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Textarea } from "@/components/ui/textarea"
-import { TopographicBackground } from "@/components/topographic-background"
 import {
   Brain,
   Heart,
@@ -205,22 +203,14 @@ export function ContentProfilePage({ id }: { id: string }) {
 
   if (!content || !pillar) {
     return (
-      <main className="min-h-screen topo-pattern">
-        <TopographicBackground />
-        <LandingNav />
-        <div className="container mx-auto max-w-6xl px-4 py-8">
-          <p className="text-center text-muted-foreground">{isLoading ? "Loading content..." : "Content not found."}</p>
-        </div>
-      </main>
+      <div className="container mx-auto max-w-6xl px-4 py-8">
+        <p className="text-center text-muted-foreground">{isLoading ? "Loading content..." : "Content not found."}</p>
+      </div>
     )
   }
 
   return (
-    <main className="min-h-screen topo-pattern">
-      <TopographicBackground />
-      <LandingNav />
-
-      <div className="container mx-auto max-w-6xl px-4 py-8">
+    <div className="container mx-auto max-w-6xl px-4 py-8">
         {/* Back Button */}
         <Link
           href="/marketplace"
