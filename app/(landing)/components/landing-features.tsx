@@ -2,6 +2,7 @@ import { Target, Trophy, BarChart3, Layers, Gamepad2, LineChart } from "lucide-r
 import { IslandRidge, TriadBasins } from "./patterns"
 import { translations } from "@/lib/translations"
 import { IconCardGrid } from "./icon-card-grid"
+import { LandingSection, LandingSectionHeader } from "./landing-section"
 
 const featureIcons = {
   "Six Optimization Pillars": Layers,
@@ -28,7 +29,7 @@ export function LandingFeatures() {
     }
   })
   return (
-    <section id="features" className="relative overflow-hidden py-20 px-4">
+    <LandingSection id="features" className="relative overflow-hidden" withContainer={false}>
       <TriadBasins
         placement="corner"
         gradient="acidLime"
@@ -44,10 +45,7 @@ export function LandingFeatures() {
         opacity={0.2}
       />
       <div className="container relative z-10 mx-auto max-w-7xl">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">{features.heading}</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">{features.description}</p>
-        </div>
+        <LandingSectionHeader heading={features.heading} description={features.description} />
 
         <IconCardGrid
           items={featureItems}
@@ -55,6 +53,6 @@ export function LandingFeatures() {
           defaultCardClassName="transition-colors"
         />
       </div>
-    </section>
+    </LandingSection>
   )
 }
