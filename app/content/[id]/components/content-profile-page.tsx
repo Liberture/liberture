@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { LandingNav } from "@/components/landing-nav"
 import { Button } from "@/components/ui/button"
@@ -43,35 +43,35 @@ const pillarConfig = {
     color: "text-cognition",
     bgColor: "bg-cognition/10",
     borderColor: "border-cognition/30",
-    name: "Cognition",
+    name: "Work",
   },
   recovery: {
     icon: Heart,
     color: "text-recovery",
     bgColor: "bg-recovery/10",
     borderColor: "border-recovery/30",
-    name: "Recovery",
+    name: "Sleep",
   },
   fueling: {
     icon: Leaf,
     color: "text-fueling",
     bgColor: "bg-fueling/10",
     borderColor: "border-fueling/30",
-    name: "Fueling",
+    name: "Nutrition",
   },
   mental: {
     icon: Zap,
     color: "text-mental",
     bgColor: "bg-mental/10",
     borderColor: "border-mental/30",
-    name: "Mental State",
+    name: "Mind",
   },
   physicality: {
     icon: Dumbbell,
     color: "text-physicality",
     bgColor: "bg-physicality/10",
     borderColor: "border-physicality/30",
-    name: "Physicality",
+    name: "Exercise",
   },
   finance: {
     icon: Wallet,
@@ -83,216 +83,6 @@ const pillarConfig = {
 }
 
 const pillarOrder = ["cognition", "recovery", "fueling", "mental", "physicality", "finance"] as const
-
-// Demo content data
-const contentDatabase: Record<string, ContentItem> = {
-  "1": {
-    id: "1",
-    title: "Flow State Activation Protocol",
-    description:
-      "A comprehensive 21-day program designed to help you reliably access deep focus and flow states on demand. Based on the latest neuroscience research on attention, motivation, and cognitive performance.",
-    pillar: "cognition",
-    type: "Premium Protocol",
-    author: { name: "Dr. Andrew Huberman", isInfluencer: true, avatarUrl: "/andrew-huberman-portrait.jpg" },
-    price: 79,
-    duration: "21 days",
-    userRating: 4.9,
-    reviewCount: 234,
-    relevanceScore: 94,
-    efficacyRating: 87,
-    efficacyDescription: "87% of users reported improved focus duration after completing this protocol",
-    impactDistribution: { cognition: 95, recovery: 30, fueling: 15, mental: 70, physicality: 10, finance: 5 },
-    tags: ["Focus", "Dopamine", "Neuroplasticity", "Attention", "Productivity"],
-    references: [
-      { title: "Attention and Self-Regulation", author: "Posner & Rothbart", year: 2007, type: "Academic Paper" },
-      {
-        title: "Flow: The Psychology of Optimal Experience",
-        author: "Mihaly Csikszentmihalyi",
-        year: 1990,
-        type: "Book",
-      },
-    ],
-    relatedProtocols: [
-      { id: "2", title: "Beginner Nootropic Stack Guide", pillar: "cognition" },
-      { id: "11", title: "Stress Resilience Protocol", pillar: "mental" },
-    ],
-    similarContent: [
-      { id: "3", title: "Speed Reading Neural Trainer", pillar: "cognition", type: "Interactive" },
-      { id: "10", title: "HRV Biofeedback Training Game", pillar: "mental", type: "Interactive" },
-    ],
-  },
-  "4": {
-    id: "4",
-    title: "Sleep Architecture Masterclass",
-    description:
-      "A complete video course on optimizing every stage of your sleep cycle. Learn the science behind deep sleep, REM, and how to hack your circadian rhythm for peak recovery and cognitive performance.",
-    pillar: "recovery",
-    type: "Video Course",
-    author: { name: "Prof. Matthew Walker", isInfluencer: true, avatarUrl: "/matthew-walker-professor.jpg" },
-    price: 149,
-    duration: "8 hours",
-    userRating: 4.9,
-    reviewCount: 1247,
-    relevanceScore: 98,
-    efficacyRating: 92,
-    efficacyDescription: "92% of users reported improved sleep quality within 2 weeks",
-    impactDistribution: { cognition: 60, recovery: 98, fueling: 20, mental: 75, physicality: 40, finance: 5 },
-    tags: ["Sleep", "Circadian Rhythm", "Deep Sleep", "REM", "Melatonin"],
-    references: [
-      { title: "Why We Sleep", author: "Matthew Walker", year: 2017, type: "Book" },
-      { title: "Sleep, Cognition, and Normal Aging", author: "Scullin & Bliwise", year: 2015, type: "Academic Paper" },
-    ],
-    relatedProtocols: [
-      { id: "5", title: "Cold Exposure Recovery Protocol", pillar: "recovery" },
-      { id: "6", title: "1:1 Sleep Optimization Coaching", pillar: "recovery" },
-    ],
-    similarContent: [
-      { id: "5", title: "Cold Exposure Recovery Protocol", pillar: "recovery", type: "Open Source" },
-      { id: "11", title: "Stress Resilience Protocol", pillar: "mental", type: "Premium" },
-    ],
-  },
-  "16": {
-    id: "16",
-    title: "Financial Independence Blueprint",
-    description:
-      "A complete roadmap to achieving financial independence through strategic investing, tax optimization, and lifestyle design. Learn the FIRE principles from one of the movement's pioneers.",
-    pillar: "finance",
-    type: "Premium Protocol",
-    author: { name: "Mr. Money Mustache", isInfluencer: true, avatarUrl: "/mr-money-mustache-blogger.jpg" },
-    price: 99,
-    duration: "Self-paced",
-    userRating: 4.9,
-    reviewCount: 1892,
-    relevanceScore: 96,
-    efficacyRating: 84,
-    efficacyDescription: "84% of users increased their savings rate by at least 10% within 3 months",
-    impactDistribution: { cognition: 20, recovery: 15, fueling: 10, mental: 60, physicality: 5, finance: 98 },
-    tags: ["FIRE", "Investing", "Savings", "Financial Freedom", "Compound Growth"],
-    references: [
-      { title: "The Simple Path to Wealth", author: "JL Collins", year: 2016, type: "Book" },
-      { title: "Your Money or Your Life", author: "Vicki Robin", year: 1992, type: "Book" },
-    ],
-    relatedProtocols: [
-      { id: "17", title: "Wealth Building Fundamentals", pillar: "finance" },
-      { id: "18", title: "1:1 Financial Optimization Coaching", pillar: "finance" },
-    ],
-    similarContent: [
-      { id: "19", title: "Passive Income Simulator", pillar: "finance", type: "Interactive" },
-      { id: "20", title: "Crypto & DeFi Safety Guide", pillar: "finance", type: "Open Source" },
-    ],
-  },
-}
-
-// Social wall demo posts
-const socialPosts = [
-  {
-    id: 1,
-    platform: "twitter",
-    author: "@biohacker_mike",
-    avatar: "/mike-avatar.jpg",
-    content:
-      "Just finished week 2 of the Flow State Protocol. The morning routine changes alone have been game-changing for my focus! 🧠",
-    likes: 234,
-    time: "2h ago",
-    sentiment: "positive",
-  },
-  {
-    id: 2,
-    platform: "youtube",
-    author: "OptimizeLife",
-    avatar: "/optimize-life-avatar.jpg",
-    content:
-      "Great breakdown of the science behind this protocol. The dopamine scheduling aspect is particularly well-researched.",
-    likes: 89,
-    time: "1d ago",
-    sentiment: "positive",
-  },
-  {
-    id: 3,
-    platform: "reddit",
-    author: "u/neurohacker42",
-    avatar: "/reddit-avatar.jpg",
-    content:
-      "Has anyone combined this with their existing nootropic stack? Wondering about potential interactions with racetams.",
-    likes: 45,
-    time: "3d ago",
-    sentiment: "neutral",
-  },
-  {
-    id: 4,
-    platform: "twitter",
-    author: "@focus_coach",
-    avatar: "/coach-avatar.png",
-    content:
-      "I've recommended this to several clients. The results have been consistently positive, especially for knowledge workers.",
-    likes: 156,
-    time: "5d ago",
-    sentiment: "positive",
-  },
-  {
-    id: 5,
-    platform: "reddit",
-    author: "u/skeptical_scientist",
-    avatar: "/scientist-avatar.png",
-    content:
-      "The claims about 'reliably accessing flow states' seem overstated. Flow is complex and context-dependent. That said, the habits here are solid.",
-    likes: 78,
-    time: "1w ago",
-    sentiment: "critical",
-  },
-]
-
-// Platform comments demo
-const platformComments = [
-  {
-    id: 1,
-    author: "Sarah Chen",
-    bosLevel: 47,
-    avatar: "/sarah-avatar.png",
-    content:
-      "This protocol completely changed my morning routine. The key insight for me was the delayed caffeine intake - I was undermining my adenosine clearance for years!",
-    upvotes: 89,
-    replies: 12,
-    time: "2 days ago",
-    pillar: "cognition",
-  },
-  {
-    id: 2,
-    author: "Marcus Johnson",
-    bosLevel: 62,
-    avatar: "/marcus-avatar.jpg",
-    content:
-      "Week 3 check-in: The 90-minute focus blocks are challenging but effective. Pro tip - pair this with the Cold Exposure protocol for an extra dopamine boost.",
-    upvotes: 67,
-    replies: 8,
-    time: "4 days ago",
-    pillar: "recovery",
-  },
-  {
-    id: 3,
-    author: "Dr. Emily Roberts",
-    bosLevel: 78,
-    avatar: "/emily-doctor-avatar.jpg",
-    content:
-      "As a neuroscientist, I appreciate how this protocol accurately represents the underlying research. The ultradian rhythm approach is particularly well-implemented.",
-    upvotes: 156,
-    replies: 23,
-    time: "1 week ago",
-    pillar: "cognition",
-  },
-  {
-    id: 4,
-    author: "Alex Kim",
-    bosLevel: 34,
-    avatar: "/alex-avatar.png",
-    content:
-      "Struggling with day 5. The meditation component feels forced. Anyone else have tips for making it more natural?",
-    upvotes: 23,
-    replies: 15,
-    time: "1 week ago",
-    pillar: "mental",
-  },
-]
 
 const radarColors: Record<(typeof pillarOrder)[number], string> = {
   cognition: "var(--color-cognition)",
@@ -324,16 +114,86 @@ interface ContentItem {
   similarContent: { id: string; title: string; pillar: string; type: string }[]
 }
 
+interface SocialPost {
+  id: number
+  platform: string
+  author: string
+  avatar: string
+  content: string
+  likes: number
+  time: string
+  sentiment: string
+}
+
+interface PlatformComment {
+  id: number
+  author: string
+  bosLevel: number
+  avatar: string
+  content: string
+  upvotes: number
+  replies: number
+  time: string
+  pillar: keyof typeof pillarConfig
+}
+
 export function ContentProfilePage({ id }: { id: string }) {
+  const [content, setContent] = useState<ContentItem | null>(null)
   const [activeTab, setActiveTab] = useState("overview")
   const [socialFilter, setSocialFilter] = useState<"all" | "positive" | "neutral" | "critical">("all")
   const [commentSort, setCommentSort] = useState<"newest" | "helpful" | "pillar">("helpful")
   const [newComment, setNewComment] = useState("")
 
-  // Get content from demo database or use default
-  const content = contentDatabase[id] || contentDatabase["1"]
-  const pillar = pillarConfig[content.pillar]
-  const PillarIcon = pillar.icon
+  const [socialPosts, setSocialPosts] = useState<SocialPost[]>([])
+  const [platformComments, setPlatformComments] = useState<PlatformComment[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    let isMounted = true
+
+    const loadData = async () => {
+      try {
+        const [contentResponse, socialResponse, commentsResponse] = await Promise.all([
+          fetch(`/api/content/${id}`),
+          fetch(`/api/social-posts`),
+          fetch(`/api/platform-comments`),
+        ])
+
+        if (!isMounted) return
+
+        if (contentResponse.ok) {
+          setContent(await contentResponse.json())
+        } else {
+          const fallbackResponse = await fetch(`/api/content`)
+          if (fallbackResponse.ok) {
+            const fallbackContent: ContentItem[] = await fallbackResponse.json()
+            setContent(fallbackContent[0] || null)
+          }
+        }
+
+        if (socialResponse.ok) {
+          setSocialPosts(await socialResponse.json())
+        }
+
+        if (commentsResponse.ok) {
+          setPlatformComments(await commentsResponse.json())
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    loadData()
+
+    return () => {
+      isMounted = false
+    }
+  }, [id])
+
+  const pillar = content ? pillarConfig[content.pillar] : null
+  const PillarIcon = pillar ? pillar.icon : Brain
 
   const filteredSocialPosts = socialPosts.filter((post) => socialFilter === "all" || post.sentiment === socialFilter)
 
@@ -342,6 +202,18 @@ export function ContentProfilePage({ id }: { id: string }) {
     if (commentSort === "newest") return 0 // Demo: already sorted by time
     return 0
   })
+
+  if (!content || !pillar) {
+    return (
+      <main className="min-h-screen topo-pattern">
+        <TopographicBackground />
+        <LandingNav />
+        <div className="container mx-auto max-w-6xl px-4 py-8">
+          <p className="text-center text-muted-foreground">{isLoading ? "Loading content..." : "Content not found."}</p>
+        </div>
+      </main>
+    )
+  }
 
   return (
     <main className="min-h-screen topo-pattern">
@@ -374,7 +246,7 @@ export function ContentProfilePage({ id }: { id: string }) {
               <div className="flex items-center gap-4 mb-4">
                 <Link href="/knowledge" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={content.author.avatarUrl || "/placeholder.svg"} />
+                    <AvatarImage src={content.author.avatarUrl || "/examples/placeholders/placeholder.svg"} />
                     <AvatarFallback>{content.author.name.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <div>
@@ -641,7 +513,7 @@ export function ContentProfilePage({ id }: { id: string }) {
                 <CardContent>
                   <div className="flex items-start gap-4">
                     <Avatar className="h-16 w-16">
-                      <AvatarImage src={content.author.avatarUrl || "/placeholder.svg"} />
+                      <AvatarImage src={content.author.avatarUrl || "/examples/placeholders/placeholder.svg"} />
                       <AvatarFallback>{content.author.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div>
@@ -740,7 +612,7 @@ export function ContentProfilePage({ id }: { id: string }) {
                     <div key={post.id} className="p-4 rounded-xl bg-background/30 border border-border/30">
                       <div className="flex items-start gap-3">
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={post.avatar || "/placeholder.svg"} />
+                          <AvatarImage src={post.avatar || "/examples/placeholders/placeholder.svg"} />
                           <AvatarFallback>{post.author.charAt(1).toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
@@ -810,7 +682,7 @@ export function ContentProfilePage({ id }: { id: string }) {
                       <div key={comment.id} className="p-4 rounded-xl bg-background/30 border border-border/30">
                         <div className="flex items-start gap-3">
                           <Avatar className="h-10 w-10">
-                            <AvatarImage src={comment.avatar || "/placeholder.svg"} />
+                            <AvatarImage src={comment.avatar || "/examples/placeholders/placeholder.svg"} />
                             <AvatarFallback>{comment.author.charAt(0)}</AvatarFallback>
                           </Avatar>
                           <div className="flex-1">

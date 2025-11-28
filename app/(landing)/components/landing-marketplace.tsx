@@ -1,0 +1,87 @@
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Brain, Heart, Leaf, BookOpen, Video, Gamepad2, FileText, Users, Crown, ArrowRight } from "lucide-react"
+import { translations } from "@/lib/translations"
+
+type MarketplaceTypeWithCount = (typeof translations.en.common.marketplaceTypes)[number] & { count: number }
+
+const contentTypeIcons = {
+  premium: Crown,
+  opensource: FileText,
+  coaching: Users,
+  books: BookOpen,
+  video: Video,
+  interactive: Gamepad2,
+  references: FileText,
+}
+
+const pillarIcons = {
+  cognition: Brain,
+  recovery: Heart,
+  fueling: Leaf,
+}
+
+export function LandingMarketplace() {
+  const { marketplace } = translations.en.landing
+  const contentTypes: MarketplaceTypeWithCount[] = translations.en.common.marketplaceTypes.filter(
+    (type): type is MarketplaceTypeWithCount => type.count !== undefined,
+  )
+  return (
+    <section id="marketplace" className="py-20 px-4 bg-card/30">
+      <div className="container mx-auto max-w-7xl">
+        <div className="text-center mb-12">
+          <span className="text-primary text-sm font-medium uppercase tracking-wider">{marketplace.badge}</span>
+          <h2 className="text-3xl md:text-4xl font-bold mt-2 mb-4">{marketplace.heading}</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">{marketplace.description}</p>
+        </div>
+
+        {/* Content Type Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-12">
+          {contentTypes.map((type) => {
+            const Icon = contentTypeIcons[type.id] ?? FileText
+            return (
+              <div
+                key={type.id}
+                className="p-4 rounded-xl bg-card/50 border border-border/50 hover:border-primary/50 transition-colors text-center"
+              >
+                <Icon className="h-6 w-6 mx-auto mb-2 text-primary" />
+                <p className="text-sm font-medium">{type.name}</p>
+                <p className="text-xs text-muted-foreground">{type.count} items</p>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Featured Items */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+          {marketplace.featuredItems.map((item) => {
+            const Icon = pillarIcons[item.icon] ?? Brain
+            return (
+              <div
+                key={item.title}
+                className={`p-6 rounded-2xl ${item.color} border hover:scale-[1.02] transition-transform cursor-pointer`}
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <Icon className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">{item.pillar}</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-background/50">{item.type}</span>
+                </div>
+                <h3 className="font-semibold mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">by {item.author}</p>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* CTA */}
+        <div className="text-center">
+          <Link href="/marketplace">
+            <Button size="lg" variant="outline" className="gap-2 bg-transparent">
+              {marketplace.cta} <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  )
+}
