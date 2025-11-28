@@ -26,29 +26,58 @@ import {
   ArrowRight,
   GraduationCap,
 } from "lucide-react"
+import { translations } from "@/lib/translations"
+import type { MarketplaceTypeId, PillarId } from "@/lib/translations"
 
-type Pillar = "all" | "cognition" | "recovery" | "fueling" | "mental" | "physicality" | "finance"
-type ContentType = "all" | "premium" | "opensource" | "coaching" | "books" | "video" | "interactive" | "references"
+type Pillar = "all" | PillarId
+type ContentType = "all" | MarketplaceTypeId
 
+const pillarIcons = {
+  cognition: Brain,
+  recovery: Heart,
+  fueling: Leaf,
+  mental: Zap,
+  physicality: Dumbbell,
+  finance: Wallet,
+}
+
+const pillarColors = {
+  cognition: "text-cognition",
+  recovery: "text-recovery",
+  fueling: "text-fueling",
+  mental: "text-mental",
+  physicality: "text-physicality",
+  finance: "text-finance",
+}
+
+const pillarTranslations = translations.en.common.pillars
 const pillars = [
-  { id: "all" as const, name: "All Domains", icon: null },
-  { id: "cognition" as const, name: "Cognition", icon: Brain, color: "text-cognition" },
-  { id: "recovery" as const, name: "Recovery", icon: Heart, color: "text-recovery" },
-  { id: "fueling" as const, name: "Fueling", icon: Leaf, color: "text-fueling" },
-  { id: "mental" as const, name: "Mental State", icon: Zap, color: "text-mental" },
-  { id: "physicality" as const, name: "Physicality", icon: Dumbbell, color: "text-physicality" },
-  { id: "finance" as const, name: "Finance", icon: Wallet, color: "text-finance" },
+  { id: "all" as const, name: translations.en.common.filters.allDomains, icon: null, color: "text-muted-foreground" },
+  ...pillarTranslations.map((pillar) => ({
+    id: pillar.id,
+    name: pillar.name,
+    icon: pillarIcons[pillar.id],
+    color: pillarColors[pillar.id],
+  })),
 ]
 
+const contentTypeIcons = {
+  premium: Crown,
+  opensource: FileText,
+  coaching: Users,
+  books: BookOpen,
+  video: Video,
+  interactive: Gamepad2,
+  references: GraduationCap,
+}
+
 const contentTypes = [
-  { id: "all" as const, name: "All Types", icon: Filter },
-  { id: "premium" as const, name: "Premium Protocols", icon: Crown },
-  { id: "opensource" as const, name: "Open Source", icon: FileText },
-  { id: "coaching" as const, name: "Coaching Services", icon: Users },
-  { id: "books" as const, name: "Books & Text", icon: BookOpen },
-  { id: "video" as const, name: "Video & Media", icon: Video },
-  { id: "interactive" as const, name: "Interactive & Games", icon: Gamepad2 },
-  { id: "references" as const, name: "References & History", icon: GraduationCap },
+  { id: "all" as const, name: translations.en.common.filters.allTypes, icon: Filter },
+  ...translations.en.common.marketplaceTypes.map((type) => ({
+    id: type.id,
+    name: type.id === "coaching" ? "Coaching Services" : type.name,
+    icon: contentTypeIcons[type.id],
+  })),
 ]
 
 const marketplaceItems = [
