@@ -1,6 +1,6 @@
 "use client"
 
-import { CSSProperties } from "react"
+import {CSSProperties, JSX} from "react"
 
 export type GradientName = "neon" | "plasma" | "magma" | "acidLime"
 export type PatternPlacement = "full" | "cropped" | "corner"
