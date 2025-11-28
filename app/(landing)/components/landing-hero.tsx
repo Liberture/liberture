@@ -1,25 +1,9 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Zap, Brain, Heart, Leaf, Dumbbell, Wallet } from "lucide-react"
+import { ArrowRight, Zap } from "lucide-react"
 import { FoldedDrift, RippleBloom } from "./patterns"
+import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
 import { translations } from "@/lib/translations"
-
-const pillarIcons = {
-  cognition: Brain,
-  recovery: Heart,
-  fueling: Leaf,
-  mental: Zap,
-  physicality: Dumbbell,
-  finance: Wallet,
-}
-const pillarColors = {
-  cognition: "text-cognition",
-  recovery: "text-recovery",
-  fueling: "text-fueling",
-  mental: "text-mental",
-  physicality: "text-physicality",
-  finance: "text-finance",
-}
 
 export function LandingHero() {
   const { hero } = translations.en.landing
@@ -68,13 +52,13 @@ export function LandingHero() {
           {/* Pillar Icons */}
           <div className="flex items-center justify-center gap-6 md:gap-10">
             {pillars.map((pillar) => {
-              const Icon = pillarIcons[pillar.id]
+              const Icon = PILLAR_ICON_MAP[pillar.id]
               return (
                 <div key={pillar.id} className="flex flex-col items-center gap-2 group">
                   <div
                     className={`p-3 rounded-xl bg-card border border-border/50 group-hover:border-border transition-colors`}
                   >
-                    <Icon className={`h-6 w-6 ${pillarColors[pillar.id]}`} />
+                    <Icon className={`h-6 w-6 ${PILLAR_STYLES[pillar.id].text}`} />
                   </div>
                   <span className="text-xs text-muted-foreground">{pillar.name}</span>
                 </div>
