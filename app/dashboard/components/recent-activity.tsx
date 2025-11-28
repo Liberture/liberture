@@ -3,7 +3,7 @@ import { Brain, Moon, Flame, Dumbbell } from "lucide-react"
 
 const activities = [
   {
-    pillar: "Recovery",
+    pillar: "Sleep",
     icon: Moon,
     action: "Logged 7.5h sleep",
     xp: 25,
@@ -11,7 +11,7 @@ const activities = [
     color: "text-cyan-400",
   },
   {
-    pillar: "Physicality",
+    pillar: "Exercise",
     icon: Dumbbell,
     action: "Completed strength training",
     xp: 50,
@@ -19,7 +19,7 @@ const activities = [
     color: "text-orange-400",
   },
   {
-    pillar: "Cognition",
+    pillar: "Work",
     icon: Brain,
     action: "Focus session (45min)",
     xp: 35,
@@ -27,7 +27,7 @@ const activities = [
     color: "text-indigo-400",
   },
   {
-    pillar: "Fueling",
+    pillar: "Nutrition",
     icon: Flame,
     action: "Logged meals",
     xp: 15,

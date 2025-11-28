@@ -1,6 +1,6 @@
-import { KnowledgeBaseContent } from "@/components/knowledge-base-content"
 import { LandingNav } from "@/components/landing-nav"
 import { TopographicBackground } from "@/components/topographic-background"
+import { KnowledgeBaseContent } from "./components/knowledge-base-content"
 
 export default function KnowledgePage() {
   return (

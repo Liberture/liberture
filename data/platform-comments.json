@@ -1,0 +1,46 @@
+[
+  {
+    "id": 1,
+    "author": "Sarah Chen",
+    "bosLevel": 47,
+    "avatar": "/examples/avatars/sarah-avatar.png",
+    "content": "This protocol completely changed my morning routine. The key insight for me was the delayed caffeine intake - I was undermining my adenosine clearance for years!",
+    "upvotes": 89,
+    "replies": 12,
+    "time": "2 days ago",
+    "pillar": "cognition"
+  },
+  {
+    "id": 2,
+    "author": "Marcus Johnson",
+    "bosLevel": 62,
+    "avatar": "/examples/avatars/marcus-avatar.jpg",
+    "content": "Week 3 check-in: The 90-minute focus blocks are challenging but effective. Pro tip - pair this with the Cold Exposure protocol for an extra dopamine boost.",
+    "upvotes": 67,
+    "replies": 8,
+    "time": "4 days ago",
+    "pillar": "recovery"
+  },
+  {
+    "id": 3,
+    "author": "Dr. Emily Roberts",
+    "bosLevel": 78,
+    "avatar": "/examples/avatars/emily-doctor-avatar.jpg",
+    "content": "As a neuroscientist, I appreciate how this protocol accurately represents the underlying research. The ultradian rhythm approach is particularly well-implemented.",
+    "upvotes": 156,
+    "replies": 23,
+    "time": "1 week ago",
+    "pillar": "cognition"
+  },
+  {
+    "id": 4,
+    "author": "Alex Kim",
+    "bosLevel": 34,
+    "avatar": "/examples/avatars/alex-avatar.png",
+    "content": "Struggling with day 5. The meditation component feels forced. Anyone else have tips for making it more natural?",
+    "upvotes": 23,
+    "replies": 15,
+    "time": "1 week ago",
+    "pillar": "mental"
+  }
+]
