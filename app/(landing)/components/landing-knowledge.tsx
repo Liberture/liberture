@@ -1,8 +1,10 @@
-import { Button } from "@/components/ui/button"
-import { BookOpen, Trophy, Users, ArrowRight } from "lucide-react"
 import Link from "next/link"
+import { BookOpen, Trophy, Users, ArrowRight } from "lucide-react"
+
 import { translations } from "@/lib/translations"
+import { Button } from "@/components/ui/button"
 import { IconCardGrid } from "./icon-card-grid"
+import { LandingSection, LandingSectionHeader } from "./landing-section"
 
 const knowledgeIcons = {
   "Document Library": BookOpen,
@@ -37,28 +39,23 @@ export function LandingKnowledge() {
     }
   })
   return (
-    <section className="py-20 px-4">
-      <div className="container mx-auto max-w-7xl">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">{knowledge.heading}</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">{knowledge.description}</p>
-        </div>
+    <LandingSection>
+      <LandingSectionHeader heading={knowledge.heading} description={knowledge.description} />
 
-        <IconCardGrid
-          items={knowledgeItems}
-          gridClassName="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10"
-          defaultCardClassName="bg-card/50 border border-border/50"
-        />
+      <IconCardGrid
+        items={knowledgeItems}
+        gridClassName="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10"
+        defaultCardClassName="bg-card/50 border border-border/50"
+      />
 
-        <div className="text-center">
-          <Link href="/knowledge">
-            <Button size="lg" className="gap-2">
-              {knowledge.cta}
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
+      <div className="text-center">
+        <Link href="/knowledge">
+          <Button size="lg" className="gap-2">
+            {knowledge.cta}
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </Link>
       </div>
-    </section>
+    </LandingSection>
   )
 }
