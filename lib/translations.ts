@@ -136,30 +136,30 @@ export const translations: { en: Translations } = {
       pillars: [
         {
           id: "cognition",
-          name: "Cognition",
+          name: "Work",
           description:
             "Optimize focus, memory, learning, and mental clarity through nootropics, brain training, and cognitive protocols.",
         },
         {
           id: "recovery",
-          name: "Recovery",
+          name: "Sleep",
           description:
             "Master sleep, stress management, and regeneration to maximize your body's natural healing and restoration.",
         },
         {
           id: "fueling",
-          name: "Fueling",
+          name: "Nutrition",
           description: "Dial in nutrition, hydration, and supplementation for peak energy and metabolic performance.",
         },
         {
           id: "mental",
-          name: "Mental State",
+          name: "Mind",
           description:
             "Cultivate emotional resilience, mindfulness, and psychological well-being for sustainable performance.",
         },
         {
           id: "physicality",
-          name: "Physicality",
+          name: "Exercise",
           description: "Build strength, endurance, mobility, and physical capacity through optimized training protocols.",
         },
         {
@@ -194,7 +194,7 @@ export const translations: { en: Translations } = {
         items: [
           {
             title: "Six Optimization Pillars",
-            description: "Cognition, Recovery, Fueling, Mental State, Physicality, and Finance - all unified in one system.",
+            description: "Work, Sleep, Nutrition, Mind, Exercise, and Finance - all unified in one system.",
           },
           {
             title: "Gamified Progress",
@@ -230,7 +230,7 @@ export const translations: { en: Translations } = {
         featuredItems: [
           {
             title: "7-Day Ketogenic Induction Protocol",
-            pillar: "Fueling",
+            pillar: "Nutrition",
             type: "Premium Protocol",
             author: "Dr. Sarah Chen",
             color: "bg-fueling/20 border-fueling/30",
@@ -238,7 +238,7 @@ export const translations: { en: Translations } = {
           },
           {
             title: "Deep Sleep Architecture Masterclass",
-            pillar: "Recovery",
+            pillar: "Sleep",
             type: "Video Course",
             author: "Prof. Matthew Walker",
             color: "bg-recovery/20 border-recovery/30",
@@ -246,7 +246,7 @@ export const translations: { en: Translations } = {
           },
           {
             title: "Flow State Activation Training",
-            pillar: "Cognition",
+            pillar: "Work",
             type: "Interactive Game",
             author: "Liberture Labs",
             color: "bg-cognition/20 border-cognition/30",

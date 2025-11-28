@@ -6,7 +6,7 @@ import { Play, CheckCircle2 } from "lucide-react"
 export function ActiveProtocol() {
   const protocol = {
     name: "Morning Activation",
-    category: "Cognition",
+    category: "Work",
     progress: 60,
     steps: [
       { name: "Cold Exposure (2min)", completed: true },
