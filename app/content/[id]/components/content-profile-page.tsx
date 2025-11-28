@@ -246,7 +246,7 @@ export function ContentProfilePage({ id }: { id: string }) {
               <div className="flex items-center gap-4 mb-4">
                 <Link href="/knowledge" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src={content.author.avatarUrl || "/placeholder.svg"} />
+                    <AvatarImage src={content.author.avatarUrl || "/examples/placeholders/placeholder.svg"} />
                     <AvatarFallback>{content.author.name.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <div>
@@ -513,7 +513,7 @@ export function ContentProfilePage({ id }: { id: string }) {
                 <CardContent>
                   <div className="flex items-start gap-4">
                     <Avatar className="h-16 w-16">
-                      <AvatarImage src={content.author.avatarUrl || "/placeholder.svg"} />
+                      <AvatarImage src={content.author.avatarUrl || "/examples/placeholders/placeholder.svg"} />
                       <AvatarFallback>{content.author.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div>
@@ -612,7 +612,7 @@ export function ContentProfilePage({ id }: { id: string }) {
                     <div key={post.id} className="p-4 rounded-xl bg-background/30 border border-border/30">
                       <div className="flex items-start gap-3">
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={post.avatar || "/placeholder.svg"} />
+                          <AvatarImage src={post.avatar || "/examples/placeholders/placeholder.svg"} />
                           <AvatarFallback>{post.author.charAt(1).toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
@@ -682,7 +682,7 @@ export function ContentProfilePage({ id }: { id: string }) {
                       <div key={comment.id} className="p-4 rounded-xl bg-background/30 border border-border/30">
                         <div className="flex items-start gap-3">
                           <Avatar className="h-10 w-10">
-                            <AvatarImage src={comment.avatar || "/placeholder.svg"} />
+                            <AvatarImage src={comment.avatar || "/examples/placeholders/placeholder.svg"} />
                             <AvatarFallback>{comment.author.charAt(0)}</AvatarFallback>
                           </Avatar>
                           <div className="flex-1">
