@@ -4,6 +4,7 @@ import { BookOpen, Video, Gamepad2, FileText, Users, Crown, ArrowRight } from "l
 import { PILLAR_ICON_MAP } from "@/lib/pillars"
 import { translations } from "@/lib/translations"
 import { Button } from "@/components/ui/button"
+import { IconCardGrid } from "./icon-card-grid"
 import { LandingSection, LandingSectionHeader } from "./landing-section"
 
 type MarketplaceTypeWithCount = (typeof translations.en.common.marketplaceTypes)[number] & { count: number }
@@ -23,6 +24,20 @@ export function LandingMarketplace() {
   const contentTypes: MarketplaceTypeWithCount[] = translations.en.common.marketplaceTypes.filter(
     (type): type is MarketplaceTypeWithCount => type.count !== undefined,
   )
+
+  const contentTypeCards = contentTypes.map((type) => {
+    const Icon = contentTypeIcons[type.id] ?? FileText
+    return {
+      title: type.name,
+      description: `${type.count} items`,
+      icon: Icon,
+      iconClassName: "h-6 w-6 text-primary mx-auto mb-2",
+      contentClassName: "text-center",
+      cardClassName: "hover:border-primary/50",
+      titleClassName: "text-sm font-medium",
+      descriptionClassName: "text-xs text-muted-foreground",
+    }
+  })
   return (
     <LandingSection id="marketplace" className="bg-card/30">
       <LandingSectionHeader
@@ -32,21 +47,14 @@ export function LandingMarketplace() {
       />
 
       {/* Content Type Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-12">
-        {contentTypes.map((type) => {
-          const Icon = contentTypeIcons[type.id] ?? FileText
-          return (
-            <div
-              key={type.id}
-              className="p-4 rounded-xl bg-card/50 border border-border/50 hover:border-primary/50 transition-colors text-center"
-            >
-              <Icon className="h-6 w-6 mx-auto mb-2 text-primary" />
-              <p className="text-sm font-medium">{type.name}</p>
-              <p className="text-xs text-muted-foreground">{type.count} items</p>
-            </div>
-          )
-        })}
-      </div>
+      <IconCardGrid
+        items={contentTypeCards}
+        gridClassName="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-12"
+        cardBaseClassName="p-4 rounded-xl bg-card/50 border border-border/50 transition-colors"
+        defaultIconClassName="h-6 w-6 mx-auto mb-2"
+        defaultTitleClassName="text-sm font-medium"
+        defaultDescriptionClassName="text-xs text-muted-foreground"
+      />
 
       {/* Featured Items */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
