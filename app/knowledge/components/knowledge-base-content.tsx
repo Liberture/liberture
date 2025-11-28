@@ -623,7 +623,7 @@ export function KnowledgeBaseContent() {
                   <CardContent className="p-5">
                     <div className="flex items-start gap-4">
                       <img
-                        src={influencer.image || "/placeholder.svg"}
+                        src={influencer.image || "/examples/placeholders/placeholder.svg"}
                         alt={influencer.name}
                         className="w-16 h-16 rounded-xl object-cover"
                       />
