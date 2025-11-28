@@ -2,64 +2,21 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { PillarFilter } from "@/components/pillars/pillar-filter"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  Brain,
-  Heart,
-  Leaf,
-  Zap,
-  Dumbbell,
-  Wallet,
-  BookOpen,
-  Video,
-  Gamepad2,
-  FileText,
-  Users,
-  Crown,
-  Search,
-  Filter,
-  Star,
-  Clock,
-  ArrowRight,
-  GraduationCap,
-} from "lucide-react"
+import { BookOpen, Video, Gamepad2, FileText, Users, Crown, Search, Filter, Star, Clock, ArrowRight, GraduationCap } from "lucide-react"
+import { createPillarFilterOptions, PILLAR_ICON_MAP } from "@/lib/pillars"
 import { translations } from "@/lib/translations"
 import type { MarketplaceTypeId, PillarId } from "@/lib/translations"
 
-type Pillar = "all" | PillarId
 type ContentType = "all" | MarketplaceTypeId
-
-const pillarIcons = {
-  cognition: Brain,
-  recovery: Heart,
-  fueling: Leaf,
-  mental: Zap,
-  physicality: Dumbbell,
-  finance: Wallet,
-}
-
-const pillarColors = {
-  cognition: "text-cognition",
-  recovery: "text-recovery",
-  fueling: "text-fueling",
-  mental: "text-mental",
-  physicality: "text-physicality",
-  finance: "text-finance",
-}
-
-const pillarTranslations = translations.en.common.pillars
-const pillars = [
-  { id: "all" as const, name: translations.en.common.filters.allDomains, icon: null, color: "text-muted-foreground" },
-  ...pillarTranslations.map((pillar) => ({
-    id: pillar.id,
-    name: pillar.name,
-    icon: pillarIcons[pillar.id],
-    color: pillarColors[pillar.id],
-  })),
-]
+type Pillar = "all" | PillarId
+const pillarFilters = createPillarFilterOptions<Pillar>(translations.en.common.filters.allDomains, {
+  includeBackground: false,
+})
 
 const contentTypeIcons = {
   premium: Crown,
@@ -165,26 +122,12 @@ export function MarketplaceContent() {
           />
         </div>
 
-        {/* Primary Filters - Pillars */}
-        <div className="mb-6">
-          <p className="text-sm text-muted-foreground mb-3">Filter by Optimization Domain</p>
-          <div className="flex flex-wrap gap-2">
-            {pillars.map((pillar) => (
-              <Button
-                key={pillar.id}
-                variant={selectedPillar === pillar.id ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedPillar(pillar.id)}
-                className={`gap-2 ${selectedPillar === pillar.id ? "" : "bg-card/50"}`}
-              >
-                {pillar.icon && (
-                  <pillar.icon className={`h-4 w-4 ${selectedPillar === pillar.id ? "" : pillar.color}`} />
-                )}
-                {pillar.name}
-              </Button>
-            ))}
-          </div>
-        </div>
+        <PillarFilter
+          label="Filter by Optimization Domain"
+          options={pillarFilters}
+          selected={selectedPillar}
+          onSelect={(value) => setSelectedPillar(value as Pillar)}
+        />
 
         {/* Secondary Filters - Content Types */}
         <div className="mb-8">
@@ -216,7 +159,8 @@ export function MarketplaceContent() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredItems.map((item) => {
             const TypeIcon = getTypeIcon(item.type)
-            const PillarIcon = pillars.find((p) => p.id === item.pillar)?.icon || Brain
+            const pillarMeta = pillarFilters.find((p) => p.id === item.pillar)
+            const PillarIcon = pillarMeta?.icon || PILLAR_ICON_MAP[item.pillar]
 
             return (
               <Link
@@ -229,7 +173,7 @@ export function MarketplaceContent() {
                   <div className="flex items-center gap-2">
                     <PillarIcon className={`h-5 w-5 ${item.iconColor}`} />
                     <Badge variant="secondary" className="text-xs">
-                      {pillars.find((p) => p.id === item.pillar)?.name}
+                      {pillarMeta?.name}
                     </Badge>
                   </div>
                   <Badge variant={item.price === 0 ? "outline" : "default"} className="text-xs">
