@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -66,23 +66,6 @@ const pillars = [
   })),
 ]
 
-const tags = [
-  "Mitochondria",
-  "Ketosis",
-  "Cold Therapy",
-  "Intermittent Fasting",
-  "Epigenetics",
-  "Nootropics",
-  "HRV",
-  "Sleep Cycles",
-  "Meditation",
-  "Strength Training",
-  "FIRE",
-  "Index Funds",
-  "Tax Optimization",
-  "Compound Interest",
-]
-
 type KnowledgeVertical =
   | "nutrition"
   | "sleep"
@@ -93,473 +76,129 @@ type KnowledgeVertical =
 
 type KnowledgeType = "books" | "videos" | "experts" | "tools" | "articles"
 
-const knowledgeVerticals: {
+const knowledgeVerticalIcons: Record<KnowledgeVertical, any> = {
+  nutrition: ChefHat,
+  sleep: Bed,
+  exercise: Dumbbell,
+  longevity: Infinity,
+  "mental-health": Wand,
+  supplements: Pill,
+}
+
+const knowledgeTypeIcons: Record<KnowledgeType, any> = {
+  books: BookOpen,
+  videos: Clapperboard,
+  experts: User,
+  tools: Microscope,
+  articles: FileText,
+}
+
+interface KnowledgeVerticalMeta {
   id: KnowledgeVertical
   label: string
-  icon: any
   accent: string
   glow: string
-}[] = [
-  { id: "nutrition", label: "Nutrition", icon: ChefHat, accent: "from-amber-500 to-orange-500", glow: "shadow-amber-300/40" },
-  { id: "sleep", label: "Sleep", icon: Bed, accent: "from-sky-400 to-blue-600", glow: "shadow-sky-300/40" },
-  { id: "exercise", label: "Exercise", icon: Dumbbell, accent: "from-emerald-400 to-lime-500", glow: "shadow-emerald-300/40" },
-  { id: "longevity", label: "Longevity", icon: Infinity, accent: "from-purple-400 to-indigo-600", glow: "shadow-purple-300/40" },
-  { id: "mental-health", label: "Mental Health", icon: Wand, accent: "from-pink-400 to-rose-500", glow: "shadow-pink-300/40" },
-  { id: "supplements", label: "Supplements", icon: Pill, accent: "from-teal-300 to-cyan-500", glow: "shadow-cyan-300/40" },
-]
+}
 
-const knowledgeTypes: { id: KnowledgeType; label: string; icon: any }[] = [
-  { id: "books", label: "Books", icon: BookOpen },
-  { id: "videos", label: "Videos", icon: Clapperboard },
-  { id: "experts", label: "Experts", icon: User },
-  { id: "tools", label: "Tools", icon: Microscope },
-  { id: "articles", label: "Articles", icon: FileText },
-]
+interface KnowledgeTypeMeta {
+  id: KnowledgeType
+  label: string
+}
 
-const knowledgeTypeIconMap = knowledgeTypes.reduce<Record<KnowledgeType, any>>((acc, type) => {
-  acc[type.id] = type.icon
-  return acc
-}, {} as Record<KnowledgeType, any>)
+interface KnowledgeCard {
+  id: string
+  title: string
+  blurb: string
+  image: string
+  vertical: KnowledgeVertical
+  type: KnowledgeType
+}
 
-const knowledgeCards = [
-  {
-    id: "outlive",
-    title: "Outlive by Peter Attia",
-    blurb: "The long game roadmap for healthspan and practical longevity protocols.",
-    image:
-      "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=900&q=80&sat=-10",
-    vertical: "longevity" as const,
-    type: "books" as const,
-  },
-  {
-    id: "sleep-foundations",
-    title: "12 Rules for Perfect Sleep",
-    blurb: "A visual walkthrough of bedroom setup, circadian cues, and wind-down routines.",
-    image:
-      "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=900&q=80&sat=-10",
-    vertical: "sleep" as const,
-    type: "videos" as const,
-  },
-  {
-    id: "huberman-protocols",
-    title: "Huberman Lab Protocol Pack",
-    blurb: "Evidence-backed schedules for light, caffeine, movement, and focus.",
-    image:
-      "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80&sat=-10",
-    vertical: "mental-health" as const,
-    type: "articles" as const,
-  },
-  {
-    id: "macro-tracker",
-    title: "Precision Macro Tracker",
-    blurb: "AI-assisted food logging tuned for metabolic flexibility instead of restriction.",
-    image:
-      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80&sat=-10",
-    vertical: "nutrition" as const,
-    type: "tools" as const,
-  },
-  {
-    id: "strength-blueprint",
-    title: "Strength Blueprint 2.0",
-    blurb: "Block-periodized lifting templates for busy knowledge workers.",
-    image:
-      "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=900&q=80&sat=-10",
-    vertical: "exercise" as const,
-    type: "books" as const,
-  },
-  {
-    id: "stacked-supplements",
-    title: "Stacked Supplement Guide",
-    blurb: "Minimalist stacks with lab-backed compounds for clarity, recovery, and immunity.",
-    image:
-      "https://images.unsplash.com/photo-1502741338009-cac2772e18bc?auto=format&fit=crop&w=900&q=80&sat=-10",
-    vertical: "supplements" as const,
-    type: "articles" as const,
-  },
-  {
-    id: "sleep-coach",
-    title: "Deep Sleep Coaching with Wearables",
-    blurb: "Pair HRV data with weekly coaching to dial in recovery faster.",
-    image:
-      "https://images.unsplash.com/photo-1526256262350-7da7584cf5eb?auto=format&fit=crop&w=900&q=80&sat=-10",
-    vertical: "sleep" as const,
-    type: "experts" as const,
-  },
-  {
-    id: "vo2-intervals",
-    title: "VO2 Max Intervals Playlist",
-    blurb: "Five battle-tested interval structures for maximal cardio output.",
-    image:
-      "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=900&q=80&sat=-10",
-    vertical: "exercise" as const,
-    type: "videos" as const,
-  },
-  {
-    id: "longevity-stack",
-    title: "Longevity Lab Essentials",
-    blurb: "Track bloodwork, methylation age, and mitochondrial function in one dashboard.",
-    image:
-      "https://images.unsplash.com/photo-1508387028171-0bd9d7ae2a55?auto=format&fit=crop&w=900&q=80&sat=-10",
-    vertical: "longevity" as const,
-    type: "tools" as const,
-  },
-]
+interface LibertureBook {
+  id: number
+  rank: number
+  title: string
+  author: string
+  pillar: PillarId
+  influenceScore: number
+  summary: string
+}
 
-// Liberture 100 Books
-const liberture100Books = [
-  {
-    id: 1,
-    rank: 1,
-    title: "Why We Sleep",
-    author: "Matthew Walker",
-    pillar: "recovery" as const,
-    influenceScore: 98,
-    summary: "The definitive guide to sleep science and optimization.",
-  },
-  {
-    id: 2,
-    rank: 2,
-    title: "Atomic Habits",
-    author: "James Clear",
-    pillar: "mental" as const,
-    influenceScore: 97,
-    summary: "Transform your life through small habit changes.",
-  },
-  {
-    id: 3,
-    rank: 3,
-    title: "The 4-Hour Body",
-    author: "Tim Ferriss",
-    pillar: "physicality" as const,
-    influenceScore: 96,
-    summary: "Unconventional methods for rapid body transformation.",
-  },
-  {
-    id: 4,
-    rank: 4,
-    title: "Deep Work",
-    author: "Cal Newport",
-    pillar: "cognition" as const,
-    influenceScore: 95,
-    summary: "Rules for focused success in a distracted world.",
-  },
-  {
-    id: 5,
-    rank: 5,
-    title: "The Psychology of Money",
-    author: "Morgan Housel",
-    pillar: "finance" as const,
-    influenceScore: 95,
-    summary: "Timeless lessons on wealth, greed, and happiness.",
-  },
-  {
-    id: 6,
-    rank: 6,
-    title: "Lifespan",
-    author: "David Sinclair",
-    pillar: "recovery" as const,
-    influenceScore: 94,
-    summary: "Why we age and why we don't have to.",
-  },
-  {
-    id: 7,
-    rank: 7,
-    title: "The Obesity Code",
-    author: "Jason Fung",
-    pillar: "fueling" as const,
-    influenceScore: 93,
-    summary: "Unlocking the secrets of weight loss through fasting.",
-  },
-  {
-    id: 8,
-    rank: 8,
-    title: "Breath",
-    author: "James Nestor",
-    pillar: "recovery" as const,
-    influenceScore: 92,
-    summary: "The new science of a lost art.",
-  },
-  {
-    id: 9,
-    rank: 9,
-    title: "Outlive",
-    author: "Peter Attia",
-    pillar: "physicality" as const,
-    influenceScore: 92,
-    summary: "The science and art of longevity.",
-  },
-  {
-    id: 10,
-    rank: 10,
-    title: "The Richest Man in Babylon",
-    author: "George S. Clason",
-    pillar: "finance" as const,
-    influenceScore: 91,
-    summary: "Ancient wisdom for modern wealth building.",
-  },
-  {
-    id: 11,
-    rank: 11,
-    title: "Limitless",
-    author: "Jim Kwik",
-    pillar: "cognition" as const,
-    influenceScore: 90,
-    summary: "Upgrade your brain, learn anything faster.",
-  },
-  {
-    id: 12,
-    rank: 12,
-    title: "The Wim Hof Method",
-    author: "Wim Hof",
-    pillar: "recovery" as const,
-    influenceScore: 89,
-    summary: "Activate your full human potential through cold and breath.",
-  },
-  {
-    id: 13,
-    rank: 13,
-    title: "I Will Teach You to Be Rich",
-    author: "Ramit Sethi",
-    pillar: "finance" as const,
-    influenceScore: 89,
-    summary: "No guilt, no excuses - just a 6-week wealth program.",
-  },
-  {
-    id: 14,
-    rank: 14,
-    title: "The Mind Illuminated",
-    author: "Culadasa",
-    pillar: "mental" as const,
-    influenceScore: 88,
-    summary: "Complete meditation guide integrating Buddhist wisdom and brain science.",
-  },
-  {
-    id: 15,
-    rank: 15,
-    title: "Super Human",
-    author: "Dave Asprey",
-    pillar: "fueling" as const,
-    influenceScore: 87,
-    summary: "The bulletproof plan to age backward.",
-  },
-]
+interface Influencer {
+  id: number
+  name: string
+  domains: PillarId[]
+  expertise: string
+  followers: string
+  publications: number
+  image: string
+}
 
-const influencers = [
-  {
-    id: 1,
-    name: "Andrew Huberman",
-    domains: ["cognition", "mental", "recovery"] as const,
-    expertise: "Neuroscience & Protocols",
-    followers: "5.2M",
-    publications: 12,
-    image: "/andrew-huberman-portrait.jpg",
-  },
-  {
-    id: 2,
-    name: "Peter Attia",
-    domains: ["physicality", "fueling", "recovery"] as const,
-    expertise: "Longevity & Medicine",
-    followers: "1.8M",
-    publications: 8,
-    image: "/peter-attia-portrait.jpg",
-  },
-  {
-    id: 3,
-    name: "Rhonda Patrick",
-    domains: ["fueling", "recovery"] as const,
-    expertise: "Nutrition & Genetics",
-    followers: "2.1M",
-    publications: 15,
-    image: "/rhonda-patrick-portrait.jpg",
-  },
-  {
-    id: 4,
-    name: "David Sinclair",
-    domains: ["recovery", "fueling"] as const,
-    expertise: "Aging & Genetics",
-    followers: "1.5M",
-    publications: 6,
-    image: "/david-sinclair-portrait.jpg",
-  },
-  {
-    id: 5,
-    name: "Morgan Housel",
-    domains: ["finance"] as const,
-    expertise: "Behavioral Finance",
-    followers: "890K",
-    publications: 4,
-    image: "/morgan-housel-portrait.jpg",
-  },
-  {
-    id: 6,
-    name: "Tim Ferriss",
-    domains: ["physicality", "cognition", "finance"] as const,
-    expertise: "Performance & Lifestyle",
-    followers: "4.1M",
-    publications: 9,
-    image: "/tim-ferriss-portrait.jpg",
-  },
-  {
-    id: 7,
-    name: "Wim Hof",
-    domains: ["recovery", "mental"] as const,
-    expertise: "Cold Exposure & Breath",
-    followers: "3.2M",
-    publications: 3,
-    image: "/wim-hof-portrait.jpg",
-  },
-  {
-    id: 8,
-    name: "James Clear",
-    domains: ["mental", "cognition"] as const,
-    expertise: "Habits & Behavior",
-    followers: "2.8M",
-    publications: 2,
-    image: "/james-clear-portrait.jpg",
-  },
-  {
-    id: 9,
-    name: "Ramit Sethi",
-    domains: ["finance"] as const,
-    expertise: "Personal Finance",
-    followers: "1.2M",
-    publications: 5,
-    image: "/ramit-sethi-portrait.jpg",
-  },
-  {
-    id: 10,
-    name: "Matthew Walker",
-    domains: ["recovery"] as const,
-    expertise: "Sleep Science",
-    followers: "980K",
-    publications: 7,
-    image: "/matthew-walker-portrait.jpg",
-  },
-  {
-    id: 11,
-    name: "Andy Galpin",
-    domains: ["physicality"] as const,
-    expertise: "Exercise Physiology",
-    followers: "720K",
-    publications: 11,
-    image: "/andy-galpin-portrait.jpg",
-  },
-  {
-    id: 12,
-    name: "Kelly Starrett",
-    domains: ["physicality", "recovery"] as const,
-    expertise: "Mobility & Movement",
-    followers: "1.1M",
-    publications: 4,
-    image: "/kelly-starrett-portrait.jpg",
-  },
-]
+interface LibraryDocument {
+  id: number
+  title: string
+  author: string
+  type: string
+  pillar: PillarId
+  tags: string[]
+  rating: number
+  external: boolean
+}
 
-// All library documents
-const libraryDocuments = [
-  {
-    id: 1,
-    title: "Why We Sleep",
-    author: "Matthew Walker",
-    type: "Book",
-    pillar: "recovery" as const,
-    tags: ["Sleep Cycles", "HRV"],
-    rating: 4.9,
-    external: true,
-  },
-  {
-    id: 2,
-    title: "Mitochondrial Biogenesis Protocol",
-    author: "Liberture Research",
-    type: "White Paper",
-    pillar: "cognition" as const,
-    tags: ["Mitochondria", "Nootropics"],
-    rating: 4.7,
-    external: false,
-  },
-  {
-    id: 3,
-    title: "Intermittent Fasting Meta-Analysis",
-    author: "Dr. Jason Fung",
-    type: "Academic Article",
-    pillar: "fueling" as const,
-    tags: ["Intermittent Fasting", "Ketosis"],
-    rating: 4.8,
-    external: false,
-  },
-  {
-    id: 4,
-    title: "Cold Exposure Adaptation Guide",
-    author: "Wim Hof Method",
-    type: "E-Book",
-    pillar: "recovery" as const,
-    tags: ["Cold Therapy", "HRV"],
-    rating: 4.6,
-    external: true,
-  },
-  {
-    id: 5,
-    title: "The Psychology of Money",
-    author: "Morgan Housel",
-    type: "Book",
-    pillar: "finance" as const,
-    tags: ["Compound Interest", "Index Funds"],
-    rating: 4.9,
-    external: true,
-  },
-  {
-    id: 6,
-    title: "Epigenetic Markers of Aging",
-    author: "Harvard Medical",
-    type: "Academic Article",
-    pillar: "recovery" as const,
-    tags: ["Epigenetics"],
-    rating: 4.5,
-    external: false,
-  },
-  {
-    id: 7,
-    title: "HRV Training Complete Guide",
-    author: "Liberture Community",
-    type: "Long-form Guide",
-    pillar: "mental" as const,
-    tags: ["HRV", "Meditation"],
-    rating: 4.7,
-    external: false,
-  },
-  {
-    id: 8,
-    title: "Strength Training Periodization",
-    author: "Dr. Andy Galpin",
-    type: "E-Book",
-    pillar: "physicality" as const,
-    tags: ["Strength Training"],
-    rating: 4.8,
-    external: true,
-  },
-  {
-    id: 9,
-    title: "Tax-Advantaged Investing Guide",
-    author: "Liberture Finance",
-    type: "White Paper",
-    pillar: "finance" as const,
-    tags: ["Tax Optimization", "FIRE"],
-    rating: 4.6,
-    external: false,
-  },
-  {
-    id: 10,
-    title: "Nootropic Stack Research Review",
-    author: "Examine.com",
-    type: "Academic Article",
-    pillar: "cognition" as const,
-    tags: ["Nootropics", "Mitochondria"],
-    rating: 4.4,
-    external: false,
-  },
-]
+interface KnowledgeData {
+  tags: string[]
+  knowledgeVerticals: KnowledgeVerticalMeta[]
+  knowledgeTypes: KnowledgeTypeMeta[]
+  knowledgeCards: KnowledgeCard[]
+  liberture100Books: LibertureBook[]
+  influencers: Influencer[]
+  libraryDocuments: LibraryDocument[]
+}
 
 export function KnowledgeBaseContent() {
+  const [knowledgeVerticals, setKnowledgeVerticals] = useState<KnowledgeVerticalMeta[]>([])
+  const [knowledgeTypes, setKnowledgeTypes] = useState<KnowledgeTypeMeta[]>([])
+  const [knowledgeCards, setKnowledgeCards] = useState<KnowledgeCard[]>([])
+  const [availableTags, setAvailableTags] = useState<string[]>([])
+  const [liberture100Books, setLiberture100Books] = useState<LibertureBook[]>([])
+  const [influencers, setInfluencers] = useState<Influencer[]>([])
+  const [libraryDocuments, setLibraryDocuments] = useState<LibraryDocument[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    let isMounted = true
+
+    const loadKnowledge = async () => {
+      try {
+        const response = await fetch("/api/knowledge")
+        if (!response.ok) return
+
+        const data: KnowledgeData = await response.json()
+        if (!isMounted) return
+
+        setAvailableTags(data.tags || [])
+        setKnowledgeVerticals(data.knowledgeVerticals || [])
+        setKnowledgeTypes(data.knowledgeTypes || [])
+        setKnowledgeCards(data.knowledgeCards || [])
+        setLiberture100Books(data.liberture100Books || [])
+        setInfluencers(data.influencers || [])
+        setLibraryDocuments(data.libraryDocuments || [])
+      } catch (error) {
+        console.error("Failed to load knowledge data", error)
+      } finally {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    loadKnowledge()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   const [activeTab, setActiveTab] = useState("library")
   const [selectedPillar, setSelectedPillar] = useState<Pillar>("all")
   const [selectedTags, setSelectedTags] = useState<string[]>([])
@@ -567,6 +206,8 @@ export function KnowledgeBaseContent() {
   const [sortBy, setSortBy] = useState<"influence" | "date" | "pillar">("influence")
   const [selectedVertical, setSelectedVertical] = useState<KnowledgeVertical>("longevity")
   const [selectedType, setSelectedType] = useState<KnowledgeType>("books")
+
+  const knowledgeTypeIconMap = knowledgeTypeIcons
 
   const activeVertical = knowledgeVerticals.find((vertical) => vertical.id === selectedVertical)
 
@@ -640,7 +281,7 @@ export function KnowledgeBaseContent() {
                 </div>
                 <div className="flex flex-wrap gap-2 md:gap-3 lg:justify-end">
                   {knowledgeVerticals.map((vertical) => {
-                    const Icon = vertical.icon
+                    const Icon = knowledgeVerticalIcons[vertical.id]
                     const isActive = vertical.id === selectedVertical
                     return (
                       <button
@@ -652,7 +293,7 @@ export function KnowledgeBaseContent() {
                             : "bg-card/70 hover:border-primary/40 hover:-translate-y-0.5"
                         }`}
                       >
-                        <Icon className={`h-4 w-4 ${isActive ? "text-white" : "text-muted-foreground"}`} />
+                        {Icon && <Icon className={`h-4 w-4 ${isActive ? "text-white" : "text-muted-foreground"}`} />}
                         {vertical.label}
                       </button>
                     )
@@ -663,7 +304,7 @@ export function KnowledgeBaseContent() {
               <div className="grid gap-6 lg:grid-cols-[170px_1fr]">
                 <div className="flex lg:flex-col gap-3">
                   {knowledgeTypes.map((type) => {
-                    const Icon = type.icon
+                    const Icon = knowledgeTypeIcons[type.id]
                     const isActive = selectedType === type.id
                     return (
                       <button
@@ -676,7 +317,7 @@ export function KnowledgeBaseContent() {
                         }`}
                       >
                         <span className="flex items-center gap-3">
-                          <Icon className="h-5 w-5" />
+                          {Icon && <Icon className="h-5 w-5" />}
                           {type.label}
                         </span>
                         <span className="text-xs text-muted-foreground group-hover:text-foreground">{isActive ? "Active" : "View"}</span>
@@ -686,9 +327,15 @@ export function KnowledgeBaseContent() {
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {heroCardsToShow.length === 0 && (
+                    <p className="col-span-full text-muted-foreground text-sm">
+                      {isLoading ? "Loading knowledge cards..." : "No knowledge cards available."}
+                    </p>
+                  )}
                   {heroCardsToShow.map((card) => {
                     const verticalMeta = knowledgeVerticals.find((v) => v.id === card.vertical)
                     const TypeIcon = knowledgeTypeIconMap[card.type]
+                    const VerticalIcon = knowledgeVerticalIcons[card.vertical]
 
                     return (
                       <div
@@ -720,7 +367,7 @@ export function KnowledgeBaseContent() {
                         <div className="space-y-3 p-4">
                           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                             <div className="flex items-center gap-1 rounded-full border px-3 py-1">
-                              {verticalMeta && <verticalMeta.icon className="h-4 w-4" />}
+                              {VerticalIcon && <VerticalIcon className="h-4 w-4" />}
                               <span className="capitalize">{card.vertical.replace("-", " ")}</span>
                             </div>
                             <span className="text-border">•</span>
@@ -805,7 +452,7 @@ export function KnowledgeBaseContent() {
             <div>
               <p className="text-sm text-muted-foreground mb-3">Filter by Tags</p>
               <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => (
+                {availableTags.map((tag) => (
                   <Badge
                     key={tag}
                     variant={selectedTags.includes(tag) ? "default" : "outline"}
