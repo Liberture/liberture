@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Zap, Brain, Heart, Leaf, Dumbbell, Wallet } from "lucide-react"
-import { FoldedDrift, RippleBloom } from "@/components/patterns"
+import { FoldedDrift, RippleBloom } from "./patterns"
 import { translations } from "@/lib/translations"
 
 const pillarIcons = {

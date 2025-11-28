@@ -3,8 +3,8 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { AuthProvider, useAuth } from "@/lib/auth-context"
-import { Dashboard } from "@/components/dashboard"
 import { TopographicBackground } from "@/components/topographic-background"
+import { Dashboard } from "./components/dashboard"
 
 function DashboardContent() {
   const { user, isLoading } = useAuth()
