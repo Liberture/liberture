@@ -1,6 +1,7 @@
 import Link from "next/link"
-import { Brain, Heart, Leaf, BookOpen, Video, Gamepad2, FileText, Users, Crown, ArrowRight } from "lucide-react"
+import { BookOpen, Video, Gamepad2, FileText, Users, Crown, ArrowRight } from "lucide-react"
 
+import { PILLAR_ICON_MAP } from "@/lib/pillars"
 import { translations } from "@/lib/translations"
 import { Button } from "@/components/ui/button"
 import { LandingSection, LandingSectionHeader } from "./landing-section"
@@ -15,12 +16,6 @@ const contentTypeIcons = {
   video: Video,
   interactive: Gamepad2,
   references: FileText,
-}
-
-const pillarIcons = {
-  cognition: Brain,
-  recovery: Heart,
-  fueling: Leaf,
 }
 
 export function LandingMarketplace() {
@@ -56,7 +51,7 @@ export function LandingMarketplace() {
       {/* Featured Items */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
         {marketplace.featuredItems.map((item) => {
-          const Icon = pillarIcons[item.icon] ?? Brain
+          const Icon = PILLAR_ICON_MAP[item.icon] ?? PILLAR_ICON_MAP.cognition
           return (
             <div
               key={item.title}

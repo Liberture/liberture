@@ -1,25 +1,21 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import { PillarFilter } from "@/components/pillars/pillar-filter"
 import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Brain,
-  Heart,
-  Leaf,
-  Zap,
-  Dumbbell,
-  Wallet,
-  BookOpen,
-  Bed,
-  ChefHat,
-  Clapperboard,
-  FileText,
-  Infinity,
-  Microscope,
+import { Input } from "@/components/ui/input"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+  import {
+    BookOpen,
+    Bed,
+    ChefHat,
+    Clapperboard,
+    Dumbbell,
+    FileText,
+    Infinity,
+    Microscope,
   Pill,
   Search,
   Star,
@@ -33,38 +29,10 @@ import {
   Plus,
 } from "lucide-react"
 import { translations } from "@/lib/translations"
+import { createPillarFilterOptions } from "@/lib/pillars"
 import type { PillarId } from "@/lib/translations"
 
 type Pillar = "all" | PillarId
-
-const pillarIcons = {
-  cognition: Brain,
-  recovery: Heart,
-  fueling: Leaf,
-  mental: Zap,
-  physicality: Dumbbell,
-  finance: Wallet,
-}
-
-const pillarStyles = {
-  cognition: { color: "text-cognition", bg: "bg-cognition/10 border-cognition/30" },
-  recovery: { color: "text-recovery", bg: "bg-recovery/10 border-recovery/30" },
-  fueling: { color: "text-fueling", bg: "bg-fueling/10 border-fueling/30" },
-  mental: { color: "text-mental", bg: "bg-mental/10 border-mental/30" },
-  physicality: { color: "text-physicality", bg: "bg-physicality/10 border-physicality/30" },
-  finance: { color: "text-finance", bg: "bg-finance/10 border-finance/30" },
-}
-
-const pillars = [
-  { id: "all" as const, name: translations.en.common.filters.allDomains, icon: null, color: "text-muted-foreground", bg: "bg-card/70 border-border/60" },
-  ...translations.en.common.pillars.map((pillar) => ({
-    id: pillar.id,
-    name: pillar.name,
-    icon: pillarIcons[pillar.id],
-    color: pillarStyles[pillar.id].color,
-    bg: pillarStyles[pillar.id].bg,
-  })),
-]
 
 type KnowledgeVertical =
   | "nutrition"
@@ -154,6 +122,8 @@ interface KnowledgeData {
   influencers: Influencer[]
   libraryDocuments: LibraryDocument[]
 }
+
+const pillarFilters = createPillarFilterOptions<Pillar>(translations.en.common.filters.allDomains)
 
 export function KnowledgeBaseContent() {
   const [knowledgeVerticals, setKnowledgeVerticals] = useState<KnowledgeVerticalMeta[]>([])
@@ -257,7 +227,7 @@ export function KnowledgeBaseContent() {
     return matchesPillar && matchesSearch
   })
 
-  const getPillarInfo = (pillarId: string) => pillars.find((p) => p.id === pillarId)
+  const getPillarInfo = (pillarId: string) => pillarFilters.find((p) => p.id === pillarId)
 
   return (
     <div className="min-h-screen py-8 px-4">
@@ -408,26 +378,12 @@ export function KnowledgeBaseContent() {
           />
         </div>
 
-        {/* Pillar Filters */}
-        <div className="mb-6">
-          <p className="text-sm text-muted-foreground mb-3">Filter by Pillar</p>
-          <div className="flex flex-wrap gap-2">
-            {pillars.map((pillar) => (
-              <Button
-                key={pillar.id}
-                variant={selectedPillar === pillar.id ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedPillar(pillar.id)}
-                className={`gap-2 ${selectedPillar === pillar.id ? "" : "bg-card/50"}`}
-              >
-                {pillar.icon && (
-                  <pillar.icon className={`h-4 w-4 ${selectedPillar === pillar.id ? "" : pillar.color}`} />
-                )}
-                {pillar.name}
-              </Button>
-            ))}
-          </div>
-        </div>
+        <PillarFilter
+          label="Filter by Pillar"
+          options={pillarFilters}
+          selected={selectedPillar}
+          onSelect={(value) => setSelectedPillar(value as Pillar)}
+        />
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
