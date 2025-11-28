@@ -32,41 +32,38 @@ import {
   ThumbsUp,
   Plus,
 } from "lucide-react"
+import { translations } from "@/lib/translations"
+import type { PillarId } from "@/lib/translations"
 
-type Pillar = "all" | "cognition" | "recovery" | "fueling" | "mental" | "physicality" | "finance"
+type Pillar = "all" | PillarId
+
+const pillarIcons = {
+  cognition: Brain,
+  recovery: Heart,
+  fueling: Leaf,
+  mental: Zap,
+  physicality: Dumbbell,
+  finance: Wallet,
+}
+
+const pillarStyles = {
+  cognition: { color: "text-cognition", bg: "bg-cognition/10 border-cognition/30" },
+  recovery: { color: "text-recovery", bg: "bg-recovery/10 border-recovery/30" },
+  fueling: { color: "text-fueling", bg: "bg-fueling/10 border-fueling/30" },
+  mental: { color: "text-mental", bg: "bg-mental/10 border-mental/30" },
+  physicality: { color: "text-physicality", bg: "bg-physicality/10 border-physicality/30" },
+  finance: { color: "text-finance", bg: "bg-finance/10 border-finance/30" },
+}
 
 const pillars = [
-  { id: "all" as const, name: "All Domains", icon: null },
-  {
-    id: "cognition" as const,
-    name: "Cognition",
-    icon: Brain,
-    color: "text-cognition",
-    bg: "bg-cognition/10 border-cognition/30",
-  },
-  {
-    id: "recovery" as const,
-    name: "Recovery",
-    icon: Heart,
-    color: "text-recovery",
-    bg: "bg-recovery/10 border-recovery/30",
-  },
-  { id: "fueling" as const, name: "Fueling", icon: Leaf, color: "text-fueling", bg: "bg-fueling/10 border-fueling/30" },
-  { id: "mental" as const, name: "Mental State", icon: Zap, color: "text-mental", bg: "bg-mental/10 border-mental/30" },
-  {
-    id: "physicality" as const,
-    name: "Physicality",
-    icon: Dumbbell,
-    color: "text-physicality",
-    bg: "bg-physicality/10 border-physicality/30",
-  },
-  {
-    id: "finance" as const,
-    name: "Finance",
-    icon: Wallet,
-    color: "text-finance",
-    bg: "bg-finance/10 border-finance/30",
-  },
+  { id: "all" as const, name: translations.en.common.filters.allDomains, icon: null, color: "text-muted-foreground", bg: "bg-card/70 border-border/60" },
+  ...translations.en.common.pillars.map((pillar) => ({
+    id: pillar.id,
+    name: pillar.name,
+    icon: pillarIcons[pillar.id],
+    color: pillarStyles[pillar.id].color,
+    bg: pillarStyles[pillar.id].bg,
+  })),
 ]
 
 const tags = [
