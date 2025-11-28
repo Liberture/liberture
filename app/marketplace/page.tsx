@@ -2,7 +2,7 @@ import { LandingFooter } from "@/components/landing-footer"
 import { LandingNav } from "@/components/landing-nav"
 import { TopographicBackground } from "@/components/topographic-background"
 import { AuthProvider } from "@/lib/auth-context"
-import { MarketplaceContent } from "./components/marketplace-content"
+import { MarketplaceContent } from "./marketplace-content"
 
 export default function MarketplacePage() {
   return (

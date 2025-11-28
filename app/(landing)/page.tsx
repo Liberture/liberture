@@ -2,12 +2,12 @@ import { LandingNav } from "@/components/landing-nav"
 import { LandingFooter } from "@/components/landing-footer"
 import { TopographicBackground } from "@/components/topographic-background"
 import { AuthProvider } from "@/lib/auth-context"
-import { LandingCTA } from "./components/landing-cta"
-import { LandingFeatures } from "./components/landing-features"
-import { LandingHero } from "./components/landing-hero"
-import { LandingKnowledge } from "./components/landing-knowledge"
-import { LandingMarketplace } from "./components/landing-marketplace"
-import { LandingPillars } from "./components/landing-pillars"
+import { LandingCTA } from "./landing-cta"
+import { LandingFeatures } from "./landing-features"
+import { LandingHero } from "./landing-hero"
+import { LandingKnowledge } from "./landing-knowledge"
+import { LandingMarketplace } from "./landing-marketplace"
+import { LandingPillars } from "./landing-pillars"
 
 export default function Home() {
   return (
