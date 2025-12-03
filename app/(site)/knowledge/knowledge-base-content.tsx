@@ -44,6 +44,8 @@ type KnowledgeVertical =
 
 type KnowledgeType = "books" | "videos" | "experts" | "tools" | "articles"
 
+const knowledgeTranslations = translations.en.knowledge
+
 const knowledgeVerticalIcons: Record<KnowledgeVertical, any> = {
   nutrition: ChefHat,
   sleep: Bed,
@@ -239,14 +241,25 @@ export function KnowledgeBaseContent() {
             <div className="relative p-6 md:p-10 space-y-6">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div className="space-y-2">
-                  <p className="text-sm uppercase tracking-[0.2em] text-primary/70">Knowledge Router</p>
-                  <h1 className="text-4xl md:text-5xl font-semibold leading-tight">Explore knowledge fast</h1>
-                  <p className="text-lg text-muted-foreground">Choose your lane and your format.</p>
+                  <p className="text-sm uppercase tracking-[0.2em] text-primary/70">
+                    {knowledgeTranslations.hero.badge}
+                  </p>
+                  <h1 className="text-4xl md:text-5xl font-semibold leading-tight">
+                    {knowledgeTranslations.hero.title}
+                  </h1>
+                  <p className="text-lg text-muted-foreground">{knowledgeTranslations.hero.subtitle}</p>
                   <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                    <span className="rounded-full bg-muted px-3 py-1 font-medium">{activeVertical?.label} first</span>
-                    <span className="rounded-full border px-3 py-1 capitalize">{selectedType}</span>
+                    <span className="rounded-full bg-muted px-3 py-1 font-medium">
+                      {activeVertical
+                        ? `${activeVertical.label}${knowledgeTranslations.heroMeta.verticalEmphasisSuffix}`
+                        : null}
+                    </span>
+                    <span className="rounded-full border px-3 py-1 capitalize">
+                      {knowledgeTranslations.heroMeta.formatLabelPrefix}{" "}
+                      {knowledgeTypes.find((type) => type.id === selectedType)?.label ?? selectedType}
+                    </span>
                     <span className="hidden sm:inline text-border">•</span>
-                    <span className="hidden sm:inline">Auto-curated on load</span>
+                    <span className="hidden sm:inline">{knowledgeTranslations.hero.autoCurated}</span>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2 md:gap-3 lg:justify-end">
@@ -290,7 +303,9 @@ export function KnowledgeBaseContent() {
                           {Icon && <Icon className="h-5 w-5" />}
                           {type.label}
                         </span>
-                        <span className="text-xs text-muted-foreground group-hover:text-foreground">{isActive ? "Active" : "View"}</span>
+                        <span className="text-xs text-muted-foreground group-hover:text-foreground">
+                          {isActive ? knowledgeTranslations.hero.activeState : knowledgeTranslations.hero.viewState}
+                        </span>
                       </button>
                     )
                   })}
@@ -299,7 +314,7 @@ export function KnowledgeBaseContent() {
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {heroCardsToShow.length === 0 && (
                     <p className="col-span-full text-muted-foreground text-sm">
-                      {isLoading ? "Loading knowledge cards..." : "No knowledge cards available."}
+                      {isLoading ? knowledgeTranslations.hero.loading : knowledgeTranslations.hero.empty}
                     </p>
                   )}
                   {heroCardsToShow.map((card) => {
@@ -359,11 +374,10 @@ export function KnowledgeBaseContent() {
         <div className="text-center mb-10">
           <div className="flex items-center justify-center gap-3 mb-4">
             <BookOpen className="h-10 w-10 text-primary" />
-            <h2 className="text-3xl md:text-4xl font-bold">Dig deeper</h2>
+            <h2 className="text-3xl md:text-4xl font-bold">{knowledgeTranslations.header.title}</h2>
           </div>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            The definitive curated library for biohackers. Books, research, white papers, and expert insights across all
-            six optimization pillars.
+            {knowledgeTranslations.header.description}
           </p>
         </div>
 
@@ -371,7 +385,7 @@ export function KnowledgeBaseContent() {
         <div className="relative max-w-xl mx-auto mb-8">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
-            placeholder="Search books, authors, topics..."
+            placeholder={knowledgeTranslations.search.placeholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-12 h-12 rounded-xl bg-card/50 border-border/50"
@@ -379,7 +393,7 @@ export function KnowledgeBaseContent() {
         </div>
 
         <PillarFilter
-          label="Filter by Pillar"
+          label={knowledgeTranslations.filters.pillarLabel}
           options={pillarFilters}
           selected={selectedPillar}
           onSelect={(value) => setSelectedPillar(value as Pillar)}
@@ -390,15 +404,15 @@ export function KnowledgeBaseContent() {
           <TabsList className="bg-card/50 p-1">
             <TabsTrigger value="library" className="gap-2">
               <BookOpen className="h-4 w-4" />
-              Document Library
+              {knowledgeTranslations.tabs.library}
             </TabsTrigger>
             <TabsTrigger value="liberture100" className="gap-2">
               <Trophy className="h-4 w-4" />
-              Liberture 100
+              {knowledgeTranslations.tabs.liberture100}
             </TabsTrigger>
             <TabsTrigger value="influencers" className="gap-2">
               <Users className="h-4 w-4" />
-              50 Influencers
+              {knowledgeTranslations.tabs.influencers}
             </TabsTrigger>
           </TabsList>
 
@@ -406,7 +420,7 @@ export function KnowledgeBaseContent() {
           <TabsContent value="library" className="space-y-6">
             {/* Tag Filters */}
             <div>
-              <p className="text-sm text-muted-foreground mb-3">Filter by Tags</p>
+              <p className="text-sm text-muted-foreground mb-3">{knowledgeTranslations.filters.tagsLabel}</p>
               <div className="flex flex-wrap gap-2">
                 {availableTags.map((tag) => (
                   <Badge
@@ -424,11 +438,11 @@ export function KnowledgeBaseContent() {
             {/* Results */}
             <div className="flex items-center justify-between">
               <p className="text-sm text-muted-foreground">
-                Showing <span className="text-foreground font-medium">{filteredDocuments.length}</span> documents
+                {knowledgeTranslations.results.documentsCount.replace("{count}", filteredDocuments.length.toString())}
               </p>
               <Button variant="outline" size="sm" className="gap-2 bg-transparent">
                 <Plus className="h-4 w-4" />
-                Suggest Resource
+                {knowledgeTranslations.library.suggest}
               </Button>
             </div>
 
@@ -455,12 +469,14 @@ export function KnowledgeBaseContent() {
                           <ExternalLink className="h-4 w-4 text-muted-foreground" />
                         ) : (
                           <Badge variant="outline" className="text-xs">
-                            Internal
+                            {knowledgeTranslations.library.internal}
                           </Badge>
                         )}
                       </div>
                       <h3 className="font-semibold text-lg mb-1">{doc.title}</h3>
-                      <p className="text-sm text-muted-foreground mb-3">by {doc.author}</p>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        {knowledgeTranslations.library.byPrefix} {doc.author}
+                      </p>
                       <div className="flex flex-wrap gap-1 mb-3">
                         {doc.tags.map((tag) => (
                           <Badge key={tag} variant="outline" className="text-xs">
@@ -471,6 +487,7 @@ export function KnowledgeBaseContent() {
                       <div className="flex items-center gap-1">
                         <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
                         <span className="text-sm font-medium">{doc.rating}</span>
+                        <span className="text-xs text-muted-foreground">{knowledgeTranslations.library.influence}</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -485,24 +502,21 @@ export function KnowledgeBaseContent() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Trophy className="h-6 w-6 text-yellow-500" />
-                  The Liberture 100: Essential Biohacking Books
+                  {knowledgeTranslations.liberture100.title}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">
-                  A constantly updated list of the 100 most influential and important biohacking books covering all six
-                  pillars. Ranked by community ratings, sales data, and expert review.
-                </p>
+                <p className="text-muted-foreground">{knowledgeTranslations.liberture100.description}</p>
               </CardContent>
             </Card>
 
             {/* Sort Options */}
             <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">Sort by:</span>
+              <span className="text-sm text-muted-foreground">{knowledgeTranslations.liberture100.sortBy}</span>
               <div className="flex gap-2">
                 {[
-                  { id: "influence", label: "Influence Score" },
-                  { id: "pillar", label: "Pillar" },
+                  { id: "influence", label: knowledgeTranslations.liberture100.sortOptions.influence },
+                  { id: "pillar", label: knowledgeTranslations.liberture100.sortOptions.pillar },
                 ].map((option) => (
                   <Button
                     key={option.id}
@@ -535,20 +549,22 @@ export function KnowledgeBaseContent() {
                         <h3 className="font-semibold truncate">{book.title}</h3>
                         <PillarIcon className={`h-4 w-4 ${pillarInfo?.color} flex-shrink-0`} />
                       </div>
-                      <p className="text-sm text-muted-foreground">by {book.author}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {knowledgeTranslations.library.byPrefix} {book.author}
+                      </p>
                       <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{book.summary}</p>
                     </div>
                     <div className="flex-shrink-0 text-right">
-                      <div className="flex items-center gap-1">
-                        <TrendingUp className="h-4 w-4 text-green-400" />
-                        <span className="font-bold text-lg">{book.influenceScore}</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">Influence</p>
+                    <div className="flex items-center gap-1">
+                      <TrendingUp className="h-4 w-4 text-green-400" />
+                      <span className="font-bold text-lg">{book.influenceScore}</span>
                     </div>
-                    <ExternalLink className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                    <p className="text-xs text-muted-foreground">{knowledgeTranslations.library.influence}</p>
                   </div>
-                )
-              })}
+                  <ExternalLink className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                </div>
+              )
+            })}
             </div>
           </TabsContent>
 
@@ -558,14 +574,11 @@ export function KnowledgeBaseContent() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="h-6 w-6 text-cyan-400" />
-                  The 50 Influencers Index
+                  {knowledgeTranslations.influencers.title}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">
-                  A categorized index of the 50 most renowned biohacking authors, content creators, and researchers.
-                  Each tagged with their primary domains of expertise.
-                </p>
+                <p className="text-muted-foreground">{knowledgeTranslations.influencers.description}</p>
               </CardContent>
             </Card>
 
@@ -601,11 +614,11 @@ export function KnowledgeBaseContent() {
                     </div>
                     <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/50">
                       <div className="text-sm">
-                        <span className="text-muted-foreground">Followers: </span>
+                        <span className="text-muted-foreground">{knowledgeTranslations.influencers.followers} </span>
                         <span className="font-medium">{influencer.followers}</span>
                       </div>
                       <div className="text-sm">
-                        <span className="text-muted-foreground">Publications: </span>
+                        <span className="text-muted-foreground">{knowledgeTranslations.influencers.publications} </span>
                         <span className="font-medium">{influencer.publications}</span>
                       </div>
                     </div>
@@ -620,20 +633,17 @@ export function KnowledgeBaseContent() {
         <div className="mt-12 p-8 rounded-2xl bg-gradient-to-br from-primary/20 via-card to-cyan-400/10 border border-primary/20">
           <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="flex-grow text-center md:text-left">
-              <h3 className="text-xl font-semibold mb-2">Contribute to the Knowledge Base</h3>
-              <p className="text-muted-foreground max-w-xl">
-                Suggest books and resources for community review. Achieve BOS Level 20+ to gain voting privileges and
-                help curate the library.
-              </p>
+              <h3 className="text-xl font-semibold mb-2">{knowledgeTranslations.community.title}</h3>
+              <p className="text-muted-foreground max-w-xl">{knowledgeTranslations.community.description}</p>
             </div>
             <div className="flex gap-3">
               <Button variant="outline" className="gap-2 bg-transparent">
                 <ThumbsUp className="h-4 w-4" />
-                Vote on Suggestions
+                {knowledgeTranslations.community.voteCta}
               </Button>
               <Button className="gap-2">
                 <Plus className="h-4 w-4" />
-                Suggest Resource
+                {knowledgeTranslations.community.suggestCta}
               </Button>
             </div>
           </div>
