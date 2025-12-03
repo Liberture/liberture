@@ -14,6 +14,8 @@ import type { MarketplaceTypeId, PillarId } from "@/lib/translations"
 
 type ContentType = "all" | MarketplaceTypeId
 type Pillar = "all" | PillarId
+
+const marketplaceTranslations = translations.en.marketplace
 const pillarFilters = createPillarFilterOptions<Pillar>(translations.en.common.filters.allDomains, {
   includeBackground: false,
 })
@@ -32,7 +34,7 @@ const contentTypes = [
   { id: "all" as const, name: translations.en.common.filters.allTypes, icon: Filter },
   ...translations.en.common.marketplaceTypes.map((type) => ({
     id: type.id,
-    name: type.id === "coaching" ? "Coaching Services" : type.name,
+    name: marketplaceTranslations.filters.typeOverrides?.[type.id] ?? type.name,
     icon: contentTypeIcons[type.id],
   })),
 ]
@@ -105,17 +107,15 @@ export function MarketplaceContent() {
       <div className="container mx-auto max-w-7xl">
         {/* Header */}
         <div className="text-center mb-10">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Liberture Marketplace</h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Discover protocols, expert coaching, and educational resources curated for your optimization journey.
-          </p>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">{marketplaceTranslations.heading}</h1>
+          <p className="text-muted-foreground max-w-2xl mx-auto">{marketplaceTranslations.description}</p>
         </div>
 
         {/* Search Bar */}
         <div className="relative max-w-xl mx-auto mb-8">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
-            placeholder="Search protocols, coaches, books..."
+            placeholder={marketplaceTranslations.searchPlaceholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-12 h-12 rounded-xl bg-card/50 border-border/50"
@@ -123,7 +123,7 @@ export function MarketplaceContent() {
         </div>
 
         <PillarFilter
-          label="Filter by Optimization Domain"
+          label={marketplaceTranslations.filters.pillarLabel}
           options={pillarFilters}
           selected={selectedPillar}
           onSelect={(value) => setSelectedPillar(value as Pillar)}
@@ -131,7 +131,7 @@ export function MarketplaceContent() {
 
         {/* Secondary Filters - Content Types */}
         <div className="mb-8">
-          <p className="text-sm text-muted-foreground mb-3">Filter by Content Type</p>
+          <p className="text-sm text-muted-foreground mb-3">{marketplaceTranslations.filters.contentTypeLabel}</p>
           <Tabs value={selectedType} onValueChange={(v) => setSelectedType(v as ContentType)}>
             <TabsList className="flex-wrap h-auto gap-1 bg-card/50 p-1">
               {contentTypes.map((type) => (
@@ -151,7 +151,7 @@ export function MarketplaceContent() {
         {/* Results Count */}
         <div className="flex items-center justify-between mb-6">
           <p className="text-sm text-muted-foreground">
-            Showing <span className="text-foreground font-medium">{filteredItems.length}</span> resources
+            {marketplaceTranslations.filters.resultsCount.replace("{count}", filteredItems.length.toString())}
           </p>
         </div>
 
@@ -177,7 +177,7 @@ export function MarketplaceContent() {
                     </Badge>
                   </div>
                   <Badge variant={item.price === 0 ? "outline" : "default"} className="text-xs">
-                    {item.price === 0 ? "Free" : `$${item.price}`}
+                    {item.price === 0 ? marketplaceTranslations.price.free : `$${item.price}`}
                   </Badge>
                 </div>
 
@@ -199,7 +199,9 @@ export function MarketplaceContent() {
 
                 {/* Footer */}
                 <div className="flex items-center justify-between pt-3 border-t border-border/50">
-                  <p className="text-xs text-muted-foreground">by {item.author}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {marketplaceTranslations.meta.byPrefix} {item.author}
+                  </p>
                   <div className="flex items-center gap-1">
                     <Star className="h-3.5 w-3.5 fill-yellow-500 text-yellow-500" />
                     <span className="text-xs font-medium">{item.rating}</span>
@@ -214,7 +216,7 @@ export function MarketplaceContent() {
         {/* Empty State */}
         {filteredItems.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-muted-foreground mb-4">No resources found matching your filters.</p>
+            <p className="text-muted-foreground mb-4">{marketplaceTranslations.emptyState.message}</p>
             <Button
               variant="outline"
               onClick={() => {
@@ -223,19 +225,19 @@ export function MarketplaceContent() {
                 setSearchQuery("")
               }}
             >
-              Clear all filters
+              {marketplaceTranslations.emptyState.reset}
             </Button>
           </div>
         )}
 
         {/* Recommendation Banner */}
         <div className="mt-12 p-8 rounded-2xl bg-gradient-to-br from-primary/20 via-card to-cyan-400/10 border border-primary/20 text-center">
-          <h3 className="text-xl font-semibold mb-2">Personalized Recommendations</h3>
+          <h3 className="text-xl font-semibold mb-2">{marketplaceTranslations.recommendation.title}</h3>
           <p className="text-muted-foreground mb-4 max-w-xl mx-auto">
-            Sign in to get AI-powered recommendations based on your BOS Level and performance gaps.
+            {marketplaceTranslations.recommendation.description}
           </p>
           <Button className="gap-2">
-            Get Personalized Picks <ArrowRight className="h-4 w-4" />
+            {marketplaceTranslations.recommendation.cta} <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
       </div>

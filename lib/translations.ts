@@ -40,6 +40,100 @@ type LandingKnowledgeCard = {
   accent: "primary" | "yellow" | "cyan"
 }
 
+type MarketplaceTranslations = {
+  heading: string
+  description: string
+  searchPlaceholder: string
+  filters: {
+    pillarLabel: string
+    contentTypeLabel: string
+    resultsCount: string
+    typeOverrides?: Partial<Record<MarketplaceTypeId, string>>
+  }
+  price: {
+    free: string
+  }
+  meta: {
+    byPrefix: string
+  }
+  emptyState: {
+    message: string
+    reset: string
+  }
+  recommendation: {
+    title: string
+    description: string
+    cta: string
+  }
+}
+
+type KnowledgeTranslations = {
+  hero: {
+    badge: string
+    title: string
+    subtitle: string
+    description: string
+    autoCurated: string
+    activeState: string
+    viewState: string
+    loading: string
+    empty: string
+  }
+  header: {
+    title: string
+    description: string
+  }
+  tabs: {
+    library: string
+    liberture100: string
+    influencers: string
+  }
+  search: {
+    placeholder: string
+  }
+  filters: {
+    pillarLabel: string
+    tagsLabel: string
+  }
+  heroMeta: {
+    verticalEmphasisSuffix: string
+    formatLabelPrefix: string
+  }
+  results: {
+    cardsTitle: string
+    cardsDescription: string
+    documentsCount: string
+  }
+  library: {
+    suggest: string
+    internal: string
+    external: string
+    influence: string
+    byPrefix: string
+  }
+  liberture100: {
+    title: string
+    description: string
+    sortBy: string
+    sortOptions: {
+      influence: string
+      pillar: string
+    }
+  }
+  influencers: {
+    title: string
+    description: string
+    followers: string
+    publications: string
+  }
+  community: {
+    title: string
+    description: string
+    voteCta: string
+    suggestCta: string
+  }
+}
+
 type Translations = {
   brand: {
     name: string
@@ -107,6 +201,8 @@ type Translations = {
       terms: string
     }
   }
+  marketplace: MarketplaceTranslations
+  knowledge: KnowledgeTranslations
 }
 
 export const translations: { en: Translations } = {
@@ -287,6 +383,105 @@ export const translations: { en: Translations } = {
       footer: {
         privacy: "Privacy",
         terms: "Terms",
+      },
+    },
+    marketplace: {
+      heading: "Liberture Marketplace",
+      description: "Discover protocols, expert coaching, and educational resources curated for your optimization journey.",
+      searchPlaceholder: "Search protocols, coaches, books...",
+      filters: {
+        pillarLabel: "Filter by Optimization Domain",
+        contentTypeLabel: "Filter by Content Type",
+        resultsCount: "Showing {count} resources",
+        typeOverrides: {
+          coaching: "Coaching Services",
+        },
+      },
+      price: {
+        free: "Free",
+      },
+      meta: {
+        byPrefix: "by",
+      },
+      emptyState: {
+        message: "No resources found matching your filters.",
+        reset: "Clear all filters",
+      },
+      recommendation: {
+        title: "Personalized Recommendations",
+        description: "Sign in to get AI-powered recommendations based on your BOS Level and performance gaps.",
+        cta: "Get Personalized Picks",
+      },
+    },
+    knowledge: {
+      hero: {
+        badge: "Knowledge Router",
+        title: "Explore knowledge fast",
+        subtitle: "Choose your lane and your format.",
+        description: "Auto-curated on load",
+        autoCurated: "Auto-curated on load",
+        activeState: "Active",
+        viewState: "View",
+        loading: "Loading knowledge cards...",
+        empty: "No knowledge cards available.",
+      },
+      header: {
+        title: "Dig deeper",
+        description:
+          "The definitive curated library for biohackers. Books, research, white papers, and expert insights across all six optimization pillars.",
+      },
+      tabs: {
+        library: "Document Library",
+        liberture100: "Liberture 100",
+        influencers: "50 Influencers",
+      },
+      search: {
+        placeholder: "Search books, authors, topics...",
+      },
+      filters: {
+        pillarLabel: "Filter by Optimization Domain",
+        tagsLabel: "Filter by Tags",
+      },
+      heroMeta: {
+        verticalEmphasisSuffix: " first",
+        formatLabelPrefix: "Format:",
+      },
+      results: {
+        cardsTitle: "The Liberture 100: Essential Biohacking Books",
+        cardsDescription:
+          "A constantly updated list of the 100 most influential and important biohacking books covering all six pillars. Ranked by community ratings, sales data, and expert review.",
+        documentsCount: "Showing {count} documents",
+      },
+      library: {
+        suggest: "Suggest Resource",
+        internal: "Internal",
+        external: "External",
+        influence: "Influence",
+        byPrefix: "by",
+      },
+      liberture100: {
+        title: "The Liberture 100: Essential Biohacking Books",
+        description:
+          "A constantly updated list of the 100 most influential and important biohacking books covering all six pillars. Ranked by community ratings, sales data, and expert review.",
+        sortBy: "Sort by:",
+        sortOptions: {
+          influence: "Influence Score",
+          pillar: "Pillar",
+        },
+      },
+      influencers: {
+        title: "The 50 Influencers Index",
+        description:
+          "A categorized index of the 50 most renowned biohacking authors, content creators, and researchers. Each tagged with their primary domains of expertise.",
+        followers: "Followers:",
+        publications: "Publications:",
+      },
+      community: {
+        title: "Contribute to the Knowledge Base",
+        description:
+          "Suggest books and resources for community review. Achieve BOS Level 20+ to gain voting privileges and help curate the library.",
+        voteCta: "Vote on Suggestions",
+        suggestCta: "Suggest Resource",
       },
     },
   },
