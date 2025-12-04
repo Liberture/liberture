@@ -6,6 +6,19 @@
         "Intermittent Fasting",
         "Epigenetics",
         "Nootropics",
+        "Biohacking",
+        "Longevity",
+        "Performance",
+        "Metabolic Flexibility",
+        "Diet Protocols",
+        "Nutrition Strategy",
+        "Brain Health",
+        "Aging Reversal",
+        "Gut Health",
+        "Microbiome",
+        "Alzheimer's Prevention",
+        "Athletic Performance",
+        "Neuroscience",
         "HRV",
         "Sleep Cycles",
         "Meditation",
@@ -559,6 +572,286 @@
             ],
             "rating": 4.4,
             "external": false
+        },
+        {
+            "id": 11,
+            "title": "Boundless",
+            "author": "Ben Greenfield",
+            "type": "Book",
+            "pillar": "physicality",
+            "tags": [
+                "Biohacking",
+                "Performance",
+                "Longevity"
+            ],
+            "rating": 4.8,
+            "external": true
+        },
+        {
+            "id": 12,
+            "title": "Smarter Not Harder",
+            "author": "Dave Asprey",
+            "type": "Book",
+            "pillar": "cognition",
+            "tags": [
+                "Biohacking",
+                "Performance",
+                "Aging Reversal"
+            ],
+            "rating": 4.6,
+            "external": true
+        },
+        {
+            "id": 13,
+            "title": "The Bulletproof Diet",
+            "author": "Dave Asprey",
+            "type": "Book",
+            "pillar": "fueling",
+            "tags": [
+                "Nutrition Strategy",
+                "Diet Protocols",
+                "Metabolic Flexibility"
+            ],
+            "rating": 4.7,
+            "external": true
+        },
+        {
+            "id": 14,
+            "title": "Super Human",
+            "author": "Dave Asprey",
+            "type": "Book",
+            "pillar": "recovery",
+            "tags": [
+                "Longevity",
+                "Aging Reversal",
+                "Biohacking"
+            ],
+            "rating": 4.7,
+            "external": true
+        },
+        {
+            "id": 15,
+            "title": "Biohackers' Handbook",
+            "author": "Teemu Arina, Olli Sovijärvi, Jaakko Halmetoja",
+            "type": "Book",
+            "pillar": "cognition",
+            "tags": [
+                "Biohacking",
+                "Performance",
+                "Neuroscience"
+            ],
+            "rating": 4.8,
+            "external": true
+        },
+        {
+            "id": 16,
+            "title": "The Awakened Ape",
+            "author": "Jevan Pradas",
+            "type": "Book",
+            "pillar": "mental",
+            "tags": [
+                "Biohacking",
+                "Performance",
+                "Longevity"
+            ],
+            "rating": 4.5,
+            "external": true
+        },
+        {
+            "id": 17,
+            "title": "Outlive",
+            "author": "Peter Attia",
+            "type": "Book",
+            "pillar": "physicality",
+            "tags": [
+                "Longevity",
+                "Aging Reversal",
+                "Metabolic Flexibility"
+            ],
+            "rating": 4.9,
+            "external": true
+        },
+        {
+            "id": 18,
+            "title": "Lifespan",
+            "author": "David A. Sinclair",
+            "type": "Book",
+            "pillar": "recovery",
+            "tags": [
+                "Epigenetics",
+                "Longevity",
+                "Aging Reversal"
+            ],
+            "rating": 4.8,
+            "external": true
+        },
+        {
+            "id": 19,
+            "title": "The 4-Hour Body",
+            "author": "Tim Ferriss",
+            "type": "Book",
+            "pillar": "physicality",
+            "tags": [
+                "Performance",
+                "Strength Training",
+                "Diet Protocols"
+            ],
+            "rating": 4.7,
+            "external": true
+        },
+        {
+            "id": 20,
+            "title": "Tools of Titans",
+            "author": "Tim Ferriss",
+            "type": "Book",
+            "pillar": "cognition",
+            "tags": [
+                "Performance",
+                "Biohacking",
+                "Neuroscience"
+            ],
+            "rating": 4.6,
+            "external": true
+        },
+        {
+            "id": 21,
+            "title": "The Biology of Belief",
+            "author": "Bruce H. Lipton",
+            "type": "Book",
+            "pillar": "mental",
+            "tags": [
+                "Brain Health",
+                "Neuroscience",
+                "Aging Reversal"
+            ],
+            "rating": 4.5,
+            "external": true
+        },
+        {
+            "id": 22,
+            "title": "Quantum Healing",
+            "author": "Deepak Chopra",
+            "type": "Book",
+            "pillar": "mental",
+            "tags": [
+                "Brain Health",
+                "Longevity",
+                "Biohacking"
+            ],
+            "rating": 4.4,
+            "external": true
+        },
+        {
+            "id": 23,
+            "title": "10% Human",
+            "author": "Alanna Collen",
+            "type": "Book",
+            "pillar": "fueling",
+            "tags": [
+                "Microbiome",
+                "Gut Health",
+                "Nutrition Strategy"
+            ],
+            "rating": 4.6,
+            "external": true
+        },
+        {
+            "id": 24,
+            "title": "The End of Alzheimer's",
+            "author": "Dale E. Bredesen",
+            "type": "Book",
+            "pillar": "cognition",
+            "tags": [
+                "Alzheimer's Prevention",
+                "Brain Health",
+                "Longevity"
+            ],
+            "rating": 4.7,
+            "external": true
+        },
+        {
+            "id": 25,
+            "title": "Genius Foods",
+            "author": "Max Lugavere",
+            "type": "Book",
+            "pillar": "fueling",
+            "tags": [
+                "Brain Health",
+                "Nutrition Strategy",
+                "Metabolic Flexibility"
+            ],
+            "rating": 4.7,
+            "external": true
+        },
+        {
+            "id": 26,
+            "title": "Biohacking for Athletes",
+            "author": "Andreas Breitfeld",
+            "type": "Book",
+            "pillar": "physicality",
+            "tags": [
+                "Athletic Performance",
+                "Biohacking",
+                "Strength Training"
+            ],
+            "rating": 4.6,
+            "external": true
+        },
+        {
+            "id": 27,
+            "title": "Better Body – Better Brain",
+            "author": "Anja Leitz",
+            "type": "Book",
+            "pillar": "cognition",
+            "tags": [
+                "Brain Health",
+                "Performance",
+                "Strength Training"
+            ],
+            "rating": 4.6,
+            "external": true
+        },
+        {
+            "id": 28,
+            "title": "Living Longer",
+            "author": "Evidence-Based Biohacks",
+            "type": "Book",
+            "pillar": "recovery",
+            "tags": [
+                "Longevity",
+                "Biohacking",
+                "Aging Reversal"
+            ],
+            "rating": 4.5,
+            "external": true
+        },
+        {
+            "id": 29,
+            "title": "Biohacking: The Science of Optimizing Your Body",
+            "author": "Health Performance Collective",
+            "type": "Book",
+            "pillar": "physicality",
+            "tags": [
+                "Biohacking",
+                "Performance",
+                "Metabolic Flexibility"
+            ],
+            "rating": 4.5,
+            "external": true
+        },
+        {
+            "id": 30,
+            "title": "The Biohacking Manifesto",
+            "author": "Neuroscience Longevity Lab",
+            "type": "Book",
+            "pillar": "recovery",
+            "tags": [
+                "Biohacking",
+                "Longevity",
+                "Aging Reversal"
+            ],
+            "rating": 4.5,
+            "external": true
         }
     ]
 }
