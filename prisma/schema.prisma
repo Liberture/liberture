@@ -1,0 +1,91 @@
+// This is your Prisma schema file
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model KnowledgeArticle {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  pillar      String
+  tags        String // JSON array as string
+  author      String
+  readTime    Int
+  url         String
+  publishedAt DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model MarketplaceItem {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  pillar      String
+  type        String // "premium" | "opensource"
+  author      String
+  rating      Float
+  reviews     Int
+  price       Int
+  duration    String
+  color       String
+  iconColor   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Content {
+  id           String   @id @default(cuid())
+  title        String
+  description  String
+  pillar       String
+  type         String
+  author       String // JSON object as string
+  influencerScore Int?
+  rating       Float
+  reviews      Int
+  price        Int
+  duration     String
+  tags         String // JSON array as string
+  outcomes     String // JSON array as string
+  prerequisites String? // JSON array as string
+  difficulty   String
+  bioScores    String // JSON object as string
+  lessonCount  Int?
+  contentUrl   String?
+  socialLinks  String? // JSON object as string
+  updates      String? // JSON array as string
+  relatedContent String? // JSON array as string
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model SocialPost {
+  id          String   @id @default(cuid())
+  author      String
+  avatarUrl   String
+  timeAgo     String
+  content     String
+  likes       Int
+  comments    Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PlatformComment {
+  id         String   @id @default(cuid())
+  contentId  String
+  author     String
+  avatarUrl  String
+  timeAgo    String
+  comment    String
+  helpful    Int
+  replies    Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
