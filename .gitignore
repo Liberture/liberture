@@ -53,3 +53,5 @@ pids
 .swp
 .tmp
 *.swp
+
+/lib/generated/prisma
