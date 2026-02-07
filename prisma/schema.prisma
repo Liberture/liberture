@@ -89,3 +89,13 @@ model PlatformComment {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  password      String
+  bosLevel      Int      @default(1)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
