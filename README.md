@@ -1,31 +1,182 @@
-# Liberture Platform
+# Liberture - Biological Operating System Platform
 
-Liberture is a biological operating system that unifies data, coaching, and personalized insights to help people master their biology. This repository contains the Next.js codebase for the Liberture web experience, including customer-facing pages, data visualizations, and authentication flows.
+A comprehensive biohacking directory and knowledge platform for human optimization across 6 pillars.
 
-## What sets Liberture apart
-- **Holistic performance**: Combine biometric inputs, lifestyle tracking, and expert guidance to build habits that stick.
-- **Personalized journeys**: Adaptive programs that adjust to your progress, recovery, and daily readiness.
-- **Actionable insights**: Dashboards that translate raw health data into clear recommendations.
-- **Security and privacy**: Authentication, protected routes, and secure data handling built into the platform.
+## 6 Pillars
 
-## SEO focus
-- Primary keywords: biological operating system, human performance platform, wellness optimization, bio-tracking, habit coaching, Liberture.
-- Optimized metadata for sharing on social platforms via Open Graph and Twitter cards.
-- Accessible typography and responsive layout powered by Next.js and Tailwind CSS.
+1. **Cognition** - Mental performance, focus, learning
+2. **Recovery** - Sleep, rest, regeneration
+3. **Fueling** - Nutrition, supplementation, metabolism
+4. **Mental** - Emotional health, mindfulness, resilience
+5. **Physicality** - Strength, endurance, movement
+6. **Finance** - Wealth building, financial independence
 
-## Technology
-- **Framework**: Next.js 16 with the App Router
-- **Styling**: Tailwind CSS with custom design tokens
-- **State & data**: React 19, React Hook Form, and context providers
-- **Analytics**: Vercel Analytics for privacy-friendly telemetry
+## Features
 
-## Local development
-1. Install dependencies with `pnpm install`.
-2. Run the development server with `pnpm dev`.
-3. Visit `http://localhost:3000` to view the app.
+### Directory
+- **/people** - Biohackers, researchers, pioneers
+- **/organizations** - Labs, companies, communities
+- **/protocols** - Methods and systems for optimization
+- **/books** - Free, royalty-free resources
+
+### Knowledge Base
+36+ curated articles across all 6 pillars:
+- Cold exposure science
+- Nootropics guides
+- Sleep optimization
+- Metabolic flexibility
+- HRV training
+- And more...
+
+### Marketplace
+Free protocols and resources (no monetization currently)
+
+### Admin Panel
+Full-featured admin system for managing:
+- Users (ban/unban, roles, impersonation)
+- Knowledge articles
+- Marketplace items
+- Content
+- Social posts
+- Platform comments
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router, Turbopack)
+- **Database:** Prisma 5 + SQLite
+- **Auth:** better-auth with Prisma adapter
+- **Animations:** Framer Motion
+- **Styling:** Tailwind CSS
+- **UI:** Radix UI components
+- **Deployment:** PM2 on Hetzner
+
+## Development
+
+```bash
+pnpm install
+pnpm dev              # Development server
+pnpm build           # Production build
+npx prisma db push   # Sync database schema
+npx prisma studio    # Database GUI
+```
+
+## Database
+
+Models:
+- KnowledgeArticle
+- MarketplaceItem
+- Content
+- SocialPost
+- PlatformComment
+- User
+- Session
+- Account
+- Verification
+
+## Authentication
+
+Uses better-auth with admin plugin:
+- Email/password login
+- Session-based (7 day expiry)
+- Admin impersonation support
+- Role-based access (user/admin/moderator)
+- Ban system with reasons
+
+Admin login: https://liberture.com/admin-login
+
+## Scripts
+
+```bash
+# Add knowledge articles
+npx tsx scripts/add-knowledge-articles.ts
+npx tsx scripts/add-more-articles.ts
+
+# Add admin user
+npx tsx scripts/create-admin.ts
+
+# Sample data (when schema extended)
+npx tsx scripts/add-sample-people.ts
+```
 
 ## Deployment
-The project is optimized for Vercel deployments. Build with `pnpm build` and deploy directly through Vercel or your preferred platform.
+
+Running on PM2 as `liberture`:
+- Port: 3033
+- Domain: https://liberture.com
+- SSL: Let's Encrypt
+
+```bash
+pm2 restart liberture
+pm2 logs liberture
+```
+
+## Project Structure
+
+```
+app/
+├── (site)/           # Public pages
+│   ├── (landing)/    # Homepage sections
+│   ├── directory/    # Directory landing
+│   ├── marketplace/  # Browse protocols
+│   ├── knowledge/    # Browse articles
+│   ├── people/       # Person profiles
+│   ├── organizations/# Org profiles
+│   ├── protocols/    # Protocol details
+│   └── books/        # Book library
+├── admin/            # Admin panel
+│   ├── users-admin.tsx
+│   ├── knowledge-admin.tsx
+│   ├── marketplace-admin.tsx
+│   └── ...
+├── dashboard/        # User dashboard
+└── api/              # API routes
+    ├── auth/[...all]
+    ├── admin/
+    └── ...
+
+components/
+├── animations/       # Framer Motion wrappers
+├── illustrations/    # SVG components
+│   ├── backgrounds/
+│   └── icons/
+└── ui/               # Reusable UI components
+
+lib/
+├── animations.ts     # Animation variants
+├── auth-better.ts    # Better-auth config
+└── prisma.ts         # Prisma client
+
+prisma/
+├── schema.prisma     # Database schema
+├── prisma/liberture.db
+└── migrations/       # SQL migrations
+
+scripts/
+├── add-knowledge-articles.ts
+├── add-more-articles.ts
+├── add-sample-people.ts
+└── create-admin.ts
+```
+
+## Content Focus
+
+All content is:
+- **Free** - No monetization, open access
+- **Evidence-based** - Science-backed information
+- **Royalty-free** - Public domain or properly licensed
+- **Quality-first** - Curated, not aggregated
+
+## Roadmap
+
+- [ ] Extend schema with Person, Organization, Protocol, Book models
+- [ ] Populate directory with real profiles
+- [ ] User accounts and progress tracking
+- [ ] Protocol templates and guides
+- [ ] Community features
+- [ ] Mobile app
 
 ## Contributing
-Contributions are welcome. Please open an issue or pull request with clear descriptions of your changes.
+
+Built and maintained by Robert Claw 🦞 for Leon Acosta
+
+Last updated: February 8, 2026
