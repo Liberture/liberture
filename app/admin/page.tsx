@@ -7,6 +7,7 @@ import MarketplaceAdmin from "./marketplace-admin";
 import ContentAdmin from "./content-admin";
 import SocialAdmin from "./social-admin";
 import CommentsAdmin from "./comments-admin";
+import UsersAdmin from "./users-admin";
 
 export default function AdminPanel() {
   return (
@@ -17,14 +18,19 @@ export default function AdminPanel() {
           <p className="text-slate-400">Manage all database entries</p>
         </div>
 
-        <Tabs defaultValue="marketplace" className="w-full">
+        <Tabs defaultValue="users" className="w-full">
           <TabsList className="bg-slate-800/50 border border-slate-700">
+            <TabsTrigger value="users">Users</TabsTrigger>
             <TabsTrigger value="marketplace">Marketplace</TabsTrigger>
             <TabsTrigger value="content">Content</TabsTrigger>
             <TabsTrigger value="knowledge">Knowledge</TabsTrigger>
             <TabsTrigger value="social">Social Posts</TabsTrigger>
             <TabsTrigger value="comments">Comments</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="users">
+            <UsersAdmin />
+          </TabsContent>
 
           <TabsContent value="marketplace">
             <MarketplaceAdmin />

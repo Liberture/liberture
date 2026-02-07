@@ -1,9 +1,13 @@
+"use client"
+
 import Link from "next/link"
+import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Zap } from "lucide-react"
 import { FoldedDrift, RippleBloom } from "@/components/patterns"
 import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
 import { translations } from "@/lib/translations"
+import { staggerContainer, staggerItem } from "@/lib/animations"
 
 export function LandingHero() {
   const { hero } = translations.en.landing
@@ -19,24 +23,41 @@ export function LandingHero() {
         opacity={0.24}
       />
       <div className="container relative z-10 mx-auto max-w-7xl">
-        <div className="text-center max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
+        <motion.div 
+          className="text-center max-w-4xl mx-auto"
+          initial="initial"
+          animate="animate"
+          variants={staggerContainer}
+        >
+          <motion.div 
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6"
+            variants={staggerItem}
+          >
             <Zap className="h-4 w-4 text-primary" />
             <span className="text-sm text-primary font-medium">{hero.badge}</span>
-          </div>
+          </motion.div>
 
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6 text-balance">
+          <motion.h1 
+            className="text-5xl md:text-7xl font-bold tracking-tight mb-6 text-balance"
+            variants={staggerItem}
+          >
             {hero.title}{" "}
             <span className="bg-gradient-to-r from-primary via-cyan-400 to-green-400 bg-clip-text text-transparent">
               {hero.highlight}
             </span>
-          </h1>
+          </motion.h1>
 
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty">
+          <motion.p 
+            className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty"
+            variants={staggerItem}
+          >
             {hero.description}
-          </p>
+          </motion.p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+          <motion.div 
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
+            variants={staggerItem}
+          >
             <Link href="/login">
               <Button size="lg" className="bg-primary hover:bg-primary/90 gap-2 text-lg px-8">
                 {hero.primaryCta} <ArrowRight className="h-5 w-5" />
@@ -47,10 +68,13 @@ export function LandingHero() {
                 {hero.secondaryCta}
               </Button>
             </Link>
-          </div>
+          </motion.div>
 
           {/* Pillar Icons */}
-          <div className="flex items-center justify-center gap-6 md:gap-10">
+          <motion.div 
+            className="flex items-center justify-center gap-6 md:gap-10"
+            variants={staggerItem}
+          >
             {pillars.map((pillar) => {
               const Icon = PILLAR_ICON_MAP[pillar.id]
               return (
@@ -64,8 +88,8 @@ export function LandingHero() {
                 </div>
               )
             })}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   )
