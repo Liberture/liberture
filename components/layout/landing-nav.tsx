@@ -17,7 +17,7 @@ export function LandingNav() {
     <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between max-w-7xl">
         <Link href="/" className="flex items-center gap-3 group">
-          <LibertureLogo size={48} animate={false} className="transition-transform group-hover:scale-110" />
+          <LibertureLogo size={48} className="transition-transform group-hover:scale-110" />
           <span className="text-xl font-bold tracking-tight">{brand.name}</span>
         </Link>
 
