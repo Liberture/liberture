@@ -149,3 +149,102 @@ model Verification {
 
   @@unique([identifier, value])
 }
+
+// Directory models
+model Person {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  title       String
+  bio         String
+  pillars     String // Comma-separated pillar IDs
+  expertise   String
+  followers   String?
+  website     String?
+  twitter     String?
+  instagram   String?
+  youtube     String?
+  podcast     String?
+  imageUrl    String?
+  achievements String? // JSON array
+  publications String? // JSON array
+  protocols   String? // JSON array of protocol IDs
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String
+  pillars     String // Comma-separated
+  type        String // "research", "platform", "community", etc.
+  founded     String?
+  website     String
+  resources   String? // JSON array
+  keyPeople   String? // JSON array of person IDs
+  featured    Boolean  @default(false)
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Protocol {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String
+  pillar      String
+  creator     String? // Person ID or name
+  duration    String?
+  difficulty  String // "beginner", "intermediate", "advanced"
+  steps       String // JSON array
+  benefits    String // JSON array
+  risks       String? // JSON array
+  equipment   String? // JSON array
+  references  String? // JSON array
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Book {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  author      String
+  description String
+  pillars     String // Comma-separated
+  year        Int?
+  pages       Int?
+  isbn        String?
+  amazonUrl   String?
+  rating      Float?
+  keyTakeaways String? // JSON array
+  forWho      String? // Who should read this
+  featured    Boolean  @default(false)
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Newsletter {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  subscribed  Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  subject   String?
+  message   String
+  replied   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
