@@ -1,0 +1,156 @@
+{
+  "people": [
+    {
+      "slug": "andrew-huberman",
+      "wikipedia": "https://en.wikipedia.org/wiki/Andrew_Huberman",
+      "publications": [
+        "14,413+ citations on Google Scholar",
+        "Research on neural plasticity and visual system development",
+        "2023: Stress mitigation research paper with David Spiegel",
+        "Published in Nature, Cell, Neuron, and other top-tier journals"
+      ],
+      "speakingEvents": [
+        "Host of Huberman Lab Podcast (2021-present, 4M+ subscribers)",
+        "Joe Rogan Experience (#1513, #1683, #1752, #1997)",
+        "Lex Fridman Podcast (#234, #311, #436)",
+        "Tim Ferriss Show (#521, #582, #661)",
+        "Rich Roll Podcast",
+        "Stanford Medicine lectures and public talks"
+      ],
+      "achievements": [
+        "Associate Professor of Neurobiology & Ophthalmology at Stanford",
+        "10+ million social media followers across platforms",
+        "McKnight Foundation Scholar Award",
+        "Pew Biomedical Scholar Award",
+        "Featured in Time Magazine's 100 Most Influential People (2023)"
+      ]
+    },
+    {
+      "slug": "wim-hof",
+      "wikipedia": "https://en.wikipedia.org/wiki/Wim_Hof",
+      "publications": [
+        "Co-authored research on cold exposure and immune response (PNAS, 2014)",
+        "The Wim Hof Method: Activate Your Full Human Potential (2020)",
+        "Featured in over 100 scientific studies on cold therapy"
+      ],
+      "speakingEvents": [
+        "TEDx Amsterdam",
+        "Joe Rogan Experience (#712, #865, #1218)",
+        "London Real",
+        "VICE Documentary: The Iceman (2015)",
+        "Netflix: Limitless with Chris Hemsworth",
+        "Goop Health Summit"
+      ],
+      "achievements": [
+        "26 Guinness World Records holder",
+        "Climbed Mt. Everest in shorts",
+        "Ran half marathon above Arctic Circle barefoot",
+        "Withstood full-body immersion in ice for 1 hour 52 minutes",
+        "First person to voluntarily control autonomic nervous system (proven by science)"
+      ]
+    },
+    {
+      "slug": "peter-attia",
+      "wikipedia": "https://en.wikipedia.org/wiki/Peter_Attia",
+      "publications": [
+        "Outlive: The Science & Art of Longevity (2023, NYT Bestseller)",
+        "Published research on metabolic syndrome and longevity",
+        "Regular contributor to medical journals on nutrition and exercise physiology"
+      ],
+      "speakingEvents": [
+        "Host of The Drive Podcast (2018-present)",
+        "Joe Rogan Experience (#1044, #1108, #1210, #1513, #1661)",
+        "Tim Ferriss Show (#50, #65, #398, #459, #673)",
+        "Rich Roll Podcast",
+        "TED: What if we're wrong about diabetes?",
+        "Multiple TEDMED and medical conference keynotes"
+      ],
+      "achievements": [
+        "MD from Stanford University",
+        "Former surgical oncology fellow at Johns Hopkins",
+        "Founded Early Medical (longevity-focused practice)",
+        "Special Operations Command physician",
+        "Competed in ultra-endurance events (Ironman, ultra-marathons)"
+      ]
+    },
+    {
+      "slug": "david-sinclair",
+      "wikipedia": "https://en.wikipedia.org/wiki/David_A._Sinclair",
+      "publications": [
+        "Lifespan: Why We Age—and Why We Don't Have To (2019, NYT Bestseller)",
+        "200+ research papers, 50+ patents",
+        "Co-discovered NAD+ boosters and sirtuins role in aging",
+        "Published in Nature, Science, Cell"
+      ],
+      "speakingEvents": [
+        "Joe Rogan Experience (#1234, #1349, #1432, #1658)",
+        "Lex Fridman Podcast (#189)",
+        "TED: Why we age and why we don't have to",
+        "TIME Magazine's 100 Most Influential People (2014)",
+        "Host of Lifespan Podcast"
+      ],
+      "achievements": [
+        "Professor in genetics at Harvard Medical School",
+        "Co-founder of multiple biotech companies",
+        "Discovered mechanism of resveratrol",
+        "30+ awards including Australian Medical Research Medal",
+        "Advised governments on aging research policy"
+      ]
+    }
+  ],
+  "books": [
+    {
+      "slug": "why-we-sleep-unlocking-the-power-of-sleep-and-dreams",
+      "wikipedia": "https://en.wikipedia.org/wiki/Why_We_Sleep",
+      "isbn": "978-1501144318",
+      "publications": [
+        "Debated in The Lancet and other medical journals",
+        "Featured in New York Times, Wall Street Journal, Guardian",
+        "Bill Gates' favorite book of 2019",
+        "Translated into 40+ languages"
+      ],
+      "keyTakeaways": [
+        "Adults need 7-9 hours of sleep for optimal health",
+        "Sleep deprivation linked to Alzheimer's, cancer, diabetes",
+        "REM sleep essential for emotional regulation and creativity",
+        "Sleep before learning prepares brain to make new memories",
+        "Sleep after learning consolidates those memories"
+      ]
+    },
+    {
+      "slug": "lifespan-why-we-age-and-why-we-dont-have-to",
+      "wikipedia": "https://en.wikipedia.org/wiki/Lifespan_(book)",
+      "isbn": "978-1501191978",
+      "publications": [
+        "New York Times Bestseller for 20+ weeks",
+        "Featured in TIME, Forbes, Nature",
+        "Recommended by Bill Gates, Tim Ferriss, Naval Ravikant"
+      ],
+      "keyTakeaways": [
+        "Aging is a disease that can be treated, not inevitable",
+        "Information theory of aging: loss of epigenetic information",
+        "NAD+ and sirtuins central to longevity pathways",
+        "Intermittent fasting and exercise activate longevity genes",
+        "Future: aging reversal through cellular reprogramming"
+      ]
+    },
+    {
+      "slug": "outlive-the-science-and-art-of-longevity",
+      "wikipedia": "https://en.wikipedia.org/wiki/Outlive_(book)",
+      "isbn": "978-0593236598",
+      "publications": [
+        "New York Times #1 Bestseller (2023)",
+        "Apple Books Best Book of 2023",
+        "Featured in WSJ, NYT, The Atlantic",
+        "Endorsed by Tim Ferriss, Sam Harris, Rich Roll"
+      ],
+      "keyTakeaways": [
+        "Medicine 3.0: prevention over treatment, longevity over lifespan",
+        "Four Horsemen of death: cardiovascular disease, cancer, neurodegenerative disease, metabolic dysfunction",
+        "Exercise is the most potent longevity drug",
+        "VO2 max and muscle mass strongest predictors of longevity",
+        "Emotional health as important as physical health"
+      ]
+    }
+  ]
+}

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Globe, Twitter, Instagram, Youtube, Mic } from "lucide-react";
+import { Globe, Twitter, Instagram, Youtube, Mic, BookOpen, MessageSquare } from "lucide-react";
 import { PersonSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
 
 type Person = {
@@ -16,6 +16,7 @@ type Person = {
   expertise: string;
   followers: string | null;
   website: string | null;
+  wikipedia: string | null;
   twitter: string | null;
   instagram: string | null;
   youtube: string | null;
@@ -23,6 +24,7 @@ type Person = {
   imageUrl: string | null;
   achievements: string | null;
   publications: string | null;
+  speakingEvents: string | null;
   protocols: string | null;
   featured: boolean;
 };
@@ -85,6 +87,8 @@ export default function PersonPage() {
   }
 
   const achievements = person.achievements ? JSON.parse(person.achievements) : [];
+  const publications = person.publications ? JSON.parse(person.publications) : [];
+  const speakingEvents = person.speakingEvents ? JSON.parse(person.speakingEvents) : [];
   const pillars = person.pillars.split(',').map(p => p.trim());
 
   return (
@@ -122,6 +126,17 @@ export default function PersonPage() {
             
             {/* Social Links */}
             <div className="flex flex-wrap items-center gap-4">
+              {person.wikipedia && (
+                <a 
+                  href={person.wikipedia} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors font-medium"
+                >
+                  <BookOpen className="w-5 h-5" />
+                  <span>Wikipedia</span>
+                </a>
+              )}
               {person.website && (
                 <a 
                   href={person.website} 
@@ -194,6 +209,42 @@ export default function PersonPage() {
                       <li key={i} className="flex items-start gap-3">
                         <span className="text-purple-400 mt-1">•</span>
                         <span className="text-slate-300">{achievement}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Publications */}
+              {publications.length > 0 && (
+                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <BookOpen className="w-6 h-6 text-green-400" />
+                    Publications & Research
+                  </h2>
+                  <ul className="space-y-3">
+                    {publications.map((pub: string, i: number) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span className="text-green-400 mt-1">→</span>
+                        <span className="text-slate-300">{pub}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Speaking Events */}
+              {speakingEvents.length > 0 && (
+                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <MessageSquare className="w-6 h-6 text-cyan-400" />
+                    Speaking & Appearances
+                  </h2>
+                  <ul className="space-y-3">
+                    {speakingEvents.map((event: string, i: number) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span className="text-cyan-400 mt-1">→</span>
+                        <span className="text-slate-300">{event}</span>
                       </li>
                     ))}
                   </ul>
