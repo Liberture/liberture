@@ -10,6 +10,7 @@ datasource db {
 
 model KnowledgeArticle {
   id          String   @id @default(cuid())
+  slug        String   @unique
   title       String
   description String
   pillar      String
@@ -24,6 +25,7 @@ model KnowledgeArticle {
 
 model MarketplaceItem {
   id          String   @id @default(cuid())
+  slug        String   @unique
   title       String
   description String
   pillar      String

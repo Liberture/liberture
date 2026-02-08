@@ -72,11 +72,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     // Fetch all dynamic content with slugs
-    const [people, organizations, protocols, books] = await Promise.all([
+    const [people, organizations, protocols, books, knowledgeArticles, marketplaceItems] = await Promise.all([
       prisma.person.findMany({ select: { slug: true, updatedAt: true } }),
       prisma.organization.findMany({ select: { slug: true, updatedAt: true } }),
       prisma.protocol.findMany({ select: { slug: true, updatedAt: true } }),
       prisma.book.findMany({ select: { slug: true, updatedAt: true } }),
+      prisma.knowledgeArticle.findMany({ select: { slug: true, updatedAt: true } }),
+      prisma.marketplaceItem.findMany({ select: { slug: true, updatedAt: true } }),
     ])
 
     // People pages
@@ -111,12 +113,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }))
 
+    // Knowledge articles
+    const knowledgeSitemap: MetadataRoute.Sitemap = knowledgeArticles.map((article) => ({
+      url: `${baseUrl}/knowledge/${article.slug}`,
+      lastModified: article.updatedAt,
+      changeFrequency: 'weekly',
+      priority: 0.6,
+    }))
+
+    // Marketplace items
+    const marketplaceSitemap: MetadataRoute.Sitemap = marketplaceItems.map((item) => ({
+      url: `${baseUrl}/marketplace/${item.slug}`,
+      lastModified: item.updatedAt,
+      changeFrequency: 'weekly',
+      priority: 0.6,
+    }))
+
     return [
       ...staticPages,
       ...peopleSitemap,
       ...organizationsSitemap,
       ...protocolsSitemap,
       ...booksSitemap,
+      ...knowledgeSitemap,
+      ...marketplaceSitemap,
     ]
   } catch (error) {
     console.error('Error generating sitemap:', error)
