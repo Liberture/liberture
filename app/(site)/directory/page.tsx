@@ -42,7 +42,7 @@ export default function DirectoryPage() {
             type: "people" as EntityType,
             description: p.bio || p.description || "",
             slug: p.slug,
-            tags: p.focusAreas || [],
+            tags: p.pillars ? p.pillars.split(',').map((s: string) => s.trim()) : [],
           })),
           ...orgs.map((o: any) => ({
             id: o.id,
@@ -50,7 +50,7 @@ export default function DirectoryPage() {
             type: "organizations" as EntityType,
             description: o.description || "",
             slug: o.slug,
-            tags: o.focusAreas || [],
+            tags: o.pillars ? o.pillars.split(',').map((s: string) => s.trim()) : [],
           })),
           ...protocols.map((p: any) => ({
             id: p.id,
@@ -58,7 +58,7 @@ export default function DirectoryPage() {
             type: "protocols" as EntityType,
             description: p.description || "",
             slug: p.slug,
-            tags: [p.category].filter(Boolean),
+            tags: [p.pillar].filter(Boolean),
           })),
           ...books.map((b: any) => ({
             id: b.id,
@@ -66,7 +66,7 @@ export default function DirectoryPage() {
             type: "books" as EntityType,
             description: b.description || "",
             slug: b.slug,
-            tags: [b.category].filter(Boolean),
+            tags: b.pillars ? b.pillars.split(',').map((s: string) => s.trim()) : [],
           })),
         ]
 

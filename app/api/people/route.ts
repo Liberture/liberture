@@ -9,8 +9,8 @@ export async function GET() {
         name: true,
         slug: true,
         bio: true,
-        focusAreas: true,
-        twitterHandle: true,
+        pillars: true,
+        twitter: true,
       },
       orderBy: {
         name: "asc",

@@ -9,7 +9,7 @@ export async function GET() {
         name: true,
         slug: true,
         description: true,
-        category: true,
+        pillar: true,
         difficulty: true,
       },
       orderBy: {
