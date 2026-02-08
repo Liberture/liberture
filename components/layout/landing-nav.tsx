@@ -23,12 +23,6 @@ export function LandingNav() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
-          <Link href="#features" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            {navigation.features}
-          </Link>
-          <Link href="#pillars" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            {navigation.pillars}
-          </Link>
           <Link
             href="/marketplace"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
@@ -43,8 +37,8 @@ export function LandingNav() {
             <BookOpen className="h-4 w-4" />
             {navigation.knowledge}
           </Link>
-          <Link href="#how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            {navigation.howItWorks}
+          <Link href="/directory" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            Directory
           </Link>
         </div>
 
@@ -94,20 +88,6 @@ export function LandingNav() {
           <div className="container mx-auto px-4 py-4 max-w-7xl">
             <div className="flex flex-col gap-2">
               <Link
-                href="#features"
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-4 py-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-              >
-                {navigation.features}
-              </Link>
-              <Link
-                href="#pillars"
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-4 py-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-              >
-                {navigation.pillars}
-              </Link>
-              <Link
                 href="/marketplace"
                 onClick={() => setMobileMenuOpen(false)}
                 className="px-4 py-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors flex items-center gap-2"
@@ -124,11 +104,11 @@ export function LandingNav() {
                 {navigation.knowledge}
               </Link>
               <Link
-                href="#how-it-works"
+                href="/directory"
                 onClick={() => setMobileMenuOpen(false)}
                 className="px-4 py-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
               >
-                {navigation.howItWorks}
+                Directory
               </Link>
 
               <div className="border-t border-border/50 mt-2 pt-4 flex flex-col gap-2">
