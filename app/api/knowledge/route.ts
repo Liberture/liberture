@@ -21,9 +21,20 @@ export async function GET(request: Request) {
     const parsedArticles = articles.map((article) => ({
       ...article,
       tags: article.tags.split(',').map(tag => tag.trim()),
+      type: article.type || 'Article',
+      rating: 5, // Default rating for now
+      external: true,
     }))
 
-    return NextResponse.json({ articles: parsedArticles })
+    return NextResponse.json({
+      libraryDocuments: parsedArticles,
+      tags: [],
+      knowledgeVerticals: [],
+      knowledgeTypes: [],
+      knowledgeCards: [],
+      liberture100Books: [],
+      influencers: [],
+    })
   } catch (error) {
     console.error('Knowledge API error:', error)
     return NextResponse.json({ error: 'Failed to fetch knowledge articles' }, { status: 500 })
