@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Globe, Twitter, Instagram, Youtube, Mic } from "lucide-react";
+import { PersonSchema, BreadcrumbSchema } from "@/components/JsonLd";
 
 type Person = {
   id: string;
@@ -87,8 +88,26 @@ export default function PersonPage() {
   const pillars = person.pillars.split(',').map(p => p.trim());
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white">
-      <div className="container mx-auto px-4 py-16">
+    <>
+      <PersonSchema
+        name={person.name}
+        title={person.title}
+        bio={person.bio}
+        url={`https://liberture.com/people/${person.slug}`}
+        website={person.website || undefined}
+        twitter={person.twitter || undefined}
+        image={person.imageUrl || undefined}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: 'Home', url: 'https://liberture.com' },
+          { name: 'Directory', url: 'https://liberture.com/directory' },
+          { name: 'People', url: 'https://liberture.com/people' },
+          { name: person.name, url: `https://liberture.com/people/${person.slug}` },
+        ]}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white">
+        <div className="container mx-auto px-4 py-16">
         <div className="max-w-5xl mx-auto">
           <div className="mb-8">
             <Link href="/directory" className="text-purple-400 hover:text-purple-300 mb-4 inline-block">
@@ -216,6 +235,7 @@ export default function PersonPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

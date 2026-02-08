@@ -1,0 +1,44 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#581c87;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="10" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <rect width="1200" height="630" fill="url(#bg-grad)"/>
+  
+  <!-- Floating orbs -->
+  <circle cx="200" cy="150" r="100" fill="#8B5CF6" opacity="0.2" filter="url(#glow)"/>
+  <circle cx="1000" cy="500" r="150" fill="#06B6D4" opacity="0.2" filter="url(#glow)"/>
+  
+  <!-- Logo circles -->
+  <g transform="translate(100, 200)">
+    <circle cx="0" cy="0" r="30" fill="#8B5CF6" filter="url(#glow)"/>
+    <circle cx="60" cy="0" r="30" fill="#06B6D4" filter="url(#glow)"/>
+    <circle cx="120" cy="0" r="30" fill="#10B981" filter="url(#glow)"/>
+    <circle cx="30" cy="52" r="30" fill="#EC4899" filter="url(#glow)"/>
+    <circle cx="90" cy="52" r="30" fill="#F59E0B" filter="url(#glow)"/>
+    <circle cx="60" cy="104" r="30" fill="#EAB308" filter="url(#glow)"/>
+  </g>
+  
+  <!-- Text -->
+  <text x="100" y="400" font-family="Inter, system-ui, sans-serif" font-size="80" font-weight="bold" fill="white">
+    Liberture
+  </text>
+  <text x="100" y="460" font-family="Inter, system-ui, sans-serif" font-size="36" fill="#a78bfa">
+    Your Biological Operating System
+  </text>
+  <text x="100" y="530" font-family="Inter, system-ui, sans-serif" font-size="24" fill="#94a3b8">
+    Master your biology. Unlock your potential.
+  </text>
+</svg>

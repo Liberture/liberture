@@ -88,14 +88,30 @@ export function LandingHero() {
                 >
                   <motion.div
                     className={`p-3 rounded-xl bg-card border border-border/50 group-hover:border-border transition-colors`}
+                    animate={{
+                      y: [0, -3, 0],
+                      rotate: [0, 2, 0, -2, 0],
+                    }}
+                    transition={{
+                      duration: 3 + index * 0.3,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
                     whileHover={{ 
                       boxShadow: `0 0 20px ${PILLAR_STYLES[pillar.id].color}40`,
                       borderColor: PILLAR_STYLES[pillar.id].color
                     }}
                   >
                     <motion.div
+                      animate={{
+                        scale: [1, 1.05, 1],
+                      }}
+                      transition={{
+                        duration: 2 + index * 0.2,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
                       whileHover={{ rotate: 360 }}
-                      transition={{ duration: 0.6 }}
                     >
                       <Icon className={`h-6 w-6 ${PILLAR_STYLES[pillar.id].text}`} />
                     </motion.div>
