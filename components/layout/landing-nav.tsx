@@ -64,6 +64,13 @@ export function LandingNav() {
           <div className="container mx-auto px-4 py-4 max-w-7xl">
             <div className="flex flex-col gap-2">
               <Link
+                href="/games"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-4 py-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              >
+                🎮 Interactive Games
+              </Link>
+              <Link
                 href="/marketplace"
                 onClick={() => setMobileMenuOpen(false)}
                 className="px-4 py-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors flex items-center gap-2"
