@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Globe, Twitter, Instagram, Youtube, Mic } from "lucide-react";
-import { PersonSchema, BreadcrumbSchema } from "@/components/JsonLd";
+import { PersonSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
 
 type Person = {
   id: string;
