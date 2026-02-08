@@ -130,15 +130,15 @@ export default function UsersAdmin() {
 
       <div className="bg-slate-800/30 border border-slate-700 rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[800px]">
             <thead className="bg-slate-800/50 border-b border-slate-700">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Name</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Email</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Role</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">BOS Level</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Status</th>
-                <th className="px-4 py-3 text-right text-sm font-semibold">Actions</th>
+                <th className="px-2 md:px-4 py-3 text-left text-xs md:text-sm font-semibold">Name</th>
+                <th className="px-2 md:px-4 py-3 text-left text-xs md:text-sm font-semibold">Email</th>
+                <th className="px-2 md:px-4 py-3 text-left text-xs md:text-sm font-semibold">Role</th>
+                <th className="px-2 md:px-4 py-3 text-left text-xs md:text-sm font-semibold">BOS Level</th>
+                <th className="px-2 md:px-4 py-3 text-left text-xs md:text-sm font-semibold">Status</th>
+                <th className="px-2 md:px-4 py-3 text-right text-xs md:text-sm font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700">

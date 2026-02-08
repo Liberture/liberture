@@ -1,96 +1,312 @@
-import { Metadata } from "next";
-import { prisma } from "@/lib/prisma";
+"use client"
 
-export const metadata: Metadata = {
-  title: "Directory | Liberture",
-  description: "Explore people, organizations, protocols, and resources in the biohacking community.",
-};
+import { useState, useEffect } from "react"
+import { Search, Users, Building2, Zap, BookOpen, ArrowRight } from "lucide-react"
+import Link from "next/link"
+import { motion } from "framer-motion"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 
-export default async function DirectoryPage() {
-  const [peopleCount, orgCount, protocolCount, bookCount] = await Promise.all([
-    prisma.person.count(),
-    prisma.organization.count(),
-    prisma.protocol.count(),
-    prisma.book.count(),
-  ]);
+type EntityType = "all" | "people" | "organizations" | "protocols" | "books"
+
+interface DirectoryItem {
+  id: string
+  name: string
+  type: EntityType
+  description: string
+  slug: string
+  tags?: string[]
+}
+
+export default function DirectoryPage() {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [activeFilter, setActiveFilter] = useState<EntityType>("all")
+  const [allItems, setAllItems] = useState<DirectoryItem[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // Fetch all directory items
+  useEffect(() => {
+    async function fetchDirectory() {
+      try {
+        const [people, orgs, protocols, books] = await Promise.all([
+          fetch("/api/people").then((r) => r.json()),
+          fetch("/api/organizations").then((r) => r.json()),
+          fetch("/api/protocols").then((r) => r.json()),
+          fetch("/api/books").then((r) => r.json()),
+        ])
+
+        const items: DirectoryItem[] = [
+          ...people.map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            type: "people" as EntityType,
+            description: p.bio || p.description || "",
+            slug: p.slug,
+            tags: p.pillars ? p.pillars.split(',').map((s: string) => s.trim()) : [],
+          })),
+          ...orgs.map((o: any) => ({
+            id: o.id,
+            name: o.name,
+            type: "organizations" as EntityType,
+            description: o.description || "",
+            slug: o.slug,
+            tags: o.pillars ? o.pillars.split(',').map((s: string) => s.trim()) : [],
+          })),
+          ...protocols.map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            type: "protocols" as EntityType,
+            description: p.description || "",
+            slug: p.slug,
+            tags: [p.pillar].filter(Boolean),
+          })),
+          ...books.map((b: any) => ({
+            id: b.id,
+            name: b.title,
+            type: "books" as EntityType,
+            description: b.description || "",
+            slug: b.slug,
+            tags: b.pillars ? b.pillars.split(',').map((s: string) => s.trim()) : [],
+          })),
+        ]
+
+        setAllItems(items)
+        setLoading(false)
+      } catch (error) {
+        console.error("Error fetching directory:", error)
+        setLoading(false)
+      }
+    }
+
+    fetchDirectory()
+  }, [])
+
+  // Filter items based on search and type
+  const filteredItems = allItems.filter((item) => {
+    const matchesType = activeFilter === "all" || item.type === activeFilter
+    const matchesSearch =
+      searchQuery === "" ||
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.tags?.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+
+    return matchesType && matchesSearch
+  })
+
+  // Group filtered items by type
+  const groupedItems = {
+    people: filteredItems.filter((i) => i.type === "people"),
+    organizations: filteredItems.filter((i) => i.type === "organizations"),
+    protocols: filteredItems.filter((i) => i.type === "protocols"),
+    books: filteredItems.filter((i) => i.type === "books"),
+  }
+
+  const filters: Array<{ value: EntityType; label: string; icon: any; color: string }> = [
+    { value: "all", label: "All", icon: Search, color: "text-slate-400" },
+    { value: "people", label: "People", icon: Users, color: "text-purple-400" },
+    { value: "organizations", label: "Organizations", icon: Building2, color: "text-cyan-400" },
+    { value: "protocols", label: "Protocols", icon: Zap, color: "text-green-400" },
+    { value: "books", label: "Books", icon: BookOpen, color: "text-orange-400" },
+  ]
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white">
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-6xl mx-auto">
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+    <div className="min-h-screen py-20 px-4">
+      <div className="container mx-auto max-w-6xl">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">
             Biohacking Directory
           </h1>
-          <p className="text-xl text-slate-300 mb-12">
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Discover the people, organizations, protocols, and knowledge shaping human optimization.
           </p>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* People Card */}
-            <a
-              href="/people"
-              className="group relative overflow-hidden rounded-2xl border border-slate-700 bg-slate-900/50 p-8 transition-all hover:border-purple-500 hover:shadow-xl hover:shadow-purple-500/20"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-              <div className="relative">
-                <div className="mb-4 text-4xl">👤</div>
-                <h2 className="mb-2 text-2xl font-bold">People</h2>
-                <p className="text-slate-400">
-                  Biohackers, researchers, and pioneers in human optimization.
-                </p>
-                <div className="mt-4 text-sm text-purple-400 font-medium">{peopleCount} profiles</div>
-              </div>
-            </a>
-
-            {/* Organizations Card */}
-            <a
-              href="/organizations"
-              className="group relative overflow-hidden rounded-2xl border border-slate-700 bg-slate-900/50 p-8 transition-all hover:border-cyan-500 hover:shadow-xl hover:shadow-cyan-500/20"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-              <div className="relative">
-                <div className="mb-4 text-4xl">🏢</div>
-                <h2 className="mb-2 text-2xl font-bold">Organizations</h2>
-                <p className="text-slate-400">
-                  Labs, companies, and communities advancing the field.
-                </p>
-                <div className="mt-4 text-sm text-cyan-400 font-medium">{orgCount} organizations</div>
-              </div>
-            </a>
-
-            {/* Protocols Card */}
-            <a
-              href="/protocols"
-              className="group relative overflow-hidden rounded-2xl border border-slate-700 bg-slate-900/50 p-8 transition-all hover:border-purple-500 hover:shadow-xl hover:shadow-purple-500/20"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-              <div className="relative">
-                <div className="mb-4 text-4xl">⚡</div>
-                <h2 className="mb-2 text-2xl font-bold">Protocols</h2>
-                <p className="text-slate-400">
-                  Proven methods and systems for optimization.
-                </p>
-                <div className="mt-4 text-sm text-purple-400 font-medium">{protocolCount} protocols</div>
-              </div>
-            </a>
-
-            {/* Books Card */}
-            <a
-              href="/books"
-              className="group relative overflow-hidden rounded-2xl border border-slate-700 bg-slate-900/50 p-8 transition-all hover:border-cyan-500 hover:shadow-xl hover:shadow-cyan-500/20"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-              <div className="relative">
-                <div className="mb-4 text-4xl">📚</div>
-                <h2 className="mb-2 text-2xl font-bold">Books & Resources</h2>
-                <p className="text-slate-400">
-                  Essential reading on biohacking and human optimization.
-                </p>
-                <div className="mt-4 text-sm text-cyan-400 font-medium">{bookCount} books</div>
-              </div>
-            </a>
+        {/* Search Bar */}
+        <div className="mb-8">
+          <div className="relative max-w-2xl mx-auto">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search by name, description, or tags..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-12 h-14 text-lg"
+            />
           </div>
         </div>
+
+        {/* Filter Tabs */}
+        <div className="flex items-center justify-center gap-2 mb-12 flex-wrap">
+          {filters.map((filter) => {
+            const Icon = filter.icon
+            const isActive = activeFilter === filter.value
+            return (
+              <Button
+                key={filter.value}
+                variant={isActive ? "default" : "outline"}
+                size="sm"
+                onClick={() => setActiveFilter(filter.value)}
+                className="gap-2"
+              >
+                <Icon className={`h-4 w-4 ${isActive ? "" : filter.color}`} />
+                {filter.label}
+                <span className="text-xs opacity-70">
+                  ({filter.value === "all" ? filteredItems.length : groupedItems[filter.value]?.length || 0})
+                </span>
+              </Button>
+            )
+          })}
+        </div>
+
+        {/* Loading State */}
+        {loading && (
+          <div className="text-center py-20">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
+            <p className="mt-4 text-muted-foreground">Loading directory...</p>
+          </div>
+        )}
+
+        {/* Results */}
+        {!loading && (
+          <>
+            {filteredItems.length === 0 ? (
+              <div className="text-center py-20">
+                <Search className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-xl font-semibold mb-2">No results found</h3>
+                <p className="text-muted-foreground">
+                  Try adjusting your search or filters
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-12">
+                {/* People Section */}
+                {(activeFilter === "all" || activeFilter === "people") && groupedItems.people.length > 0 && (
+                  <DirectorySection
+                    title="People"
+                    icon={Users}
+                    color="purple"
+                    items={groupedItems.people}
+                    baseUrl="/people"
+                    showAll={activeFilter !== "people"}
+                  />
+                )}
+
+                {/* Organizations Section */}
+                {(activeFilter === "all" || activeFilter === "organizations") &&
+                  groupedItems.organizations.length > 0 && (
+                    <DirectorySection
+                      title="Organizations"
+                      icon={Building2}
+                      color="cyan"
+                      items={groupedItems.organizations}
+                      baseUrl="/organizations"
+                      showAll={activeFilter !== "organizations"}
+                    />
+                  )}
+
+                {/* Protocols Section */}
+                {(activeFilter === "all" || activeFilter === "protocols") &&
+                  groupedItems.protocols.length > 0 && (
+                    <DirectorySection
+                      title="Protocols"
+                      icon={Zap}
+                      color="green"
+                      items={groupedItems.protocols}
+                      baseUrl="/protocols"
+                      showAll={activeFilter !== "protocols"}
+                    />
+                  )}
+
+                {/* Books Section */}
+                {(activeFilter === "all" || activeFilter === "books") && groupedItems.books.length > 0 && (
+                  <DirectorySection
+                    title="Books"
+                    icon={BookOpen}
+                    color="orange"
+                    items={groupedItems.books}
+                    baseUrl="/books"
+                    showAll={activeFilter !== "books"}
+                  />
+                )}
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
-  );
+  )
+}
+
+interface DirectorySectionProps {
+  title: string
+  icon: any
+  color: string
+  items: DirectoryItem[]
+  baseUrl: string
+  showAll: boolean
+}
+
+function DirectorySection({ title, icon: Icon, color, items, baseUrl, showAll }: DirectorySectionProps) {
+  const colorClasses = {
+    purple: "text-purple-400 border-purple-500/30 bg-purple-500/10",
+    cyan: "text-cyan-400 border-cyan-500/30 bg-cyan-500/10",
+    green: "text-green-400 border-green-500/30 bg-green-500/10",
+    orange: "text-orange-400 border-orange-500/30 bg-orange-500/10",
+  }
+
+  const displayItems = showAll ? items.slice(0, 6) : items
+
+  return (
+    <div>
+      {/* Section Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className={`p-2 rounded-lg ${colorClasses[color as keyof typeof colorClasses]}`}>
+            <Icon className="h-5 w-5" />
+          </div>
+          <h2 className="text-2xl font-bold">{title}</h2>
+          <span className="text-sm text-muted-foreground">({items.length})</span>
+        </div>
+        {showAll && items.length > 6 && (
+          <Link href={baseUrl}>
+            <Button variant="ghost" size="sm" className="gap-2">
+              View All <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        )}
+      </div>
+
+      {/* Items Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {displayItems.map((item, index) => (
+          <motion.div
+            key={item.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.05 }}
+          >
+            <Link href={`${baseUrl}/${item.slug}`}>
+              <div className="p-4 rounded-lg bg-card/50 border border-border/50 hover:border-border transition-all hover:scale-105">
+                <h3 className="font-semibold mb-1 line-clamp-1">{item.name}</h3>
+                <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
+                {item.tags && item.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {item.tags.slice(0, 3).map((tag, i) => (
+                      <span
+                        key={i}
+                        className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </Link>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  )
 }

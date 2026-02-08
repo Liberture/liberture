@@ -54,33 +54,18 @@ export function LibertureLogo({ size = 60, animate = true, className = "" }: Lib
         xmlns="http://www.w3.org/2000/svg"
       >
         {PILLAR_COLORS.map((color, index) => {
-          const startY = spacing + index * spacing;
-          
           return (
             <motion.circle
               key={index}
               r={dotSize}
               fill={color}
-              initial={{
-                cx: size / 2,
-                cy: startY,
-              }}
               animate={animate ? {
-                cx: [
-                  size / 2,
-                  ...Array.from({ length: 100 }, (_, i) => 
-                    getEllipsePath(index, i / 100).x
-                  ),
-                  size / 2,
-                ],
-                cy: [
-                  startY,
-                  ...Array.from({ length: 100 }, (_, i) => 
-                    getEllipsePath(index, i / 100).y
-                  ),
-                  startY,
-                ],
-              } : undefined}
+                cx: Array.from({ length: 100 }, (_, i) => getEllipsePath(index, i / 100).x),
+                cy: Array.from({ length: 100 }, (_, i) => getEllipsePath(index, i / 100).y),
+              } : {
+                cx: size / 2,
+                cy: spacing + index * spacing,
+              }}
               transition={{
                 duration: 6,
                 repeat: Infinity,

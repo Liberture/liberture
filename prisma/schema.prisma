@@ -4,12 +4,13 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model KnowledgeArticle {
   id          String   @id @default(cuid())
+  slug        String   @unique
   title       String
   description String
   pillar      String
@@ -24,6 +25,7 @@ model KnowledgeArticle {
 
 model MarketplaceItem {
   id          String   @id @default(cuid())
+  slug        String   @unique
   title       String
   description String
   pillar      String
@@ -91,21 +93,26 @@ model PlatformComment {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  emailVerified Boolean   @default(false)
-  name          String
-  image         String?
-  password      String?
-  bosLevel      Int       @default(1)
-  role          String    @default("user")
-  banned        Boolean   @default(false)
-  banReason     String?
-  banExpires    DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+  id                    String    @id @default(cuid())
+  email                 String    @unique
+  emailVerified         Boolean   @default(false)
+  name                  String
+  image                 String?
+  password              String?
+  bosLevel              Int       @default(1)
+  role                  String    @default("user")
+  banned                Boolean   @default(false)
+  banReason             String?
+  banExpires            DateTime?
+  // Email notification preferences
+  emailNotifications    Boolean   @default(true)  // General email notifications
+  marketingEmails       Boolean   @default(true)  // Marketing & product updates
+  weeklyDigest          Boolean   @default(true)  // Weekly summary emails
+  newContentAlerts      Boolean   @default(false) // Alerts for new content in followed pillars
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  sessions              Session[]
+  accounts              Account[]
 }
 
 model Session {
@@ -157,18 +164,22 @@ model Person {
   name        String
   title       String
   bio         String
+  category    String   @default("practitioner") // "author", "practitioner", "researcher", "athlete", etc.
   pillars     String // Comma-separated pillar IDs
   expertise   String
   followers   String?
   website     String?
+  wikipedia   String? // Wikipedia page URL
   twitter     String?
   instagram   String?
   youtube     String?
   podcast     String?
   imageUrl    String?
   achievements String? // JSON array
-  publications String? // JSON array
+  publications String? // JSON array - books, papers, articles
+  speakingEvents String? // JSON array - conferences, podcasts, interviews
   protocols   String? // JSON array of protocol IDs
+  books       Book[]   // Authored books
   featured    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -183,7 +194,9 @@ model Organization {
   type        String // "research", "platform", "community", etc.
   founded     String?
   website     String
+  wikipedia   String? // Wikipedia page URL
   resources   String? // JSON array
+  publications String? // JSON array - research papers, reports
   keyPeople   String? // JSON array of person IDs
   featured    Boolean  @default(false)
   imageUrl    String?
@@ -214,20 +227,27 @@ model Book {
   id          String   @id @default(cuid())
   slug        String   @unique
   title       String
-  author      String
+  author      String   // Author name (kept for backwards compatibility)
+  authorId    String?  // Foreign key to Person
+  authorPerson Person? @relation(fields: [authorId], references: [id], onDelete: SetNull)
   description String
   pillars     String // Comma-separated
   year        Int?
   pages       Int?
   isbn        String?
   amazonUrl   String?
+  goodreadsUrl String? // Goodreads book page URL
+  wikipedia   String? // Wikipedia page URL
   rating      Float?
   keyTakeaways String? // JSON array
+  publications String? // JSON array - where book has been reviewed/featured
   forWho      String? // Who should read this
   featured    Boolean  @default(false)
   imageUrl    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  @@index([authorId])
 }
 
 model Newsletter {
@@ -247,4 +267,18 @@ model ContactMessage {
   replied   Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model EnrichmentLog {
+  id          String   @id @default(cuid())
+  entityType  String   // "person" | "book" | "organization" | "protocol"
+  entityId    String
+  entityName  String
+  fieldsAdded String   // JSON array of fields that were enriched
+  source      String   @default("manual") // "manual" | "ai" | "bulk"
+  enrichedBy  String?  // User ID or "system"
+  createdAt   DateTime @default(now())
+  
+  @@index([entityType, entityId])
+  @@index([createdAt])
 }
