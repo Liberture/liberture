@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next"
 import { Inter, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { AuthProvider } from "@/lib/auth-context"
+import { CookieConsent } from "@/components/CookieConsent"
 import "./globals.css"
 
 // Using Inter as primary font per design system
@@ -66,6 +67,7 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={`${inter.variable} ${geistMono.variable} font-sans antialiased`}>
         <AuthProvider>{children}</AuthProvider>
+        <CookieConsent />
         <Analytics />
       </body>
     </html>

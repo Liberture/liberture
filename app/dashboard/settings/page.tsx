@@ -1,10 +1,11 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Bell, Mail, TrendingUp, Zap } from 'lucide-react'
+import { Bell, Mail, TrendingUp, Zap, Cookie, BarChart3 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
+import Link from 'next/link'
 
 export default function SettingsPage() {
   const [preferences, setPreferences] = useState({
@@ -13,13 +14,39 @@ export default function SettingsPage() {
     weeklyDigest: true,
     newContentAlerts: false,
   })
+  const [cookiePreferences, setCookiePreferences] = useState({
+    analytics: false,
+  })
   const [loading, setLoading] = useState(false)
   const [saved, setSaved] = useState(false)
 
-  // TODO: Fetch user preferences on mount
+  // Load cookie preferences from localStorage
   useEffect(() => {
-    // fetchPreferences()
+    const consent = localStorage.getItem('cookie-consent')
+    if (consent) {
+      const parsed = JSON.parse(consent)
+      setCookiePreferences({ analytics: parsed.analytics || false })
+    }
   }, [])
+
+  const updateCookiePreference = (key: string, value: boolean) => {
+    const newPrefs = { ...cookiePreferences, [key]: value }
+    setCookiePreferences(newPrefs)
+    
+    // Update localStorage
+    const consent = { necessary: true, analytics: newPrefs.analytics }
+    localStorage.setItem('cookie-consent', JSON.stringify(consent))
+    localStorage.setItem('cookie-consent-date', new Date().toISOString())
+    
+    // Show saved message
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2000)
+    
+    // Reload page to apply changes
+    if (key === 'analytics') {
+      setTimeout(() => window.location.reload(), 1000)
+    }
+  }
 
   const updatePreference = async (key: string, value: boolean) => {
     setPreferences(prev => ({ ...prev, [key]: value }))
@@ -155,6 +182,70 @@ export default function SettingsPage() {
                 onCheckedChange={(checked) => updatePreference('newContentAlerts', checked)}
                 disabled={loading}
               />
+            </div>
+          </div>
+        </div>
+
+        {/* Cookie Preferences */}
+        <div className="mt-12 mb-8">
+          <h2 className="text-2xl font-bold mb-4">Cookie Preferences</h2>
+          <p className="text-muted-foreground mb-6">
+            Manage how we use cookies and tracking technologies. Read our{" "}
+            <Link href="/privacy" className="text-purple-400 hover:text-purple-300 underline">
+              Privacy Policy
+            </Link>{" "}
+            for more details.
+          </p>
+
+          <div className="space-y-4">
+            {/* Necessary Cookies */}
+            <div className="p-6 rounded-2xl bg-card border border-border/50 opacity-60">
+              <div className="flex items-start justify-between">
+                <div className="flex items-start gap-4 flex-1">
+                  <div className="p-3 rounded-xl bg-green-500/10 border border-green-500/20">
+                    <Cookie className="h-6 w-6 text-green-500" />
+                  </div>
+                  <div className="flex-1">
+                    <Label className="text-lg font-semibold">
+                      Necessary Cookies
+                      <span className="ml-2 text-xs px-2 py-0.5 rounded bg-green-500/20 text-green-400">
+                        Always Active
+                      </span>
+                    </Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Essential for authentication, security, and basic site functionality. These cannot be disabled.
+                    </p>
+                  </div>
+                </div>
+                <Switch checked={true} disabled={true} />
+              </div>
+            </div>
+
+            {/* Analytics Cookies */}
+            <div className="p-6 rounded-2xl bg-card border border-border/50">
+              <div className="flex items-start justify-between">
+                <div className="flex items-start gap-4 flex-1">
+                  <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                    <BarChart3 className="h-6 w-6 text-purple-500" />
+                  </div>
+                  <div className="flex-1">
+                    <Label htmlFor="analytics-cookies" className="text-lg font-semibold">
+                      Analytics Cookies (Google Analytics)
+                    </Label>
+                    <p className="text-sm text-muted-foreground mt-1 mb-2">
+                      Help us understand how you use the platform. Data is anonymized and never shared for marketing purposes.
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      <strong>Note:</strong> Changing this setting will reload the page to apply changes.
+                    </p>
+                  </div>
+                </div>
+                <Switch
+                  id="analytics-cookies"
+                  checked={cookiePreferences.analytics}
+                  onCheckedChange={(checked) => updateCookiePreference('analytics', checked)}
+                />
+              </div>
             </div>
           </div>
         </div>
