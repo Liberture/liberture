@@ -164,6 +164,7 @@ model Person {
   name        String
   title       String
   bio         String
+  category    String   @default("practitioner") // "author", "practitioner", "researcher", "athlete", etc.
   pillars     String // Comma-separated pillar IDs
   expertise   String
   followers   String?
@@ -178,6 +179,7 @@ model Person {
   publications String? // JSON array - books, papers, articles
   speakingEvents String? // JSON array - conferences, podcasts, interviews
   protocols   String? // JSON array of protocol IDs
+  books       Book[]   // Authored books
   featured    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -225,13 +227,16 @@ model Book {
   id          String   @id @default(cuid())
   slug        String   @unique
   title       String
-  author      String
+  author      String   // Author name (kept for backwards compatibility)
+  authorId    String?  // Foreign key to Person
+  authorPerson Person? @relation(fields: [authorId], references: [id], onDelete: SetNull)
   description String
   pillars     String // Comma-separated
   year        Int?
   pages       Int?
   isbn        String?
   amazonUrl   String?
+  goodreadsUrl String? // Goodreads book page URL
   wikipedia   String? // Wikipedia page URL
   rating      Float?
   keyTakeaways String? // JSON array
@@ -241,6 +246,8 @@ model Book {
   imageUrl    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  
+  @@index([authorId])
 }
 
 model Newsletter {

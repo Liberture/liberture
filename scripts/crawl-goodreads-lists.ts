@@ -1,0 +1,268 @@
+import { PrismaClient } from '@prisma/client';
+import * as cheerio from 'cheerio';
+
+const prisma = new PrismaClient();
+
+/**
+ * Crawl Goodreads Lists for Biohacking Books
+ * 
+ * Extracts: title, author, ISBN, rating, description, cover image
+ * Creates author entries if they don't exist
+ * Links books to authors
+ */
+
+const GOODREADS_LISTS = [
+  'https://www.goodreads.com/shelf/show/biohacking',
+  'https://www.goodreads.com/list/tag/biohacking',
+  'https://www.goodreads.com/list/show/136599.Books_on_Biohacking_',
+  'https://www.goodreads.com/genres/biohacking',
+  'https://www.goodreads.com/author/list/16090265.Olli_Sovij_rvi',
+];
+
+interface BookData {
+  title: string;
+  author: string;
+  isbn?: string;
+  isbn13?: string;
+  rating?: number;
+  description?: string;
+  coverUrl?: string;
+  goodreadsUrl?: string;
+  year?: number;
+  pages?: number;
+}
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+async function fetchPage(url: string): Promise<string> {
+  const response = await fetch(url, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    },
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Failed to fetch ${url}: ${response.status}`);
+  }
+  
+  return response.text();
+}
+
+function extractBookFromShelf($: cheerio.CheerioAPI, element: cheerio.Element): BookData | null {
+  try {
+    const $book = $(element);
+    
+    const title = $book.find('.bookTitle').text().trim();
+    const author = $book.find('.authorName').text().trim();
+    const rating = parseFloat($book.find('.minirating').text().match(/[\d.]+/)?.[0] || '0');
+    const coverUrl = $book.find('img.bookCover').attr('src');
+    const goodreadsUrl = 'https://www.goodreads.com' + $book.find('.bookTitle').attr('href');
+    
+    if (!title || !author) return null;
+    
+    return { title, author, rating, coverUrl, goodreadsUrl };
+  } catch (error) {
+    console.error('Error extracting book:', error);
+    return null;
+  }
+}
+
+function extractBookFromList($: cheerio.CheerioAPI, element: cheerio.Element): BookData | null {
+  try {
+    const $book = $(element);
+    
+    const title = $book.find('.bookTitle').text().trim();
+    const author = $book.find('.authorName').text().trim();
+    const rating = parseFloat($book.find('.minirating').text().match(/[\d.]+/)?.[0] || '0');
+    const coverUrl = $book.find('img.bookCover').attr('src');
+    const goodreadsUrl = 'https://www.goodreads.com' + $book.find('.bookTitle').attr('href');
+    
+    if (!title || !author) return null;
+    
+    return { title, author, rating, coverUrl, goodreadsUrl };
+  } catch (error) {
+    console.error('Error extracting book:', error);
+    return null;
+  }
+}
+
+async function crawlGoodreadsList(url: string): Promise<BookData[]> {
+  console.log(`\n📖 Crawling: ${url}`);
+  
+  try {
+    const html = await fetchPage(url);
+    const $ = cheerio.load(html);
+    const books: BookData[] = [];
+    
+    // Try different selectors based on page type
+    const bookElements = $('.elementList, .bookalike, .bookBox');
+    
+    bookElements.each((_, element) => {
+      const book = extractBookFromShelf($, element) || extractBookFromList($, element);
+      if (book) {
+        books.push(book);
+      }
+    });
+    
+    console.log(`   ✅ Found ${books.length} books`);
+    return books;
+  } catch (error) {
+    console.error(`   ❌ Error crawling ${url}:`, error);
+    return [];
+  }
+}
+
+async function getOrCreateAuthor(authorName: string): Promise<string> {
+  // Try to find existing author
+  let author = await prisma.person.findFirst({
+    where: {
+      name: {
+        equals: authorName,
+        mode: 'insensitive',
+      },
+    },
+  });
+  
+  if (author) {
+    return author.id;
+  }
+  
+  // Create new author
+  const slug = slugify(authorName);
+  let finalSlug = slug;
+  let counter = 1;
+  
+  while (await prisma.person.findUnique({ where: { slug: finalSlug } })) {
+    finalSlug = `${slug}-${counter}`;
+    counter++;
+  }
+  
+  author = await prisma.person.create({
+    data: {
+      name: authorName,
+      slug: finalSlug,
+      title: 'Author',
+      category: 'author',
+      bio: `Author of biohacking and health optimization books.`,
+      pillars: 'cognition,recovery,fueling', // Default pillars for biohacking authors
+      expertise: 'Writing, Research',
+    },
+  });
+  
+  console.log(`   📝 Created author: ${authorName}`);
+  return author.id;
+}
+
+async function importBook(bookData: BookData): Promise<void> {
+  try {
+    // Check if book already exists
+    const existing = await prisma.book.findFirst({
+      where: {
+        OR: [
+          { title: { equals: bookData.title, mode: 'insensitive' } },
+          { goodreadsUrl: bookData.goodreadsUrl },
+        ],
+      },
+    });
+    
+    if (existing) {
+      console.log(`   ⏭️  Skipping "${bookData.title}" (already exists)`);
+      return;
+    }
+    
+    // Get or create author
+    const authorId = await getOrCreateAuthor(bookData.author);
+    
+    // Create book
+    const slug = slugify(bookData.title);
+    let finalSlug = slug;
+    let counter = 1;
+    
+    while (await prisma.book.findUnique({ where: { slug: finalSlug } })) {
+      finalSlug = `${slug}-${counter}`;
+      counter++;
+    }
+    
+    await prisma.book.create({
+      data: {
+        title: bookData.title,
+        slug: finalSlug,
+        author: bookData.author,
+        authorId,
+        description: bookData.description || `A book about biohacking and health optimization by ${bookData.author}.`,
+        pillars: 'cognition,recovery,fueling', // Default biohacking pillars
+        isbn: bookData.isbn,
+        rating: bookData.rating,
+        goodreadsUrl: bookData.goodreadsUrl,
+        imageUrl: bookData.coverUrl,
+        year: bookData.year,
+        pages: bookData.pages,
+      },
+    });
+    
+    console.log(`   ✅ Added: "${bookData.title}" by ${bookData.author}`);
+  } catch (error) {
+    console.error(`   ❌ Error importing "${bookData.title}":`, error);
+  }
+}
+
+async function main() {
+  console.log('🚀 Starting Goodreads crawler for biohacking books\n');
+  console.log('=' .repeat(60));
+  
+  const allBooks: BookData[] = [];
+  
+  // Crawl all lists
+  for (const url of GOODREADS_LISTS) {
+    const books = await crawlGoodreadsList(url);
+    allBooks.push(...books);
+    
+    // Rate limit between lists
+    await new Promise(resolve => setTimeout(resolve, 2000));
+  }
+  
+  console.log('\n' + '='.repeat(60));
+  console.log(`📊 Total books found: ${allBooks.length}`);
+  console.log('='.repeat(60));
+  
+  // Deduplicate by title + author
+  const uniqueBooks = Array.from(
+    new Map(allBooks.map(book => [`${book.title}|${book.author}`, book])).values()
+  );
+  
+  console.log(`📊 Unique books: ${uniqueBooks.length}`);
+  console.log('='.repeat(60));
+  
+  // Import books
+  console.log('\n🔄 Importing books to database...\n');
+  
+  for (const book of uniqueBooks) {
+    await importBook(book);
+    
+    // Rate limit
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }
+  
+  console.log('\n' + '='.repeat(60));
+  console.log('✅ Crawl complete!');
+  console.log('='.repeat(60));
+  
+  // Summary
+  const totalBooks = await prisma.book.count();
+  const totalAuthors = await prisma.person.count({ where: { category: { contains: 'author' } } });
+  
+  console.log(`\n📚 Total books in database: ${totalBooks}`);
+  console.log(`👤 Total authors in database: ${totalAuthors}`);
+  
+  await prisma.$disconnect();
+}
+
+main().catch((error) => {
+  console.error('Fatal error:', error);
+  process.exit(1);
+});
