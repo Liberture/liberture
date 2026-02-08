@@ -75,17 +75,33 @@ export function LandingHero() {
             className="flex items-center justify-center gap-6 md:gap-10"
             variants={staggerItem}
           >
-            {pillars.map((pillar) => {
+            {pillars.map((pillar, index) => {
               const Icon = PILLAR_ICON_MAP[pillar.id]
               return (
-                <div key={pillar.id} className="flex flex-col items-center gap-2 group">
-                  <div
+                <motion.div 
+                  key={pillar.id} 
+                  className="flex flex-col items-center gap-2 group"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1 + index * 0.1, duration: 0.5 }}
+                  whileHover={{ scale: 1.1 }}
+                >
+                  <motion.div
                     className={`p-3 rounded-xl bg-card border border-border/50 group-hover:border-border transition-colors`}
+                    whileHover={{ 
+                      boxShadow: `0 0 20px ${PILLAR_STYLES[pillar.id].color}40`,
+                      borderColor: PILLAR_STYLES[pillar.id].color
+                    }}
                   >
-                    <Icon className={`h-6 w-6 ${PILLAR_STYLES[pillar.id].text}`} />
-                  </div>
+                    <motion.div
+                      whileHover={{ rotate: 360 }}
+                      transition={{ duration: 0.6 }}
+                    >
+                      <Icon className={`h-6 w-6 ${PILLAR_STYLES[pillar.id].text}`} />
+                    </motion.div>
+                  </motion.div>
                   <span className="text-xs text-muted-foreground">{pillar.name}</span>
-                </div>
+                </motion.div>
               )
             })}
           </motion.div>
