@@ -3,7 +3,7 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { AuthProvider, useAuth } from "@/lib/auth-context"
-import { TopographicBackground } from "@/components/topographic-background"
+import { TopographicBackground } from "@/components/patterns/topographic-background"
 import { Dashboard } from "./dashboard"
 
 function DashboardContent() {

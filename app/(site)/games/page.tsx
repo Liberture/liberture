@@ -17,7 +17,7 @@ const games = [
     description: "Track hydration throughout the day and see how it impacts your energy and performance.",
     icon: Droplet,
     color: "from-cyan-500/20 to-cyan-500/5 border-cyan-500/30",
-    status: "coming-soon",
+    status: "available",
   },
   {
     id: "nutrition",
