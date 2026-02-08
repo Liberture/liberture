@@ -9,12 +9,12 @@ interface LibertureLogoProps {
 }
 
 const PILLAR_COLORS = [
-  "oklch(0.7 0.15 260)",    // Cognition - blue/purple
-  "oklch(0.75 0.15 195)",   // Recovery - cyan
-  "oklch(0.75 0.2 145)",    // Fueling - green
-  "oklch(0.75 0.18 350)",   // Mental - pink/magenta
-  "oklch(0.75 0.18 45)",    // Physicality - orange
-  "oklch(0.75 0.18 85)",    // Finance - yellow
+  "#8B5CF6",    // Cognition - purple
+  "#06B6D4",    // Recovery - cyan  
+  "#10B981",    // Fueling - green
+  "#EC4899",    // Mental - pink
+  "#F59E0B",    // Physicality - orange
+  "#EAB308",    // Finance - yellow
 ];
 
 export function LibertureLogo({ size = 60, animate = true, className = "" }: LibertureLogoProps) {
