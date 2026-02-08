@@ -9,7 +9,7 @@ export async function GET() {
         name: true,
         slug: true,
         description: true,
-        focusAreas: true,
+        pillars: true,
         website: true,
       },
       orderBy: {

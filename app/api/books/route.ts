@@ -10,8 +10,8 @@ export async function GET() {
         slug: true,
         description: true,
         author: true,
-        category: true,
-        publishedYear: true,
+        pillars: true,
+        year: true,
       },
       orderBy: {
         title: "asc",
