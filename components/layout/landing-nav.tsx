@@ -21,70 +21,46 @@ export function LandingNav() {
           <span className="text-xl font-bold tracking-tight">{brand.name}</span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-8">
-          <Link
-            href="/marketplace"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
+        {/* Desktop Navigation - Moved to the right */}
+        <div className="hidden md:flex items-center gap-3 ml-auto">
+          {/* Menu Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            aria-label="Toggle menu"
           >
-            <ShoppingBag className="h-4 w-4" />
-            {navigation.marketplace}
-          </Link>
-          <Link
-            href="/knowledge"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
-          >
-            <BookOpen className="h-4 w-4" />
-            {navigation.knowledge}
-          </Link>
-          <Link href="/directory" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            Directory
-          </Link>
-        </div>
+            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
 
-        {/* Desktop Auth Buttons */}
-        <div className="hidden md:flex items-center gap-3">
+          {/* Single Auth Button */}
           {user ? (
-            <>
-              <Link href="/dashboard">
-                <Button variant="ghost" size="sm">
-                  {navigation.dashboard}
-                </Button>
-              </Link>
-              <Button variant="ghost" size="sm" onClick={logout} className="gap-2">
-                <LogOut className="h-4 w-4" />
-                {navigation.logout}
+            <Link href="/dashboard">
+              <Button size="sm" className="bg-primary hover:bg-primary/90">
+                {navigation.dashboard}
               </Button>
-            </>
+            </Link>
           ) : (
-            <>
-              <Link href="/login">
-                <Button variant="ghost" size="sm">
-                  {navigation.signIn}
-                </Button>
-              </Link>
-              <Link href="/login">
-                <Button size="sm" className="bg-primary hover:bg-primary/90">
-                  {navigation.getStarted}
-                </Button>
-              </Link>
-            </>
+            <Link href="/login">
+              <Button size="sm" className="bg-primary hover:bg-primary/90">
+                {navigation.getStarted}
+              </Button>
+            </Link>
           )}
         </div>
 
         {/* Mobile Menu Button */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+          className="md:hidden p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors ml-auto"
           aria-label="Toggle menu"
         >
           {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Dropdown Menu (both mobile and desktop) */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl">
+        <div className="border-t border-border/50 bg-background/95 backdrop-blur-xl absolute top-16 left-0 right-0 shadow-lg">
           <div className="container mx-auto px-4 py-4 max-w-7xl">
             <div className="flex flex-col gap-2">
               <Link
@@ -111,42 +87,27 @@ export function LandingNav() {
                 Directory
               </Link>
 
-              <div className="border-t border-border/50 mt-2 pt-4 flex flex-col gap-2">
-                {user ? (
-                  <>
-                    <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="ghost" size="sm" className="w-full justify-start">
-                        {navigation.dashboard}
-                      </Button>
-                    </Link>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        logout()
-                        setMobileMenuOpen(false)
-                      }}
-                      className="gap-2 w-full justify-start"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      {navigation.logout}
+              {user && (
+                <div className="border-t border-border/50 mt-2 pt-2">
+                  <Link href="/dashboard/settings" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="ghost" size="sm" className="w-full justify-start">
+                      Settings
                     </Button>
-                  </>
-                ) : (
-                  <>
-                    <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="ghost" size="sm" className="w-full">
-                        {navigation.signIn}
-                      </Button>
-                    </Link>
-                    <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                      <Button size="sm" className="w-full bg-primary hover:bg-primary/90">
-                        {navigation.getStarted}
-                      </Button>
-                    </Link>
-                  </>
-                )}
-              </div>
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      logout()
+                      setMobileMenuOpen(false)
+                    }}
+                    className="gap-2 w-full justify-start text-red-500 hover:text-red-600"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    {navigation.logout}
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
