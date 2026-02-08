@@ -91,21 +91,26 @@ model PlatformComment {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  emailVerified Boolean   @default(false)
-  name          String
-  image         String?
-  password      String?
-  bosLevel      Int       @default(1)
-  role          String    @default("user")
-  banned        Boolean   @default(false)
-  banReason     String?
-  banExpires    DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
+  id                    String    @id @default(cuid())
+  email                 String    @unique
+  emailVerified         Boolean   @default(false)
+  name                  String
+  image                 String?
+  password              String?
+  bosLevel              Int       @default(1)
+  role                  String    @default("user")
+  banned                Boolean   @default(false)
+  banReason             String?
+  banExpires            DateTime?
+  // Email notification preferences
+  emailNotifications    Boolean   @default(true)  // General email notifications
+  marketingEmails       Boolean   @default(true)  // Marketing & product updates
+  weeklyDigest          Boolean   @default(true)  // Weekly summary emails
+  newContentAlerts      Boolean   @default(false) // Alerts for new content in followed pillars
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  sessions              Session[]
+  accounts              Account[]
 }
 
 model Session {
