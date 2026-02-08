@@ -18,28 +18,87 @@ interface EnrichmentResult {
   summary: string;
 }
 
-async function enrichWithPerplexity(name: string, type: string): Promise<EnrichmentResult> {
-  // TODO: Replace with actual Perplexity API call
-  // For now, return mock enrichment based on web search patterns
-  
-  const result: EnrichmentResult = {
-    wikipedia: `https://en.wikipedia.org/wiki/${name.replace(/\s+/g, '_')}`,
-    publications: [
-      `Research and publications by ${name}`,
-      "Multiple peer-reviewed papers in health optimization",
-    ],
-    speakingEvents: [
-      "Featured speaker at biohacking conferences",
-      "Podcast appearances on health and wellness shows",
-    ],
-    achievements: [
-      "Leading expert in human optimization",
-      "Author of bestselling books on health",
-    ],
-    summary: "Added Wikipedia link, publications, speaking events, and achievements",
-  };
-  
-  return result;
+async function enrichWithAI(name: string, type: string, context?: string): Promise<EnrichmentResult> {
+  try {
+    // Use Perplexity API if available
+    const perplexityKey = process.env.PERPLEXITY_API_KEY;
+    
+    if (perplexityKey) {
+      const prompt = `Research ${type === "people" ? "person" : type.slice(0, -1)} "${name}" in biohacking/health optimization context.
+${context ? `Context: ${context}` : ''}
+
+Find and return in JSON format:
+- wikipedia: actual Wikipedia URL (verify it exists) or null
+- publications: array of specific books/papers/research titles
+- speakingEvents: array of specific podcasts/conferences with episode numbers
+- achievements: array of specific awards/credentials/accomplishments
+
+Return ONLY verified information. Use empty arrays if data not found. NO placeholders.`;
+
+      const response = await fetch('https://api.perplexity.ai/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${perplexityKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'sonar',
+          messages: [{
+            role: 'user',
+            content: prompt,
+          }],
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const content = data.choices?.[0]?.message?.content || '';
+        
+        // Try to extract JSON from response
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          return {
+            wikipedia: parsed.wikipedia || null,
+            publications: Array.isArray(parsed.publications) ? parsed.publications : [],
+            speakingEvents: Array.isArray(parsed.speakingEvents) ? parsed.speakingEvents : [],
+            achievements: Array.isArray(parsed.achievements) ? parsed.achievements : [],
+            summary: `Found ${[
+              parsed.wikipedia ? 'Wikipedia' : null,
+              parsed.publications?.length ? 'publications' : null,
+              parsed.speakingEvents?.length ? 'speaking events' : null,
+              parsed.achievements?.length ? 'achievements' : null,
+            ].filter(Boolean).join(', ')}`,
+          };
+        }
+      }
+    }
+    
+    // Fallback: Basic Wikipedia construction + web search hints
+    const wikiSlug = name.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '');
+    const wikiUrl = `https://en.wikipedia.org/wiki/${wikiSlug}`;
+    
+    // Try to verify Wikipedia link
+    const wikiCheck = await fetch(wikiUrl, { method: 'HEAD' });
+    const wikipedia = wikiCheck.ok ? wikiUrl : null;
+    
+    return {
+      wikipedia,
+      publications: [],
+      speakingEvents: [],
+      achievements: [],
+      summary: wikipedia ? 'Added Wikipedia link' : 'No data found - manual review needed',
+    };
+  } catch (error) {
+    console.error('Enrichment error:', error);
+    return {
+      wikipedia: null,
+      publications: [],
+      speakingEvents: [],
+      achievements: [],
+      summary: 'Enrichment failed',
+    };
+  }
 }
 
 export async function POST(
@@ -87,8 +146,15 @@ export async function POST(
       );
     }
     
+    // Build context for enrichment
+    const context = type === "people" 
+      ? `Bio: ${entity.bio}. Expertise: ${entity.expertise}.`
+      : type === "books"
+      ? `Author: ${entity.author}. Description: ${entity.description}.`
+      : `Description: ${entity.description}`;
+    
     // Enrich with AI
-    const enrichment = await enrichWithPerplexity(name, type);
+    const enrichment = await enrichWithAI(name, type, context);
     
     // Determine which fields were added
     const fieldsAdded: string[] = [];
