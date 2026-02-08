@@ -17,10 +17,10 @@ export async function GET(request: Request) {
       },
     })
 
-    // Parse tags JSON
+    // Parse tags (comma-separated string to array)
     const parsedArticles = articles.map((article) => ({
       ...article,
-      tags: JSON.parse(article.tags),
+      tags: article.tags.split(',').map(tag => tag.trim()),
     }))
 
     return NextResponse.json({ articles: parsedArticles })
