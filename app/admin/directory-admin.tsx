@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Plus, Edit, Trash2, Sparkles, ExternalLink } from "lucide-react";
+import { Search, Plus, Edit, Trash2, Sparkles, ExternalLink, Zap } from "lucide-react";
+import { EditPersonModal } from "./edit-person-modal";
 
 type DirectoryType = "people" | "books" | "organizations" | "protocols";
 
@@ -45,8 +46,79 @@ export default function DirectoryAdmin() {
   }
 
   async function enrichItem(item: DirectoryItem) {
-    // Call enrichment API (to be implemented)
-    alert(`Enrichment for ${item.name || item.title} coming soon!`);
+    try {
+      const response = await fetch(`/api/admin/enrich/${activeType}/${item.id}`, {
+        method: "POST",
+      });
+      
+      if (!response.ok) {
+        throw new Error("Enrichment failed");
+      }
+      
+      const data = await response.json();
+      alert(`✅ Enriched ${item.name || item.title}!\n\nAdded:\n${data.summary || "Check the entry for details"}`);
+      fetchItems(); // Refresh list
+    } catch (error) {
+      console.error("Enrichment error:", error);
+      alert("Failed to enrich entry. Check console for details.");
+    }
+  }
+
+  async function enrichAll() {
+    if (!confirm(`Enrich all ${filteredItems.length} ${activeType}? This may take a while.`)) {
+      return;
+    }
+    
+    let enriched = 0;
+    for (const item of filteredItems) {
+      if (!hasEnrichmentData(item)) {
+        try {
+          await enrichItem(item);
+          enriched++;
+          await new Promise(resolve => setTimeout(resolve, 2000)); // Rate limit
+        } catch (error) {
+          console.error(`Failed to enrich ${item.name || item.title}`, error);
+        }
+      }
+    }
+    
+    alert(`✅ Enriched ${enriched} entries!`);
+    fetchItems();
+  }
+
+  async function savePerson(person: any) {
+    const response = await fetch(`/api/people/id/${person.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(person),
+    });
+    
+    if (!response.ok) {
+      throw new Error("Failed to save person");
+    }
+    
+    fetchItems();
+  }
+
+  async function deleteItem(item: DirectoryItem) {
+    if (!confirm(`Delete ${item.name || item.title}? This cannot be undone.`)) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/api/${activeType}/id/${item.id}`, {
+        method: "DELETE",
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to delete");
+      }
+      
+      fetchItems();
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert("Failed to delete entry");
+    }
   }
 
   function getDisplayName(item: DirectoryItem): string {
@@ -66,21 +138,31 @@ export default function DirectoryAdmin() {
 
   return (
     <div className="space-y-6">
-      {/* Type Selector */}
-      <div className="flex gap-2">
-        {(["people", "books", "organizations", "protocols"] as DirectoryType[]).map((type) => (
-          <button
-            key={type}
-            onClick={() => setActiveType(type)}
-            className={`px-4 py-2 rounded-lg font-medium capitalize transition-colors ${
-              activeType === type
-                ? "bg-purple-500 text-white"
-                : "bg-slate-800 text-slate-300 hover:bg-slate-700"
-            }`}
-          >
-            {type}
-          </button>
-        ))}
+      {/* Type Selector & Bulk Actions */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex gap-2 flex-wrap">
+          {(["people", "books", "organizations", "protocols"] as DirectoryType[]).map((type) => (
+            <button
+              key={type}
+              onClick={() => setActiveType(type)}
+              className={`px-4 py-2 rounded-lg font-medium capitalize transition-colors ${
+                activeType === type
+                  ? "bg-purple-500 text-white"
+                  : "bg-slate-800 text-slate-300 hover:bg-slate-700"
+              }`}
+            >
+              {type}
+            </button>
+          ))}
+        </div>
+        
+        <button
+          onClick={enrichAll}
+          className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition-colors flex items-center gap-2"
+        >
+          <Zap className="w-4 h-4" />
+          Enrich All Unenriched
+        </button>
       </div>
 
       {/* Search Bar */}
@@ -163,6 +245,7 @@ export default function DirectoryAdmin() {
                     <Edit className="w-4 h-4" />
                   </button>
                   <button
+                    onClick={() => deleteItem(item)}
                     className="p-2 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30 transition-colors"
                     title="Delete"
                   >
@@ -181,14 +264,24 @@ export default function DirectoryAdmin() {
         </div>
       )}
 
-      {/* Edit Modal (placeholder) */}
-      {editingItem && (
+      {/* Edit Modal */}
+      {editingItem && activeType === "people" && (
+        <EditPersonModal
+          person={editingItem as any}
+          onClose={() => setEditingItem(null)}
+          onSave={savePerson}
+        />
+      )}
+      
+      {editingItem && activeType !== "people" && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-slate-900 border border-slate-700 rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <h2 className="text-2xl font-bold mb-4">
               Edit {getDisplayName(editingItem)}
             </h2>
-            <p className="text-slate-400 mb-4">Edit form coming soon...</p>
+            <p className="text-slate-400 mb-4">
+              Edit form for {activeType} coming soon...
+            </p>
             <button
               onClick={() => setEditingItem(null)}
               className="px-4 py-2 bg-slate-700 text-white rounded hover:bg-slate-600"

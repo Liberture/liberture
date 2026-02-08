@@ -261,3 +261,17 @@ model ContactMessage {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model EnrichmentLog {
+  id          String   @id @default(cuid())
+  entityType  String   // "person" | "book" | "organization" | "protocol"
+  entityId    String
+  entityName  String
+  fieldsAdded String   // JSON array of fields that were enriched
+  source      String   @default("manual") // "manual" | "ai" | "bulk"
+  enrichedBy  String?  // User ID or "system"
+  createdAt   DateTime @default(now())
+  
+  @@index([entityType, entityId])
+  @@index([createdAt])
+}
