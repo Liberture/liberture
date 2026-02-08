@@ -159,15 +159,133 @@ export default function SleepGamePage() {
               </p>
             </div>
 
-            {/* Game Scene */}
-            <GameScene
-              time={time}
-              lightLevel={currentLightLevel}
-              characterState={characterState}
-            />
+            {/* Game Scene + Controls Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Game Scene - Left Side (2/3 width on desktop) */}
+              <div className="lg:col-span-2">
+                <GameScene
+                  time={time}
+                  lightLevel={currentLightLevel}
+                  characterState={characterState}
+                />
+              </div>
+
+              {/* Controls Panel - Right Side (1/3 width on desktop) */}
+              <div className="lg:col-span-1">
+                <div className="p-6 rounded-2xl bg-card/50 border border-border/50 space-y-6 sticky top-20">
+                  <h3 className="text-lg font-semibold">Your Controls</h3>
+
+                  {/* Bedtime Control */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <Moon className="h-4 w-4 text-purple-500" />
+                        <label className="text-sm font-medium">Bedtime</label>
+                      </div>
+                      <span className="text-sm font-mono">{String(bedtime).padStart(2, "0")}:00</span>
+                    </div>
+                    <Slider
+                      value={[bedtime]}
+                      onValueChange={(v) => setBedtime(v[0])}
+                      min={20}
+                      max={24}
+                      step={1}
+                      className="w-full"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Optimal: 22:00-23:00 (10-11 PM)
+                    </p>
+                  </div>
+
+                  {/* Stop Eating Time */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <UtensilsCrossed className="h-4 w-4 text-green-500" />
+                        <label className="text-sm font-medium">Last Meal</label>
+                      </div>
+                      <span className="text-sm font-mono">{String(stopEatingTime).padStart(2, "0")}:00</span>
+                    </div>
+                    <Slider
+                      value={[stopEatingTime]}
+                      onValueChange={(v) => {
+                        setStopEatingTime(v[0])
+                        setLastMealTime(v[0])
+                      }}
+                      min={17}
+                      max={22}
+                      step={1}
+                      className="w-full"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Stop eating 3+ hours before bed
+                    </p>
+                  </div>
+
+                  {/* Light Schedule */}
+                  <div className="space-y-4 pt-4 border-t border-border/50">
+                    <div className="flex items-center gap-2">
+                      <Lightbulb className="h-4 w-4 text-yellow-500" />
+                      <h4 className="text-sm font-semibold">Light Schedule</h4>
+                    </div>
+
+                    {/* Morning Bright Lights */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-xs">Morning (100%)</label>
+                        <span className="text-xs font-mono">
+                          {String(lightSchedule.morningBright).padStart(2, "0")}:00
+                        </span>
+                      </div>
+                      <Slider
+                        value={[lightSchedule.morningBright]}
+                        onValueChange={(v) => setLightSchedule({ ...lightSchedule, morningBright: v[0] })}
+                        min={5}
+                        max={9}
+                        step={1}
+                      />
+                    </div>
+
+                    {/* Evening Dim */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-xs">Evening (30%)</label>
+                        <span className="text-xs font-mono">
+                          {String(lightSchedule.eveningDim).padStart(2, "0")}:00
+                        </span>
+                      </div>
+                      <Slider
+                        value={[lightSchedule.eveningDim]}
+                        onValueChange={(v) => setLightSchedule({ ...lightSchedule, eveningDim: v[0] })}
+                        min={17}
+                        max={21}
+                        step={1}
+                      />
+                    </div>
+
+                    {/* Night Off */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-xs">Night (0%)</label>
+                        <span className="text-xs font-mono">
+                          {String(lightSchedule.nightOff).padStart(2, "0")}:00
+                        </span>
+                      </div>
+                      <Slider
+                        value={[lightSchedule.nightOff]}
+                        onValueChange={(v) => setLightSchedule({ ...lightSchedule, nightOff: v[0] })}
+                        min={20}
+                        max={23}
+                        step={1}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* Sleep Metrics Dashboard */}
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <MetricCard
                 title="Sleep Quality"
                 value={metrics.sleepQuality}
@@ -220,117 +338,6 @@ export default function SleepGamePage() {
                 ))}
               </motion.div>
             )}
-
-            {/* Controls Panel */}
-            <div className="mt-8 p-6 rounded-2xl bg-card/50 border border-border/50 space-y-6">
-              <h3 className="text-lg font-semibold mb-4">Your Controls</h3>
-
-              {/* Bedtime Control */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Moon className="h-4 w-4 text-purple-500" />
-                    <label className="text-sm font-medium">Bedtime</label>
-                  </div>
-                  <span className="text-sm font-mono">{String(bedtime).padStart(2, "0")}:00</span>
-                </div>
-                <Slider
-                  value={[bedtime]}
-                  onValueChange={(v) => setBedtime(v[0])}
-                  min={20}
-                  max={24}
-                  step={1}
-                  className="w-full"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Optimal: 22:00-23:00 (10-11 PM)
-                </p>
-              </div>
-
-              {/* Stop Eating Time */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <UtensilsCrossed className="h-4 w-4 text-green-500" />
-                    <label className="text-sm font-medium">Last Meal Time</label>
-                  </div>
-                  <span className="text-sm font-mono">{String(stopEatingTime).padStart(2, "0")}:00</span>
-                </div>
-                <Slider
-                  value={[stopEatingTime]}
-                  onValueChange={(v) => {
-                    setStopEatingTime(v[0])
-                    setLastMealTime(v[0])
-                  }}
-                  min={17}
-                  max={22}
-                  step={1}
-                  className="w-full"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Stop eating 3+ hours before bed
-                </p>
-              </div>
-
-              {/* Light Schedule */}
-              <div className="space-y-4 pt-4 border-t border-border/50">
-                <div className="flex items-center gap-2">
-                  <Lightbulb className="h-4 w-4 text-yellow-500" />
-                  <h4 className="text-sm font-semibold">Light Schedule</h4>
-                </div>
-
-                {/* Morning Bright Lights */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm">Morning Bright (100%)</label>
-                    <span className="text-sm font-mono">
-                      {String(lightSchedule.morningBright).padStart(2, "0")}:00
-                    </span>
-                  </div>
-                  <Slider
-                    value={[lightSchedule.morningBright]}
-                    onValueChange={(v) => setLightSchedule({ ...lightSchedule, morningBright: v[0] })}
-                    min={5}
-                    max={9}
-                    step={1}
-                  />
-                </div>
-
-                {/* Evening Dim */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm">Evening Dim (30%)</label>
-                    <span className="text-sm font-mono">
-                      {String(lightSchedule.eveningDim).padStart(2, "0")}:00
-                    </span>
-                  </div>
-                  <Slider
-                    value={[lightSchedule.eveningDim]}
-                    onValueChange={(v) => setLightSchedule({ ...lightSchedule, eveningDim: v[0] })}
-                    min={17}
-                    max={21}
-                    step={1}
-                  />
-                </div>
-
-                {/* Night Off */}
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm">Night Off (0%)</label>
-                    <span className="text-sm font-mono">
-                      {String(lightSchedule.nightOff).padStart(2, "0")}:00
-                    </span>
-                  </div>
-                  <Slider
-                    value={[lightSchedule.nightOff]}
-                    onValueChange={(v) => setLightSchedule({ ...lightSchedule, nightOff: v[0] })}
-                    min={20}
-                    max={23}
-                    step={1}
-                  />
-                </div>
-              </div>
-            </div>
 
             {/* Tips */}
             <div className="mt-8 p-6 rounded-2xl bg-primary/5 border border-primary/20">
