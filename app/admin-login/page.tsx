@@ -23,7 +23,7 @@ function AdminLoginForm() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch("/api/auth/sign-in/email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -31,12 +31,12 @@ function AdminLoginForm() {
 
       const data = await res.json();
 
-      if (res.ok) {
+      if (res.ok && data.user) {
         // Successfully logged in, redirect
         router.push(redirect);
         router.refresh();
       } else {
-        setError(data.error || "Login failed");
+        setError(data.message || "Login failed");
       }
     } catch (err) {
       setError("An error occurred. Please try again.");
