@@ -62,16 +62,49 @@ Base Score: 100%
 + Optimal timing bonuses
 ```
 
-## 2. Learn to Drink Water 🚧
+## 2. Learn to Drink Water ✅
 
-**Status**: Coming Soon
+**Purpose**: Master proper hydration with water quality and food-based intake
 
-**Features** (planned):
-- Hydration tracking throughout the day
-- Automated sleep/light schedules
-- Energy and performance metrics
-- Dehydration warnings
-- Optimal hydration patterns
+**Water Types** (with different effectiveness):
+- **Tap Water**: 60% effectiveness, low electrolytes (20%) - "dead water"
+- **Filtered/Bottled**: 75% effectiveness, moderate electrolytes (40%)
+- **Mineral Water**: 100% effectiveness, high electrolytes (85%) - optimal
+
+**Food System**:
+- 10 food items with real water content:
+  - High water: Watermelon (180ml), Cucumber (150ml), Lettuce (160ml), Soup (220ml)
+  - Medium: Orange (120ml), Strawberries (140ml), Yogurt (90ml)
+  - Lower: Chicken (65ml), Rice (70ml), Bread (35ml)
+- Eating triggers character animation
+- Food provides 20-30% of daily water intake
+
+**Metrics**:
+- Hydration Level (0-100%)
+- Electrolytes (0-100%)
+- Energy Level (0-100%)
+- Cognitive Performance (0-100%)
+- Total intake from water + food
+
+**Educational Features**:
+- **"Dead Water" warning** after 3 tap water drinks
+- Explains electrolyte importance (sodium, potassium, magnesium)
+- Modal with water type specs before continuing
+- Meal time reminders (8 AM, 1 PM, 7 PM)
+- Advanced hydration science tips
+
+**Mechanics**:
+- Gradual dehydration (1%/5min) and electrolyte depletion (0.5%/5min)
+- Different hydration effectiveness based on water type
+- Food adds water content to daily total
+- Warnings at <40% hydration and <25% electrolytes
+
+**Learning Points**:
+- Minerals are essential for cellular water absorption
+- "Dead water" passes through without proper hydration
+- Food contributes significantly to daily water intake
+- Optimal: 2.5L total from water + food combined
+- Add sea salt to tap water if mineral water unavailable
 
 ## 3. Learn to Eat 🚧
 
