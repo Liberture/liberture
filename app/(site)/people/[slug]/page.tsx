@@ -1,37 +1,86 @@
-import { notFound } from "next/navigation";
-import { Metadata } from "next";
-import { prisma } from "@/lib/prisma";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Globe, Twitter, Instagram, Youtube, Mic } from "lucide-react";
 
-type Props = {
-  params: { slug: string };
+type Person = {
+  id: string;
+  slug: string;
+  name: string;
+  title: string;
+  bio: string;
+  pillars: string;
+  expertise: string;
+  followers: string | null;
+  website: string | null;
+  twitter: string | null;
+  instagram: string | null;
+  youtube: string | null;
+  podcast: string | null;
+  imageUrl: string | null;
+  achievements: string | null;
+  publications: string | null;
+  protocols: string | null;
+  featured: boolean;
 };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const person = await prisma.person.findUnique({
-    where: { slug: params.slug }
-  });
+export default function PersonPage() {
+  const params = useParams();
+  const router = useRouter();
+  const [person, setPerson] = useState<Person | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!person) {
-    return {
-      title: "Person Not Found | Liberture",
+  useEffect(() => {
+    const fetchPerson = async () => {
+      try {
+        const response = await fetch(`/api/people/${params.slug}`);
+        
+        if (!response.ok) {
+          if (response.status === 404) {
+            router.push('/404');
+            return;
+          }
+          throw new Error('Failed to fetch person');
+        }
+
+        const data = await response.json();
+        setPerson(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
     };
+
+    fetchPerson();
+  }, [params.slug, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-purple-500 border-r-transparent"></div>
+          <p className="mt-4 text-slate-400">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
-  return {
-    title: `${person.name} | ${person.title} | Liberture`,
-    description: person.bio.substring(0, 160),
-  };
-}
-
-export default async function PersonPage({ params }: Props) {
-  const person = await prisma.person.findUnique({
-    where: { slug: params.slug }
-  });
-
-  if (!person) {
-    notFound();
+  if (error || !person) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold mb-4">Error</h1>
+          <p className="text-slate-400">{error || 'Person not found'}</p>
+          <Link href="/directory" className="mt-4 inline-block text-purple-400 hover:text-purple-300">
+            ← Back to Directory
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   const achievements = person.achievements ? JSON.parse(person.achievements) : [];
