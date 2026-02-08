@@ -1,11 +1,18 @@
 import { Metadata } from "next";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "Directory | Liberture",
   description: "Explore people, organizations, protocols, and resources in the biohacking community.",
 };
 
-export default function DirectoryPage() {
+export default async function DirectoryPage() {
+  const [peopleCount, orgCount, protocolCount, bookCount] = await Promise.all([
+    prisma.person.count(),
+    prisma.organization.count(),
+    prisma.protocol.count(),
+    prisma.book.count(),
+  ]);
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white">
       <div className="container mx-auto px-4 py-16">
@@ -30,7 +37,7 @@ export default function DirectoryPage() {
                 <p className="text-slate-400">
                   Biohackers, researchers, and pioneers in human optimization.
                 </p>
-                <div className="mt-4 text-sm text-purple-400">Coming Soon</div>
+                <div className="mt-4 text-sm text-purple-400 font-medium">{peopleCount} profiles</div>
               </div>
             </a>
 
@@ -46,7 +53,7 @@ export default function DirectoryPage() {
                 <p className="text-slate-400">
                   Labs, companies, and communities advancing the field.
                 </p>
-                <div className="mt-4 text-sm text-cyan-400">Coming Soon</div>
+                <div className="mt-4 text-sm text-cyan-400 font-medium">{orgCount} organizations</div>
               </div>
             </a>
 
@@ -62,7 +69,7 @@ export default function DirectoryPage() {
                 <p className="text-slate-400">
                   Proven methods and systems for optimization.
                 </p>
-                <div className="mt-4 text-sm text-purple-400">Coming Soon</div>
+                <div className="mt-4 text-sm text-purple-400 font-medium">{protocolCount} protocols</div>
               </div>
             </a>
 
@@ -76,9 +83,9 @@ export default function DirectoryPage() {
                 <div className="mb-4 text-4xl">📚</div>
                 <h2 className="mb-2 text-2xl font-bold">Books & Resources</h2>
                 <p className="text-slate-400">
-                  Free books and educational materials (royalty-free only).
+                  Essential reading on biohacking and human optimization.
                 </p>
-                <div className="mt-4 text-sm text-cyan-400">Coming Soon</div>
+                <div className="mt-4 text-sm text-cyan-400 font-medium">{bookCount} books</div>
               </div>
             </a>
           </div>
