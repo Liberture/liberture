@@ -47,43 +47,60 @@ export default function DirectoryAdmin() {
 
   async function enrichItem(item: DirectoryItem) {
     try {
-      const response = await fetch(`/api/admin/enrich/${activeType}/${item.id}`, {
+      // Add to queue instead of processing immediately
+      const response = await fetch('/api/admin/enrich-queue', {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: activeType,
+          id: item.id,
+          name: item.name || item.title,
+          priority: 'normal',
+        }),
       });
       
       if (!response.ok) {
-        throw new Error("Enrichment failed");
+        throw new Error("Failed to queue enrichment");
       }
       
       const data = await response.json();
-      alert(`✅ Enriched ${item.name || item.title}!\n\nAdded:\n${data.summary || "Check the entry for details"}`);
-      fetchItems(); // Refresh list
+      alert(`✅ Added to enrichment queue!\n\nJob ID: ${data.jobId}\n\nWill be processed automatically by heartbeat.`);
     } catch (error) {
       console.error("Enrichment error:", error);
-      alert("Failed to enrich entry. Check console for details.");
+      alert("Failed to queue enrichment. Check console for details.");
     }
   }
 
   async function enrichAll() {
-    if (!confirm(`Enrich all ${filteredItems.length} ${activeType}? This may take a while.`)) {
+    const unenriched = filteredItems.filter(item => !hasEnrichmentData(item));
+    
+    if (!confirm(`Add ${unenriched.length} ${activeType} to enrichment queue?\n\nThey will be processed automatically in batches.`)) {
       return;
     }
     
-    let enriched = 0;
-    for (const item of filteredItems) {
-      if (!hasEnrichmentData(item)) {
-        try {
-          await enrichItem(item);
-          enriched++;
-          await new Promise(resolve => setTimeout(resolve, 2000)); // Rate limit
-        } catch (error) {
-          console.error(`Failed to enrich ${item.name || item.title}`, error);
+    let queued = 0;
+    for (const item of unenriched) {
+      try {
+        const response = await fetch('/api/admin/enrich-queue', {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: activeType,
+            id: item.id,
+            name: item.name || item.title,
+            priority: 'bulk',
+          }),
+        });
+        
+        if (response.ok) {
+          queued++;
         }
+      } catch (error) {
+        console.error(`Failed to queue ${item.name || item.title}`, error);
       }
     }
     
-    alert(`✅ Enriched ${enriched} entries!`);
-    fetchItems();
+    alert(`✅ Queued ${queued} entries!\n\nThey will be enriched automatically during heartbeat checks.`);
   }
 
   async function savePerson(person: any) {
