@@ -168,13 +168,15 @@ model Person {
   expertise   String
   followers   String?
   website     String?
+  wikipedia   String? // Wikipedia page URL
   twitter     String?
   instagram   String?
   youtube     String?
   podcast     String?
   imageUrl    String?
   achievements String? // JSON array
-  publications String? // JSON array
+  publications String? // JSON array - books, papers, articles
+  speakingEvents String? // JSON array - conferences, podcasts, interviews
   protocols   String? // JSON array of protocol IDs
   featured    Boolean  @default(false)
   createdAt   DateTime @default(now())
@@ -190,7 +192,9 @@ model Organization {
   type        String // "research", "platform", "community", etc.
   founded     String?
   website     String
+  wikipedia   String? // Wikipedia page URL
   resources   String? // JSON array
+  publications String? // JSON array - research papers, reports
   keyPeople   String? // JSON array of person IDs
   featured    Boolean  @default(false)
   imageUrl    String?
@@ -228,8 +232,10 @@ model Book {
   pages       Int?
   isbn        String?
   amazonUrl   String?
+  wikipedia   String? // Wikipedia page URL
   rating      Float?
   keyTakeaways String? // JSON array
+  publications String? // JSON array - where book has been reviewed/featured
   forWho      String? // Who should read this
   featured    Boolean  @default(false)
   imageUrl    String?
