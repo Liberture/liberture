@@ -3,8 +3,8 @@ import type { Metadata, Viewport } from "next"
 import { Inter, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { AuthProvider } from "@/lib/auth-context"
-import { CookieConsent } from "@/components/CookieConsent"
-import { OrganizationSchema, WebSiteSchema } from "@/components/JsonLd"
+import { CookieConsent } from "@/components/legal/CookieConsent"
+import { OrganizationSchema, WebSiteSchema } from "@/components/seo/JsonLd"
 import "./globals.css"
 
 // Using Inter as primary font per design system
