@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import KnowledgeAdmin from "./knowledge-admin";
 import MarketplaceAdmin from "./marketplace-admin";
@@ -8,6 +7,7 @@ import ContentAdmin from "./content-admin";
 import SocialAdmin from "./social-admin";
 import CommentsAdmin from "./comments-admin";
 import UsersAdmin from "./users-admin";
+import DirectoryAdmin from "./directory-admin";
 
 export default function AdminPanel() {
   return (
@@ -21,6 +21,7 @@ export default function AdminPanel() {
         <Tabs defaultValue="users" className="w-full">
           <TabsList className="bg-slate-800/50 border border-slate-700">
             <TabsTrigger value="users">Users</TabsTrigger>
+            <TabsTrigger value="directory">Directory</TabsTrigger>
             <TabsTrigger value="marketplace">Marketplace</TabsTrigger>
             <TabsTrigger value="content">Content</TabsTrigger>
             <TabsTrigger value="knowledge">Knowledge</TabsTrigger>
@@ -30,6 +31,10 @@ export default function AdminPanel() {
 
           <TabsContent value="users">
             <UsersAdmin />
+          </TabsContent>
+
+          <TabsContent value="directory">
+            <DirectoryAdmin />
           </TabsContent>
 
           <TabsContent value="marketplace">
