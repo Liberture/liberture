@@ -176,8 +176,8 @@ export function MarketplaceContent() {
                       {pillarMeta?.name}
                     </Badge>
                   </div>
-                  <Badge variant={item.price === 0 ? "outline" : "default"} className="text-xs">
-                    {item.price === 0 ? marketplaceTranslations.price.free : `$${item.price}`}
+                  <Badge variant="outline" className="text-xs bg-green-500/20 border-green-500 text-green-400">
+                    FREE
                   </Badge>
                 </div>
 
