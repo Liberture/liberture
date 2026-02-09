@@ -1,0 +1,47 @@
+# Liberture - Biological Operating System
+# https://liberture.com
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://liberture.com/sitemap.xml
+
+# Crawl-delay for aggressive bots
+User-agent: AhrefsBot
+Crawl-delay: 5
+
+User-agent: SemrushBot
+Crawl-delay: 5
+
+# Block admin and API routes
+Disallow: /admin
+Disallow: /admin-login
+Disallow: /api/
+Disallow: /dashboard/
+
+# Block auth pages from indexing
+Disallow: /login
+Disallow: /signup
+Disallow: /reset-password
+
+# Allow knowledge and directory (high-value SEO pages)
+Allow: /knowledge
+Allow: /directory
+Allow: /people/
+Allow: /organizations/
+Allow: /protocols/
+Allow: /books/
+Allow: /marketplace
+
+# Block duplicate content
+Disallow: /*?*sort=
+Disallow: /*?*filter=
+Disallow: /*?*page=
+
+# Rate limiting for good bots
+# Google, Bing, DuckDuckGo are unrestricted
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: DuckDuckBot
+Allow: /
