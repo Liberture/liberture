@@ -8,13 +8,32 @@ export const metadata: Metadata = {
   description: "Essential books on biohacking, longevity, and human optimization.",
 };
 
-export default async function BooksPage() {
-  const books = await prisma.book.findMany({
-    orderBy: [
-      { featured: 'desc' },
-      { rating: 'desc' }
-    ]
-  });
+const ITEMS_PER_PAGE = 20;
+
+export default async function BooksPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
+  const currentPage = parseInt(params.page || "1", 10);
+  const skip = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  const [books, totalCount] = await Promise.all([
+    prisma.book.findMany({
+      orderBy: [
+        { featured: 'desc' },
+        { rating: 'desc' }
+      ],
+      take: ITEMS_PER_PAGE,
+      skip,
+    }),
+    prisma.book.count(),
+  ]);
+
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+  const hasNextPage = currentPage < totalPages;
+  const hasPrevPage = currentPage > 1;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white">
@@ -27,8 +46,11 @@ export default async function BooksPage() {
           </div>
 
           <h1 className="text-5xl font-bold mb-4">Books</h1>
-          <p className="text-xl text-slate-300 mb-12">
+          <p className="text-xl text-slate-300 mb-4">
             Essential reading on biohacking, longevity, and human optimization.
+          </p>
+          <p className="text-sm text-slate-400 mb-12">
+            Showing {skip + 1}–{Math.min(skip + ITEMS_PER_PAGE, totalCount)} of {totalCount} books
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -92,6 +114,33 @@ export default async function BooksPage() {
           {books.length === 0 && (
             <div className="text-center py-12">
               <p className="text-slate-400 text-lg">No books found. Check back soon!</p>
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="mt-12 flex justify-center items-center gap-4">
+              {hasPrevPage && (
+                <Link
+                  href={`/books?page=${currentPage - 1}`}
+                  className="px-6 py-3 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/30 transition-colors"
+                >
+                  ← Previous
+                </Link>
+              )}
+              
+              <div className="text-slate-400">
+                Page {currentPage} of {totalPages}
+              </div>
+              
+              {hasNextPage && (
+                <Link
+                  href={`/books?page=${currentPage + 1}`}
+                  className="px-6 py-3 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/30 transition-colors"
+                >
+                  Next →
+                </Link>
+              )}
             </div>
           )}
         </div>
