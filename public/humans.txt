@@ -1,0 +1,27 @@
+/* TEAM */
+Platform: Liberture
+Tagline: Your Biological Operating System
+Location: Global
+Website: https://liberture.com
+
+/* THANKS */
+Built with love for the biohacking community
+Knowledge contributors: Huberman Lab, Examine.com, Rhonda Patrick, Peter Attia, and many more
+
+/* TECH */
+Stack: Next.js 15, React, TypeScript, Tailwind CSS
+Database: PostgreSQL + Prisma ORM
+Deployment: PM2, Cloudflare
+Performance: Edge caching, static generation
+Security: Better-Auth, HTTPS, rate limiting
+
+/* SITE */
+Last update: 2026/02/10
+Standards: HTML5, CSS3, ES2023
+Components: lucide-react icons, Framer Motion
+Accessibility: WCAG 2.1 (work in progress)
+Languages: English
+
+/* CONTACT */
+Twitter: @liberture
+Email: hello@liberture.com
