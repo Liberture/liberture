@@ -104,7 +104,7 @@ model EnrichmentLog {
 }
 
 model KnowledgeArticle {
-  id          String   @id
+  id          String        @id
   title       String
   description String
   pillar      String
@@ -113,9 +113,24 @@ model KnowledgeArticle {
   readTime    Int
   url         String
   publishedAt DateTime
-  createdAt   DateTime @default(now())
+  createdAt   DateTime      @default(now())
   updatedAt   DateTime
-  slug        String   @unique
+  slug        String        @unique
+  viewCount   Int           @default(0)
+  views       ArticleView[]
+}
+
+model ArticleView {
+  id        String            @id
+  articleId String
+  viewedAt  DateTime          @default(now())
+  userAgent String?
+  referrer  String?
+  article   KnowledgeArticle  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@index([articleId])
+  @@index([viewedAt])
+  @@index([articleId, viewedAt])
 }
 
 model MarketplaceItem {
