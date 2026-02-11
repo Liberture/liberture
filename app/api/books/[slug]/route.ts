@@ -10,7 +10,7 @@ export async function GET(
     const book = await prisma.book.findUnique({
       where: { slug },
       include: {
-        authorRelation: {
+        Person: {
           select: {
             id: true,
             name: true,
