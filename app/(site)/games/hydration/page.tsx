@@ -414,11 +414,11 @@ export default function HydrationGamePage() {
               )}
             </AnimatePresence>
 
-            {/* Main Dashboard Layout - 3 Columns */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            {/* Main Dashboard Layout - 3 Equal Columns */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               
-              {/* LEFT COLUMN - Game Scene + Metrics + Progress */}
-              <div className="lg:col-span-1 space-y-4">
+              {/* LEFT COLUMN - Game Scene + Metrics */}
+              <div className="space-y-4">
                 {/* Game Scene (Smaller) */}
                 <div className="bg-card/30 border border-border/50 rounded-xl overflow-hidden">
                   <div className="scale-75 origin-top">
@@ -437,59 +437,10 @@ export default function HydrationGamePage() {
                   <MetricCard title="Energy" value={metrics.energyLevel} icon={<TrendingUp className="h-4 w-4" />} color="green" />
                   <MetricCard title="Cognitive" value={metrics.cognitivePerformance} icon={<Brain className="h-4 w-4" />} color="purple" />
                 </div>
-
-                {/* Today's Progress */}
-                <div className="p-4 rounded-xl bg-card/50 border border-border/50">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <Droplet className="h-5 w-5 text-cyan-500" />
-                      <span className="font-semibold">Today's Intake</span>
-                    </div>
-                    <div className="text-2xl font-bold">
-                      {((metrics.waterIntake + metrics.foodWaterIntake) / 1000).toFixed(1)}L
-                    </div>
-                  </div>
-                  <div className="text-xs text-muted-foreground mb-2">
-                    {(metrics.foodWaterIntake / 1000).toFixed(1)}L from food • Target: 2.5L
-                  </div>
-                  <div className="w-full bg-slate-700 h-2.5 rounded-full overflow-hidden">
-                    <motion.div
-                      className="h-full bg-gradient-to-r from-cyan-500 to-blue-500"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${Math.min(100, ((metrics.waterIntake + metrics.foodWaterIntake) / 2500) * 100)}%` }}
-                    />
-                  </div>
-                  {metrics.consecutiveGoodDays > 0 && (
-                    <div className="mt-2 text-xs text-muted-foreground">
-                      🔥 {metrics.consecutiveGoodDays} day streak
-                    </div>
-                  )}
-                </div>
-
-                {/* Feedback Messages */}
-                <AnimatePresence>
-                  {feedback.length > 0 && (
-                    <motion.div className="space-y-2" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                      {feedback.map((item, i) => (
-                        <div
-                          key={i}
-                          className={`p-3 rounded-lg flex items-center gap-2 text-sm ${
-                            item.type === "good" ? "bg-green-500/10 border border-green-500/30" :
-                            item.type === "bad" ? "bg-red-500/10 border border-red-500/30" :
-                            "bg-yellow-500/10 border border-yellow-500/30"
-                          }`}
-                        >
-                          {item.type === "good" ? <CheckCircle className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
-                          <span>{item.message}</span>
-                        </div>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </div>
 
               {/* MIDDLE COLUMN - Drink Water Controls */}
-              <div className="lg:col-span-1 space-y-4">
+              <div className="space-y-4">
                 
                 {/* Drink Water Section */}
                 <div className="p-4 rounded-xl bg-card/50 border border-border/50">
@@ -561,6 +512,60 @@ export default function HydrationGamePage() {
                   </Button>
                 </div>
 
+              </div>
+
+              {/* RIGHT COLUMN - Progress + Log + Feedback */}
+              <div className="space-y-4">
+                
+                {/* Today's Progress */}
+                <div className="p-4 rounded-xl bg-card/50 border border-border/50">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Droplet className="h-5 w-5 text-cyan-500" />
+                      <span className="font-semibold">Today's Intake</span>
+                    </div>
+                    <div className="text-2xl font-bold">
+                      {((metrics.waterIntake + metrics.foodWaterIntake) / 1000).toFixed(1)}L
+                    </div>
+                  </div>
+                  <div className="text-xs text-muted-foreground mb-2">
+                    {(metrics.foodWaterIntake / 1000).toFixed(1)}L from food • Target: 2.5L
+                  </div>
+                  <div className="w-full bg-slate-700 h-2.5 rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full bg-gradient-to-r from-cyan-500 to-blue-500"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(100, ((metrics.waterIntake + metrics.foodWaterIntake) / 2500) * 100)}%` }}
+                    />
+                  </div>
+                  {metrics.consecutiveGoodDays > 0 && (
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      🔥 {metrics.consecutiveGoodDays} day streak
+                    </div>
+                  )}
+                </div>
+
+                {/* Feedback Messages */}
+                <AnimatePresence>
+                  {feedback.length > 0 && (
+                    <motion.div className="space-y-2" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                      {feedback.map((item, i) => (
+                        <div
+                          key={i}
+                          className={`p-3 rounded-lg flex items-center gap-2 text-sm ${
+                            item.type === "good" ? "bg-green-500/10 border border-green-500/30" :
+                            item.type === "bad" ? "bg-red-500/10 border border-red-500/30" :
+                            "bg-yellow-500/10 border border-yellow-500/30"
+                          }`}
+                        >
+                          {item.type === "good" ? <CheckCircle className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+                          <span>{item.message}</span>
+                        </div>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 {/* Water/Food Log */}
                 <div className="p-4 rounded-xl bg-card/50 border border-border/50">
                   <h3 className="text-sm font-semibold mb-3">Intake Log</h3>
@@ -593,10 +598,6 @@ export default function HydrationGamePage() {
                     </div>
                   )}
                 </div>
-              </div>
-
-              {/* RIGHT COLUMN - Empty for now */}
-              <div className="lg:col-span-2 space-y-4">
               </div>
 
             </div>
