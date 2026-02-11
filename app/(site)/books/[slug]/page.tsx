@@ -21,6 +21,11 @@ type Book = {
   forWho: string | null;
   featured: boolean;
   imageUrl: string | null;
+  authorRelation?: {
+    id: string;
+    name: string;
+    slug: string;
+  } | null;
 };
 
 export default function BookPage() {
@@ -99,7 +104,19 @@ export default function BookPage() {
               <BookOpen className="w-8 h-8 text-purple-400 mt-1" />
               <div>
                 <h1 className="text-5xl font-bold mb-2">{book.title}</h1>
-                <p className="text-2xl text-purple-400">by {book.author}</p>
+                <p className="text-2xl text-purple-400">
+                  by{' '}
+                  {book.authorRelation ? (
+                    <Link 
+                      href={`/people/${book.authorRelation.slug}`}
+                      className="hover:text-purple-300 underline decoration-purple-400/30 hover:decoration-purple-300 transition-colors"
+                    >
+                      {book.authorRelation.name}
+                    </Link>
+                  ) : (
+                    book.author
+                  )}
+                </p>
               </div>
             </div>
             
