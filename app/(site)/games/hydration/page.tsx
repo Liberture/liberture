@@ -21,6 +21,8 @@ interface WaterLog {
   time: string
   amount: number
   type: string
+  category: "water" | "food"
+  emoji?: string
 }
 
 interface WaterType {
@@ -114,7 +116,7 @@ export default function HydrationGamePage() {
   const drinkWater = (time: GameTime, amount: number = 250) => {
     const timeStr = `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`
     
-    setWaterLog((prev) => [...prev, { time: timeStr, amount, type: currentWaterType.name }])
+    setWaterLog((prev) => [...prev, { time: timeStr, amount, type: currentWaterType.name, category: "water" }])
     setDrinkCount((prev) => prev + 1)
     
     // Calculate effective hydration based on water type and electrolytes
@@ -155,7 +157,17 @@ export default function HydrationGamePage() {
   const eatFood = (time: GameTime, food: FoodItem) => {
     setCharacterState("eating")
     
+    const timeStr = `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`
     const waterFromFood = food.waterContent
+    
+    // Add to water log
+    setWaterLog((prev) => [...prev, { 
+      time: timeStr, 
+      amount: waterFromFood, 
+      type: food.name, 
+      category: "food",
+      emoji: food.emoji 
+    }])
     
     setMetrics((prev) => ({
       ...prev,
@@ -315,22 +327,24 @@ export default function HydrationGamePage() {
               )}
             </AnimatePresence>
 
-            {/* Main Dashboard Layout - Everything Visible */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Main Dashboard Layout - 3 Columns */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
               
-              {/* LEFT COLUMN - Game Scene + Metrics */}
-              <div className="lg:col-span-2 space-y-4">
-                {/* Game Scene */}
+              {/* LEFT COLUMN - Game Scene + Metrics + Progress */}
+              <div className="lg:col-span-1 space-y-4">
+                {/* Game Scene (Smaller) */}
                 <div className="bg-card/30 border border-border/50 rounded-xl overflow-hidden">
-                  <GameScene
-                    time={time}
-                    lightLevel={calculateLightLevel(time.hour)}
-                    characterState={characterState}
-                  />
+                  <div className="scale-75 origin-top">
+                    <GameScene
+                      time={time}
+                      lightLevel={calculateLightLevel(time.hour)}
+                      characterState={characterState}
+                    />
+                  </div>
                 </div>
 
                 {/* Metrics Dashboard */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                   <MetricCard title="Hydration" value={metrics.hydrationLevel} icon={<Droplet className="h-4 w-4" />} color="cyan" />
                   <MetricCard title="Electrolytes" value={metrics.electrolytes} icon={<Droplet className="h-4 w-4" />} color="yellow" />
                   <MetricCard title="Energy" value={metrics.energyLevel} icon={<TrendingUp className="h-4 w-4" />} color="green" />
@@ -387,8 +401,8 @@ export default function HydrationGamePage() {
                 </AnimatePresence>
               </div>
 
-              {/* RIGHT COLUMN - Controls Panel */}
-              <div className="space-y-4">
+              {/* MIDDLE COLUMN - Drink Water Controls */}
+              <div className="lg:col-span-1 space-y-4">
                 
                 {/* Drink Water Action */}
                 <div className="p-4 rounded-xl bg-card/50 border border-border/50">
@@ -450,13 +464,50 @@ export default function HydrationGamePage() {
                   </div>
                 </div>
 
+                {/* Water/Food Log */}
+                <div className="p-4 rounded-xl bg-card/50 border border-border/50">
+                  <h3 className="text-sm font-semibold mb-3">Intake Log</h3>
+                  
+                  {waterLog.length === 0 ? (
+                    <p className="text-xs text-muted-foreground text-center py-3">
+                      No intake logged yet
+                    </p>
+                  ) : (
+                    <div className="space-y-1.5 max-h-64 overflow-y-auto">
+                      {waterLog.slice().reverse().map((log, i) => (
+                        <div 
+                          key={i} 
+                          className={`p-2 rounded-lg flex items-center justify-between text-xs ${
+                            log.category === "water" 
+                              ? "bg-cyan-500/10 border border-cyan-500/30" 
+                              : "bg-green-500/10 border border-green-500/30"
+                          }`}
+                        >
+                          <span className="text-muted-foreground">{log.time}</span>
+                          <div className="flex items-center gap-1">
+                            {log.emoji && <span className="text-sm">{log.emoji}</span>}
+                            <span className="font-semibold">{log.amount}ml</span>
+                          </div>
+                          <span className={`text-[10px] ${log.category === "water" ? "text-cyan-400" : "text-green-400"}`}>
+                            {log.type}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* RIGHT COLUMN - Food & Tips */}
+              <div className="lg:col-span-2 space-y-4">
+                
                 {/* Food Selection */}
                 <div className="p-4 rounded-xl bg-card/50 border border-border/50">
                   <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
                     <Utensils className="h-4 w-4 text-green-500" />
                     Hydrating Foods
                   </h3>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                     {FOOD_ITEMS.map((food) => (
                       <button
                         key={food.id}
@@ -465,48 +516,39 @@ export default function HydrationGamePage() {
                         className="p-2.5 rounded-lg bg-card/50 border border-border/50 hover:border-border hover:scale-[1.02] transition-all text-center disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <div className="text-2xl mb-1">{food.emoji}</div>
-                        <div className="text-xs font-semibold mb-0.5">{food.name}</div>
+                        <div className="text-xs font-semibold mb-0.5 truncate">{food.name}</div>
                         <div className="text-xs text-cyan-400">+{food.waterContent}ml</div>
                       </button>
                     ))}
                   </div>
                   <div className="mt-3 p-2 rounded-lg bg-primary/10 border border-primary/20">
                     <p className="text-xs text-muted-foreground">
-                      💡 Food provides 20-30% of daily water
+                      💡 Food provides 20-30% of daily water intake
                     </p>
                   </div>
                 </div>
 
-                {/* Water Log */}
-                <div className="p-4 rounded-xl bg-card/50 border border-border/50">
-                  <h3 className="text-sm font-semibold mb-3">Water Log</h3>
-                  
-                  {waterLog.length === 0 ? (
-                    <p className="text-xs text-muted-foreground text-center py-3">
-                      No water logged yet
-                    </p>
-                  ) : (
-                    <div className="space-y-1.5 max-h-40 overflow-y-auto">
-                      {waterLog.slice().reverse().map((log, i) => (
-                        <div key={i} className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">{log.time}</span>
-                          <span className="font-semibold">{log.amount}ml</span>
-                          <span className="text-cyan-400 text-[10px]">{log.type}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
                 {/* Quick Tips */}
-                <div className="p-3 rounded-xl bg-primary/5 border border-primary/20">
-                  <h3 className="text-xs font-semibold mb-2">💧 Pro Tips</h3>
-                  <ul className="space-y-1 text-xs text-muted-foreground">
-                    <li>• Mineral water = best absorption</li>
-                    <li>• Electrolytes are essential</li>
-                    <li>• Target 2.5L total daily</li>
-                    <li>• Food provides 20-30% water</li>
-                  </ul>
+                <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+                  <h3 className="text-sm font-semibold mb-3">💧 Hydration Science</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <h4 className="text-xs font-semibold mb-1.5">Water Quality</h4>
+                      <ul className="space-y-1 text-xs text-muted-foreground">
+                        <li>• Mineral water = best absorption</li>
+                        <li>• Electrolytes are essential</li>
+                        <li>• Tap water needs minerals</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-semibold mb-1.5">Daily Goals</h4>
+                      <ul className="space-y-1 text-xs text-muted-foreground">
+                        <li>• Target 2.5L total daily</li>
+                        <li>• 20-30% from food</li>
+                        <li>• 1.8-2L from drinking</li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </div>
 
