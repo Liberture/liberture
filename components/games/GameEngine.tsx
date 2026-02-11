@@ -86,7 +86,7 @@ export function GameEngine({ children, onTimeChange }: GameEngineProps) {
   return (
     <div className="relative min-h-screen">
       {/* Time Controls - Fixed at top */}
-      <div className="fixed top-20 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border/50">
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border/50">
         <div className="container mx-auto px-4 py-3 max-w-6xl">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             {/* Time Display */}
@@ -144,7 +144,7 @@ export function GameEngine({ children, onTimeChange }: GameEngineProps) {
       </div>
 
       {/* Game Content */}
-      <div className="pt-32">{children(time, controls)}</div>
+      <div className="">{children(time, controls)}</div>
     </div>
   )
 }
