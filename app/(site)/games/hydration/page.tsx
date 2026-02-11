@@ -77,7 +77,20 @@ const FOOD_ITEMS: FoodItem[] = [
   { id: "strawberries", name: "Strawberries", waterContent: 140, calories: 50, description: "91% water", emoji: "🍓" },
   { id: "lettuce", name: "Lettuce Salad", waterContent: 160, calories: 25, description: "96% water", emoji: "🥗" },
   { id: "soup", name: "Soup", waterContent: 220, calories: 120, description: "High water", emoji: "🍲" },
+  { id: "yogurt", name: "Yogurt", waterContent: 90, calories: 150, description: "75% water", emoji: "🥛" },
+  { id: "grapes", name: "Grapes", waterContent: 130, calories: 70, description: "81% water", emoji: "🍇" },
+  { id: "celery", name: "Celery", waterContent: 140, calories: 10, description: "95% water", emoji: "🥬" },
+  { id: "tomato", name: "Tomato", waterContent: 135, calories: 20, description: "94% water", emoji: "🍅" },
+  { id: "peach", name: "Peach", waterContent: 125, calories: 60, description: "89% water", emoji: "🍑" },
+  { id: "pineapple", name: "Pineapple", waterContent: 130, calories: 80, description: "86% water", emoji: "🍍" },
+  { id: "broccoli", name: "Broccoli", waterContent: 120, calories: 35, description: "91% water", emoji: "🥦" },
+  { id: "carrot", name: "Carrots", waterContent: 110, calories: 40, description: "88% water", emoji: "🥕" },
+  { id: "apple", name: "Apple", waterContent: 115, calories: 95, description: "86% water", emoji: "🍎" },
+  { id: "melon", name: "Cantaloupe", waterContent: 160, calories: 55, description: "90% water", emoji: "🍈" },
 ]
+
+// Quick access foods (most hydrating)
+const QUICK_FOODS = ["watermelon", "cucumber", "lettuce"]
 
 export default function HydrationGamePage() {
   // Game state
@@ -92,6 +105,9 @@ export default function HydrationGamePage() {
   })
   const [waterLog, setWaterLog] = useState<WaterLog[]>([])
   const [selectedWaterType, setSelectedWaterType] = useState<string>("tap")
+  const [showWaterTypeModal, setShowWaterTypeModal] = useState(false)
+  const [showFoodModal, setShowFoodModal] = useState(false)
+  const [pendingFood, setPendingFood] = useState<FoodItem | null>(null)
   const [showElectrolyteWarning, setShowElectrolyteWarning] = useState(false)
   const [characterState, setCharacterState] = useState<"standing" | "sleeping" | "eating">("standing")
   const [feedback, setFeedback] = useState<Array<{ type: "good" | "bad" | "warning", message: string }>>([])
@@ -153,14 +169,60 @@ export default function HydrationGamePage() {
     setTimeout(() => setFeedback([]), 3000)
   }
 
-  // Eat food function
-  const eatFood = (time: GameTime, food: FoodItem) => {
+  // Eat food function with confirmation
+  const selectFood = (food: FoodItem) => {
+    setPendingFood(food)
+  }
+
+  const confirmEatFood = (time: GameTime) => {
+    if (!pendingFood) return
+    
+    setCharacterState("eating")
+    
+    const timeStr = `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`
+    const waterFromFood = pendingFood.waterContent
+    
+    // Add to water log
+    setWaterLog((prev) => [...prev, { 
+      time: timeStr, 
+      amount: waterFromFood, 
+      type: pendingFood.name, 
+      category: "food",
+      emoji: pendingFood.emoji 
+    }])
+    
+    setMetrics((prev) => ({
+      ...prev,
+      hydrationLevel: Math.min(100, prev.hydrationLevel + (waterFromFood / 250) * 10),
+      foodWaterIntake: prev.foodWaterIntake + waterFromFood,
+      energyLevel: Math.min(100, prev.energyLevel + 8),
+    }))
+
+    setFeedback([
+      { 
+        type: "good", 
+        message: `${pendingFood.emoji} ${pendingFood.name}: +${waterFromFood}ml water from food!` 
+      }
+    ])
+
+    setTimeout(() => {
+      setCharacterState("standing")
+      setFeedback([])
+    }, 3000)
+
+    setPendingFood(null)
+    setShowFoodModal(false)
+  }
+
+  const quickEatFood = (time: GameTime, foodId: string) => {
+    const food = FOOD_ITEMS.find(f => f.id === foodId)
+    if (!food) return
+    
     setCharacterState("eating")
     
     const timeStr = `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`
     const waterFromFood = food.waterContent
     
-    // Add to water log
     setWaterLog((prev) => [...prev, { 
       time: timeStr, 
       amount: waterFromFood, 
@@ -404,64 +466,74 @@ export default function HydrationGamePage() {
               {/* MIDDLE COLUMN - Drink Water Controls */}
               <div className="lg:col-span-1 space-y-4">
                 
-                {/* Drink Water Action */}
+                {/* Drink Water Section */}
                 <div className="p-4 rounded-xl bg-card/50 border border-border/50">
                   <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
                     <Droplet className="h-4 w-4 text-cyan-500" />
-                    Drink Water (250ml)
+                    Drink Water
                   </h3>
+                  
+                  {/* Water Type Dropdown */}
+                  <button
+                    onClick={() => setShowWaterTypeModal(true)}
+                    className={`w-full p-3 rounded-lg bg-gradient-to-b ${currentWaterType.color} border mb-3 text-left hover:opacity-80 transition-opacity`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-sm font-semibold mb-0.5">{currentWaterType.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          ⚡{currentWaterType.electrolytes}% • 💧{(currentWaterType.effectiveness * 100).toFixed(0)}%
+                        </div>
+                      </div>
+                      <Info className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </button>
+
+                  {/* Drink Button */}
                   <Button
                     size="lg"
                     onClick={() => drinkWater(time)}
                     disabled={characterState === "sleeping"}
-                    className="w-full gap-2 text-base mb-3"
+                    className="w-full gap-2 text-base"
                   >
                     <Droplet className="h-5 w-5" />
-                    Drink {currentWaterType.name}
+                    Drink 250ml
                   </Button>
-                  
-                  {/* Current Water Type */}
-                  <div className={`p-3 rounded-lg bg-gradient-to-b ${currentWaterType.color} border mb-2`}>
-                    <div className="text-xs font-semibold mb-1">{currentWaterType.name}</div>
-                    <div className="text-xs text-muted-foreground mb-2">{currentWaterType.description}</div>
-                    <div className="flex gap-3 text-xs">
-                      <div>
-                        <div className="text-muted-foreground">Electrolytes</div>
-                        <div className="font-semibold">{currentWaterType.electrolytes}%</div>
-                      </div>
-                      <div>
-                        <div className="text-muted-foreground">Effectiveness</div>
-                        <div className="font-semibold">{(currentWaterType.effectiveness * 100).toFixed(0)}%</div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
-                {/* Water Type Selection */}
+                {/* Quick Foods */}
                 <div className="p-4 rounded-xl bg-card/50 border border-border/50">
-                  <h3 className="text-sm font-semibold mb-3">Water Type</h3>
-                  <div className="space-y-2">
-                    {WATER_TYPES.map((water) => (
-                      <button
-                        key={water.id}
-                        onClick={() => setSelectedWaterType(water.id)}
-                        className={`w-full p-2.5 rounded-lg bg-gradient-to-b ${water.color} border text-left text-xs hover:scale-[1.02] transition-transform ${
-                          selectedWaterType === water.id ? "ring-2 ring-primary" : ""
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-semibold">{water.name}</span>
-                          {selectedWaterType === water.id && (
-                            <CheckCircle className="h-3.5 w-3.5 text-primary" />
-                          )}
-                        </div>
-                        <div className="flex gap-2 text-xs text-muted-foreground">
-                          <span>⚡{water.electrolytes}%</span>
-                          <span>💧{(water.effectiveness * 100).toFixed(0)}%</span>
-                        </div>
-                      </button>
-                    ))}
+                  <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                    <Utensils className="h-4 w-4 text-green-500" />
+                    Quick Foods
+                  </h3>
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    {QUICK_FOODS.map((foodId) => {
+                      const food = FOOD_ITEMS.find(f => f.id === foodId)
+                      if (!food) return null
+                      return (
+                        <button
+                          key={food.id}
+                          onClick={() => quickEatFood(time, food.id)}
+                          disabled={characterState === "sleeping"}
+                          className="p-2 rounded-lg bg-card/50 border border-border/50 hover:border-border hover:scale-[1.02] transition-all text-center disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <div className="text-2xl mb-1">{food.emoji}</div>
+                          <div className="text-xs font-semibold truncate">{food.name}</div>
+                          <div className="text-xs text-cyan-400">+{food.waterContent}ml</div>
+                        </button>
+                      )
+                    })}
                   </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setShowFoodModal(true)}
+                    disabled={characterState === "sleeping"}
+                    className="w-full text-xs"
+                  >
+                    More Foods...
+                  </Button>
                 </div>
 
                 {/* Water/Food Log */}
@@ -498,35 +570,8 @@ export default function HydrationGamePage() {
                 </div>
               </div>
 
-              {/* RIGHT COLUMN - Food & Tips */}
+              {/* RIGHT COLUMN - Tips & Log Extension */}
               <div className="lg:col-span-2 space-y-4">
-                
-                {/* Food Selection */}
-                <div className="p-4 rounded-xl bg-card/50 border border-border/50">
-                  <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                    <Utensils className="h-4 w-4 text-green-500" />
-                    Hydrating Foods
-                  </h3>
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                    {FOOD_ITEMS.map((food) => (
-                      <button
-                        key={food.id}
-                        onClick={() => eatFood(time, food)}
-                        disabled={characterState === "sleeping"}
-                        className="p-2.5 rounded-lg bg-card/50 border border-border/50 hover:border-border hover:scale-[1.02] transition-all text-center disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <div className="text-2xl mb-1">{food.emoji}</div>
-                        <div className="text-xs font-semibold mb-0.5 truncate">{food.name}</div>
-                        <div className="text-xs text-cyan-400">+{food.waterContent}ml</div>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="mt-3 p-2 rounded-lg bg-primary/10 border border-primary/20">
-                    <p className="text-xs text-muted-foreground">
-                      💡 Food provides 20-30% of daily water intake
-                    </p>
-                  </div>
-                </div>
 
                 {/* Quick Tips */}
                 <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
@@ -553,10 +598,157 @@ export default function HydrationGamePage() {
               </div>
 
             </div>
+
+            {/* Water Type Selection Modal */}
+            <AnimatePresence>
+              {showWaterTypeModal && (
+                <Modal onClose={() => setShowWaterTypeModal(false)} title="Choose Water Type">
+                  <div className="space-y-3">
+                    {WATER_TYPES.map((water) => (
+                      <button
+                        key={water.id}
+                        onClick={() => {
+                          setSelectedWaterType(water.id)
+                          setShowWaterTypeModal(false)
+                        }}
+                        className={`w-full p-4 rounded-xl bg-gradient-to-b ${water.color} border text-left hover:scale-[1.01] transition-transform ${
+                          selectedWaterType === water.id ? "ring-2 ring-primary" : ""
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className="text-lg font-bold">{water.name}</h3>
+                          {selectedWaterType === water.id && (
+                            <CheckCircle className="h-5 w-5 text-primary" />
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-3">{water.description}</p>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <div className="text-xs text-muted-foreground">Electrolytes</div>
+                            <div className="font-semibold">{water.electrolytes}%</div>
+                          </div>
+                          <div>
+                            <div className="text-xs text-muted-foreground">Effectiveness</div>
+                            <div className="font-semibold">{(water.effectiveness * 100).toFixed(0)}%</div>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-4 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/30">
+                    <p className="text-xs text-muted-foreground">
+                      💡 <strong>Tip:</strong> Mineral water provides the best hydration due to electrolytes (sodium, magnesium, potassium) that help water enter your cells.
+                    </p>
+                  </div>
+                </Modal>
+              )}
+            </AnimatePresence>
+
+            {/* Food Selection Modal */}
+            <AnimatePresence>
+              {showFoodModal && (
+                <Modal onClose={() => {
+                  setShowFoodModal(false)
+                  setPendingFood(null)
+                }} title="Choose Hydrating Food">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mb-4">
+                    {FOOD_ITEMS.map((food) => (
+                      <button
+                        key={food.id}
+                        onClick={() => selectFood(food)}
+                        className={`p-3 rounded-xl border text-center hover:scale-[1.02] transition-all ${
+                          pendingFood?.id === food.id 
+                            ? "bg-green-500/20 border-green-500" 
+                            : "bg-card/50 border-border/50 hover:border-border"
+                        }`}
+                      >
+                        <div className="text-3xl mb-1">{food.emoji}</div>
+                        <div className="text-xs font-semibold mb-1 truncate">{food.name}</div>
+                        <div className="text-xs text-cyan-400 mb-0.5">+{food.waterContent}ml</div>
+                        <div className="text-xs text-muted-foreground">{food.description}</div>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Confirmation */}
+                  {pendingFood && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 rounded-xl bg-green-500/10 border border-green-500/30"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <span className="text-3xl">{pendingFood.emoji}</span>
+                          <div>
+                            <div className="font-semibold">{pendingFood.name}</div>
+                            <div className="text-sm text-muted-foreground">
+                              +{pendingFood.waterContent}ml water • {pendingFood.calories} cal
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={() => confirmEatFood(time)} 
+                          className="flex-1"
+                          disabled={characterState === "sleeping"}
+                        >
+                          Confirm
+                        </Button>
+                        <Button 
+                          onClick={() => setPendingFood(null)} 
+                          variant="outline" 
+                          className="flex-1"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  <div className="mt-4 p-3 rounded-lg bg-primary/10 border border-primary/20">
+                    <p className="text-xs text-muted-foreground">
+                      💡 <strong>Did you know?</strong> Food provides 20-30% of daily water intake. Fruits and vegetables are 80-95% water!
+                    </p>
+                  </div>
+                </Modal>
+              )}
+            </AnimatePresence>
+
           </div>
         )}
       </GameEngine>
     </div>
+  )
+}
+
+// Modal Component
+function Modal({ children, onClose, title }: { children: React.ReactNode; onClose: () => void; title: string }) {
+  return (
+    <motion.div
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+    >
+      <motion.div
+        className="bg-card border border-border rounded-2xl p-6 max-w-4xl w-full max-h-[85vh] overflow-y-auto"
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.9, y: 20 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold">{title}</h2>
+          <button onClick={onClose} className="p-2 hover:bg-accent rounded-lg transition-colors">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        {children}
+      </motion.div>
+    </motion.div>
   )
 }
 
