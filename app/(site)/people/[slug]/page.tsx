@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Globe, Twitter, Instagram, Youtube, Mic, BookOpen, MessageSquare } from "lucide-react";
+import { Globe, Twitter, Instagram, Youtube, Mic, BookOpen, MessageSquare, Zap } from "lucide-react";
 import { PersonSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
 
 type Book = {
@@ -17,6 +17,17 @@ type Book = {
   amazonUrl: string | null;
   imageUrl: string | null;
   pillars: string;
+};
+
+type Protocol = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  pillar: string;
+  difficulty: string;
+  duration: string | null;
+  featured: boolean;
 };
 
 type Person = {
@@ -41,6 +52,7 @@ type Person = {
   protocols: string | null;
   featured: boolean;
   Book?: Book[];
+  Protocol?: Protocol[];
 };
 
 export default function PersonPage() {
@@ -262,6 +274,54 @@ export default function PersonPage() {
                       </li>
                     ))}
                   </ul>
+                </div>
+              )}
+
+              {/* Protocols */}
+              {person.Protocol && person.Protocol.length > 0 && (
+                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+                  <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                    <Zap className="w-6 h-6 text-green-400" />
+                    Protocols by {person.name}
+                  </h2>
+                  <div className="space-y-4">
+                    {person.Protocol.map((protocol: Protocol) => (
+                      <Link
+                        key={protocol.id}
+                        href={`/protocols/${protocol.slug}`}
+                        className="block p-4 rounded-lg border border-slate-700 hover:border-green-500 bg-slate-800/50 hover:bg-slate-800 transition-all group"
+                      >
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-lg mb-2 group-hover:text-green-400 transition-colors">
+                              {protocol.name}
+                            </h3>
+                            <p className="text-slate-400 text-sm mb-3 line-clamp-2">
+                              {protocol.description}
+                            </p>
+                            <div className="flex items-center gap-3 text-sm">
+                              <span className="px-2 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-medium border border-green-500/30">
+                                {protocol.pillar}
+                              </span>
+                              {protocol.difficulty && (
+                                <span className="text-slate-500">
+                                  {protocol.difficulty}
+                                </span>
+                              )}
+                              {protocol.duration && (
+                                <>
+                                  <span className="text-slate-600">•</span>
+                                  <span className="text-slate-500">
+                                    {protocol.duration}
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               )}
 

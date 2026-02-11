@@ -123,7 +123,15 @@ export default function ProtocolPage() {
               <div>
                 <h1 className="text-5xl font-bold mb-2">{protocol.name}</h1>
                 {protocol.creator && (
-                  <p className="text-xl text-purple-400">by {protocol.creator}</p>
+                  <p className="text-xl text-purple-400">
+                    by{' '}
+                    <Link 
+                      href={`/people/${protocol.creator}`}
+                      className="hover:text-purple-300 underline decoration-purple-400/30 hover:decoration-purple-300 transition-colors"
+                    >
+                      {protocol.creator.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    </Link>
+                  </p>
                 )}
               </div>
             </div>

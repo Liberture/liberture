@@ -38,7 +38,33 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(person);
+    // Fetch protocols where this person is the creator
+    const protocols = await prisma.protocol.findMany({
+      where: {
+        creator: slug,
+      },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        description: true,
+        pillar: true,
+        difficulty: true,
+        duration: true,
+        featured: true,
+      },
+      orderBy: {
+        featured: 'desc',
+      },
+    });
+
+    // Add protocols to person object
+    const personWithProtocols = {
+      ...person,
+      Protocol: protocols,
+    };
+
+    return NextResponse.json(personWithProtocols);
   } catch (error) {
     console.error('Error fetching person:', error);
     return NextResponse.json(
