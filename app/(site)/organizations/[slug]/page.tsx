@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ExternalLink, Building2 } from "lucide-react";
+import { BreadcrumbSchema } from "@/components/seo/JsonLd";
 
 type Organization = {
   id: string;
@@ -80,8 +81,31 @@ export default function OrganizationPage() {
   const resources = organization.resources ? JSON.parse(organization.resources) : [];
   const pillars = organization.pillars.split(',').map(p => p.trim());
 
+  const organizationSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: organization.name,
+    description: organization.description,
+    url: `https://liberture.com/organizations/${organization.slug}`,
+    ...(organization.website && { sameAs: [organization.website] }),
+    ...(organization.founded && { foundingDate: organization.founded }),
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white">
+      {/* JSON-LD Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: 'Home', url: 'https://liberture.com' },
+          { name: 'Organizations', url: 'https://liberture.com/organizations' },
+          { name: organization.name, url: `https://liberture.com/organizations/${organization.slug}` },
+        ]}
+      />
+      
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-5xl mx-auto">
           <div className="mb-8">
