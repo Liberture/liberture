@@ -148,15 +148,15 @@ export default function HydrationGamePage() {
   // Drink water function
   const drinkWater = (time: GameTime, amount: number = 250) => {
     const timeStr = `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`
-    
+
     setWaterLog((prev) => [...prev, { time: timeStr, amount, type: currentWaterType.name, category: "water" }])
     setDrinkCount((prev) => prev + 1)
-    
+
     // Calculate effective hydration based on water type and electrolytes
     const effectiveAmount = amount * currentWaterType.effectiveness
     const hydrationBoost = (effectiveAmount / 250) * 15
     const electrolyteBoost = currentWaterType.electrolytes / 10
-    
+
     setMetrics((prev) => ({
       ...prev,
       hydrationLevel: Math.min(100, prev.hydrationLevel + hydrationBoost),
@@ -173,7 +173,7 @@ export default function HydrationGamePage() {
 
     // Feedback
     const messages: Array<{ type: "good" | "bad" | "warning", message: string }> = []
-    
+
     if (currentWaterType.effectiveness === 1.0) {
       messages.push({ type: "good", message: `+${amount}ml mineral water! Perfect hydration! 💎` })
     } else if (currentWaterType.effectiveness < 0.7) {
@@ -189,16 +189,16 @@ export default function HydrationGamePage() {
   // Take salt function
   const takeSalt = (time: GameTime) => {
     const timeStr = `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`
-    
+
     // Log salt intake
-    setWaterLog((prev) => [...prev, { 
-      time: timeStr, 
-      amount: 0, 
-      type: "Pinch of Salt", 
+    setWaterLog((prev) => [...prev, {
+      time: timeStr,
+      amount: 0,
+      type: "Pinch of Salt",
       category: "water",
       emoji: "🧂"
     }])
-    
+
     // Boost electrolytes significantly
     setMetrics((prev) => ({
       ...prev,
@@ -207,9 +207,9 @@ export default function HydrationGamePage() {
     }))
 
     setFeedback([
-      { 
-        type: "good", 
-        message: `🧂 Salt added! +25% electrolytes. Helps water absorption!` 
+      {
+        type: "good",
+        message: `🧂 Salt added! +25% electrolytes. Helps water absorption!`
       }
     ])
 
@@ -223,21 +223,21 @@ export default function HydrationGamePage() {
 
   const confirmEatFood = (time: GameTime) => {
     if (!pendingFood) return
-    
+
     setCharacterState("eating")
-    
+
     const timeStr = `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`
     const waterFromFood = pendingFood.waterContent
-    
+
     // Add to water log
-    setWaterLog((prev) => [...prev, { 
-      time: timeStr, 
-      amount: waterFromFood, 
-      type: pendingFood.name, 
+    setWaterLog((prev) => [...prev, {
+      time: timeStr,
+      amount: waterFromFood,
+      type: pendingFood.name,
       category: "food",
-      emoji: pendingFood.emoji 
+      emoji: pendingFood.emoji
     }])
-    
+
     setMetrics((prev) => ({
       ...prev,
       hydrationLevel: Math.min(100, prev.hydrationLevel + (waterFromFood / 250) * 10),
@@ -246,9 +246,9 @@ export default function HydrationGamePage() {
     }))
 
     setFeedback([
-      { 
-        type: "good", 
-        message: `${pendingFood.emoji} ${pendingFood.name}: +${waterFromFood}ml water from food!` 
+      {
+        type: "good",
+        message: `${pendingFood.emoji} ${pendingFood.name}: +${waterFromFood}ml water from food!`
       }
     ])
 
@@ -264,20 +264,20 @@ export default function HydrationGamePage() {
   const quickEatFood = (time: GameTime, foodId: string) => {
     const food = FOOD_ITEMS.find(f => f.id === foodId)
     if (!food) return
-    
+
     setCharacterState("eating")
-    
+
     const timeStr = `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`
     const waterFromFood = food.waterContent
-    
-    setWaterLog((prev) => [...prev, { 
-      time: timeStr, 
-      amount: waterFromFood, 
-      type: food.name, 
+
+    setWaterLog((prev) => [...prev, {
+      time: timeStr,
+      amount: waterFromFood,
+      type: food.name,
       category: "food",
-      emoji: food.emoji 
+      emoji: food.emoji
     }])
-    
+
     setMetrics((prev) => ({
       ...prev,
       hydrationLevel: Math.min(100, prev.hydrationLevel + (waterFromFood / 250) * 10),
@@ -286,9 +286,9 @@ export default function HydrationGamePage() {
     }))
 
     setFeedback([
-      { 
-        type: "good", 
-        message: `${food.emoji} ${food.name}: +${waterFromFood}ml water from food!` 
+      {
+        type: "good",
+        message: `${food.emoji} ${food.name}: +${waterFromFood}ml water from food!`
       }
     ])
 
@@ -312,13 +312,13 @@ export default function HydrationGamePage() {
       setMetrics((prev) => {
         const newHydration = Math.max(0, prev.hydrationLevel - 1)
         const newElectrolytes = Math.max(0, prev.electrolytes - 0.5)
-        const newEnergy = newHydration > 30 && newElectrolytes > 20 
-          ? prev.energyLevel 
+        const newEnergy = newHydration > 30 && newElectrolytes > 20
+          ? prev.energyLevel
           : Math.max(0, prev.energyLevel - 2)
         const newCognitive = newHydration > 20 && newElectrolytes > 15
-          ? prev.cognitivePerformance 
+          ? prev.cognitivePerformance
           : Math.max(0, prev.cognitivePerformance - 3)
-        
+
         return {
           ...prev,
           hydrationLevel: newHydration,
@@ -344,9 +344,9 @@ export default function HydrationGamePage() {
 
     // Meal times
     if ((time.hour === 8 || time.hour === 13 || time.hour === 19) && time.minute === 0) {
-      setFeedback([{ 
-        type: "good", 
-        message: `🍽️ Meal time! Food can provide 20-30% of daily water intake.` 
+      setFeedback([{
+        type: "good",
+        message: `🍽️ Meal time! Food can provide 20-30% of daily water intake.`
       }])
     }
   }
@@ -355,17 +355,17 @@ export default function HydrationGamePage() {
     const totalWater = metrics.waterIntake + metrics.foodWaterIntake
     const targetIntake = 2500
     const achieved = totalWater >= targetIntake * 0.8
-    
+
     if (achieved && metrics.electrolytes > 40) {
-      setFeedback([{ 
-        type: "good", 
-        message: `Excellent! ${(totalWater / 1000).toFixed(1)}L total (${(metrics.foodWaterIntake / 1000).toFixed(1)}L from food) ✓` 
+      setFeedback([{
+        type: "good",
+        message: `Excellent! ${(totalWater / 1000).toFixed(1)}L total (${(metrics.foodWaterIntake / 1000).toFixed(1)}L from food) ✓`
       }])
       setMetrics((prev) => ({ ...prev, consecutiveGoodDays: prev.consecutiveGoodDays + 1 }))
     } else {
-      setFeedback([{ 
-        type: "bad", 
-        message: `Only ${(totalWater / 1000).toFixed(1)}L today. Target: 2.5L total.` 
+      setFeedback([{
+        type: "bad",
+        message: `Only ${(totalWater / 1000).toFixed(1)}L today. Target: 2.5L total.`
       }])
       setMetrics((prev) => ({ ...prev, consecutiveGoodDays: 0 }))
     }
@@ -445,40 +445,39 @@ export default function HydrationGamePage() {
             </AnimatePresence>
 
             {/* Main Dashboard Layout - 3 Equal Columns */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+
               {/* LEFT COLUMN - Game Scene + Metrics */}
-              <div className="space-y-4">
+              <div className="space-y-4 col-span-2">
                 {/* Game Scene (Smaller) */}
-                <div className="bg-card/30 border border-border/50 rounded-xl overflow-hidden">
-                  <div className="scale-75 origin-top">
-                    <GameScene
-                      time={time}
-                      lightLevel={calculateLightLevel(time.hour)}
-                      characterState={characterState}
-                    />
+                <div className="bg-card/30 border border-border/50 rounded-xl">
+                  <GameScene
+                    time={time}
+                    lightLevel={calculateLightLevel(time.hour)}
+                    characterState={characterState}
+                  />
+
+                  {/* Metrics Dashboard */}
+                  <div className="grid grid-cols-4 gap-3">
+                    <MetricCard title="Hydration" value={Number(metrics.hydrationLevel.toFixed(0))} icon={<Droplet className="h-4 w-4" />} color="cyan" />
+                    <MetricCard title="Electrolytes" value={metrics.electrolytes} icon={<Droplet className="h-4 w-4" />} color="yellow" />
+                    <MetricCard title="Energy" value={metrics.energyLevel} icon={<TrendingUp className="h-4 w-4" />} color="green" />
+                    <MetricCard title="Cognitive" value={metrics.cognitivePerformance} icon={<Brain className="h-4 w-4" />} color="purple" />
                   </div>
                 </div>
 
-                {/* Metrics Dashboard */}
-                <div className="grid grid-cols-2 gap-3">
-                  <MetricCard title="Hydration" value={metrics.hydrationLevel} icon={<Droplet className="h-4 w-4" />} color="cyan" />
-                  <MetricCard title="Electrolytes" value={metrics.electrolytes} icon={<Droplet className="h-4 w-4" />} color="yellow" />
-                  <MetricCard title="Energy" value={metrics.energyLevel} icon={<TrendingUp className="h-4 w-4" />} color="green" />
-                  <MetricCard title="Cognitive" value={metrics.cognitivePerformance} icon={<Brain className="h-4 w-4" />} color="purple" />
-                </div>
               </div>
 
               {/* MIDDLE COLUMN - Drink Water Controls */}
               <div className="space-y-4">
-                
+
                 {/* Drink Water Section */}
                 <div className="p-4 rounded-xl bg-card/50 border border-border/50">
                   <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
                     <Droplet className="h-4 w-4 text-cyan-500" />
                     Drink Water
                   </h3>
-                  
+
                   {/* Water Type Dropdown */}
                   <button
                     onClick={() => setShowWaterTypeModal(true)}
@@ -568,7 +567,7 @@ export default function HydrationGamePage() {
 
               {/* RIGHT COLUMN - Progress + Log + Feedback */}
               <div className="space-y-4">
-                
+
                 {/* Today's Progress */}
                 <div className="p-4 rounded-xl bg-card/50 border border-border/50">
                   <div className="flex items-center justify-between mb-2">
@@ -621,7 +620,7 @@ export default function HydrationGamePage() {
                 {/* Water/Food Log */}
                 <div className="p-4 rounded-xl bg-card/50 border border-border/50">
                   <h3 className="text-sm font-semibold mb-3">Intake Log</h3>
-                  
+
                   {waterLog.length === 0 ? (
                     <p className="text-xs text-muted-foreground text-center py-3">
                       No intake logged yet
@@ -629,8 +628,8 @@ export default function HydrationGamePage() {
                   ) : (
                     <div className="space-y-1.5 max-h-64 overflow-y-auto">
                       {waterLog.slice().reverse().map((log, i) => (
-                        <div 
-                          key={i} 
+                        <div
+                          key={i}
                           className={`p-2 rounded-lg flex items-center justify-between text-xs ${
                             log.category === "water" 
                               ? "bg-cyan-500/10 border border-cyan-500/30" 
@@ -850,16 +849,16 @@ export default function HydrationGamePage() {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <Button 
-                          onClick={() => confirmEatFood(time)} 
+                        <Button
+                          onClick={() => confirmEatFood(time)}
                           className="flex-1"
                           disabled={characterState === "sleeping"}
                         >
                           Confirm
                         </Button>
-                        <Button 
-                          onClick={() => setPendingFood(null)} 
-                          variant="outline" 
+                        <Button
+                          onClick={() => setPendingFood(null)}
+                          variant="outline"
                           className="flex-1"
                         >
                           Cancel
@@ -914,12 +913,12 @@ function Modal({ children, onClose, title }: { children: React.ReactNode; onClos
 }
 
 // Metric Card Component
-function MetricCard({ 
-  title, 
-  value, 
-  icon, 
-  color 
-}: { 
+function MetricCard({
+  title,
+  value,
+  icon,
+  color
+}: {
   title: string
   value: number
   icon: React.ReactNode
