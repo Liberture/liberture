@@ -28,7 +28,7 @@ export default async function BooksPage({
       take: ITEMS_PER_PAGE,
       skip,
       include: {
-        authorRelation: {
+        Person: {
           select: {
             id: true,
             name: true,
@@ -86,12 +86,12 @@ export default async function BooksPage({
                     </Link>
                     
                     <p className="text-cyan-400 text-sm mb-3">
-                      {book.authorRelation ? (
+                      {book.Person ? (
                         <Link 
-                          href={`/people/${book.authorRelation.slug}`}
+                          href={`/people/${book.Person.slug}`}
                           className="hover:text-cyan-300 underline decoration-cyan-400/30 hover:decoration-cyan-300 transition-colors"
                         >
-                          {book.authorRelation.name}
+                          {book.Person.name}
                         </Link>
                       ) : (
                         book.author
