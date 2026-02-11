@@ -8,7 +8,16 @@ export async function GET(
   try {
     const { slug } = await params;
     const book = await prisma.book.findUnique({
-      where: { slug }
+      where: { slug },
+      include: {
+        Person: {
+          select: {
+            id: true,
+            name: true,
+            slug: true
+          }
+        }
+      }
     });
 
     if (!book) {

@@ -1,4 +1,3 @@
-// This is your Prisma schema file
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,28 +7,138 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Account {
+  id           String    @id
+  userId       String
+  accountId    String
+  providerId   String
+  accessToken  String?
+  refreshToken String?
+  idToken      String?
+  expiresAt    DateTime?
+  password     String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime
+  User         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+}
+
+model Book {
+  id           String   @id
+  slug         String   @unique
+  title        String
+  author       String
+  description  String
+  pillars      String
+  year         Int?
+  pages        Int?
+  isbn         String?
+  amazonUrl    String?
+  rating       Float?
+  keyTakeaways String?
+  forWho       String?
+  featured     Boolean  @default(false)
+  imageUrl     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+  publications String?
+  wikipedia    String?
+  authorId     String?
+  goodreadsUrl String?
+  Person       Person?  @relation(fields: [authorId], references: [id])
+
+  @@index([authorId])
+}
+
+model ContactMessage {
+  id        String   @id
+  name      String
+  email     String
+  subject   String?
+  message   String
+  replied   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model Content {
+  id              String   @id
+  title           String
+  description     String
+  pillar          String
+  type            String
+  author          String
+  influencerScore Int?
+  rating          Float
+  reviews         Int
+  price           Int
+  duration        String
+  tags            String
+  outcomes        String
+  prerequisites   String?
+  difficulty      String
+  bioScores       String
+  lessonCount     Int?
+  contentUrl      String?
+  socialLinks     String?
+  updates         String?
+  relatedContent  String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime
+}
+
+model EnrichmentLog {
+  id          String   @id
+  entityType  String
+  entityId    String
+  entityName  String
+  fieldsAdded String
+  source      String   @default("manual")
+  enrichedBy  String?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([entityType, entityId])
+}
+
 model KnowledgeArticle {
-  id          String   @id @default(cuid())
-  slug        String   @unique
+  id          String        @id
   title       String
   description String
   pillar      String
-  tags        String // JSON array as string
+  tags        String
   author      String
   readTime    Int
   url         String
   publishedAt DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  slug        String        @unique
+  viewCount   Int           @default(0)
+  views       ArticleView[]
+}
+
+model ArticleView {
+  id        String            @id
+  articleId String
+  viewedAt  DateTime          @default(now())
+  userAgent String?
+  referrer  String?
+  article   KnowledgeArticle  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@index([articleId])
+  @@index([viewedAt])
+  @@index([articleId, viewedAt])
 }
 
 model MarketplaceItem {
-  id          String   @id @default(cuid())
-  slug        String   @unique
+  id          String   @id
   title       String
   description String
   pillar      String
-  type        String // "premium" | "opensource"
+  type        String
   author      String
   rating      Float
   reviews     Int
@@ -38,247 +147,150 @@ model MarketplaceItem {
   color       String
   iconColor   String
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model Content {
-  id           String   @id @default(cuid())
-  title        String
-  description  String
-  pillar       String
-  type         String
-  author       String // JSON object as string
-  influencerScore Int?
-  rating       Float
-  reviews      Int
-  price        Int
-  duration     String
-  tags         String // JSON array as string
-  outcomes     String // JSON array as string
-  prerequisites String? // JSON array as string
-  difficulty   String
-  bioScores    String // JSON object as string
-  lessonCount  Int?
-  contentUrl   String?
-  socialLinks  String? // JSON object as string
-  updates      String? // JSON array as string
-  relatedContent String? // JSON array as string
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-}
-
-model SocialPost {
-  id          String   @id @default(cuid())
-  author      String
-  avatarUrl   String
-  timeAgo     String
-  content     String
-  likes       Int
-  comments    Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model PlatformComment {
-  id         String   @id @default(cuid())
-  contentId  String
-  author     String
-  avatarUrl  String
-  timeAgo    String
-  comment    String
-  helpful    Int
-  replies    Int
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-model User {
-  id                    String    @id @default(cuid())
-  email                 String    @unique
-  emailVerified         Boolean   @default(false)
-  name                  String
-  image                 String?
-  password              String?
-  bosLevel              Int       @default(1)
-  role                  String    @default("user")
-  banned                Boolean   @default(false)
-  banReason             String?
-  banExpires            DateTime?
-  // Email notification preferences
-  emailNotifications    Boolean   @default(true)  // General email notifications
-  marketingEmails       Boolean   @default(true)  // Marketing & product updates
-  weeklyDigest          Boolean   @default(true)  // Weekly summary emails
-  newContentAlerts      Boolean   @default(false) // Alerts for new content in followed pillars
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-  sessions              Session[]
-  accounts              Account[]
-}
-
-model Session {
-  id        String   @id @default(cuid())
-  userId    String
-  expiresAt DateTime
-  ipAddress String?
-  userAgent String?
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId])
-}
-
-model Account {
-  id                String   @id @default(cuid())
-  userId            String
-  accountId         String
-  providerId        String
-  accessToken       String?
-  refreshToken      String?
-  idToken           String?
-  expiresAt         DateTime?
-  password          String?
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  @@unique([providerId, accountId])
-  @@index([userId])
-}
-
-model Verification {
-  id         String   @id @default(cuid())
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@unique([identifier, value])
-}
-
-// Directory models
-model Person {
-  id          String   @id @default(cuid())
+  updatedAt   DateTime
   slug        String   @unique
-  name        String
-  title       String
-  bio         String
-  category    String   @default("practitioner") // "author", "practitioner", "researcher", "athlete", etc.
-  pillars     String // Comma-separated pillar IDs
-  expertise   String
-  followers   String?
-  website     String?
-  wikipedia   String? // Wikipedia page URL
-  twitter     String?
-  instagram   String?
-  youtube     String?
-  podcast     String?
-  imageUrl    String?
-  achievements String? // JSON array
-  publications String? // JSON array - books, papers, articles
-  speakingEvents String? // JSON array - conferences, podcasts, interviews
-  protocols   String? // JSON array of protocol IDs
-  books       Book[]   // Authored books
-  featured    Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+}
+
+model Newsletter {
+  id         String   @id
+  email      String   @unique
+  subscribed Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
 }
 
 model Organization {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  name        String
-  description String
-  pillars     String // Comma-separated
-  type        String // "research", "platform", "community", etc.
-  founded     String?
-  website     String
-  wikipedia   String? // Wikipedia page URL
-  resources   String? // JSON array
-  publications String? // JSON array - research papers, reports
-  keyPeople   String? // JSON array of person IDs
-  featured    Boolean  @default(false)
-  imageUrl    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id
+  slug         String   @unique
+  name         String
+  description  String
+  pillars      String
+  type         String
+  founded      String?
+  website      String
+  resources    String?
+  keyPeople    String?
+  featured     Boolean  @default(false)
+  imageUrl     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+  publications String?
+  wikipedia    String?
+}
+
+model Person {
+  id             String   @id
+  slug           String   @unique
+  name           String
+  title          String
+  bio            String
+  pillars        String
+  expertise      String
+  followers      String?
+  website        String?
+  twitter        String?
+  instagram      String?
+  youtube        String?
+  podcast        String?
+  imageUrl       String?
+  achievements   String?
+  publications   String?
+  protocols      String?
+  featured       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime
+  speakingEvents String?
+  wikipedia      String?
+  category       String   @default("practitioner")
+  Book           Book[]
+}
+
+model PlatformComment {
+  id        String   @id
+  contentId String
+  author    String
+  avatarUrl String
+  timeAgo   String
+  comment   String
+  helpful   Int
+  replies   Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime
 }
 
 model Protocol {
-  id          String   @id @default(cuid())
+  id          String   @id
   slug        String   @unique
   name        String
   description String
   pillar      String
-  creator     String? // Person ID or name
+  creator     String?
   duration    String?
-  difficulty  String // "beginner", "intermediate", "advanced"
-  steps       String // JSON array
-  benefits    String // JSON array
-  risks       String? // JSON array
-  equipment   String? // JSON array
-  references  String? // JSON array
+  difficulty  String
+  steps       String
+  benefits    String
+  risks       String?
+  equipment   String?
+  references  String?
   featured    Boolean  @default(false)
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime
 }
 
-model Book {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  author      String   // Author name (kept for backwards compatibility)
-  authorId    String?  // Foreign key to Person
-  authorPerson Person? @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  description String
-  pillars     String // Comma-separated
-  year        Int?
-  pages       Int?
-  isbn        String?
-  amazonUrl   String?
-  goodreadsUrl String? // Goodreads book page URL
-  wikipedia   String? // Wikipedia page URL
-  rating      Float?
-  keyTakeaways String? // JSON array
-  publications String? // JSON array - where book has been reviewed/featured
-  forWho      String? // Who should read this
-  featured    Boolean  @default(false)
-  imageUrl    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@index([authorId])
-}
-
-model Newsletter {
-  id          String   @id @default(cuid())
-  email       String   @unique
-  subscribed  Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model ContactMessage {
-  id        String   @id @default(cuid())
-  name      String
-  email     String
-  subject   String?
-  message   String
-  replied   Boolean  @default(false)
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
-model EnrichmentLog {
-  id          String   @id @default(cuid())
-  entityType  String   // "person" | "book" | "organization" | "protocol"
-  entityId    String
-  entityName  String
-  fieldsAdded String   // JSON array of fields that were enriched
-  source      String   @default("manual") // "manual" | "ai" | "bulk"
-  enrichedBy  String?  // User ID or "system"
-  createdAt   DateTime @default(now())
-  
-  @@index([entityType, entityId])
-  @@index([createdAt])
+model SocialPost {
+  id        String   @id
+  author    String
+  avatarUrl String
+  timeAgo   String
+  content   String
+  likes     Int
+  comments  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model User {
+  id                 String    @id
+  email              String    @unique
+  emailVerified      Boolean   @default(false)
+  name               String
+  image              String?
+  password           String?
+  bosLevel           Int       @default(1)
+  role               String    @default("user")
+  banned             Boolean   @default(false)
+  banReason          String?
+  banExpires         DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime
+  emailNotifications Boolean   @default(true)
+  marketingEmails    Boolean   @default(true)
+  newContentAlerts   Boolean   @default(false)
+  weeklyDigest       Boolean   @default(true)
+  Account            Account[]
+  Session            Session[]
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+
+  @@unique([identifier, value])
 }

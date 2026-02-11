@@ -6,14 +6,34 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const pillar = searchParams.get('pillar')
     const tag = searchParams.get('tag')
+    const search = searchParams.get('search')
+    const sortBy = searchParams.get('sortBy') || 'publishedAt'
+    const sortOrder = searchParams.get('sortOrder') || 'desc'
+
+    // Build where clause with search
+    const where: any = {}
+    
+    if (pillar && pillar !== 'all') {
+      where.pillar = pillar
+    }
+    
+    if (tag) {
+      where.tags = { contains: tag }
+    }
+    
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+        { author: { contains: search, mode: 'insensitive' } },
+        { tags: { contains: search, mode: 'insensitive' } },
+      ]
+    }
 
     const articles = await prisma.knowledgeArticle.findMany({
-      where: {
-        ...(pillar && pillar !== 'all' ? { pillar } : {}),
-        ...(tag ? { tags: { contains: tag } } : {}),
-      },
+      where,
       orderBy: {
-        publishedAt: 'desc',
+        [sortBy]: sortOrder,
       },
     })
 
