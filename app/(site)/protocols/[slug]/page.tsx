@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Target, AlertTriangle, Package } from "lucide-react";
+import { ArticleSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
 
 type Protocol = {
   id: string;
@@ -92,6 +93,21 @@ export default function ProtocolPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white">
+      {/* JSON-LD Schema */}
+      <ArticleSchema
+        title={protocol.name}
+        description={protocol.description}
+        url={`https://liberture.com/protocols/${protocol.slug}`}
+        author={protocol.creator || 'Liberture'}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: 'Home', url: 'https://liberture.com' },
+          { name: 'Protocols', url: 'https://liberture.com/protocols' },
+          { name: protocol.name, url: `https://liberture.com/protocols/${protocol.slug}` },
+        ]}
+      />
+      
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-5xl mx-auto">
           <div className="mb-8">
