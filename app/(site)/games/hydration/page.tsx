@@ -186,6 +186,36 @@ export default function HydrationGamePage() {
     setTimeout(() => setFeedback([]), 3000)
   }
 
+  // Take salt function
+  const takeSalt = (time: GameTime) => {
+    const timeStr = `${String(time.hour).padStart(2, "0")}:${String(time.minute).padStart(2, "0")}`
+    
+    // Log salt intake
+    setWaterLog((prev) => [...prev, { 
+      time: timeStr, 
+      amount: 0, 
+      type: "Pinch of Salt", 
+      category: "water",
+      emoji: "🧂"
+    }])
+    
+    // Boost electrolytes significantly
+    setMetrics((prev) => ({
+      ...prev,
+      electrolytes: Math.min(100, prev.electrolytes + 25),
+      energyLevel: Math.min(100, prev.energyLevel + 5),
+    }))
+
+    setFeedback([
+      { 
+        type: "good", 
+        message: `🧂 Salt added! +25% electrolytes. Helps water absorption!` 
+      }
+    ])
+
+    setTimeout(() => setFeedback([]), 3000)
+  }
+
   // Eat food function with confirmation
   const selectFood = (food: FoodItem) => {
     setPendingFood(food)
@@ -475,6 +505,28 @@ export default function HydrationGamePage() {
                     <Droplet className="h-5 w-5" />
                     Drink 250ml
                   </Button>
+                </div>
+
+                {/* Take Salt */}
+                <div className="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/30">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <h3 className="text-sm font-semibold mb-0.5">Add Salt</h3>
+                      <p className="text-xs text-muted-foreground">Boost electrolytes</p>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => takeSalt(time)}
+                      disabled={characterState === "sleeping"}
+                      className="gap-2"
+                      variant="outline"
+                    >
+                      🧂 Take Salt
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    💡 Pinch of quality salt helps water enter cells
+                  </p>
                 </div>
 
                 {/* Quick Foods */}
