@@ -20,10 +20,20 @@ export function CookieConsent() {
       // Show banner after a brief delay
       setTimeout(() => setShowBanner(true), 1000);
     } else {
-      // Load existing preferences
-      const preferences: CookiePreferences = JSON.parse(consent);
-      if (preferences.analytics) {
-        enableGoogleAnalytics();
+      // Load existing preferences (handle legacy string values)
+      try {
+        const preferences: CookiePreferences = JSON.parse(consent);
+        if (preferences.analytics) {
+          enableGoogleAnalytics();
+        }
+      } catch {
+        // Legacy value (e.g., "all") - migrate to new format
+        const enableAnalytics = consent === 'all';
+        const newPreferences: CookiePreferences = { necessary: true, analytics: enableAnalytics };
+        localStorage.setItem('cookie-consent', JSON.stringify(newPreferences));
+        if (enableAnalytics) {
+          enableGoogleAnalytics();
+        }
       }
     }
   }, []);
