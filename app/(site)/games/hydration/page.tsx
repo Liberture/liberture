@@ -109,9 +109,26 @@ export default function HydrationGamePage() {
   const [showFoodModal, setShowFoodModal] = useState(false)
   const [pendingFood, setPendingFood] = useState<FoodItem | null>(null)
   const [showElectrolyteWarning, setShowElectrolyteWarning] = useState(false)
+  const [showIntroModal, setShowIntroModal] = useState(true)
+  const [hasSeenIntro, setHasSeenIntro] = useState(false)
   const [characterState, setCharacterState] = useState<"standing" | "sleeping" | "eating">("standing")
   const [feedback, setFeedback] = useState<Array<{ type: "good" | "bad" | "warning", message: string }>>([])
   const [drinkCount, setDrinkCount] = useState(0)
+
+  // Load intro seen state from localStorage
+  useEffect(() => {
+    const seen = localStorage.getItem('hydration-intro-seen')
+    if (seen === 'true') {
+      setHasSeenIntro(true)
+      setShowIntroModal(false)
+    }
+  }, [])
+
+  const skipIntro = () => {
+    setShowIntroModal(false)
+    setHasSeenIntro(true)
+    localStorage.setItem('hydration-intro-seen', 'true')
+  }
 
   // Automated light schedule
   const lightSchedule = { morningBright: 7, eveningDim: 19, nightOff: 21 }
@@ -343,11 +360,19 @@ export default function HydrationGamePage() {
         {(time, controls) => (
           <div className="container mx-auto px-4 py-8">
             {/* Header */}
-            <div className="text-center mb-6">
-              <h1 className="text-3xl font-bold mb-1">Learn to Drink Water</h1>
-              <p className="text-sm text-muted-foreground">
-                Master hydration with proper water quality and food-based water intake
-              </p>
+            <div className="flex items-center justify-between mb-6">
+              <div className="text-center flex-1">
+                <h1 className="text-3xl font-bold mb-1">Learn to Drink Water</h1>
+                <p className="text-sm text-muted-foreground">
+                  Master hydration with proper water quality and food-based water intake
+                </p>
+              </div>
+              <button
+                onClick={() => setShowIntroModal(true)}
+                className="px-3 py-1.5 text-sm rounded-lg bg-primary/10 hover:bg-primary/20 border border-primary/30 transition-colors"
+              >
+                ℹ️ Info
+              </button>
             </div>
 
             {/* Electrolyte Warning Modal */}
@@ -485,7 +510,7 @@ export default function HydrationGamePage() {
                           ⚡{currentWaterType.electrolytes}% • 💧{(currentWaterType.effectiveness * 100).toFixed(0)}%
                         </div>
                       </div>
-                      <Info className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs font-semibold text-primary">Change</span>
                     </div>
                   </button>
 
@@ -570,34 +595,117 @@ export default function HydrationGamePage() {
                 </div>
               </div>
 
-              {/* RIGHT COLUMN - Tips & Log Extension */}
+              {/* RIGHT COLUMN - Empty for now */}
               <div className="lg:col-span-2 space-y-4">
-
-                {/* Quick Tips */}
-                <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
-                  <h3 className="text-sm font-semibold mb-3">💧 Hydration Science</h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <h4 className="text-xs font-semibold mb-1.5">Water Quality</h4>
-                      <ul className="space-y-1 text-xs text-muted-foreground">
-                        <li>• Mineral water = best absorption</li>
-                        <li>• Electrolytes are essential</li>
-                        <li>• Tap water needs minerals</li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-semibold mb-1.5">Daily Goals</h4>
-                      <ul className="space-y-1 text-xs text-muted-foreground">
-                        <li>• Target 2.5L total daily</li>
-                        <li>• 20-30% from food</li>
-                        <li>• 1.8-2L from drinking</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
               </div>
 
             </div>
+
+            {/* Intro Modal (Hydration Science) */}
+            <AnimatePresence>
+              {showIntroModal && (
+                <motion.div
+                  className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <motion.div
+                    className="bg-card border border-border rounded-2xl p-8 max-w-2xl w-full"
+                    initial={{ scale: 0.9, y: 20 }}
+                    animate={{ scale: 1, y: 0 }}
+                    exit={{ scale: 0.9, y: 20 }}
+                  >
+                    <div className="text-center mb-6">
+                      <h2 className="text-3xl font-bold mb-2">💧 Hydration Science</h2>
+                      <p className="text-muted-foreground">Learn the secrets to optimal hydration</p>
+                    </div>
+
+                    <div className="space-y-6 mb-6">
+                      <div className="p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/30">
+                        <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                          <Droplet className="h-5 w-5 text-cyan-500" />
+                          Water Quality Matters
+                        </h3>
+                        <ul className="space-y-2 text-sm text-muted-foreground">
+                          <li className="flex items-start gap-2">
+                            <span className="text-cyan-500 mt-0.5">•</span>
+                            <span><strong>Mineral water is best:</strong> Contains sodium, magnesium, and potassium for optimal cell absorption</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-cyan-500 mt-0.5">•</span>
+                            <span><strong>Electrolytes are essential:</strong> Water without minerals = "dead water" that passes through without hydrating</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-cyan-500 mt-0.5">•</span>
+                            <span><strong>Tap water needs minerals:</strong> Add a pinch of quality salt to improve absorption</span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/30">
+                        <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                          <Utensils className="h-5 w-5 text-green-500" />
+                          Food Provides 20-30% of Water
+                        </h3>
+                        <ul className="space-y-2 text-sm text-muted-foreground">
+                          <li className="flex items-start gap-2">
+                            <span className="text-green-500 mt-0.5">•</span>
+                            <span><strong>Fruits & vegetables:</strong> 80-95% water content (watermelon, cucumber, lettuce)</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-green-500 mt-0.5">•</span>
+                            <span><strong>Target 2.5-3L total:</strong> From both drinking water and food combined</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <span className="text-green-500 mt-0.5">•</span>
+                            <span><strong>Don't rely only on drinking:</strong> Food-based water is absorbed differently and provides nutrients</span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/30">
+                        <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                          <Brain className="h-5 w-5 text-purple-500" />
+                          Daily Goals
+                        </h3>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <div className="font-semibold mb-1">Total Daily Intake</div>
+                            <div className="text-muted-foreground">2.5-3L total</div>
+                          </div>
+                          <div>
+                            <div className="font-semibold mb-1">From Drinking</div>
+                            <div className="text-muted-foreground">1.8-2L water</div>
+                          </div>
+                          <div>
+                            <div className="font-semibold mb-1">From Food</div>
+                            <div className="text-muted-foreground">0.5-0.8L food</div>
+                          </div>
+                          <div>
+                            <div className="font-semibold mb-1">Timing</div>
+                            <div className="text-muted-foreground">Spread throughout day</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3">
+                      {!hasSeenIntro && (
+                        <Button onClick={skipIntro} variant="outline" className="flex-1">
+                          Skip
+                        </Button>
+                      )}
+                      <Button onClick={() => {
+                        skipIntro()
+                      }} className="flex-1">
+                        {hasSeenIntro ? "Close" : "Got it!"}
+                      </Button>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Water Type Selection Modal */}
             <AnimatePresence>
