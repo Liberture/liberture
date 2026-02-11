@@ -1,0 +1,188 @@
+# Liberture - Biological Operating System
+
+> Master your biology. Unlock your potential.
+
+## About
+
+Liberture is a comprehensive platform for human optimization and biohacking. We provide tools, knowledge, and community resources to help people optimize their physical health, cognitive performance, recovery, mental wellbeing, nutrition, and financial freedom.
+
+Website: https://liberture.com
+Focus: Biohacking, Longevity, Human Performance, Consciousness
+Mission: Democratize access to cutting-edge health and performance optimization knowledge
+
+## Core Pillars
+
+The platform is organized around 6 fundamental pillars of human optimization:
+
+1. **Cognition** - Brain health, nootropics, focus, memory, learning
+2. **Recovery** - Sleep, massage, cold/heat therapy, rest protocols
+3. **Fueling** - Nutrition, supplements, fasting, metabolic health
+4. **Mental** - Meditation, breathwork, consciousness, spiritual practices
+5. **Physicality** - Exercise, movement, strength, flexibility
+6. **Finance** - Financial independence, passive income, wealth building
+
+## Main Content Types
+
+### People (74+ profiles)
+- Biohackers: Dave Asprey, Ben Greenfield, Bryan Johnson
+- Scientists: Andrew Huberman, David Sinclair, Matthew Walker
+- Philosophers: Alan Watts, Carl Jung, Ram Dass, Eckhart Tolle
+- Authors and thought leaders in human optimization
+- URL pattern: /people/[slug]
+
+### Books (85+ titles)
+- Comprehensive biohacking library
+- Books on longevity, performance, consciousness, health
+- Linked to author profiles
+- Includes ratings, reviews, key takeaways
+- URL pattern: /books/[slug]
+
+### Organizations (4+ entities)
+- Research institutions
+- Biohacking communities
+- Health tech companies
+- URL pattern: /organizations/[slug]
+
+### Protocols (3+ detailed guides)
+- Step-by-step optimization protocols
+- Evidence-based practices
+- Wim Hof Method, Huberman Sleep Protocol, Zone 2 Training
+- Includes: steps, benefits, risks, equipment needed
+- URL pattern: /protocols/[slug]
+
+### Knowledge Articles (82+ articles)
+- Deep dives into biohacking topics
+- How-to guides and explainers
+- Topics: cold exposure, fasting, supplements, sleep, breathwork
+- URL pattern: /knowledge/[slug]
+
+### Marketplace (curated products)
+- Vetted biohacking tools and supplements
+- URL pattern: /marketplace/[slug]
+
+## Key Features
+
+### Directory
+- Searchable database of people, organizations, protocols, and books
+- Filter by category, search by keyword
+- URL: /directory
+
+### Games
+- Interactive health tracking tools
+- Sleep tracker, hydration tracker
+- Gamification of health habits
+- URL: /games
+
+### Dashboard
+- Personalized user dashboard
+- Track progress, view recommendations
+- URL: /dashboard
+
+## Content Philosophy
+
+1. **Evidence-Based** - All content backed by research and real-world results
+2. **Practical** - Actionable advice, not just theory
+3. **Holistic** - Covers all aspects of human optimization
+4. **Accessible** - Free knowledge for everyone
+5. **Community-Driven** - Built with and for the biohacking community
+
+## Target Audience
+
+- Biohackers and health optimizers
+- Entrepreneurs seeking peak performance
+- Athletes and fitness enthusiasts
+- People interested in longevity and healthspan
+- Anyone curious about consciousness and self-improvement
+
+## Technology
+
+- Platform: Next.js 16 (React framework)
+- Database: PostgreSQL with Prisma ORM
+- Hosting: Cloudflare + custom VPS
+- API: RESTful endpoints for all content types
+
+## Content Structure
+
+All content follows consistent patterns:
+- Clean, descriptive URLs (slug-based)
+- Structured metadata (JSON-LD, Open Graph, Twitter Cards)
+- Cross-linked relationships (authors ↔ books, people ↔ protocols)
+- Rich media (images, videos where applicable)
+
+## API Endpoints
+
+Public API available at /api/:
+- /api/people - List all people
+- /api/people/[slug] - Individual person (includes their books)
+- /api/books - List all books
+- /api/books/[slug] - Individual book (includes author info)
+- /api/organizations - List organizations
+- /api/protocols - List protocols
+- /api/knowledge - List knowledge articles
+- /api/marketplace - List marketplace items
+
+## SEO & Discovery
+
+- Sitemap: /sitemap.xml (300+ URLs, dynamically generated)
+- Robots: /robots.txt (standard crawling directives)
+- JSON-LD structured data on all content pages
+- Open Graph and Twitter Card metadata
+- Optimized for search engines and social sharing
+
+## Navigation Hints
+
+Key sections:
+- Homepage: / - Overview and featured content
+- Directory: /directory - Browse all content
+- People: /people - Influential figures in biohacking
+- Books: /books - Curated biohacking library
+- Organizations: /organizations - Key institutions
+- Protocols: /protocols - Step-by-step guides
+- Knowledge: /knowledge - Educational articles
+- Marketplace: /marketplace - Vetted products
+- About: /about - Mission and story
+- Contact: /contact - Get in touch
+
+## Data Freshness
+
+- Content updated regularly
+- Database includes 300+ entities
+- New profiles, books, and articles added weekly
+- Last major update: February 2026
+
+## Unique Value Propositions
+
+1. **Comprehensive Coverage** - 6 pillars covering all aspects of optimization
+2. **Consciousness Focus** - Unique emphasis on mental/spiritual dimension
+3. **Practical Tools** - Interactive games and trackers
+4. **Curated Quality** - Every resource vetted for evidence and quality
+5. **Free Access** - No paywalls, knowledge is free
+
+## Related Topics
+
+biohacking, longevity, human optimization, performance enhancement, nootropics, 
+cold exposure, intermittent fasting, breathwork, meditation, sleep optimization,
+consciousness, self-improvement, quantified self, health tracking, supplements,
+functional medicine, preventive health, anti-aging, cognitive enhancement
+
+## Community
+
+- Built for biohackers, by biohackers
+- Open to contributions and feedback
+- Privacy-focused (GDPR compliant)
+- No tracking beyond basic analytics
+
+## License & Attribution
+
+Content: Original research and curation by Liberture team
+External links: Properly attributed to original sources
+Wikipedia enrichment: Used under CC BY-SA license
+Images: Rights-cleared or public domain
+
+---
+
+Last Updated: February 2026
+Version: 1.0
+Contact: info@liberture.com
+
+For the most up-to-date information, please visit: https://liberture.com
