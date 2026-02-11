@@ -81,19 +81,33 @@ export default function DirectoryPage() {
     fetchDirectory()
   }, [])
 
-  // Filter items based on search and type
-  const filteredItems = allItems.filter((item) => {
-    const matchesType = activeFilter === "all" || item.type === activeFilter
+  // Filter items based on search only (for counts)
+  const searchFilteredItems = allItems.filter((item) => {
     const matchesSearch =
       searchQuery === "" ||
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.tags?.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
 
-    return matchesType && matchesSearch
+    return matchesSearch
   })
 
-  // Group filtered items by type
+  // Calculate counts based on search only (not affected by type filter)
+  const counts = {
+    all: searchFilteredItems.length,
+    people: searchFilteredItems.filter((i) => i.type === "people").length,
+    organizations: searchFilteredItems.filter((i) => i.type === "organizations").length,
+    protocols: searchFilteredItems.filter((i) => i.type === "protocols").length,
+    books: searchFilteredItems.filter((i) => i.type === "books").length,
+  }
+
+  // Filter items based on search AND type
+  const filteredItems = searchFilteredItems.filter((item) => {
+    const matchesType = activeFilter === "all" || item.type === activeFilter
+    return matchesType
+  })
+
+  // Group filtered items by type (for display)
   const groupedItems = {
     people: filteredItems.filter((i) => i.type === "people"),
     organizations: filteredItems.filter((i) => i.type === "organizations"),
@@ -152,7 +166,7 @@ export default function DirectoryPage() {
                 <Icon className={`h-4 w-4 ${isActive ? "" : filter.color}`} />
                 {filter.label}
                 <span className="text-xs opacity-70">
-                  ({filter.value === "all" ? filteredItems.length : groupedItems[filter.value]?.length || 0})
+                  ({counts[filter.value]})
                 </span>
               </Button>
             )

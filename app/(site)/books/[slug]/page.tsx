@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ExternalLink, BookOpen } from "lucide-react";
+import { BookSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
 
 type Book = {
   id: string;
@@ -21,6 +22,11 @@ type Book = {
   forWho: string | null;
   featured: boolean;
   imageUrl: string | null;
+  Person?: {
+    id: string;
+    name: string;
+    slug: string;
+  } | null;
 };
 
 export default function BookPage() {
@@ -85,6 +91,23 @@ export default function BookPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white">
+      {/* JSON-LD Schema */}
+      <BookSchema
+        title={book.title}
+        author={book.Person?.name || book.author}
+        description={book.description}
+        isbn={book.isbn || undefined}
+        url={`https://liberture.com/books/${book.slug}`}
+        image={book.imageUrl || undefined}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: 'Home', url: 'https://liberture.com' },
+          { name: 'Books', url: 'https://liberture.com/books' },
+          { name: book.title, url: `https://liberture.com/books/${book.slug}` },
+        ]}
+      />
+      
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-5xl mx-auto">
           <div className="mb-8">
@@ -99,7 +122,19 @@ export default function BookPage() {
               <BookOpen className="w-8 h-8 text-purple-400 mt-1" />
               <div>
                 <h1 className="text-5xl font-bold mb-2">{book.title}</h1>
-                <p className="text-2xl text-purple-400">by {book.author}</p>
+                <p className="text-2xl text-purple-400">
+                  by{' '}
+                  {book.Person ? (
+                    <Link 
+                      href={`/people/${book.Person.slug}`}
+                      className="hover:text-purple-300 underline decoration-purple-400/30 hover:decoration-purple-300 transition-colors"
+                    >
+                      {book.Person.name}
+                    </Link>
+                  ) : (
+                    book.author
+                  )}
+                </p>
               </div>
             </div>
             

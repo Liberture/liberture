@@ -7,13 +7,32 @@ export const metadata: Metadata = {
   description: "Explore leading organizations, labs, and communities in biohacking and human optimization.",
 };
 
-export default async function OrganizationsPage() {
-  const organizations = await prisma.organization.findMany({
-    orderBy: [
-      { featured: 'desc' },
-      { name: 'asc' }
-    ]
-  });
+const ITEMS_PER_PAGE = 20;
+
+export default async function OrganizationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
+  const currentPage = parseInt(params.page || "1", 10);
+  const skip = (currentPage - 1) * ITEMS_PER_PAGE;
+
+  const [organizations, totalCount] = await Promise.all([
+    prisma.organization.findMany({
+      orderBy: [
+        { featured: 'desc' },
+        { name: 'asc' }
+      ],
+      take: ITEMS_PER_PAGE,
+      skip,
+    }),
+    prisma.organization.count(),
+  ]);
+
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+  const hasNextPage = currentPage < totalPages;
+  const hasPrevPage = currentPage > 1;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white">
@@ -26,14 +45,16 @@ export default async function OrganizationsPage() {
           </div>
 
           <h1 className="text-5xl font-bold mb-4">Organizations</h1>
-          <p className="text-xl text-slate-300 mb-12">
+          <p className="text-xl text-slate-300 mb-4">
             Labs, companies, and communities advancing biohacking and longevity research.
+          </p>
+          <p className="text-sm text-slate-400 mb-12">
+            Showing {skip + 1}–{Math.min(skip + ITEMS_PER_PAGE, totalCount)} of {totalCount} organizations
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {organizations.map((org) => {
               const pillars = org.pillars.split(',').map(p => p.trim());
-              const resources = org.resources ? JSON.parse(org.resources) : [];
               
               return (
                 <Link
@@ -82,6 +103,33 @@ export default async function OrganizationsPage() {
           {organizations.length === 0 && (
             <div className="text-center py-12">
               <p className="text-slate-400 text-lg">No organizations found. Check back soon!</p>
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="mt-12 flex justify-center items-center gap-4">
+              {hasPrevPage && (
+                <Link
+                  href={`/organizations?page=${currentPage - 1}`}
+                  className="px-6 py-3 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/30 transition-colors"
+                >
+                  ← Previous
+                </Link>
+              )}
+              
+              <div className="text-slate-400">
+                Page {currentPage} of {totalPages}
+              </div>
+              
+              {hasNextPage && (
+                <Link
+                  href={`/organizations?page=${currentPage + 1}`}
+                  className="px-6 py-3 rounded-lg bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/30 transition-colors"
+                >
+                  Next →
+                </Link>
+              )}
             </div>
           )}
         </div>
