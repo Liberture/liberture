@@ -74,11 +74,7 @@ const FOOD_ITEMS: FoodItem[] = [
   { id: "orange", name: "Orange", waterContent: 120, calories: 60, description: "87% water", emoji: "🍊" },
   { id: "strawberries", name: "Strawberries", waterContent: 140, calories: 50, description: "91% water", emoji: "🍓" },
   { id: "lettuce", name: "Lettuce Salad", waterContent: 160, calories: 25, description: "96% water", emoji: "🥗" },
-  { id: "soup", name: "Soup", waterContent: 220, calories: 120, description: "High water content", emoji: "🍲" },
-  { id: "yogurt", name: "Yogurt", waterContent: 90, calories: 150, description: "75% water", emoji: "🥛" },
-  { id: "chicken", name: "Grilled Chicken", waterContent: 65, calories: 250, description: "65% water", emoji: "🍗" },
-  { id: "rice", name: "Cooked Rice", waterContent: 70, calories: 200, description: "Absorbs water", emoji: "🍚" },
-  { id: "bread", name: "Bread", waterContent: 35, calories: 150, description: "35% water", emoji: "🍞" },
+  { id: "soup", name: "Soup", waterContent: 220, calories: 120, description: "High water", emoji: "🍲" },
 ]
 
 export default function HydrationGamePage() {
@@ -94,8 +90,6 @@ export default function HydrationGamePage() {
   })
   const [waterLog, setWaterLog] = useState<WaterLog[]>([])
   const [selectedWaterType, setSelectedWaterType] = useState<string>("tap")
-  const [showWaterTypeModal, setShowWaterTypeModal] = useState(false)
-  const [showFoodModal, setShowFoodModal] = useState(false)
   const [showElectrolyteWarning, setShowElectrolyteWarning] = useState(false)
   const [characterState, setCharacterState] = useState<"standing" | "sleeping" | "eating">("standing")
   const [feedback, setFeedback] = useState<Array<{ type: "good" | "bad" | "warning", message: string }>>([])
@@ -181,8 +175,6 @@ export default function HydrationGamePage() {
       setCharacterState("standing")
       setFeedback([])
     }, 3000)
-
-    setShowFoodModal(false)
   }
 
   // Handle time changes
@@ -272,14 +264,14 @@ export default function HydrationGamePage() {
   }
 
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen">
       <GameEngine onTimeChange={handleTimeChange}>
         {(time, controls) => (
-          <div className="container mx-auto px-4 max-w-6xl">
+          <div className="container mx-auto px-4 py-8">
             {/* Header */}
-            <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold mb-2">Learn to Drink Water</h1>
-              <p className="text-muted-foreground">
+            <div className="text-center mb-6">
+              <h1 className="text-3xl font-bold mb-1">Learn to Drink Water</h1>
+              <p className="text-sm text-muted-foreground">
                 Master hydration with proper water quality and food-based water intake
               </p>
             </div>
@@ -295,279 +287,234 @@ export default function HydrationGamePage() {
                   onClick={() => setShowElectrolyteWarning(false)}
                 >
                   <motion.div
-                    className="bg-card border border-border rounded-2xl p-8 max-w-2xl"
+                    className="bg-card border border-border rounded-2xl p-6 max-w-lg"
                     initial={{ scale: 0.9, y: 20 }}
                     animate={{ scale: 1, y: 0 }}
                     exit={{ scale: 0.9, y: 20 }}
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <div className="flex items-start gap-4 mb-4">
-                      <AlertCircle className="h-8 w-8 text-yellow-500 flex-shrink-0" />
+                    <div className="flex items-start gap-3 mb-4">
+                      <AlertCircle className="h-6 w-6 text-yellow-500 flex-shrink-0 mt-1" />
                       <div>
-                        <h3 className="text-2xl font-bold mb-2">💧 Dead Water Alert!</h3>
-                        <p className="text-muted-foreground mb-4">
-                          You've been drinking tap water without electrolytes. While it adds volume, 
-                          your cells can't absorb it properly without minerals like sodium, potassium, and magnesium.
+                        <h3 className="text-xl font-bold mb-2">💧 Dead Water Alert!</h3>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Tap water without electrolytes passes through without hydrating cells properly.
                         </p>
-                        <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 mb-4">
-                          <h4 className="font-semibold mb-2">Why Electrolytes Matter:</h4>
-                          <ul className="space-y-1 text-sm text-muted-foreground">
-                            <li>• Sodium helps water cross cell membranes</li>
-                            <li>• Potassium regulates fluid balance</li>
-                            <li>• Magnesium supports 300+ enzymatic reactions</li>
-                            <li>• Without minerals, water passes through without hydrating</li>
-                          </ul>
+                        <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 mb-3">
+                          <p className="text-xs text-muted-foreground">
+                            Sodium helps water cross cell membranes. Without minerals, water doesn't hydrate effectively.
+                          </p>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          💡 <strong>Tip:</strong> Switch to mineral water or add a pinch of sea salt to your water!
-                        </p>
                       </div>
                     </div>
-                    <Button onClick={() => {
-                      setShowElectrolyteWarning(false)
-                      setShowWaterTypeModal(true)
-                    }} className="w-full">
-                      Choose Better Water Quality
+                    <Button onClick={() => setShowElectrolyteWarning(false)} className="w-full" size="sm">
+                      Got it! I'll use mineral water
                     </Button>
                   </motion.div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* Game Scene */}
-            <GameScene
-              time={time}
-              lightLevel={calculateLightLevel(time.hour)}
-              characterState={characterState}
-            />
+            {/* Main Dashboard Layout - Everything Visible */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              
+              {/* LEFT COLUMN - Game Scene + Metrics */}
+              <div className="lg:col-span-2 space-y-4">
+                {/* Game Scene */}
+                <div className="bg-card/30 border border-border/50 rounded-xl overflow-hidden">
+                  <GameScene
+                    time={time}
+                    lightLevel={calculateLightLevel(time.hour)}
+                    characterState={characterState}
+                  />
+                </div>
 
-            {/* Action Buttons */}
-            <div className="mt-8 flex justify-center gap-4 flex-wrap">
-              <Button
-                size="lg"
-                onClick={() => drinkWater(time)}
-                disabled={characterState === "sleeping"}
-                className="gap-2 text-lg px-8 py-6"
-              >
-                <Droplet className="h-6 w-6" />
-                Drink {currentWaterType.name} (250ml)
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => setShowWaterTypeModal(true)}
-                className="gap-2"
-              >
-                <Info className="h-5 w-5" />
-                Change Water Type
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => setShowFoodModal(true)}
-                disabled={characterState === "sleeping"}
-                className="gap-2"
-              >
-                <Utensils className="h-5 w-5" />
-                Eat Food
-              </Button>
-            </div>
+                {/* Metrics Dashboard */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <MetricCard title="Hydration" value={metrics.hydrationLevel} icon={<Droplet className="h-4 w-4" />} color="cyan" />
+                  <MetricCard title="Electrolytes" value={metrics.electrolytes} icon={<Droplet className="h-4 w-4" />} color="yellow" />
+                  <MetricCard title="Energy" value={metrics.energyLevel} icon={<TrendingUp className="h-4 w-4" />} color="green" />
+                  <MetricCard title="Cognitive" value={metrics.cognitivePerformance} icon={<Brain className="h-4 w-4" />} color="purple" />
+                </div>
 
-            {/* Water Type Modal */}
-            <AnimatePresence>
-              {showWaterTypeModal && (
-                <Modal onClose={() => setShowWaterTypeModal(false)} title="Choose Water Type">
-                  <div className="grid grid-cols-1 gap-4">
+                {/* Today's Progress */}
+                <div className="p-4 rounded-xl bg-card/50 border border-border/50">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <Droplet className="h-5 w-5 text-cyan-500" />
+                      <span className="font-semibold">Today's Intake</span>
+                    </div>
+                    <div className="text-2xl font-bold">
+                      {((metrics.waterIntake + metrics.foodWaterIntake) / 1000).toFixed(1)}L
+                    </div>
+                  </div>
+                  <div className="text-xs text-muted-foreground mb-2">
+                    {(metrics.foodWaterIntake / 1000).toFixed(1)}L from food • Target: 2.5L
+                  </div>
+                  <div className="w-full bg-slate-700 h-2.5 rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full bg-gradient-to-r from-cyan-500 to-blue-500"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(100, ((metrics.waterIntake + metrics.foodWaterIntake) / 2500) * 100)}%` }}
+                    />
+                  </div>
+                  {metrics.consecutiveGoodDays > 0 && (
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      🔥 {metrics.consecutiveGoodDays} day streak
+                    </div>
+                  )}
+                </div>
+
+                {/* Feedback Messages */}
+                <AnimatePresence>
+                  {feedback.length > 0 && (
+                    <motion.div className="space-y-2" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                      {feedback.map((item, i) => (
+                        <div
+                          key={i}
+                          className={`p-3 rounded-lg flex items-center gap-2 text-sm ${
+                            item.type === "good" ? "bg-green-500/10 border border-green-500/30" :
+                            item.type === "bad" ? "bg-red-500/10 border border-red-500/30" :
+                            "bg-yellow-500/10 border border-yellow-500/30"
+                          }`}
+                        >
+                          {item.type === "good" ? <CheckCircle className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
+                          <span>{item.message}</span>
+                        </div>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* RIGHT COLUMN - Controls Panel */}
+              <div className="space-y-4">
+                
+                {/* Drink Water Action */}
+                <div className="p-4 rounded-xl bg-card/50 border border-border/50">
+                  <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                    <Droplet className="h-4 w-4 text-cyan-500" />
+                    Drink Water (250ml)
+                  </h3>
+                  <Button
+                    size="lg"
+                    onClick={() => drinkWater(time)}
+                    disabled={characterState === "sleeping"}
+                    className="w-full gap-2 text-base mb-3"
+                  >
+                    <Droplet className="h-5 w-5" />
+                    Drink {currentWaterType.name}
+                  </Button>
+                  
+                  {/* Current Water Type */}
+                  <div className={`p-3 rounded-lg bg-gradient-to-b ${currentWaterType.color} border mb-2`}>
+                    <div className="text-xs font-semibold mb-1">{currentWaterType.name}</div>
+                    <div className="text-xs text-muted-foreground mb-2">{currentWaterType.description}</div>
+                    <div className="flex gap-3 text-xs">
+                      <div>
+                        <div className="text-muted-foreground">Electrolytes</div>
+                        <div className="font-semibold">{currentWaterType.electrolytes}%</div>
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground">Effectiveness</div>
+                        <div className="font-semibold">{(currentWaterType.effectiveness * 100).toFixed(0)}%</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Water Type Selection */}
+                <div className="p-4 rounded-xl bg-card/50 border border-border/50">
+                  <h3 className="text-sm font-semibold mb-3">Water Type</h3>
+                  <div className="space-y-2">
                     {WATER_TYPES.map((water) => (
                       <button
                         key={water.id}
-                        onClick={() => {
-                          setSelectedWaterType(water.id)
-                          setShowWaterTypeModal(false)
-                        }}
-                        className={`p-6 rounded-2xl bg-gradient-to-b ${water.color} border text-left hover:scale-105 transition-transform ${
+                        onClick={() => setSelectedWaterType(water.id)}
+                        className={`w-full p-2.5 rounded-lg bg-gradient-to-b ${water.color} border text-left text-xs hover:scale-[1.02] transition-transform ${
                           selectedWaterType === water.id ? "ring-2 ring-primary" : ""
                         }`}
                       >
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="text-lg font-bold">{water.name}</h3>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-semibold">{water.name}</span>
                           {selectedWaterType === water.id && (
-                            <CheckCircle className="h-5 w-5 text-primary" />
+                            <CheckCircle className="h-3.5 w-3.5 text-primary" />
                           )}
                         </div>
-                        <p className="text-sm text-muted-foreground mb-3">{water.description}</p>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <div className="text-xs text-muted-foreground">Electrolytes</div>
-                            <div className="font-semibold">{water.electrolytes}%</div>
-                          </div>
-                          <div>
-                            <div className="text-xs text-muted-foreground">Effectiveness</div>
-                            <div className="font-semibold">{(water.effectiveness * 100).toFixed(0)}%</div>
-                          </div>
+                        <div className="flex gap-2 text-xs text-muted-foreground">
+                          <span>⚡{water.electrolytes}%</span>
+                          <span>💧{(water.effectiveness * 100).toFixed(0)}%</span>
                         </div>
                       </button>
                     ))}
                   </div>
-                </Modal>
-              )}
-            </AnimatePresence>
+                </div>
 
-            {/* Food Modal */}
-            <AnimatePresence>
-              {showFoodModal && (
-                <Modal onClose={() => setShowFoodModal(false)} title="Eat Food (Hydration from Food)">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {/* Food Selection */}
+                <div className="p-4 rounded-xl bg-card/50 border border-border/50">
+                  <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                    <Utensils className="h-4 w-4 text-green-500" />
+                    Hydrating Foods
+                  </h3>
+                  <div className="grid grid-cols-2 gap-2">
                     {FOOD_ITEMS.map((food) => (
                       <button
                         key={food.id}
                         onClick={() => eatFood(time, food)}
-                        className="p-4 rounded-xl bg-card/50 border border-border/50 hover:border-border hover:scale-105 transition-all text-center"
+                        disabled={characterState === "sleeping"}
+                        className="p-2.5 rounded-lg bg-card/50 border border-border/50 hover:border-border hover:scale-[1.02] transition-all text-center disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <div className="text-4xl mb-2">{food.emoji}</div>
-                        <div className="font-semibold text-sm mb-1">{food.name}</div>
-                        <div className="text-xs text-cyan-400 mb-1">+{food.waterContent}ml</div>
-                        <div className="text-xs text-muted-foreground">{food.description}</div>
+                        <div className="text-2xl mb-1">{food.emoji}</div>
+                        <div className="text-xs font-semibold mb-0.5">{food.name}</div>
+                        <div className="text-xs text-cyan-400">+{food.waterContent}ml</div>
                       </button>
                     ))}
                   </div>
-                  <div className="mt-4 p-4 rounded-lg bg-primary/10 border border-primary/20">
-                    <p className="text-sm text-muted-foreground">
-                      💡 <strong>Did you know?</strong> Food provides 20-30% of daily water intake. 
-                      Fruits and vegetables are 80-95% water!
+                  <div className="mt-3 p-2 rounded-lg bg-primary/10 border border-primary/20">
+                    <p className="text-xs text-muted-foreground">
+                      💡 Food provides 20-30% of daily water
                     </p>
                   </div>
-                </Modal>
-              )}
-            </AnimatePresence>
-
-            {/* Metrics Dashboard */}
-            <div className="mt-8 grid grid-cols-2 md:grid-cols-5 gap-4">
-              <MetricCard title="Hydration" value={metrics.hydrationLevel} icon={<Droplet className="h-5 w-5" />} color="cyan" />
-              <MetricCard title="Electrolytes" value={metrics.electrolytes} icon={<Droplet className="h-5 w-5" />} color="yellow" />
-              <MetricCard title="Energy" value={metrics.energyLevel} icon={<TrendingUp className="h-5 w-5" />} color="green" />
-              <MetricCard title="Cognitive" value={metrics.cognitivePerformance} icon={<Brain className="h-5 w-5" />} color="purple" />
-              <div className="p-4 rounded-lg bg-card/50 border border-border/50">
-                <div className="flex items-center gap-2 mb-2">
-                  <Droplet className="h-5 w-5 text-cyan-500" />
-                  <div className="text-xs text-muted-foreground">Today</div>
                 </div>
-                <div className="text-2xl font-bold">
-                  {((metrics.waterIntake + metrics.foodWaterIntake) / 1000).toFixed(1)}L
-                </div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  {(metrics.foodWaterIntake / 1000).toFixed(1)}L from food
-                </div>
-              </div>
-            </div>
 
-            {/* Feedback Messages */}
-            {feedback.length > 0 && (
-              <motion.div className="mt-6 space-y-2" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                {feedback.map((item, i) => (
-                  <div
-                    key={i}
-                    className={`p-3 rounded-lg flex items-center gap-2 ${
-                      item.type === "good" ? "bg-green-500/10 border border-green-500/30" :
-                      item.type === "bad" ? "bg-red-500/10 border border-red-500/30" :
-                      "bg-yellow-500/10 border border-yellow-500/30"
-                    }`}
-                  >
-                    {item.type === "good" ? <CheckCircle className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}
-                    <span className="text-sm">{item.message}</span>
-                  </div>
-                ))}
-              </motion.div>
-            )}
-
-            {/* Water Log */}
-            <div className="mt-8 p-6 rounded-2xl bg-card/50 border border-border/50">
-              <h3 className="text-lg font-semibold mb-4 flex items-center justify-between">
-                <span className="flex items-center gap-2">
-                  <Droplet className="h-5 w-5 text-cyan-500" />
-                  Today's Intake Log
-                </span>
-                {metrics.consecutiveGoodDays > 0 && (
-                  <span className="text-sm text-muted-foreground">🔥 {metrics.consecutiveGoodDays} day streak</span>
-                )}
-              </h3>
-              
-              {waterLog.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  No water logged yet. Start drinking!
-                </p>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  {waterLog.map((log, i) => (
-                    <div key={i} className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-center">
-                      <div className="text-xs text-muted-foreground">{log.time}</div>
-                      <div className="text-sm font-semibold">{log.amount}ml</div>
-                      <div className="text-xs text-cyan-400">{log.type}</div>
+                {/* Water Log */}
+                <div className="p-4 rounded-xl bg-card/50 border border-border/50">
+                  <h3 className="text-sm font-semibold mb-3">Water Log</h3>
+                  
+                  {waterLog.length === 0 ? (
+                    <p className="text-xs text-muted-foreground text-center py-3">
+                      No water logged yet
+                    </p>
+                  ) : (
+                    <div className="space-y-1.5 max-h-40 overflow-y-auto">
+                      {waterLog.slice().reverse().map((log, i) => (
+                        <div key={i} className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">{log.time}</span>
+                          <span className="font-semibold">{log.amount}ml</span>
+                          <span className="text-cyan-400 text-[10px]">{log.type}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
-              )}
 
-              {/* Progress Bar */}
-              <div className="mt-4">
-                <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                  <span>Daily Progress (Target: 2.5L)</span>
-                  <span>{(((metrics.waterIntake + metrics.foodWaterIntake) / 2500) * 100).toFixed(0)}%</span>
-                </div>
-                <div className="w-full bg-slate-700 h-3 rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full bg-gradient-to-r from-cyan-500 to-blue-500"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${Math.min(100, ((metrics.waterIntake + metrics.foodWaterIntake) / 2500) * 100)}%` }}
-                  />
+                {/* Quick Tips */}
+                <div className="p-3 rounded-xl bg-primary/5 border border-primary/20">
+                  <h3 className="text-xs font-semibold mb-2">💧 Pro Tips</h3>
+                  <ul className="space-y-1 text-xs text-muted-foreground">
+                    <li>• Mineral water = best absorption</li>
+                    <li>• Electrolytes are essential</li>
+                    <li>• Target 2.5L total daily</li>
+                    <li>• Food provides 20-30% water</li>
+                  </ul>
                 </div>
               </div>
-            </div>
 
-            {/* Tips */}
-            <div className="mt-8 p-6 rounded-2xl bg-primary/5 border border-primary/20">
-              <h3 className="font-semibold mb-3">💧 Advanced Hydration Science</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>• <strong>Electrolytes are essential:</strong> Water without minerals = "dead water" that passes through without hydrating</li>
-                <li>• <strong>Mineral water is best:</strong> Contains sodium, magnesium, potassium for optimal absorption</li>
-                <li>• <strong>Food provides 20-30% of water:</strong> Watermelon, cucumber, and lettuce are 90%+ water</li>
-                <li>• <strong>Target 2.5-3L total:</strong> From both drinking water and food combined</li>
-                <li>• <strong>Add sea salt if needed:</strong> Pinch of quality salt improves tap water absorption</li>
-              </ul>
             </div>
           </div>
         )}
       </GameEngine>
     </div>
-  )
-}
-
-// Modal Component
-function Modal({ children, onClose, title }: { children: React.ReactNode; onClose: () => void; title: string }) {
-  return (
-    <motion.div
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      onClick={onClose}
-    >
-      <motion.div
-        className="bg-card border border-border rounded-2xl p-6 max-w-4xl w-full max-h-[80vh] overflow-y-auto"
-        initial={{ scale: 0.9, y: 20 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.9, y: 20 }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">{title}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-accent rounded-lg transition-colors">
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-        {children}
-      </motion.div>
-    </motion.div>
   )
 }
 
@@ -591,13 +538,13 @@ function MetricCard({
   }
 
   return (
-    <div className="p-4 rounded-lg bg-card/50 border border-border/50">
-      <div className="flex items-center gap-2 mb-2">
+    <div className="p-3 rounded-lg bg-card/50 border border-border/50">
+      <div className="flex items-center gap-1.5 mb-1.5">
         <div className={colorClasses[color].split(" ")[0]}>{icon}</div>
         <div className="text-xs text-muted-foreground">{title}</div>
       </div>
-      <div className="text-2xl font-bold mb-1">{value}%</div>
-      <div className="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+      <div className="text-xl font-bold mb-1.5">{value}%</div>
+      <div className="w-full bg-slate-700 h-1.5 rounded-full overflow-hidden">
         <motion.div
           className={colorClasses[color].split(" ")[1]}
           initial={{ width: 0 }}
