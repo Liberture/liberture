@@ -32,6 +32,10 @@ const difficultyColors = {
 export default function ProtocolPage() {
   const params = useParams();
   const router = useRouter();
+  
+  const handleBack = () => {
+    router.back();
+  };
   const [protocol, setProtocol] = useState<Protocol | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
