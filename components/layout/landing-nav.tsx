@@ -4,14 +4,17 @@ import { useState } from "react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
-import { LogOut, Menu, X } from "lucide-react"
+import { LogOut, Menu, X, ChevronDown } from "lucide-react"
 import { translations } from "@/lib/translations"
 import { LibertureLogo } from "@/components/branding"
+import { PILLAR_ICON_MAP } from "@/lib/pillars"
 
 export function LandingNav() {
   const { user, logout } = useAuth()
   const { brand, navigation } = translations.en
+  const { pillars } = translations.en.common
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [pillarsDropdownOpen, setPillarsDropdownOpen] = useState(false)
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
@@ -23,17 +26,53 @@ export function LandingNav() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6 ml-auto">
-          <Link
-            href="/games"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Games
-          </Link>
+          {/* Pillars Dropdown */}
+          <div className="relative group">
+            <button
+              onMouseEnter={() => setPillarsDropdownOpen(true)}
+              onMouseLeave={() => setPillarsDropdownOpen(false)}
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Pillars <ChevronDown className="h-3 w-3" />
+            </button>
+            
+            {pillarsDropdownOpen && (
+              <div
+                onMouseEnter={() => setPillarsDropdownOpen(true)}
+                onMouseLeave={() => setPillarsDropdownOpen(false)}
+                className="absolute top-full left-0 mt-2 w-64 bg-background/95 backdrop-blur-xl border border-border/50 rounded-lg shadow-xl overflow-hidden"
+              >
+                {pillars.map((pillar) => {
+                  const Icon = PILLAR_ICON_MAP[pillar.id]
+                  return (
+                    <Link
+                      key={pillar.id}
+                      href={`/pillars/${pillar.id}`}
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-accent transition-colors"
+                    >
+                      <Icon className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <div className="text-sm font-medium">{pillar.name}</div>
+                        <div className="text-xs text-muted-foreground truncate">{pillar.description}</div>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+          
           <Link
             href="/directory"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             Directory
+          </Link>
+          <Link
+            href="/knowledge"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Knowledge
           </Link>
 
           {/* Auth Button */}
@@ -64,22 +103,45 @@ export function LandingNav() {
 
       {/* Mobile Dropdown Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl absolute top-16 left-0 right-0 shadow-lg">
+        <div className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl absolute top-16 left-0 right-0 shadow-lg max-h-[calc(100vh-4rem)] overflow-y-auto">
           <div className="container mx-auto px-4 py-4 max-w-7xl">
             <div className="flex flex-col gap-2">
-              <Link
-                href="/games"
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-4 py-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-              >
-                Games
-              </Link>
+              {/* Pillars Section */}
+              <div className="mb-2">
+                <div className="text-xs font-semibold text-muted-foreground px-4 py-2">Pillars</div>
+                {pillars.map((pillar) => {
+                  const Icon = PILLAR_ICON_MAP[pillar.id]
+                  return (
+                    <Link
+                      key={pillar.id}
+                      href={`/pillars/${pillar.id}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-accent transition-colors"
+                    >
+                      <Icon className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <div className="text-sm font-medium">{pillar.name}</div>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+              
+              <div className="border-t border-border/50 my-2" />
+              
               <Link
                 href="/directory"
                 onClick={() => setMobileMenuOpen(false)}
                 className="px-4 py-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
               >
                 Directory
+              </Link>
+              <Link
+                href="/knowledge"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-4 py-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              >
+                Knowledge
               </Link>
 
               <div className="border-t border-border/50 mt-2 pt-2">
