@@ -24,6 +24,10 @@ type Organization = {
 export default function OrganizationPage() {
   const params = useParams();
   const router = useRouter();
+  
+  const handleBack = () => {
+    router.back();
+  };
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
