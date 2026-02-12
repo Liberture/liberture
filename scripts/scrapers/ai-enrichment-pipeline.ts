@@ -72,6 +72,7 @@ async function enrichScrapedContent() {
         prompt = `You are a biohacking content writer. Rewrite and expand the following article excerpt into a comprehensive, original article (500-800 words) suitable for a biohacking knowledge base.
 
 Original Title: ${extracted?.title || 'Untitled'}
+Original Source: ${item.sourceUrl}
 Excerpt: ${item.rawContent}
 
 Requirements:
@@ -79,10 +80,19 @@ Requirements:
 2. Expand with additional context and scientific backing
 3. Make it engaging and educational
 4. Include actionable takeaways
-5. Maintain accuracy
-6. Format in clean markdown
+5. **Include 3-5 external links to authoritative sources** (PubMed studies, NIH, scientific journals, reputable health sites)
+6. **Add inline markdown links** like [study name](URL) throughout the article
+7. **Add a "References" section at the end** with numbered sources
+8. Maintain accuracy
+9. Format in clean markdown
 
-Return ONLY the rewritten article content, no explanations.`;
+Example link format:
+- Inline: "Research shows [intermittent fasting increases autophagy](https://pubmed.ncbi.nlm.nih.gov/12345678/)"
+- References section:
+  1. [Study Title](https://pubmed.ncbi.nlm.nih.gov/12345678/) - Journal Name, Year
+  2. [Resource Title](https://example.com) - Organization, Year
+
+Return ONLY the rewritten article content with links, no explanations.`;
       }
       
       // Call Perplexity API
