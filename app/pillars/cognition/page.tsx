@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default async function WorkPillarPage() {
   // Fetch all work-related articles
   const articles = await prisma.knowledgeArticle.findMany({
-    where: { pillar: 'Cognition' },
+    where: { pillar: 'cognition' },
     orderBy: { viewCount: 'desc' },
     select: {
       slug: true,

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default async function FinancePillarPage() {
   const articles = await prisma.knowledgeArticle.findMany({
-    where: { pillar: 'Finance' },
+    where: { pillar: 'finance' },
     orderBy: { viewCount: 'desc' },
     select: {
       slug: true,

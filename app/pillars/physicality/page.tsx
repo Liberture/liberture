@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default async function PhysicalityPillarPage() {
   const articles = await prisma.knowledgeArticle.findMany({
-    where: { pillar: 'Physicality' },
+    where: { pillar: 'physicality' },
     orderBy: { viewCount: 'desc' },
     select: {
       slug: true,
