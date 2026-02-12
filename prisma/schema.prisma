@@ -117,6 +117,7 @@ model KnowledgeArticle {
   updatedAt   DateTime
   slug        String        @unique
   viewCount   Int           @default(0)
+  content     String?       @db.Text
   views       ArticleView[]
 }
 
