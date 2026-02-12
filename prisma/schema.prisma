@@ -294,3 +294,28 @@ model Verification {
 
   @@unique([identifier, value])
 }
+
+model ScrapedContent {
+  id                  String    @id
+  source              String
+  sourceUrl           String
+  rawContent          String
+  contentType         String
+  targetEntity        String?
+  extractedData       Json?
+  needsParaphrasing   Boolean   @default(true)
+  paraphrasedContent  String?
+  enrichmentStatus    String    @default("pending")
+  enrichedBy          String?
+  enrichedAt          DateTime?
+  publishedToDb       Boolean   @default(false)
+  publishedEntityId   String?
+  scrapedAt           DateTime  @default(now())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime
+
+  @@index([source])
+  @@index([enrichmentStatus])
+  @@index([needsParaphrasing])
+  @@index([contentType])
+}
