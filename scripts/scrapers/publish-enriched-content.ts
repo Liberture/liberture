@@ -1,4 +1,27 @@
 import { PrismaClient } from '@prisma/client';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+// Load .env.local manually
+const envPath = join(__dirname, '../../.env.local');
+try {
+  const envContent = readFileSync(envPath, 'utf-8');
+  envContent.split('\n').forEach(line => {
+    const match = line.match(/^([^=]+)=(.*)$/);
+    if (match) {
+      const [, key, value] = match;
+      // Strip surrounding quotes if present
+      let cleanValue = value.trim();
+      if ((cleanValue.startsWith('"') && cleanValue.endsWith('"')) ||
+          (cleanValue.startsWith("'") && cleanValue.endsWith("'"))) {
+        cleanValue = cleanValue.slice(1, -1);
+      }
+      process.env[key.trim()] = cleanValue;
+    }
+  });
+} catch (e) {
+  console.warn('Could not load .env.local');
+}
 
 const prisma = new PrismaClient();
 
