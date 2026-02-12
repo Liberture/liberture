@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default async function MentalPillarPage() {
   const articles = await prisma.knowledgeArticle.findMany({
-    where: { pillar: 'Mental' },
+    where: { pillar: 'mental' },
     orderBy: { viewCount: 'desc' },
     select: {
       slug: true,
