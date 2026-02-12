@@ -145,8 +145,8 @@ export default function PersonPage() {
         <div className="max-w-5xl mx-auto">
           <div className="mb-8">
             <button onClick={handleBack} className="text-purple-400 hover:text-purple-300 mb-4 inline-block cursor-pointer">
-              ← Back to Directory
-            </Link>
+              ← Back
+            </button>
           </div>
           
           {/* Header */}
