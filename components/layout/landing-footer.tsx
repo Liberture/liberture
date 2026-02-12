@@ -91,13 +91,16 @@ export function LandingFooter() {
           <div>
             <h3 className="font-semibold mb-3">Connect</h3>
             <div className="flex flex-col gap-2">
-              <Link href="https://x.com/liberture" target="_blank" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="https://medium.com/liberture" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Medium
+              </Link>
+              <Link href="https://x.com/liberture" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Twitter/X
               </Link>
-              <Link href="https://linkedin.com/company/liberture" target="_blank" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="https://linkedin.com/company/liberture" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 LinkedIn
               </Link>
-              <Link href="https://instagram.com/liberture" target="_blank" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="https://instagram.com/liberture" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Instagram
               </Link>
             </div>
