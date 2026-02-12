@@ -89,6 +89,7 @@ async function publishEnrichedContent() {
           url: item.sourceUrl,
           publishedAt: new Date(),
           slug,
+          content: item.paraphrasedContent, // Include full content for SEO
           updatedAt: new Date()
         }
       });
