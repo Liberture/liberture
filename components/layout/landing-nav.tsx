@@ -27,30 +27,29 @@ export function LandingNav() {
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6 ml-auto">
           {/* Pillars Dropdown */}
-          <div className="relative group">
+          <div 
+            className="relative group"
+            onMouseEnter={() => setPillarsDropdownOpen(true)}
+            onMouseLeave={() => setPillarsDropdownOpen(false)}
+          >
             <button
-              onMouseEnter={() => setPillarsDropdownOpen(true)}
-              onMouseLeave={() => setPillarsDropdownOpen(false)}
               className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Pillars <ChevronDown className="h-3 w-3" />
             </button>
             
             {pillarsDropdownOpen && (
-              <div
-                onMouseEnter={() => setPillarsDropdownOpen(true)}
-                onMouseLeave={() => setPillarsDropdownOpen(false)}
-                className="absolute top-full left-0 mt-2 w-64 bg-background/95 backdrop-blur-xl border border-border/50 rounded-lg shadow-xl overflow-hidden"
-              >
+              <div className="absolute top-full left-0 mt-2 w-64 bg-background/95 backdrop-blur-xl border border-border/50 rounded-lg shadow-xl overflow-hidden">
                 {pillars.map((pillar) => {
-                  const Icon = PILLAR_ICON_MAP[pillar.id]
+                  const Icon = PILLAR_ICON_MAP[pillar.id as keyof typeof PILLAR_ICON_MAP]
                   return (
                     <Link
                       key={pillar.id}
                       href={`/pillars/${pillar.id}`}
                       className="flex items-center gap-3 px-4 py-3 hover:bg-accent transition-colors"
+                      onClick={() => setPillarsDropdownOpen(false)}
                     >
-                      <Icon className="h-5 w-5 text-muted-foreground" />
+                      {Icon && <Icon className="h-5 w-5 text-muted-foreground" />}
                       <div>
                         <div className="text-sm font-medium">{pillar.name}</div>
                         <div className="text-xs text-muted-foreground truncate">{pillar.description}</div>
