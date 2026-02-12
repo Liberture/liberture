@@ -234,29 +234,29 @@ export const translations: { en: Translations } = {
           id: "cognition",
           name: "Work",
           description:
-            "Optimize focus, memory, learning, and mental clarity through nootropics, brain training, and cognitive protocols.",
+            "Optimize productivity, flow states, work environment, and professional performance for meaningful achievement.",
         },
         {
           id: "recovery",
           name: "Sleep",
           description:
-            "Master sleep, stress management, and regeneration to maximize your body's natural healing and restoration.",
+            "Master sleep architecture, circadian rhythm, and recovery protocols to maximize restoration and longevity.",
         },
         {
           id: "fueling",
           name: "Nutrition",
-          description: "Dial in nutrition, hydration, and supplementation for peak energy and metabolic performance.",
+          description: "Optimize digestion, microbiome, macros, and supplementation for peak energy and metabolic health.",
         },
         {
           id: "mental",
           name: "Mind",
           description:
-            "Cultivate emotional resilience, mindfulness, and psychological well-being for sustainable performance.",
+            "Enhance brain function, neurotransmitters, nootropics, and mental resilience for cognitive excellence.",
         },
         {
           id: "physicality",
           name: "Exercise",
-          description: "Build strength, endurance, mobility, and physical capacity through optimized training protocols.",
+          description: "Build strength, cardiovascular capacity, mobility, and athletic performance through evidence-based training.",
         },
         {
           id: "finance",

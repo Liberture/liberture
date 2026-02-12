@@ -5,7 +5,7 @@ import Link from 'next/link';
 const prisma = new PrismaClient();
 
 export const metadata: Metadata = {
-  title: 'Recovery & Sleep Optimization | Liberture',
+  title: 'Sleep Optimization Recovery & Sleep Optimization Recovery | Liberture',
   description: 'Master rest and recovery with science-backed strategies for deep sleep, nervous system regulation, and accelerated healing. Biohack your way to peak performance through optimal recovery.',
   keywords: 'recovery, sleep optimization, rest, nervous system, healing, red light therapy, cold therapy, massage, regeneration',
 };
