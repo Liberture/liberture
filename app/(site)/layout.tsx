@@ -3,7 +3,7 @@ import type { ReactNode } from "react"
 import { LandingFooter } from "@/components/layout/landing-footer"
 import { LandingNav } from "@/components/layout/landing-nav"
 import { AnimatedBackground } from "@/components/illustrations/AnimatedBackground"
-import { PageTransition } from "@/components/animations/PageTransition"
+// import { PageTransition } from "@/components/animations/PageTransition"
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
@@ -11,9 +11,7 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
       <AnimatedBackground />
       <LandingNav />
       <main className="flex-1 pt-16">
-        <PageTransition>
-          {children}
-        </PageTransition>
+        {children}
       </main>
       <LandingFooter />
     </div>
