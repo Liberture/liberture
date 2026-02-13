@@ -1,4 +1,4 @@
-export type PillarId = "work" | "sleep" | "nutrition" | "mind" | "exercise" | "finance"
+export type PillarId = "cognition" | "recovery" | "fueling" | "mental" | "physicality" | "finance"
 export type MarketplaceTypeId =
   | "premium"
   | "opensource"
@@ -231,30 +231,30 @@ export const translations: { en: Translations } = {
       },
       pillars: [
         {
-          id: "work",
+          id: "cognition",
           name: "Work",
           description:
             "Optimize productivity, flow states, work environment, and professional performance for meaningful achievement.",
         },
         {
-          id: "sleep",
+          id: "recovery",
           name: "Sleep",
           description:
             "Master sleep architecture, circadian rhythm, and recovery protocols to maximize restoration and longevity.",
         },
         {
-          id: "nutrition",
+          id: "fueling",
           name: "Nutrition",
           description: "Optimize digestion, microbiome, macros, and supplementation for peak energy and metabolic health.",
         },
         {
-          id: "mind",
+          id: "mental",
           name: "Mind",
           description:
             "Enhance brain function, neurotransmitters, nootropics, and mental resilience for cognitive excellence.",
         },
         {
-          id: "exercise",
+          id: "physicality",
           name: "Exercise",
           description: "Build strength, cardiovascular capacity, mobility, and athletic performance through evidence-based training.",
         },
@@ -330,7 +330,7 @@ export const translations: { en: Translations } = {
             type: "Premium Protocol",
             author: "Dr. Sarah Chen",
             color: "bg-fueling/20 border-fueling/30",
-            icon: "nutrition",
+            icon: "fueling",
           },
           {
             title: "Deep Sleep Architecture Masterclass",
@@ -338,7 +338,7 @@ export const translations: { en: Translations } = {
             type: "Video Course",
             author: "Prof. Matthew Walker",
             color: "bg-recovery/20 border-recovery/30",
-            icon: "sleep",
+            icon: "recovery",
           },
           {
             title: "Flow State Activation Training",
@@ -346,7 +346,7 @@ export const translations: { en: Translations } = {
             type: "Interactive Game",
             author: "Liberture Labs",
             color: "bg-cognition/20 border-cognition/30",
-            icon: "work",
+            icon: "cognition",
           },
         ],
         cta: "Explore Full Marketplace",

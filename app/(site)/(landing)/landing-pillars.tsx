@@ -1,13 +1,14 @@
 "use client"
 
 import { motion } from "framer-motion"
+import Link from "next/link"
 import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
 import { translations, type PillarId } from "@/lib/translations"
 import { LandingSection, LandingSectionHeader } from "./landing-section"
 
 // Custom animations for each pillar icon
 const PILLAR_ANIMATIONS: Record<PillarId, any> = {
-  cognition: {
+  work: {
     // Brain: thinking pulse effect
     animate: {
       scale: [1, 1.1, 1],
@@ -19,7 +20,7 @@ const PILLAR_ANIMATIONS: Record<PillarId, any> = {
       ease: "easeInOut",
     },
   },
-  recovery: {
+  sleep: {
     // Heart: heartbeat rhythm
     animate: {
       scale: [1, 1.15, 1, 1.05, 1],
@@ -31,7 +32,7 @@ const PILLAR_ANIMATIONS: Record<PillarId, any> = {
       times: [0, 0.2, 0.3, 0.5, 1],
     },
   },
-  fueling: {
+  nutrition: {
     // Leaf: gentle swaying and breathing
     animate: {
       rotate: [-5, 5, -5],
@@ -43,7 +44,7 @@ const PILLAR_ANIMATIONS: Record<PillarId, any> = {
       ease: "easeInOut",
     },
   },
-  mental: {
+  mind: {
     // Zap: electric spark flash
     animate: {
       opacity: [1, 0.5, 1, 0.7, 1],
@@ -56,7 +57,7 @@ const PILLAR_ANIMATIONS: Record<PillarId, any> = {
       ease: "easeInOut",
     },
   },
-  physicality: {
+  exercise: {
     // Dumbbell: lifting motion
     animate: {
       y: [0, -8, 0],
@@ -93,27 +94,28 @@ export function LandingPillars() {
         {pillarContent.map((pillar, index) => {
           const Icon = PILLAR_ICON_MAP[pillar.id]
           const { gradient, border, text } = PILLAR_STYLES[pillar.id]
-          const animation = PILLAR_ANIMATIONS[pillar.id]
+          const animation = PILLAR_ANIMATIONS[pillar.id] || { animate: {}, transition: {} }
           
           return (
-            <motion.div
-              key={pillar.id}
-              className={`p-6 rounded-2xl bg-gradient-to-b ${gradient} border ${border}`}
-              whileHover={{ scale: 1.05 }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1, duration: 0.5 }}
-            >
+            <Link key={pillar.id} href={`/pillars/${pillar.id}`}>
               <motion.div
-                animate={animation.animate}
-                transition={animation.transition}
-                style={{ transformStyle: "preserve-3d" }}
+                className={`p-6 rounded-2xl bg-gradient-to-b ${gradient} border ${border} cursor-pointer transition-all hover:shadow-lg`}
+                whileHover={{ scale: 1.05 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1, duration: 0.5 }}
               >
-                <Icon className={`h-10 w-10 ${text} mb-4`} />
+                <motion.div
+                  animate={animation?.animate || {}}
+                  transition={animation?.transition || {}}
+                  style={{ transformStyle: "preserve-3d" }}
+                >
+                  <Icon className={`h-10 w-10 ${text} mb-4`} />
+                </motion.div>
+                <h3 className={`text-lg font-semibold mb-2 ${text}`}>{pillar.name}</h3>
+                <p className="text-sm text-muted-foreground">{pillar.description}</p>
               </motion.div>
-              <h3 className={`text-lg font-semibold mb-2 ${text}`}>{pillar.name}</h3>
-              <p className="text-sm text-muted-foreground">{pillar.description}</p>
-            </motion.div>
+            </Link>
           )
         })}
       </div>
