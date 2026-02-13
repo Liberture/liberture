@@ -25,20 +25,20 @@ export function LandingFooter() {
           <div>
             <h3 className="font-semibold mb-3">Pillars</h3>
             <div className="flex flex-col gap-2">
-              <Link href="/pillars/cognition" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Cognition
+              <Link href="/pillars/work" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Work
               </Link>
-              <Link href="/pillars/recovery" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Recovery
+              <Link href="/pillars/sleep" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Sleep
               </Link>
-              <Link href="/pillars/fueling" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Fueling
+              <Link href="/pillars/nutrition" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Nutrition
               </Link>
-              <Link href="/pillars/mental" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Mental
+              <Link href="/pillars/mind" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Mind
               </Link>
-              <Link href="/pillars/physicality" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                Physicality
+              <Link href="/pillars/exercise" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Exercise
               </Link>
               <Link href="/pillars/finance" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Finance

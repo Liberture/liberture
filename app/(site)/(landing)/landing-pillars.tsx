@@ -8,7 +8,7 @@ import { LandingSection, LandingSectionHeader } from "./landing-section"
 
 // Custom animations for each pillar icon
 const PILLAR_ANIMATIONS: Record<PillarId, any> = {
-  cognition: {
+  work: {
     // Brain: thinking pulse effect
     animate: {
       scale: [1, 1.1, 1],
@@ -20,7 +20,7 @@ const PILLAR_ANIMATIONS: Record<PillarId, any> = {
       ease: "easeInOut",
     },
   },
-  recovery: {
+  sleep: {
     // Heart: heartbeat rhythm
     animate: {
       scale: [1, 1.15, 1, 1.05, 1],
@@ -32,7 +32,7 @@ const PILLAR_ANIMATIONS: Record<PillarId, any> = {
       times: [0, 0.2, 0.3, 0.5, 1],
     },
   },
-  fueling: {
+  nutrition: {
     // Leaf: gentle swaying and breathing
     animate: {
       rotate: [-5, 5, -5],
@@ -44,7 +44,7 @@ const PILLAR_ANIMATIONS: Record<PillarId, any> = {
       ease: "easeInOut",
     },
   },
-  mental: {
+  mind: {
     // Zap: electric spark flash
     animate: {
       opacity: [1, 0.5, 1, 0.7, 1],
@@ -57,7 +57,7 @@ const PILLAR_ANIMATIONS: Record<PillarId, any> = {
       ease: "easeInOut",
     },
   },
-  physicality: {
+  exercise: {
     // Dumbbell: lifting motion
     animate: {
       y: [0, -8, 0],
@@ -94,7 +94,7 @@ export function LandingPillars() {
         {pillarContent.map((pillar, index) => {
           const Icon = PILLAR_ICON_MAP[pillar.id]
           const { gradient, border, text } = PILLAR_STYLES[pillar.id]
-          const animation = PILLAR_ANIMATIONS[pillar.id]
+          const animation = PILLAR_ANIMATIONS[pillar.id] || { animate: {}, transition: {} }
           
           return (
             <Link key={pillar.id} href={`/pillars/${pillar.id}`}>
@@ -106,8 +106,8 @@ export function LandingPillars() {
                 transition={{ delay: index * 0.1, duration: 0.5 }}
               >
                 <motion.div
-                  animate={animation.animate}
-                  transition={animation.transition}
+                  animate={animation?.animate || {}}
+                  transition={animation?.transition || {}}
                   style={{ transformStyle: "preserve-3d" }}
                 >
                   <Icon className={`h-10 w-10 ${text} mb-4`} />
