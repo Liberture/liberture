@@ -58,6 +58,10 @@ type Person = {
 export default function PersonPage() {
   const params = useParams();
   const router = useRouter();
+  
+  const handleBack = () => {
+    router.back();
+  };
   const [person, setPerson] = useState<Person | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -140,9 +144,9 @@ export default function PersonPage() {
         <div className="container mx-auto px-4 py-16">
         <div className="max-w-5xl mx-auto">
           <div className="mb-8">
-            <Link href="/directory" className="text-purple-400 hover:text-purple-300 mb-4 inline-block">
-              ← Back to Directory
-            </Link>
+            <button onClick={handleBack} className="text-purple-400 hover:text-purple-300 mb-4 inline-block cursor-pointer">
+              ← Back
+            </button>
           </div>
           
           {/* Header */}

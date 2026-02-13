@@ -35,6 +35,10 @@ export default function BookPage() {
   const [book, setBook] = useState<Book | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const handleBack = () => {
+    router.back();
+  };
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -78,9 +82,9 @@ export default function BookPage() {
         <div className="text-center">
           <h1 className="text-4xl font-bold mb-4">Error</h1>
           <p className="text-slate-400">{error || 'Book not found'}</p>
-          <Link href="/books" className="mt-4 inline-block text-purple-400 hover:text-purple-300">
-            ← Back to Books
-          </Link>
+          <button onClick={handleBack} className="mt-4 inline-block text-purple-400 hover:text-purple-300 cursor-pointer">
+            ← Back
+          </button>
         </div>
       </div>
     );
@@ -111,9 +115,9 @@ export default function BookPage() {
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-5xl mx-auto">
           <div className="mb-8">
-            <Link href="/books" className="text-purple-400 hover:text-purple-300 mb-4 inline-block">
-              ← Back to Books
-            </Link>
+            <button onClick={handleBack} className="text-purple-400 hover:text-purple-300 mb-4 inline-block cursor-pointer">
+              ← Back
+            </button>
           </div>
           
           {/* Header */}

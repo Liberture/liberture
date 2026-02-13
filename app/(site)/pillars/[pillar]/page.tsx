@@ -6,12 +6,12 @@ import { BookOpen, Clock, ExternalLink, TrendingUp } from 'lucide-react'
 import Link from 'next/link'
 
 const VALID_PILLARS = [
-  'Cognition',
-  'Recovery', 
-  'Fueling',
-  'Mental',
-  'Physicality',
-  'Finance',
+  'work',
+  'sleep',
+  'nutrition',
+  'mind',
+  'exercise',
+  'finance',
 ] as const
 
 type Pillar = (typeof VALID_PILLARS)[number]
@@ -23,43 +23,43 @@ const pillarConfig: Record<Pillar, {
   icon: string
   tagline: string
 }> = {
-  Cognition: {
-    title: 'Cognition',
+  work: {
+    title: 'Work & Cognition',
     description: 'Optimize your brain for focus, memory, learning, and peak mental performance.',
     color: 'from-cognition/20 to-cognition/5',
     icon: '🧠',
     tagline: 'Think Sharper',
   },
-  Recovery: {
-    title: 'Recovery',
+  sleep: {
+    title: 'Sleep & Recovery',
     description: 'Master sleep, stress management, and active recovery for sustainable performance.',
     color: 'from-recovery/20 to-recovery/5',
     icon: '💤',
     tagline: 'Rest Better',
   },
-  Fueling: {
-    title: 'Fueling',
+  nutrition: {
+    title: 'Nutrition & Fueling',
     description: 'Nutrition strategies for energy, longevity, and metabolic health.',
     color: 'from-fueling/20 to-fueling/5',
     icon: '🥗',
     tagline: 'Eat Smarter',
   },
-  Mental: {
-    title: 'Mental',
+  mind: {
+    title: 'Mind & Mental Health',
     description: 'Build resilience, emotional intelligence, and psychological strength.',
     color: 'from-mental/20 to-mental/5',
     icon: '🧘',
     tagline: 'Feel Stronger',
   },
-  Physicality: {
-    title: 'Physicality',
+  exercise: {
+    title: 'Exercise & Physicality',
     description: 'Training, movement, and body optimization for functional longevity.',
     color: 'from-physicality/20 to-physicality/5',
     icon: '💪',
     tagline: 'Move Better',
   },
-  Finance: {
-    title: 'Finance',
+  finance: {
+    title: 'Finance & Wealth',
     description: 'Financial independence, passive income, and wealth-building strategies.',
     color: 'from-finance/20 to-finance/5',
     icon: '💰',
@@ -73,17 +73,15 @@ interface PageProps {
 
 export async function generateStaticParams() {
   return VALID_PILLARS.map((pillar) => ({
-    pillar: pillar.toLowerCase(),
+    pillar,
   }))
 }
 
 export default async function PillarPage({ params }: PageProps) {
   const { pillar: pillarParam } = await params
   
-  // Normalize pillar name
-  const pillar = VALID_PILLARS.find(
-    p => p.toLowerCase() === pillarParam.toLowerCase()
-  )
+  // Validate pillar
+  const pillar = VALID_PILLARS.find(p => p === pillarParam)
 
   if (!pillar) {
     notFound()
@@ -219,15 +217,25 @@ export default async function PillarPage({ params }: PageProps) {
                           <span className="text-xs text-muted-foreground truncate">
                             {article.author}
                           </span>
-                          <Link
-                            href={article.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                          >
-                            Read
-                            <ExternalLink className="h-3 w-3" />
-                          </Link>
+                          <div className="flex items-center gap-3">
+                            {article.url && (
+                              <a
+                                href={article.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                                title="View source"
+                              >
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            )}
+                            <Link
+                              href={`/knowledge/${article.slug}`}
+                              className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-medium"
+                            >
+                              Read
+                            </Link>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>

@@ -11,7 +11,7 @@ export function LandingFooter() {
     <footer className="relative overflow-hidden py-12 px-4 border-t border-border/50">
       <MicroterrainRidge placement="full" gradient="magma" className="inset-0" opacity={0.12} />
       <div className="container relative z-10 mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8">
           {/* Brand */}
           <div className="md:col-span-1">
             <Link href="/" className="flex items-center gap-3 group mb-4">
@@ -19,6 +19,31 @@ export function LandingFooter() {
               <span className="text-lg font-bold tracking-tight">{brand.name}</span>
             </Link>
             <p className="text-sm text-muted-foreground">{brand.tagline}</p>
+          </div>
+
+          {/* Pillars */}
+          <div>
+            <h3 className="font-semibold mb-3">Pillars</h3>
+            <div className="flex flex-col gap-2">
+              <Link href="/pillars/work" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Work
+              </Link>
+              <Link href="/pillars/sleep" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Sleep
+              </Link>
+              <Link href="/pillars/nutrition" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Nutrition
+              </Link>
+              <Link href="/pillars/mind" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Mind
+              </Link>
+              <Link href="/pillars/exercise" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Exercise
+              </Link>
+              <Link href="/pillars/finance" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Finance
+              </Link>
+            </div>
           </div>
 
           {/* Resources */}
@@ -66,13 +91,16 @@ export function LandingFooter() {
           <div>
             <h3 className="font-semibold mb-3">Connect</h3>
             <div className="flex flex-col gap-2">
-              <Link href="https://x.com/liberture" target="_blank" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="https://medium.com/liberture" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                Medium
+              </Link>
+              <Link href="https://x.com/liberture" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Twitter/X
               </Link>
-              <Link href="https://linkedin.com/company/liberture" target="_blank" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="https://linkedin.com/company/liberture" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 LinkedIn
               </Link>
-              <Link href="https://instagram.com/liberture" target="_blank" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="https://instagram.com/liberture" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Instagram
               </Link>
             </div>
