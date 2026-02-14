@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { BookOpen, Clock, ExternalLink, TrendingUp } from 'lucide-react'
-import Link from 'next/link'
+import { Card, CardContent } from '@/components/ui/card'
+import { BookOpen, TrendingUp } from 'lucide-react'
+import { AnimatedArticleGrid, AnimatedHero, AnimatedHeroItem, AnimatedIcon, AnimatedStats, AnimatedOtherPillars } from '@/components/pillars'
+import { AnimatedSection } from '@/components/animations/AnimatedSection'
 
 const VALID_PILLARS = [
   'work',
@@ -79,7 +80,7 @@ export async function generateStaticParams() {
 
 export default async function PillarPage({ params }: PageProps) {
   const { pillar: pillarParam } = await params
-  
+
   // Validate pillar
   const pillar = VALID_PILLARS.find(p => p === pillarParam)
 
@@ -108,37 +109,47 @@ export default async function PillarPage({ params }: PageProps) {
 
   const totalReadTime = articles.reduce((sum, a) => sum + a.readTime, 0)
 
+  // Prepare other pillars for the CTA section
+  const otherPillars = VALID_PILLARS.filter(p => p !== pillar).map(p => ({
+    id: p,
+    config: pillarConfig[p],
+  }))
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
       <section className={`relative py-20 bg-gradient-to-br ${config.color}`}>
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center space-y-6">
-            <div className="text-6xl mb-4">{config.icon}</div>
-            <Badge variant="outline" className="text-sm">
-              {config.tagline}
-            </Badge>
-            <h1 className="text-5xl font-bold tracking-tight">
-              {config.title}
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              {config.description}
-            </p>
-            <div className="flex items-center justify-center gap-8 pt-6">
-              <div className="text-center">
-                <div className="text-3xl font-bold">{articles.length}</div>
-                <div className="text-sm text-muted-foreground">Articles</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold">{totalReadTime}</div>
-                <div className="text-sm text-muted-foreground">Min Read</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold">Free</div>
-                <div className="text-sm text-muted-foreground">Always</div>
-              </div>
-            </div>
-          </div>
+          <AnimatedHero className="max-w-4xl mx-auto text-center space-y-6">
+            <AnimatedHeroItem>
+              <AnimatedIcon className="text-6xl mb-4 inline-block" animation="pulse">
+                {config.icon}
+              </AnimatedIcon>
+            </AnimatedHeroItem>
+            <AnimatedHeroItem delay={0.1}>
+              <Badge variant="outline" className="text-sm">
+                {config.tagline}
+              </Badge>
+            </AnimatedHeroItem>
+            <AnimatedHeroItem delay={0.2}>
+              <h1 className="text-5xl font-bold tracking-tight">
+                {config.title}
+              </h1>
+            </AnimatedHeroItem>
+            <AnimatedHeroItem delay={0.3}>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                {config.description}
+              </p>
+            </AnimatedHeroItem>
+            <AnimatedStats
+              className="flex items-center justify-center gap-8 pt-6"
+              stats={[
+                { value: articles.length, label: 'Articles' },
+                { value: totalReadTime, label: 'Min Read' },
+                { value: 'Free', label: 'Always' },
+              ]}
+            />
+          </AnimatedHero>
         </div>
       </section>
 
@@ -146,142 +157,54 @@ export default async function PillarPage({ params }: PageProps) {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-2">
-                <BookOpen className="h-6 w-6 text-primary" />
-                <h2 className="text-3xl font-bold">Knowledge Base</h2>
+            <AnimatedSection>
+              <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="h-6 w-6 text-primary" />
+                  <h2 className="text-3xl font-bold">Knowledge Base</h2>
+                </div>
+                <Badge variant="outline">
+                  <TrendingUp className="h-3 w-3 mr-1" />
+                  Recently Updated
+                </Badge>
               </div>
-              <Badge variant="outline">
-                <TrendingUp className="h-3 w-3 mr-1" />
-                Recently Updated
-              </Badge>
-            </div>
+            </AnimatedSection>
 
             {articles.length === 0 ? (
-              <Card>
-                <CardContent className="py-12 text-center">
-                  <p className="text-muted-foreground">
-                    No articles yet in this pillar. Check back soon!
-                  </p>
-                </CardContent>
-              </Card>
+              <AnimatedSection delay={0.1}>
+                <Card>
+                  <CardContent className="py-12 text-center">
+                    <p className="text-muted-foreground">
+                      No articles yet in this pillar. Check back soon!
+                    </p>
+                  </CardContent>
+                </Card>
+              </AnimatedSection>
             ) : (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {articles.map((article) => {
-                  const tags = article.tags.split(',').map(t => t.trim()).filter(Boolean)
-                  
-                  return (
-                    <Card 
-                      key={article.id}
-                      className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-                    >
-                      <CardHeader>
-                        <div className="flex items-center justify-between mb-2">
-                          <Badge variant="outline" className="text-xs">
-                            {config.icon} {pillar}
-                          </Badge>
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Clock className="h-3 w-3" />
-                            {article.readTime} min
-                          </div>
-                        </div>
-                        <CardTitle className="text-base group-hover:text-primary transition-colors line-clamp-2">
-                          {article.title}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <p className="text-sm text-muted-foreground line-clamp-3">
-                          {article.description}
-                        </p>
-                        
-                        {tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1">
-                            {tags.slice(0, 3).map((tag) => (
-                              <Badge 
-                                key={tag} 
-                                variant="secondary"
-                                className="text-xs"
-                              >
-                                {tag}
-                              </Badge>
-                            ))}
-                            {tags.length > 3 && (
-                              <Badge variant="secondary" className="text-xs">
-                                +{tags.length - 3}
-                              </Badge>
-                            )}
-                          </div>
-                        )}
-
-                        <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                          <span className="text-xs text-muted-foreground truncate">
-                            {article.author}
-                          </span>
-                          <div className="flex items-center gap-3">
-                            {article.url && (
-                              <a
-                                href={article.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                                title="View source"
-                              >
-                                <ExternalLink className="h-3 w-3" />
-                              </a>
-                            )}
-                            <Link
-                              href={`/knowledge/${article.slug}`}
-                              className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-medium"
-                            >
-                              Read
-                            </Link>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )
-                })}
-              </div>
+              <AnimatedArticleGrid
+                articles={articles}
+                pillar={pillar}
+                icon={config.icon}
+              />
             )}
           </div>
         </div>
       </section>
 
       {/* Other Pillars CTA */}
-      <section className="py-16 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center space-y-6">
-            <h3 className="text-2xl font-bold">Explore Other Pillars</h3>
-            <p className="text-muted-foreground">
-              Liberture is built on 6 interconnected pillars of human optimization
-            </p>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 pt-4">
-              {VALID_PILLARS.filter(p => p !== pillar).map((otherPillar) => {
-                const otherConfig = pillarConfig[otherPillar]
-                return (
-                  <Link
-                    key={otherPillar}
-                    href={`/pillars/${otherPillar.toLowerCase()}`}
-                    className="group"
-                  >
-                    <Card className="hover:shadow-lg transition-all hover:-translate-y-1">
-                      <CardContent className="p-6 text-center space-y-2">
-                        <div className="text-4xl">{otherConfig.icon}</div>
-                        <h4 className="font-semibold group-hover:text-primary transition-colors">
-                          {otherConfig.title}
-                        </h4>
-                        <p className="text-xs text-muted-foreground">
-                          {otherConfig.tagline}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                )
-              })}
+      <AnimatedSection delay={0.2}>
+        <section className="py-16 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto text-center space-y-6">
+              <h3 className="text-2xl font-bold">Explore Other Pillars</h3>
+              <p className="text-muted-foreground">
+                Liberture is built on 6 interconnected pillars of human optimization
+              </p>
+              <AnimatedOtherPillars pillars={otherPillars} />
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </AnimatedSection>
     </div>
   )
 }
