@@ -1,0 +1,48 @@
+<svg width="1200" height="320" viewBox="0 0 1200 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="pillars-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#120825"/>
+      <stop offset="30%" stop-color="#2d1b69"/>
+      <stop offset="50%" stop-color="#3b1f8e"/>
+      <stop offset="70%" stop-color="#2d1b69"/>
+      <stop offset="100%" stop-color="#120825"/>
+    </linearGradient>
+    <filter id="pillar-glow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="320" fill="url(#pillars-bg)"/>
+
+  <!-- Subtle border rectangle -->
+  <rect x="30" y="28" width="1140" height="264" rx="12" fill="none" stroke="rgba(139,92,246,0.25)" stroke-width="1.5"/>
+
+  <!-- Work - Purple -->
+  <circle cx="100" cy="130" r="52" fill="#A78BFA" filter="url(#pillar-glow)"/>
+  <text x="100" y="228" fill="white" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="26" font-weight="500" text-anchor="middle">Work</text>
+
+  <!-- Sleep - Cyan -->
+  <circle cx="300" cy="130" r="52" fill="#67E8F9" filter="url(#pillar-glow)"/>
+  <text x="300" y="228" fill="white" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="26" font-weight="500" text-anchor="middle">Sleep</text>
+
+  <!-- Nutrition - Green -->
+  <circle cx="500" cy="130" r="52" fill="#4ADE80" filter="url(#pillar-glow)"/>
+  <text x="500" y="228" fill="white" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="26" font-weight="500" text-anchor="middle">Nutrition</text>
+
+  <!-- Mind - Pink -->
+  <circle cx="700" cy="130" r="52" fill="#F472B6" filter="url(#pillar-glow)"/>
+  <text x="700" y="228" fill="white" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="26" font-weight="500" text-anchor="middle">Mind</text>
+
+  <!-- Exercise - Orange -->
+  <circle cx="900" cy="130" r="52" fill="#FB923C" filter="url(#pillar-glow)"/>
+  <text x="900" y="228" fill="white" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="26" font-weight="500" text-anchor="middle">Exercise</text>
+
+  <!-- Finance - Yellow -->
+  <circle cx="1100" cy="130" r="52" fill="#FACC15" filter="url(#pillar-glow)"/>
+  <text x="1100" y="228" fill="white" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="26" font-weight="500" text-anchor="middle">Finance</text>
+</svg>

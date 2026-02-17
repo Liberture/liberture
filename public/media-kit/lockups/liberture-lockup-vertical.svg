@@ -1,0 +1,17 @@
+<svg width="240" height="220" viewBox="0 0 240 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="luv-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Hexagonal logo mark -->
+  <circle cx="105" cy="49.02" r="6" fill="#8B5CF6" filter="url(#luv-glow)"/>
+  <circle cx="135" cy="49.02" r="6" fill="#06B6D4" filter="url(#luv-glow)"/>
+  <circle cx="150" cy="75.00" r="6" fill="#10B981" filter="url(#luv-glow)"/>
+  <circle cx="135" cy="100.98" r="6" fill="#EC4899" filter="url(#luv-glow)"/>
+  <circle cx="105" cy="100.98" r="6" fill="#F59E0B" filter="url(#luv-glow)"/>
+  <circle cx="90" cy="75.00" r="6" fill="#EAB308" filter="url(#luv-glow)"/>
+  <text x="120" y="150" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="32" font-weight="700" fill="#ffffff" text-anchor="middle">Liberture</text>
+  <text x="120" y="170" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="10" fill="#999999" text-anchor="middle">Your Biological Operating System</text>
+</svg>
