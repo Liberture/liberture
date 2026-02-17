@@ -1,18 +1,9 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { staggerContainer } from "@/lib/animations"
+import { stagger } from "@/lib/animations"
 import { AnimatedPillarCard } from "./AnimatedPillarCard"
-
-interface PillarData {
-  name: string
-  slug: string
-  icon: string
-  tagline: string
-  description: string
-  color: string
-  borderColor: string
-}
+import type { PillarData } from "@/types"
 
 interface AnimatedPillarGridProps {
   pillars: readonly PillarData[]
@@ -23,21 +14,18 @@ export function AnimatedPillarGrid({ pillars, countMap }: AnimatedPillarGridProp
   return (
     <motion.div
       className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-      variants={staggerContainer}
+      variants={stagger.container()}
       initial="initial"
       animate="animate"
     >
-      {pillars.map((pillar, index) => {
-        const count = countMap[pillar.name] || 0
-        return (
-          <AnimatedPillarCard
-            key={pillar.slug}
-            pillar={pillar}
-            count={count}
-            index={index}
-          />
-        )
-      })}
+      {pillars.map((pillar, index) => (
+        <AnimatedPillarCard
+          key={pillar.slug}
+          pillar={pillar}
+          count={countMap[pillar.name] || 0}
+          index={index}
+        />
+      ))}
     </motion.div>
   )
 }

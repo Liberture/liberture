@@ -1,4 +1,4 @@
-import { AnimatedSection } from "@/components/animations/AnimatedSection"
+import { MotionSection } from "@/components/animations"
 import { LandingCTA } from "./landing-cta"
 import { LandingFeatures } from "./landing-features"
 import { LandingHero } from "./landing-hero"
@@ -11,24 +11,24 @@ export default function Home() {
   return (
     <main className="min-h-screen">
       <LandingHero />
-      <AnimatedSection delay={0.1}>
+      <MotionSection delay={0.1}>
         <LandingFeatures />
-      </AnimatedSection>
-      <AnimatedSection delay={0.2}>
+      </MotionSection>
+      <MotionSection delay={0.2}>
         <LandingPillars />
-      </AnimatedSection>
-      <AnimatedSection delay={0.1}>
+      </MotionSection>
+      <MotionSection delay={0.1}>
         <LandingMarketplace />
-      </AnimatedSection>
-      <AnimatedSection delay={0.1}>
+      </MotionSection>
+      <MotionSection delay={0.1}>
         <LandingKnowledge />
-      </AnimatedSection>
-      <AnimatedSection delay={0.1}>
+      </MotionSection>
+      <MotionSection delay={0.1}>
         <LandingNewsletter />
-      </AnimatedSection>
-      <AnimatedSection delay={0.1}>
+      </MotionSection>
+      <MotionSection delay={0.1}>
         <LandingCTA />
-      </AnimatedSection>
+      </MotionSection>
     </main>
   )
 }

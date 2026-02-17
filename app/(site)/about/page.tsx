@@ -3,7 +3,7 @@
 import { motion } from "framer-motion"
 import { LandingSection } from "../(landing)/landing-section"
 import { Brain, Code, Zap, Target, Heart, Sparkles } from "lucide-react"
-import { staggerContainer, staggerItem } from "@/lib/animations"
+import { stagger } from "@/lib/animations"
 
 export default function AboutPage() {
   const founders = [
@@ -58,16 +58,16 @@ export default function AboutPage() {
           className="max-w-4xl mx-auto text-center mb-16"
           initial="initial"
           animate="animate"
-          variants={staggerContainer}
+          variants={stagger.container()}
         >
-          <motion.h1 className="text-5xl md:text-6xl font-bold mb-6" variants={staggerItem}>
+          <motion.h1 className="text-5xl md:text-6xl font-bold mb-6" variants={stagger.item}>
             Building the{" "}
             <span className="bg-gradient-to-r from-primary via-cyan-400 to-green-400 bg-clip-text text-transparent">
               Operating System
             </span>{" "}
             for Human Biology
           </motion.h1>
-          <motion.p className="text-xl text-muted-foreground max-w-2xl mx-auto" variants={staggerItem}>
+          <motion.p className="text-xl text-muted-foreground max-w-2xl mx-auto" variants={stagger.item}>
             Liberture started with a simple question: What if optimizing your body was as easy as optimizing your
             computer?
           </motion.p>
