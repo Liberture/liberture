@@ -1,0 +1,10 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="96" fill="#0a0a0a"/>
+  <!-- Hexagon: 2 top, 1 right, 2 bottom, 1 left -->
+  <circle cx="184.32" cy="131.83" r="40.96" fill="#8B5CF6"/>
+  <circle cx="327.68" cy="131.83" r="40.96" fill="#06B6D4"/>
+  <circle cx="399.36" cy="256.00" r="40.96" fill="#10B981"/>
+  <circle cx="327.68" cy="380.17" r="40.96" fill="#EC4899"/>
+  <circle cx="184.32" cy="380.17" r="40.96" fill="#F59E0B"/>
+  <circle cx="112.64" cy="256.00" r="40.96" fill="#EAB308"/>
+</svg>
