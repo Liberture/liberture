@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { LogOut, Menu, X, ChevronDown } from "lucide-react"
 import { translations } from "@/lib/translations"
 import { LibertureWordmark } from "@/components/branding"
-import { PILLAR_ICON_MAP } from "@/lib/pillars"
+import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
 
 export function LandingNav() {
   const { user, logout } = useAuth()
@@ -44,6 +44,7 @@ export function LandingNav() {
                   <div className="p-2">
                   {pillars.map((pillar, index) => {
                     const Icon = PILLAR_ICON_MAP[pillar.id as keyof typeof PILLAR_ICON_MAP]
+                    const style = PILLAR_STYLES[pillar.id as keyof typeof PILLAR_STYLES]
                     return (
                       <Link
                         key={pillar.id}
@@ -52,7 +53,7 @@ export function LandingNav() {
                         onClick={() => setPillarsDropdownOpen(false)}
                       >
                         <div className="mt-0.5">
-                          {Icon && <Icon className="h-5 w-5 text-primary/70 group-hover:text-primary transition-colors" />}
+                          {Icon && <Icon className={`h-5 w-5 ${style?.text} transition-colors`} />}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="text-sm font-medium mb-0.5 group-hover:text-foreground transition-colors">
@@ -120,6 +121,7 @@ export function LandingNav() {
                 <div className="text-xs font-semibold text-muted-foreground px-4 py-2">Pillars</div>
                 {pillars.map((pillar) => {
                   const Icon = PILLAR_ICON_MAP[pillar.id]
+                  const style = PILLAR_STYLES[pillar.id]
                   return (
                     <Link
                       key={pillar.id}
@@ -127,7 +129,7 @@ export function LandingNav() {
                       onClick={() => setMobileMenuOpen(false)}
                       className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-accent transition-colors"
                     >
-                      <Icon className="h-5 w-5 text-muted-foreground" />
+                      <Icon className={`h-5 w-5 ${style.text}`} />
                       <div>
                         <div className="text-sm font-medium">{pillar.name}</div>
                       </div>
