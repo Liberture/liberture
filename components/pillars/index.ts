@@ -1,5 +1,2 @@
 export { AnimatedPillarCard } from "./AnimatedPillarCard"
 export { AnimatedPillarGrid } from "./AnimatedPillarGrid"
-export { AnimatedArticleGrid } from "./AnimatedArticleGrid"
-export { AnimatedHero, AnimatedHeroItem, AnimatedIcon, AnimatedStats } from "./AnimatedHero"
-export { AnimatedOtherPillars } from "./AnimatedOtherPillars"

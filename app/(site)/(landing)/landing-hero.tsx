@@ -7,7 +7,7 @@ import { ArrowRight, Zap } from "lucide-react"
 import { FoldedDrift, RippleBloom } from "@/components/patterns"
 import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
 import { translations } from "@/lib/translations"
-import { staggerContainer, staggerItem } from "@/lib/animations"
+import { stagger } from "@/lib/animations"
 
 export function LandingHero() {
   const { hero } = translations.en.landing
@@ -27,11 +27,11 @@ export function LandingHero() {
           className="text-center max-w-4xl mx-auto"
           initial="initial"
           animate="animate"
-          variants={staggerContainer}
+          variants={stagger.container()}
         >
           <motion.div 
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6"
-            variants={staggerItem}
+            variants={stagger.item}
           >
             <Zap className="h-4 w-4 text-primary" />
             <span className="text-sm text-primary font-medium">{hero.badge}</span>
@@ -39,7 +39,7 @@ export function LandingHero() {
 
           <motion.h1 
             className="text-5xl md:text-7xl font-bold tracking-tight mb-6 text-balance"
-            variants={staggerItem}
+            variants={stagger.item}
           >
             {hero.title}{" "}
             <span className="bg-gradient-to-r from-primary via-cyan-400 to-green-400 bg-clip-text text-transparent">
@@ -49,14 +49,14 @@ export function LandingHero() {
 
           <motion.p 
             className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto text-pretty"
-            variants={staggerItem}
+            variants={stagger.item}
           >
             {hero.description}
           </motion.p>
 
           <motion.div 
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
-            variants={staggerItem}
+            variants={stagger.item}
           >
             <Link href="/login">
               <Button size="lg" className="bg-primary hover:bg-primary/90 gap-2 text-lg px-8">
@@ -73,7 +73,7 @@ export function LandingHero() {
           {/* Pillar Icons */}
           <motion.div 
             className="flex items-center justify-center gap-6 md:gap-10"
-            variants={staggerItem}
+            variants={stagger.item}
           >
             {pillars.map((pillar, index) => {
               const Icon = PILLAR_ICON_MAP[pillar.id]

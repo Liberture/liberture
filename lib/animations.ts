@@ -1,99 +1,74 @@
-// Animation utilities for Framer Motion
+import { Variants, Transition, TargetAndTransition } from "framer-motion"
 
-export const fadeIn = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 },
-  transition: { duration: 0.3 }
-};
+// Transitions
+export const transition = {
+  fast: { duration: 0.2, ease: "easeOut" } as Transition,
+  normal: { duration: 0.3, ease: "easeOut" } as Transition,
+  smooth: { duration: 0.4, ease: "easeInOut" } as Transition,
+  slow: { duration: 0.5, ease: "easeOut" } as Transition,
+}
 
-export const fadeInUp = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 },
-  transition: { duration: 0.4 }
-};
+// Variants
+export const variants = {
+  fadeIn: { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } } as Variants,
+  fadeInUp: { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -20 } } as Variants,
+  fadeInDown: { initial: { opacity: 0, y: -20 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: 20 } } as Variants,
+  scaleIn: { initial: { opacity: 0, scale: 0.95 }, animate: { opacity: 1, scale: 1 }, exit: { opacity: 0, scale: 0.95 } } as Variants,
+  slideUp: { initial: { opacity: 0, y: 40 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, y: 40 } } as Variants,
+}
 
-export const fadeInLeft = {
-  initial: { opacity: 0, x: -20 },
-  animate: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: 20 },
-  transition: { duration: 0.4 }
-};
+// Stagger
+export const stagger = {
+  container: (delay = 0.1): Variants => ({ initial: {}, animate: { transition: { staggerChildren: delay } } }),
+  item: variants.fadeInUp,
+}
 
-export const fadeInRight = {
-  initial: { opacity: 0, x: 20 },
-  animate: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: -20 },
-  transition: { duration: 0.4 }
-};
+// Hover
+export const hover = {
+  scale: { scale: 1.02 },
+  lift: { y: -4 },
+  scaleLift: { scale: 1.02, y: -4 },
+}
 
-export const scaleIn = {
-  initial: { opacity: 0, scale: 0.9 },
-  animate: { opacity: 1, scale: 1 },
-  exit: { opacity: 0, scale: 0.9 },
-  transition: { duration: 0.3 }
-};
+// Viewport
+export const viewport = {
+  once: { once: true, margin: "-100px" as const },
+  always: { once: false, margin: "-50px" as const },
+}
 
-export const slideInFromBottom = {
-  initial: { opacity: 0, y: 50 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: 50 },
-  transition: { duration: 0.5, ease: "easeOut" }
-};
+// Loop animations
+export const loop = {
+  pulse: { scale: [1, 1.1, 1], opacity: [1, 0.8, 1], transition: { duration: 2, repeat: Infinity, ease: "easeInOut" } } as TargetAndTransition,
+  bounce: { y: [0, -8, 0], transition: { duration: 2, repeat: Infinity, ease: "easeInOut" } } as TargetAndTransition,
+  float: { y: [0, -10, 0], transition: { duration: 6, repeat: Infinity, ease: "easeInOut" } } as TargetAndTransition,
+  breathe: { scale: [1, 1.05, 1], transition: { duration: 4, repeat: Infinity, ease: "easeInOut" } } as TargetAndTransition,
+}
 
-export const staggerContainer = {
-  animate: {
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
-};
+// Background animations (variants format)
+export const floatAnimation: Variants = {
+  animate: { y: [0, -20, 0], x: [0, 10, 0], transition: { duration: 8, repeat: Infinity, ease: "easeInOut" } },
+}
 
-export const staggerItem = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 }
-};
+export const rotateAnimation: Variants = {
+  animate: { rotate: 360, transition: { duration: 20, repeat: Infinity, ease: "linear" } },
+}
 
-// Page transition variants
-export const pageTransition = {
-  initial: { opacity: 0, x: -20 },
-  animate: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: 20 },
-  transition: { duration: 0.3, ease: "easeInOut" }
-};
+// Pillar icon animations
+type PillarAnim = { animate: Record<string, number | number[]>; transition: Transition }
 
-// Background animation variants
-export const floatAnimation = {
-  animate: {
-    y: [0, -10, 0],
-    transition: {
-      duration: 6,
-      repeat: Infinity,
-      ease: "easeInOut"
-    }
-  }
-};
+export const pillarAnimations: Record<string, PillarAnim> = {
+  cognition: { animate: { scale: [1, 1.1, 1], opacity: [1, 0.8, 1] }, transition: { duration: 2, repeat: Infinity, ease: "easeInOut" } },
+  work: { animate: { scale: [1, 1.1, 1], opacity: [1, 0.8, 1] }, transition: { duration: 2, repeat: Infinity, ease: "easeInOut" } },
+  recovery: { animate: { scale: [1, 1.15, 1, 1.05, 1] }, transition: { duration: 1.5, repeat: Infinity, ease: "easeInOut", times: [0, 0.2, 0.3, 0.5, 1] } },
+  sleep: { animate: { scale: [1, 1.15, 1, 1.05, 1] }, transition: { duration: 1.5, repeat: Infinity, ease: "easeInOut", times: [0, 0.2, 0.3, 0.5, 1] } },
+  fueling: { animate: { rotate: [-5, 5, -5], scale: [1, 1.05, 1] }, transition: { duration: 3, repeat: Infinity, ease: "easeInOut" } },
+  nutrition: { animate: { rotate: [-5, 5, -5], scale: [1, 1.05, 1] }, transition: { duration: 3, repeat: Infinity, ease: "easeInOut" } },
+  mental: { animate: { opacity: [1, 0.5, 1, 0.7, 1], scale: [1, 1.1, 1] }, transition: { duration: 2.5, repeat: Infinity, ease: "easeInOut" } },
+  mind: { animate: { opacity: [1, 0.5, 1, 0.7, 1], scale: [1, 1.1, 1] }, transition: { duration: 2.5, repeat: Infinity, ease: "easeInOut" } },
+  physicality: { animate: { y: [0, -8, 0], rotate: [-2, 2, -2] }, transition: { duration: 2, repeat: Infinity, ease: "easeInOut" } },
+  exercise: { animate: { y: [0, -8, 0], rotate: [-2, 2, -2] }, transition: { duration: 2, repeat: Infinity, ease: "easeInOut" } },
+  finance: { animate: { rotateY: [0, 180, 360], scale: [1, 0.95, 1] }, transition: { duration: 4, repeat: Infinity, ease: "easeInOut" } },
+}
 
-export const rotateAnimation = {
-  animate: {
-    rotate: [0, 360],
-    transition: {
-      duration: 20,
-      repeat: Infinity,
-      ease: "linear"
-    }
-  }
-};
-
-export const pulseAnimation = {
-  animate: {
-    scale: [1, 1.05, 1],
-    opacity: [0.5, 0.8, 0.5],
-    transition: {
-      duration: 4,
-      repeat: Infinity,
-      ease: "easeInOut"
-    }
-  }
-};
+export const getPillarAnimation = (slug: string): PillarAnim =>
+  pillarAnimations[slug] || { animate: { scale: [1, 1.05, 1] }, transition: { duration: 2, repeat: Infinity, ease: "easeInOut" } }
