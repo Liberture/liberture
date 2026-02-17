@@ -5,7 +5,6 @@
       <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
   </defs>
-  <rect width="512" height="512" rx="96" fill="#0a0a0a"/>
   <!-- Hexagon: 2 top, 1 right, 2 bottom, 1 left -->
   <circle cx="179.20" cy="122.95" r="40.96" fill="#8B5CF6" filter="url(#glow)"/>
   <circle cx="332.80" cy="122.95" r="40.96" fill="#06B6D4" filter="url(#glow)"/>

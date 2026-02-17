@@ -1,0 +1,32 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "brand": {
+    "name": "Liberture",
+    "tagline": "Master your biology. Unlock your potential.",
+    "description": "Your Biological Operating System"
+  },
+  "colors": {
+    "background": { "value": "#0a0a0a", "type": "color", "description": "Main background" },
+    "card": { "value": "#0f0f0f", "type": "color", "description": "Card backgrounds" },
+    "border": { "value": "#1a1a1a", "type": "color", "description": "Borders and dividers" },
+    "text-primary": { "value": "#ffffff", "type": "color", "description": "Main text" },
+    "text-muted": { "value": "#999999", "type": "color", "description": "Secondary text" }
+  },
+  "pillar-colors": {
+    "cognition": { "value": "#8B5CF6", "type": "color", "rgb": "139, 92, 246", "description": "Cognition pillar (Purple)" },
+    "recovery": { "value": "#06B6D4", "type": "color", "rgb": "6, 182, 212", "description": "Recovery pillar (Cyan)" },
+    "fueling": { "value": "#10B981", "type": "color", "rgb": "16, 185, 129", "description": "Fueling pillar (Green)" },
+    "mental": { "value": "#EC4899", "type": "color", "rgb": "236, 72, 153", "description": "Mental pillar (Pink)" },
+    "physicality": { "value": "#F59E0B", "type": "color", "rgb": "245, 158, 11", "description": "Physicality pillar (Orange)" },
+    "finance": { "value": "#EAB308", "type": "color", "rgb": "234, 179, 8", "description": "Finance pillar (Yellow)" }
+  },
+  "typography": {
+    "font-family": { "value": "Inter, system-ui, -apple-system, sans-serif", "type": "fontFamily" },
+    "weights": {
+      "regular": { "value": 400, "type": "fontWeight" },
+      "medium": { "value": 500, "type": "fontWeight" },
+      "semibold": { "value": 600, "type": "fontWeight" },
+      "bold": { "value": 700, "type": "fontWeight" }
+    }
+  }
+}
