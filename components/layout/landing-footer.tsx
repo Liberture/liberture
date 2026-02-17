@@ -2,7 +2,7 @@ import Link from "next/link"
 
 import { MicroterrainRidge } from "@/components/patterns"
 import { translations } from "@/lib/translations"
-import { LibertureLogo } from "@/components/branding/LibertureLogo"
+import { LibertureWordmark } from "@/components/branding/LibertureWordmark"
 
 export function LandingFooter() {
   const { brand } = translations.en
@@ -14,9 +14,8 @@ export function LandingFooter() {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-8 mb-8">
           {/* Brand */}
           <div className="md:col-span-1">
-            <Link href="/" className="flex items-center gap-3 group mb-4">
-              <LibertureLogo size={40} animate={false} />
-              <span className="text-lg font-bold tracking-tight">{brand.name}</span>
+            <Link href="/" className="flex items-center group mb-4">
+              <LibertureWordmark height={28} />
             </Link>
             <p className="text-sm text-muted-foreground">{brand.tagline}</p>
           </div>

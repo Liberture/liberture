@@ -1,285 +1,372 @@
-# Liberture Media Kit — Improvements & Asset Checklist
+# Liberture Media Kit — Complete Reference
 
-Current media kit page: `/app/(site)/media-kit/page.tsx` → [liberture.com/media-kit](https://liberture.com/media-kit)
-
----
-
-## Current State
-
-The existing page displays:
-- Animated + static logo (SVG component rendered in-browser, no real download)
-- Logo size variations (32–80px previews)
-- Usage guidelines (basic DO/DON'T list)
-- 6 pillar colors with copy-to-clipboard
-- 5 brand colors with copy-to-clipboard
-- Typography section (Inter font, weights)
-- CTA to contact page
-
-**Main problem:** The download buttons don't actually download anything. There are no real downloadable asset files behind them.
+> Use this document as a blueprint to create a media kit for any personal or brand website.
+> It documents every decision, asset, structure, and technique used in Liberture's media kit.
 
 ---
 
-## Assets to Create
+## 1. Brand Foundation
 
-### 1. Logo Files (Priority: HIGH)
+Before creating any assets, define these core elements:
 
-Create a `/public/media-kit/` directory with the following:
+### Identity
 
-| File | Format | Details |
-|------|--------|---------|
-| `liberture-logo-animated.svg` | SVG | Animated version (CSS animation embedded) |
-| `liberture-logo-static.svg` | SVG | Static 6-dot orbit mark |
-| `liberture-logo-static.png` | PNG | 1024x1024, transparent background |
-| `liberture-logo-static@2x.png` | PNG | 2048x2048, transparent background |
-| `liberture-logo-dark-bg.png` | PNG | Logo on #0a0a0a background, 1200x1200 |
-| `liberture-logo-light-bg.png` | PNG | Logo adapted for white/light backgrounds, 1200x1200 |
-| `liberture-logo-favicon.ico` | ICO | Multi-size favicon (16, 32, 48) |
+| Element | Liberture Value | Your Value |
+|---------|----------------|------------|
+| Brand Name | Liberture | ___________ |
+| Tagline | "Master your biology. Unlock your potential." | ___________ |
+| One-liner | "Liberture is the Biological Operating System — a unified platform for evidence-based human optimization." | ___________ |
+| Descriptor | "Your Biological Operating System" | ___________ |
 
-### 2. Wordmark / Logotype (Priority: HIGH)
+### Press Boilerplate
 
-Currently missing entirely — the media kit has no wordmark.
+A ready-to-copy paragraph for journalists, partners, and directory listings:
 
-| File | Format | Details |
-|------|--------|---------|
-| `liberture-wordmark-white.svg` | SVG | "Liberture" text in Inter Bold, white |
-| `liberture-wordmark-white.png` | PNG | Same, transparent background |
-| `liberture-wordmark-gradient.svg` | SVG | With the brand gradient (primary → cyan → green) |
-| `liberture-wordmark-gradient.png` | PNG | Same, transparent background |
-| `liberture-lockup-horizontal.svg` | SVG | Logo mark + wordmark side by side |
-| `liberture-lockup-horizontal.png` | PNG | Same, transparent background |
-| `liberture-lockup-vertical.svg` | SVG | Logo mark above wordmark (stacked) |
-| `liberture-lockup-vertical.png` | PNG | Same, transparent background |
-
-### 3. Pillar Icons (Priority: MEDIUM)
-
-Individual icons for each of the 6 pillars:
-
-| Pillar | Color | Files Needed |
-|--------|-------|-------------|
-| Cognition | #8B5CF6 (Purple) | `.svg`, `.png` (256x256) |
-| Recovery | #06B6D4 (Cyan) | `.svg`, `.png` (256x256) |
-| Fueling | #10B981 (Green) | `.svg`, `.png` (256x256) |
-| Mental | #EC4899 (Pink) | `.svg`, `.png` (256x256) |
-| Physicality | #F59E0B (Orange) | `.svg`, `.png` (256x256) |
-| Finance | #EAB308 (Yellow) | `.svg`, `.png` (256x256) |
-
-Each icon should be a simple symbol representing the pillar (brain, moon/bed, leaf/fork, heart/mind, dumbbell, chart), rendered in the pillar color on transparent background.
-
-### 4. Social Media Templates (Priority: MEDIUM)
-
-| File | Dimensions | Use |
-|------|-----------|-----|
-| `og-image-default.png` | 1200x630 | Default Open Graph / link preview |
-| `og-image-pillars.png` | 1200x630 | Variant showing all 6 pillars |
-| `twitter-banner.png` | 1500x500 | X/Twitter profile banner |
-| `linkedin-banner.png` | 1584x396 | LinkedIn cover |
-| `instagram-profile.png` | 320x320 | Instagram profile picture |
-| `social-avatar-circle.png` | 500x500 | Circular crop-safe avatar for all platforms |
-
-### 5. Brand Pattern / Background Assets (Priority: LOW)
-
-The site uses custom SVG pattern components. Export some as standalone files:
-
-| File | Format | Details |
-|------|--------|---------|
-| `brand-pattern-topographic.svg` | SVG | From `TopographicBackground` component |
-| `brand-pattern-ripple.svg` | SVG | From `RippleBloom` component |
-| `brand-pattern-terrain.svg` | SVG | From `MicroterrainRidge` component |
-
-### 6. Downloadable Bundle (Priority: HIGH)
-
-| File | Contents |
-|------|---------|
-| `liberture-media-kit.zip` | All logos, wordmarks, lockups, color palette file, and brand guidelines PDF |
+> Liberture is a free, open-access platform for human optimization. Built around six core pillars — Cognition, Recovery, Fueling, Mental, Physicality, and Finance — Liberture provides science-backed protocols, a curated directory of experts and organizations, and a growing knowledge base. Founded by Leon Acosta (CEO), Fabricio Acosta (CTO), and Robert Claw (AI Architect), Liberture is committed to radical self-ownership, evidence-first health optimization, and open access for all.
 
 ---
 
-## Page Improvements
+## 2. Logo System
 
-### Section: Downloads Must Actually Work
+### 2a. Logo Mark (Icon)
 
-The current "Download SVG Component" and "Download PNG" buttons are non-functional. Wire them up to serve real files from `/public/media-kit/`.
+The primary logo is a **hexagonal arrangement of 6 colored dots**, each representing a pillar. It uses a **glow effect** (`feGaussianBlur` filter) for a neon feel.
 
-### Section: Add a "Wordmark & Lockups" Section
+**Construction:**
+- 6 circles positioned using hexagon math: `(cx ± 0.5r, cy ± 0.866r)` for top/bottom pairs, `(cx ± r, cy)` for left/right
+- Each dot uses a pillar color (see Color section below)
+- Glow filter: `feGaussianBlur` with `stdDeviation` proportional to dot radius (~50% of dot size)
+- Dot radius = 8% of canvas size
+- Hex radius (distance from center to dot center) = 30% of canvas size
+- Corner radius for background variants = 18.75% of canvas size
 
-Add between the Logo and Colors sections:
-- Show horizontal lockup (mark + text)
-- Show vertical lockup (mark over text)
-- Show wordmark alone
-- White and gradient variants
-- Download buttons for each
+**Variants created:**
 
-### Section: Add "One-Click Download All" Button
+| Variant | File | Size | Background |
+|---------|------|------|------------|
+| Static (transparent) | `logos/liberture-logo-static.svg` | 512x512 | None (transparent) |
+| Dark background | `logos/liberture-logo-dark-bg.svg` | 512x512 | `#0a0a0a` rounded rect |
+| App icon (no glow) | `icons/liberture-icon-512.svg` | 512x512 | `#0a0a0a` rounded rect, no glow filter |
 
-At the top of the page, add a prominent button to download `liberture-media-kit.zip` with everything bundled.
+**Key difference:** The app icon variant omits the glow filter for crispness at small sizes. The logo versions include glow for the signature neon look.
 
-### Section: Add "Tagline & Boilerplate" Copy
+### 2b. Wordmark
 
-Add a section with ready-to-copy text blocks:
+The brand name set in **Inter Bold 36px**, paired with the small hexagonal logo mark on the left.
 
-- **Short tagline:** "Master your biology. Unlock your potential."
-- **One-liner:** "Liberture is the Biological Operating System — a unified platform for evidence-based human optimization."
-- **Boilerplate (press):**
-  > Liberture is a free, open-access platform for human optimization. Built around six core pillars — Cognition, Recovery, Fueling, Mental, Physicality, and Finance — Liberture provides science-backed protocols, a curated directory of experts and organizations, and a growing knowledge base. Founded by Leon Acosta (CEO), Fabricio Acosta (CTO), and Robert Claw (AI Architect), Liberture is committed to radical self-ownership and evidence-first health optimization.
+| Variant | File | Size | Text Fill |
+|---------|------|------|-----------|
+| White | `wordmarks/liberture-wordmark-white.svg` | 400x80 | `#ffffff` |
+| Gradient | `wordmarks/liberture-wordmark-gradient.svg` | 400x80 | Linear gradient: `#8B5CF6` → `#06B6D4` → `#10B981` |
 
-- **Founder bios** (short, 1-2 sentences each)
+**Structure:** Small hex logo (dot radius 4px, hex radius 16px) at left, text at x=62 with Inter Bold.
 
-Each block should have a copy-to-clipboard button, same pattern as the color swatches.
+### 2c. Lockups (Logo + Wordmark)
 
-### Section: Add "Founder Photos"
+| Variant | File | Size | Layout |
+|---------|------|------|--------|
+| Horizontal | `lockups/liberture-lockup-horizontal.svg` | 460x100 | Logo left, name + descriptor right |
+| Vertical | `lockups/liberture-lockup-vertical.svg` | 240x220 | Logo top, name + descriptor below |
 
-Press outlets will need headshots. Prepare:
+Both include the descriptor text "Your Biological Operating System" in `#999999` at a smaller size (10-12px).
 
-| File | Person | Specs |
-|------|--------|-------|
-| `leon-acosta-headshot.jpg` | Leon Acosta | 800x800, neutral background |
-| `leon-acosta-headshot-wide.jpg` | Leon Acosta | 1200x800, for article headers |
-| `fabricio-acosta-headshot.jpg` | Fabricio Acosta | 800x800, neutral background |
-| `fabricio-acosta-headshot-wide.jpg` | Fabricio Acosta | 1200x800, for article headers |
-| `robert-claw-headshot.jpg` | Robert Claw | 800x800, neutral background |
-| `robert-claw-headshot-wide.jpg` | Robert Claw | 1200x800, for article headers |
-| `founders-group.jpg` | All three | 1600x900, team shot |
+### 2d. Animated Logo (React component only)
 
-### Section: Add "Product Screenshots"
-
-Press and partners need to see the product. Prepare:
-
-| File | Description |
-|------|------------|
-| `screenshot-homepage.png` | Full landing page hero (1440x900) |
-| `screenshot-pillars.png` | The 6 pillars overview (1440x900) |
-| `screenshot-knowledge.png` | Knowledge base article view (1440x900) |
-| `screenshot-directory.png` | People/Organizations directory (1440x900) |
-| `screenshot-marketplace.png` | Marketplace protocols (1440x900) |
-| `screenshot-mobile-home.png` | Mobile view of homepage (390x844) |
-| `screenshot-mobile-pillar.png` | Mobile view of a pillar page (390x844) |
-
-Display these in a gallery grid on the media kit page with individual download buttons.
-
-### Section: Add "Color Palette File"
-
-Provide downloadable palette files for designers:
-
-| File | Format | Use |
-|------|--------|-----|
-| `liberture-colors.ase` | Adobe Swatch Exchange | Photoshop, Illustrator |
-| `liberture-colors.clr` | macOS Color Palette | macOS apps |
-| `liberture-colors.sketchpalette` | Sketch Palette | Sketch |
-| `liberture.tokens.json` | Design Tokens | Figma, Style Dictionary |
-
-### Section: Improve "Typography" Section
-
-- Add a type specimen showing heading hierarchy (H1–H6 at actual sizes)
-- Link to [Google Fonts — Inter](https://fonts.google.com/specimen/Inter) for download
-- Show example body text paragraph at actual size/weight
-- Note the monospace font used for code/data (if any)
-
-### Section: Add "Icon Library" Preview
-
-Show the Lucide icons commonly used across the platform, with their names, for visual consistency in partner materials.
-
-### Section: Add "Co-Branding Guidelines"
-
-- How partners should combine their logo with Liberture's
-- Minimum clearance/spacing rules
-- Acceptable and unacceptable combinations
-- Light/dark background requirements
-- Size relationship rules
+The animated version is a **React component** (`<LibertureLogo animate={true} />`), not a static file. It uses CSS animations to orbit the dots. This is web-only and not exported as a downloadable asset.
 
 ---
 
-## Suggested File Structure
+## 3. Color Palette
+
+### Pillar Colors (Primary Accent Colors)
+
+Each pillar has a signature color. These are the most important brand colors:
+
+| Pillar | Hex | RGB | Tailwind-style Name |
+|--------|-----|-----|---------------------|
+| Cognition | `#8B5CF6` | 139, 92, 246 | Purple/Violet |
+| Recovery | `#06B6D4` | 6, 182, 212 | Cyan |
+| Fueling | `#10B981` | 16, 185, 129 | Emerald/Green |
+| Mental | `#EC4899` | 236, 72, 153 | Pink |
+| Physicality | `#F59E0B` | 245, 158, 11 | Amber/Orange |
+| Finance | `#EAB308` | 234, 179, 8 | Yellow |
+
+### Brand Colors (UI/Surface Colors)
+
+| Name | Hex | RGB | Usage |
+|------|-----|-----|-------|
+| Background | `#0a0a0a` | 10, 10, 10 | Main page background |
+| Card | `#0f0f0f` | 15, 15, 15 | Card/section backgrounds |
+| Border | `#1a1a1a` | 26, 26, 26 | Borders and dividers |
+| Text Primary | `#ffffff` | 255, 255, 255 | Main text |
+| Text Muted | `#999999` | 153, 153, 153 | Secondary/caption text |
+
+### Brand Gradient
+
+Used in the wordmark and page headings:
+```css
+background: linear-gradient(to right, #8B5CF6, #06B6D4, #10B981);
+/* Tailwind: bg-gradient-to-r from-primary via-cyan-400 to-green-400 */
+```
+
+### Design Tokens File
+
+All colors, typography, and brand data exported as a JSON design tokens file following the [Design Tokens Community Group format](https://design-tokens.github.io/community-group/format/):
+
+**File:** `liberture-design-tokens.json`
+
+```json
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "brand": {
+    "name": "Liberture",
+    "tagline": "Master your biology. Unlock your potential.",
+    "description": "Your Biological Operating System"
+  },
+  "colors": { ... },
+  "pillar-colors": { ... },
+  "typography": {
+    "font-family": { "value": "Inter, system-ui, -apple-system, sans-serif" },
+    "weights": { "regular": 400, "medium": 500, "semibold": 600, "bold": 700 }
+  }
+}
+```
+
+---
+
+## 4. Typography
+
+| Property | Value |
+|----------|-------|
+| Primary Font | **Inter** (Google Fonts) |
+| Fallback Stack | `Inter, system-ui, -apple-system, sans-serif` |
+| Mono Font | **Geist Mono** (for code/data) |
+| Weights Used | 400 Regular, 500 Medium, 600 Semibold, 700 Bold |
+
+**Type Scale (displayed on media kit page):**
+- H1: `text-5xl` / 3rem Bold
+- H2: `text-4xl` / 2.25rem Bold
+- H3: `text-3xl` / 1.875rem Bold
+- H4: `text-2xl` / 1.5rem Semibold
+- H5: `text-xl` / 1.25rem Semibold
+- H6: `text-lg` / 1.125rem Medium
+- Body: `text-base` / 1rem Regular
+- Caption: `text-sm` / 0.875rem Muted color
+
+---
+
+## 5. Pillar Icons
+
+Individual 256x256 SVG icons for each pillar category. Each icon has:
+- An outer circle (stroke only, `opacity="0.2"`, `r=80`)
+- An inner filled circle (`r=32`) with glow filter
+- A white icon path drawn on top (brain, heart, leaf, zap, dumbbell, wallet)
+- All in the pillar's signature color
+
+**Files:** `pillars/{pillar-name}.svg` (cognition, recovery, fueling, mental, physicality, finance)
+
+**Also:** `pillars/liberture-pillars-overview.svg` — A 1200x320 banner showing all 6 pillars side by side with a purple gradient background.
+
+---
+
+## 6. Social Media Banners
+
+Generated dynamically via SVG with this structure:
+- Dark gradient background (`#0f172a` → `#581c87` → `#0f172a`)
+- Decorative blurred orbs (purple, cyan, green at low opacity)
+- Hexagonal logo mark on the left
+- Brand name, descriptor, and tagline as text on the right
+- Font sizes scale proportionally to banner height
+
+**Banner sizes generated:**
+
+| Platform | Width | Height | Aspect |
+|----------|-------|--------|--------|
+| Open Graph | 1200 | 630 | ~1.9:1 |
+| Twitter/X Banner | 1500 | 500 | 3:1 |
+| LinkedIn Banner | 1584 | 396 | 4:1 |
+| Instagram Post | 1080 | 1080 | 1:1 |
+| YouTube Banner | 2560 | 1440 | ~1.78:1 |
+| Facebook Cover | 820 | 312 | ~2.6:1 |
+| Pinterest Pin | 1000 | 1500 | 2:3 |
+| Discord Banner | 960 | 540 | ~1.78:1 |
+
+---
+
+## 7. App Icons (Favicon / PWA)
+
+Generated at multiple sizes from the same logo mark, with dark background and rounded corners. **No glow filter** at small sizes for clarity.
+
+| Size | Use |
+|------|-----|
+| 16px | Browser favicon (tiny tab icon) |
+| 32px | Browser favicon (standard) |
+| 48px | Windows taskbar |
+| 64px | Desktop shortcut |
+| 128px | Chrome Web Store |
+| 192px | PWA manifest (`"purpose": "any"` + `"maskable"`) |
+| 512px | PWA manifest / app stores |
+| 1024px | High-res app icon |
+
+**PWA Manifest references:**
+```json
+{
+  "icons": [
+    { "src": "/favicon.ico", "sizes": "32x32", "type": "image/x-icon" },
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/apple-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
+  ]
+}
+```
+
+**Next.js icon files:**
+- `app/icon.png` — Auto-used as favicon (512x512, converted from SVG via `rsvg-convert`)
+- `app/apple-icon.png` — Auto-used as Apple touch icon (180x180)
+
+---
+
+## 8. File Structure
 
 ```
 public/
   media-kit/
     logos/
-      liberture-logo-animated.svg
-      liberture-logo-static.svg
-      liberture-logo-static.png
-      liberture-logo-static@2x.png
-      liberture-logo-dark-bg.png
-      liberture-logo-light-bg.png
+      liberture-logo-static.svg          # Transparent bg, with glow
+      liberture-logo-dark-bg.svg         # #0a0a0a bg, with glow
     wordmarks/
-      liberture-wordmark-white.svg
-      liberture-wordmark-white.png
-      liberture-wordmark-gradient.svg
-      liberture-wordmark-gradient.png
+      liberture-wordmark-white.svg       # White text + small hex mark
+      liberture-wordmark-gradient.svg    # Gradient text + small hex mark
     lockups/
-      liberture-lockup-horizontal.svg
-      liberture-lockup-horizontal.png
-      liberture-lockup-vertical.svg
-      liberture-lockup-vertical.png
+      liberture-lockup-horizontal.svg    # Logo + name + descriptor side-by-side
+      liberture-lockup-vertical.svg      # Logo above name + descriptor
+    icons/
+      liberture-icon-512.svg             # App icon (no glow, dark bg)
     pillars/
-      cognition.svg
-      cognition.png
+      cognition.svg                      # Individual pillar icons (256x256)
       recovery.svg
-      recovery.png
       fueling.svg
-      fueling.png
       mental.svg
-      mental.png
       physicality.svg
-      physicality.png
       finance.svg
-      finance.png
-    social/
-      og-image-default.png
-      og-image-pillars.png
-      twitter-banner.png
-      linkedin-banner.png
-      instagram-profile.png
-      social-avatar-circle.png
-    founders/
-      leon-acosta-headshot.jpg
-      leon-acosta-headshot-wide.jpg
-      fabricio-acosta-headshot.jpg
-      fabricio-acosta-headshot-wide.jpg
-      robert-claw-headshot.jpg
-      robert-claw-headshot-wide.jpg
-      founders-group.jpg
-    screenshots/
-      screenshot-homepage.png
-      screenshot-pillars.png
-      screenshot-knowledge.png
-      screenshot-directory.png
-      screenshot-marketplace.png
-      screenshot-mobile-home.png
-      screenshot-mobile-pillar.png
-    palettes/
-      liberture-colors.ase
-      liberture-colors.clr
-      liberture.tokens.json
-    patterns/
-      brand-pattern-topographic.svg
-      brand-pattern-ripple.svg
-      brand-pattern-terrain.svg
-    liberture-media-kit.zip
+      liberture-pillars-overview.svg     # All 6 pillars banner (1200x320)
+    liberture-design-tokens.json         # Design tokens (colors, typography, brand)
+
+app/
+  icon.png                               # Next.js auto-favicon (512x512)
+  apple-icon.png                         # Next.js auto Apple touch icon (180x180)
+
+public/
+  icons/
+    icon-192.png                         # PWA icon
+    icon-512.png                         # PWA icon
+    apple-icon.png                       # PWA Apple icon
+    icon.svg                             # SVG version
+  favicon.ico                            # Classic favicon (32x32)
+  manifest.json                          # PWA manifest referencing all icons
 ```
 
 ---
 
-## Implementation Order
+## 9. Media Kit Page Architecture
 
-1. **Create `/public/media-kit/` directory structure** — organize folders
-2. **Export logos as real files** — convert the SVG component to standalone SVG/PNG exports
-3. **Design wordmarks and lockups** — these don't exist yet, design them in Figma/Illustrator
-4. **Take founder headshots** — professional photos, consistent style
-5. **Capture product screenshots** — at exact dimensions listed above
-6. **Wire download buttons** — make every button on the page serve a real file
-7. **Add missing page sections** — boilerplate copy, wordmarks, screenshots, founders
-8. **Create the ZIP bundle** — script to auto-generate `liberture-media-kit.zip` from the folder
-9. **Add social templates** — design OG images and platform banners
-10. **Create palette files** — export color values in designer-friendly formats
-11. **Add pillar icons** — design a simple icon set for the 6 pillars
-12. **Polish** — co-branding guidelines, type specimens, pattern exports
+**File:** `app/(site)/media-kit/page.tsx` (client component)
+
+### Page Sections (in order)
+
+1. **Header** — Title with gradient text, subtitle, "Download All SVG" + "Download All PNG" bulk buttons
+2. **Logo** — Animated preview, static preview, size grid (32-512px), usage DO/DON'T guidelines
+3. **Wordmark & Lockups** — White/gradient wordmarks, horizontal/vertical lockups with SVG+PNG downloads
+4. **Social Banners** — 8 platform-specific banners with live previews and download buttons
+5. **App Icons** — Grid of 8 sizes (16-1024px), click to download PNG
+6. **Pillars Overview** — Full-width banner of all 6 pillars
+7. **Pillar Icons** — Individual cards for each pillar with icon preview, color code, SVG+PNG downloads
+8. **Static Assets & Tokens** — Grid of all downloadable files (SVGs + design tokens JSON)
+9. **Pillar Colors** — Color swatches with copy-to-clipboard (hex + rgb)
+10. **Brand Colors** — UI color swatches with copy-to-clipboard
+11. **Typography** — Font specimen, weight showcase, type scale H1-caption, Google Fonts link
+12. **Boilerplate & Taglines** — Tagline, one-liner, press boilerplate with copy-to-clipboard
+13. **CTA** — "Need More Assets?" with contact link
+
+### Key Technical Patterns
+
+**SVG Generation (client-side):**
+All SVGs are generated via JavaScript functions, not served as static files for the page. This means every preview and download is dynamically created in the browser. Static SVG files in `/public/media-kit/` are pre-built for direct linking.
+
+**Download Helpers:**
+- `downloadSVG(svgString, filename)` — Creates a Blob, generates object URL, triggers `<a>` click
+- `downloadPNG(svgString, filename, w, h, scale=2)` — Renders SVG to a `<canvas>` at 2x retina, exports as PNG blob
+- `downloadStaticSVGAsPNG(svgUrl, filename, w, h)` — Fetches a static SVG file, then uses `downloadPNG`
+
+**Copy-to-Clipboard:**
+```tsx
+navigator.clipboard.writeText(text)
+// Shows a check icon for 2s, then reverts to copy icon
+```
+
+**Responsive SVG Previews:**
+For banners, the SVG `width/height` attributes are replaced with `width="100%" height="100%" preserveAspectRatio="xMidYMid meet"` and the container uses CSS `aspect-ratio` to maintain proportions.
 
 ---
 
-## Notes
+## 10. Usage Guidelines
 
-- All PNGs should be exported at 2x resolution minimum for Retina displays
-- Include both dark-background and light-background variants for logos/lockups
-- The ZIP bundle should be regenerated with a build script whenever assets change
-- Consider adding a Figma community file link with all assets as an alternative to downloads
-- The current OG image (`/public/og-image.png` at 47KB) is very small — replace with a higher quality version
+### DO
+- Use the logo on dark backgrounds (`#0a0a0a` or darker)
+- Maintain minimum spacing around the logo (equal to one dot's height)
+- Use the static version for print materials
+- Use the "with background" version for light surfaces
+
+### DON'T
+- Change the colors of individual dots
+- Distort or skew the logo proportions
+- Place on light backgrounds without the dark background version
+- Add drop shadows or effects beyond the built-in glow
+
+---
+
+## 11. How to Recreate This for Your Own Site
+
+### Step-by-step
+
+1. **Define your brand** — Name, tagline, one-liner, press boilerplate, color palette, typography
+2. **Design your logo** — Create SVG versions (transparent bg, dark bg, app icon without effects)
+3. **Create wordmarks** — Logo mark + brand name in your font (white + gradient variants)
+4. **Create lockups** — Horizontal (side-by-side) and vertical (stacked) combinations
+5. **Define your categories** — If you have categories/pillars, assign colors and icons
+6. **Export design tokens** — JSON file with all colors, fonts, and brand metadata
+7. **Generate app icons** — Use `rsvg-convert` or similar to create PNG versions at all needed sizes:
+   ```bash
+   rsvg-convert -w 512 -h 512 logo.svg -o icon-512.png
+   rsvg-convert -w 192 -h 192 logo.svg -o icon-192.png
+   rsvg-convert -w 180 -h 180 logo.svg -o apple-icon.png
+   rsvg-convert -w 32 -h 32 logo.svg -o favicon.png
+   ```
+8. **Set up PWA manifest** — Reference all icon sizes
+9. **Build the media kit page** — Use the section structure above as a template
+10. **Wire up downloads** — Client-side SVG→Blob→download for SVG, SVG→Canvas→PNG for raster
+
+### Tools Used
+- **SVG creation:** Hand-coded SVG with `<circle>`, `<text>`, `<filter>` elements
+- **PNG conversion:** `rsvg-convert` (from librsvg, install via `brew install librsvg`)
+- **Client-side PNG export:** HTML Canvas API (`canvas.toBlob('image/png')`)
+- **Framework:** Next.js 16 with `app/icon.png` convention for auto-favicon
+- **Fonts:** Google Fonts (Inter) loaded via `next/font/google`
+- **Icons:** Lucide React icon library for UI icons
+
+---
+
+## 12. Still TODO (Not Yet Created)
+
+These items from the original plan are not yet implemented:
+
+- [ ] Founder headshots (need professional photos)
+- [ ] Product screenshots (need to capture at exact dimensions)
+- [ ] Social media templates as pre-built images (currently SVG-only)
+- [ ] Designer palette files (.ase, .clr, .sketchpalette)
+- [ ] ZIP bundle of all assets (`liberture-media-kit.zip`)
+- [ ] Animated logo exported as standalone SVG with embedded CSS
+- [ ] Co-branding guidelines section
+- [ ] PNG versions of logos in `/public/media-kit/` (currently SVG-only, PNGs are generated client-side)

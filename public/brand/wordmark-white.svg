@@ -1,0 +1,16 @@
+<svg width="400" height="80" viewBox="0 0 400 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="wm-glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Hexagonal logo mark -->
+  <circle cx="22" cy="26.14" r="4" fill="#8B5CF6" filter="url(#wm-glow)"/>
+  <circle cx="38" cy="26.14" r="4" fill="#06B6D4" filter="url(#wm-glow)"/>
+  <circle cx="46" cy="40.00" r="4" fill="#10B981" filter="url(#wm-glow)"/>
+  <circle cx="38" cy="53.86" r="4" fill="#EC4899" filter="url(#wm-glow)"/>
+  <circle cx="22" cy="53.86" r="4" fill="#F59E0B" filter="url(#wm-glow)"/>
+  <circle cx="14" cy="40.00" r="4" fill="#EAB308" filter="url(#wm-glow)"/>
+  <text x="62" y="50" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="36" font-weight="700" fill="#ffffff">Liberture</text>
+</svg>
