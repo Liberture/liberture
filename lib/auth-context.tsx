@@ -2,18 +2,21 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 import { useRouter } from "next/navigation"
+import "@/types/nostr"
 
 interface User {
   id: string
   email: string
   name: string
   bosLevel: number
+  nostrPubkey?: string
 }
 
 interface AuthContextType {
   user: User | null
   loading: boolean
   login: (email: string, password: string) => Promise<void>
+  loginWithNostr: () => Promise<void>
   register: (email: string, password: string, name: string) => Promise<void>
   logout: () => Promise<void>
 }
@@ -61,6 +64,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push('/dashboard')
   }
 
+  const loginWithNostr = async () => {
+    if (!window.nostr) {
+      throw new Error('No Nostr extension detected. Please install Alby or nos2x.')
+    }
+
+    // Step 1: Get challenge from server
+    const challengeRes = await fetch('/api/auth/nostr')
+    if (!challengeRes.ok) throw new Error('Failed to get challenge')
+    const { challenge } = await challengeRes.json()
+
+    // Step 2: Get public key from extension
+    const pubkey = await window.nostr.getPublicKey()
+
+    // Step 3: Sign challenge event (NIP-42 kind 22242)
+    const unsignedEvent = {
+      kind: 22242,
+      created_at: Math.floor(Date.now() / 1000),
+      tags: [],
+      content: challenge,
+    }
+
+    const signedEvent = await window.nostr.signEvent(unsignedEvent)
+
+    // Step 4: Send signed event to server for verification
+    const authRes = await fetch('/api/auth/nostr', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ signedEvent }),
+    })
+
+    if (!authRes.ok) {
+      const error = await authRes.json()
+      throw new Error(error.error || 'Nostr login failed')
+    }
+
+    const data = await authRes.json()
+    setUser(data.user)
+    router.push('/dashboard')
+  }
+
   const register = async (email: string, password: string, name: string) => {
     const response = await fetch('/api/auth/register', {
       method: 'POST',
@@ -85,7 +128,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, loginWithNostr, register, logout }}>
       {children}
     </AuthContext.Provider>
   )

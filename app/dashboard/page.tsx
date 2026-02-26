@@ -7,16 +7,16 @@ import { TopographicBackground } from "@/components/patterns/topographic-backgro
 import { Dashboard } from "./dashboard"
 
 function DashboardContent() {
-  const { user, isLoading } = useAuth()
+  const { user, loading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!loading && !user) {
       router.push("/login")
     }
-  }, [user, isLoading, router])
+  }, [user, loading, router])
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen topo-pattern flex items-center justify-center">
         <TopographicBackground />
