@@ -18,17 +18,23 @@ export default async function ProtocolsPage({
   const currentPage = parseInt(params.page || "1", 10);
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
 
-  const [protocols, totalCount] = await Promise.all([
-    prisma.protocol.findMany({
-      orderBy: [
-        { featured: 'desc' },
-        { name: 'asc' }
-      ],
-      take: ITEMS_PER_PAGE,
-      skip,
-    }),
-    prisma.protocol.count(),
-  ]);
+  let protocols: Awaited<ReturnType<typeof prisma.protocol.findMany>> = [];
+  let totalCount = 0;
+  try {
+    [protocols, totalCount] = await Promise.all([
+      prisma.protocol.findMany({
+        orderBy: [
+          { featured: 'desc' },
+          { name: 'asc' }
+        ],
+        take: ITEMS_PER_PAGE,
+        skip,
+      }),
+      prisma.protocol.count(),
+    ]);
+  } catch {
+    // Database unavailable — render empty state
+  }
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
   const hasNextPage = currentPage < totalPages;

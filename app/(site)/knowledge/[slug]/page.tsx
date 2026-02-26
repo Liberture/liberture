@@ -14,21 +14,26 @@ interface PageProps {
 export default async function KnowledgeArticlePage({ params }: PageProps) {
   const { slug } = await params
 
-  const article = await prisma.knowledgeArticle.findUnique({
-    where: { slug },
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      content: true,
-      tags: true,
-      author: true,
-      readTime: true,
-      url: true,
-      publishedAt: true,
-      pillar: true,
-    },
-  })
+  let article: Awaited<ReturnType<typeof prisma.knowledgeArticle.findUnique<{ where: { slug: string }; select: { id: true; title: true; description: true; content: true; tags: true; author: true; readTime: true; url: true; publishedAt: true; pillar: true } }>>> = null
+  try {
+    article = await prisma.knowledgeArticle.findUnique({
+      where: { slug },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        content: true,
+        tags: true,
+        author: true,
+        readTime: true,
+        url: true,
+        publishedAt: true,
+        pillar: true,
+      },
+    })
+  } catch {
+    // Database unavailable
+  }
 
   if (!article) {
     notFound()
