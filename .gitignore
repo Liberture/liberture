@@ -55,3 +55,7 @@ pids
 *.swp
 
 /lib/generated/prisma
+
+# sqlite
+prisma/dev.db
+prisma/dev.db-journal
