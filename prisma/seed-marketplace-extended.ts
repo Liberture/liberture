@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { randomUUID } from 'crypto'
 
 const prisma = new PrismaClient()
 
@@ -384,9 +385,13 @@ async function main() {
   console.log('🌱 Adding new marketplace items...')
 
   for (const item of newMarketplaceItems) {
-    await prisma.marketplaceItem.create({
-      data: item,
-    })
+    const slug = item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+    const existing = await prisma.marketplaceItem.findUnique({ where: { slug } })
+    if (!existing) {
+      await prisma.marketplaceItem.create({
+        data: { ...item, id: randomUUID(), slug, updatedAt: new Date() },
+      })
+    }
   }
 
   console.log(`✅ Created ${newMarketplaceItems.length} new marketplace items`)

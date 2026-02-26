@@ -26,42 +26,55 @@ async function main() {
 
   // Seed Knowledge Articles
   console.log('📚 Seeding knowledge articles...')
-  for (const article of knowledgeData.articles || []) {
-    await prisma.knowledgeArticle.create({
-      data: {
-        id: article.id?.toString() || undefined,
-        title: article.title,
-        description: article.description,
-        pillar: article.pillar,
-        tags: JSON.stringify(article.tags || []),
-        author: article.author,
-        readTime: article.readTime,
-        url: article.url,
-        publishedAt: new Date(article.publishedAt),
-      },
-    })
+  const articles = knowledgeData.articles || []
+  for (const article of articles) {
+    const slug = article.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+    const existing = await prisma.knowledgeArticle.findUnique({ where: { slug } })
+    if (!existing) {
+      await prisma.knowledgeArticle.create({
+        data: {
+          id: article.id?.toString() || undefined,
+          title: article.title,
+          slug,
+          description: article.description,
+          pillar: article.pillar,
+          tags: JSON.stringify(article.tags || []),
+          author: article.author,
+          readTime: article.readTime,
+          url: article.url,
+          publishedAt: new Date(article.publishedAt),
+          updatedAt: new Date(),
+        },
+      })
+    }
   }
-  console.log(`✅ Created ${knowledgeData.articles?.length || 0} knowledge articles`)
+  console.log(`✅ Created ${articles.length} knowledge articles`)
 
   // Seed Marketplace Items
   console.log('🛒 Seeding marketplace items...')
   for (const item of marketplaceData || []) {
-    await prisma.marketplaceItem.create({
-      data: {
-        id: item.id?.toString() || undefined,
-        title: item.title,
-        description: item.description,
-        pillar: item.pillar,
-        type: item.type,
-        author: item.author,
-        rating: item.rating,
-        reviews: item.reviews,
-        price: item.price,
-        duration: item.duration,
-        color: item.color,
-        iconColor: item.iconColor,
-      },
-    })
+    const slug = item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+    const existing = await prisma.marketplaceItem.findUnique({ where: { slug } })
+    if (!existing) {
+      await prisma.marketplaceItem.create({
+        data: {
+          id: item.id?.toString() || undefined,
+          title: item.title,
+          slug,
+          description: item.description,
+          pillar: item.pillar,
+          type: item.type,
+          author: item.author,
+          rating: item.rating,
+          reviews: item.reviews,
+          price: item.price,
+          duration: item.duration,
+          color: item.color,
+          iconColor: item.iconColor,
+          updatedAt: new Date(),
+        },
+      })
+    }
   }
   console.log(`✅ Created ${marketplaceData.length} marketplace items`)
 
@@ -92,6 +105,7 @@ async function main() {
         socialLinks: JSON.stringify(content.socialLinks || {}),
         updates: JSON.stringify(content.updates || []),
         relatedContent: JSON.stringify(content.relatedContent || []),
+        updatedAt: new Date(),
       },
     })
   }
@@ -109,6 +123,7 @@ async function main() {
         content: post.content,
         likes: post.likes || 0,
         comments: post.comments || 0,
+        updatedAt: new Date(),
       },
     })
   }
@@ -127,6 +142,7 @@ async function main() {
         comment: comment.content || comment.comment || '',
         helpful: comment.upvotes || comment.helpful || 0,
         replies: comment.replies || 0,
+        updatedAt: new Date(),
       },
     })
   }

@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { randomUUID } from 'crypto'
 
 const prisma = new PrismaClient()
 
@@ -200,12 +201,19 @@ async function main() {
   console.log('🌱 Seeding knowledge articles...')
 
   for (const article of knowledgeArticles) {
-    await prisma.knowledgeArticle.create({
-      data: {
-        ...article,
-        tags: JSON.stringify(article.tags),
-      },
-    })
+    const slug = article.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+    const existing = await prisma.knowledgeArticle.findUnique({ where: { slug } })
+    if (!existing) {
+      await prisma.knowledgeArticle.create({
+        data: {
+          ...article,
+          id: randomUUID(),
+          slug,
+          tags: JSON.stringify(article.tags),
+          updatedAt: new Date(),
+        },
+      })
+    }
   }
 
   console.log(`✅ Created ${knowledgeArticles.length} knowledge articles`)
