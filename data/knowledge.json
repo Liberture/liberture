@@ -26,7 +26,25 @@
         "FIRE",
         "Index Funds",
         "Tax Optimization",
-        "Compound Interest"
+        "Compound Interest",
+        "Flow State",
+        "Dopamine",
+        "Circadian Rhythm",
+        "Sauna",
+        "Breathwork",
+        "Hormesis",
+        "Autophagy",
+        "Neuroplasticity",
+        "VO2 Max",
+        "Zone 2",
+        "Mobility",
+        "Resilience",
+        "Behavioral Finance",
+        "Psychedelics",
+        "Trauma",
+        "Habits",
+        "Protein",
+        "Omega-3"
     ],
     "knowledgeVerticals": [
         {
@@ -160,6 +178,62 @@
             "image": "https://images.unsplash.com/photo-1508387028171-0bd9d7ae2a55?auto=format&fit=crop&w=900&q=80&sat=-10",
             "vertical": "longevity",
             "type": "tools"
+        },
+        {
+            "id": "fasting-guide",
+            "title": "Complete Fasting Protocols",
+            "blurb": "From 16:8 to extended fasts — evidence-based frameworks for metabolic health.",
+            "image": "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=900&q=80&sat=-10",
+            "vertical": "nutrition",
+            "type": "articles"
+        },
+        {
+            "id": "cold-exposure",
+            "title": "Cold Exposure Masterclass",
+            "blurb": "Deliberate cold exposure protocols for dopamine, recovery, and mental toughness.",
+            "image": "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=900&q=80&sat=-10",
+            "vertical": "longevity",
+            "type": "videos"
+        },
+        {
+            "id": "meditation-toolkit",
+            "title": "Science of Meditation Toolkit",
+            "blurb": "Neuroscience-backed meditation practices for stress, focus, and emotional regulation.",
+            "image": "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=900&q=80&sat=-10",
+            "vertical": "mental-health",
+            "type": "tools"
+        },
+        {
+            "id": "nmn-guide",
+            "title": "NMN & NAD+ Supplement Guide",
+            "blurb": "Current research on NAD+ precursors and their role in cellular energy and aging.",
+            "image": "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=900&q=80&sat=-10",
+            "vertical": "supplements",
+            "type": "articles"
+        },
+        {
+            "id": "mobility-expert",
+            "title": "Movement & Mobility with Kelly Starrett",
+            "blurb": "Expert-led mobility protocols for injury prevention and optimal movement patterns.",
+            "image": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=900&q=80&sat=-10",
+            "vertical": "exercise",
+            "type": "experts"
+        },
+        {
+            "id": "breathwork-science",
+            "title": "The Science of Breathwork",
+            "blurb": "How nasal breathing, CO2 tolerance, and respiratory protocols optimize performance.",
+            "image": "https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=900&q=80&sat=-10",
+            "vertical": "mental-health",
+            "type": "books"
+        },
+        {
+            "id": "fire-calculator",
+            "title": "FIRE Independence Calculator",
+            "blurb": "Model your path to financial independence with savings rate and investment projections.",
+            "image": "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=900&q=80&sat=-10",
+            "vertical": "nutrition",
+            "type": "tools"
         }
     ],
     "liberture100Books": [
@@ -170,119 +244,218 @@
             "author": "Matthew Walker",
             "pillar": "recovery",
             "influenceScore": 98,
-            "summary": "The definitive guide to sleep science and optimization."
+            "summary": "The definitive guide to sleep science, revealing how sleep deprivation affects every aspect of health, memory, and longevity."
         },
         {
             "id": 2,
             "rank": 2,
-            "title": "Atomic Habits",
-            "author": "James Clear",
-            "pillar": "mental",
+            "title": "Outlive",
+            "author": "Peter Attia",
+            "pillar": "recovery",
             "influenceScore": 97,
-            "summary": "Transform your life through small habit changes."
+            "summary": "A rigorous framework for extending healthspan through proactive Medicine 3.0 strategies."
         },
         {
             "id": 3,
             "rank": 3,
-            "title": "The 4-Hour Body",
-            "author": "Tim Ferriss",
-            "pillar": "physicality",
-            "influenceScore": 96,
-            "summary": "Unconventional methods for rapid body transformation."
+            "title": "Atomic Habits",
+            "author": "James Clear",
+            "pillar": "mental",
+            "influenceScore": 97,
+            "summary": "A practical framework for building lasting habits through small, incremental changes that compound over time."
         },
         {
             "id": 4,
             "rank": 4,
-            "title": "Deep Work",
-            "author": "Cal Newport",
-            "pillar": "cognition",
-            "influenceScore": 95,
-            "summary": "Rules for focused success in a distracted world."
+            "title": "The 4-Hour Body",
+            "author": "Tim Ferriss",
+            "pillar": "physicality",
+            "influenceScore": 96,
+            "summary": "Unconventional self-experimentation protocols for rapid fat loss, strength, and body transformation."
         },
         {
             "id": 5,
             "rank": 5,
-            "title": "The Psychology of Money",
-            "author": "Morgan Housel",
-            "pillar": "finance",
+            "title": "Deep Work",
+            "author": "Cal Newport",
+            "pillar": "cognition",
             "influenceScore": 95,
-            "summary": "Timeless lessons on wealth, greed, and happiness."
+            "summary": "Rules for focused success in a distracted world through deep concentration practices."
         },
         {
             "id": 6,
             "rank": 6,
-            "title": "Lifespan",
-            "author": "David Sinclair",
-            "pillar": "recovery",
-            "influenceScore": 94,
-            "summary": "Why we age and why we don't have to."
+            "title": "The Psychology of Money",
+            "author": "Morgan Housel",
+            "pillar": "finance",
+            "influenceScore": 95,
+            "summary": "Timeless lessons on how behavioral patterns determine financial success more than intelligence."
         },
         {
             "id": 7,
             "rank": 7,
-            "title": "The Obesity Code",
-            "author": "Jason Fung",
-            "pillar": "fueling",
-            "influenceScore": 93,
-            "summary": "Unlocking the secrets of weight loss through fasting."
+            "title": "Lifespan",
+            "author": "David Sinclair",
+            "pillar": "recovery",
+            "influenceScore": 95,
+            "summary": "Harvard geneticist presents the Information Theory of Aging and practical interventions to slow aging."
         },
         {
             "id": 8,
             "rank": 8,
-            "title": "Breath",
-            "author": "James Nestor",
-            "pillar": "recovery",
-            "influenceScore": 92,
-            "summary": "The new science of a lost art."
+            "title": "Rich Dad Poor Dad",
+            "author": "Robert Kiyosaki",
+            "pillar": "finance",
+            "influenceScore": 94,
+            "summary": "The most widely read personal finance book advocating for financial independence through asset-building."
         },
         {
             "id": 9,
             "rank": 9,
-            "title": "Outlive",
-            "author": "Peter Attia",
-            "pillar": "physicality",
-            "influenceScore": 92,
-            "summary": "The science and art of longevity."
+            "title": "Can't Hurt Me",
+            "author": "David Goggins",
+            "pillar": "mental",
+            "influenceScore": 93,
+            "summary": "Navy SEAL reveals the 40% Rule and calloused mind philosophy for operating beyond perceived limits."
         },
         {
             "id": 10,
             "rank": 10,
-            "title": "The Richest Man in Babylon",
-            "author": "George S. Clason",
-            "pillar": "finance",
-            "influenceScore": 91,
-            "summary": "Ancient wisdom for modern wealth building."
+            "title": "The Obesity Code",
+            "author": "Jason Fung",
+            "pillar": "fueling",
+            "influenceScore": 93,
+            "summary": "Dismantles calorie-counting myths to reveal the hormonal root causes of obesity centered on insulin."
         },
         {
             "id": 11,
             "rank": 11,
-            "title": "Limitless",
-            "author": "Jim Kwik",
-            "pillar": "cognition",
-            "influenceScore": 90,
-            "summary": "Upgrade your brain, learn anything faster."
+            "title": "The Body Keeps the Score",
+            "author": "Bessel van der Kolk",
+            "pillar": "mental",
+            "influenceScore": 93,
+            "summary": "Landmark text on how trauma reshapes the brain and body, and how somatic therapies can restore healing."
         },
         {
             "id": 12,
             "rank": 12,
-            "title": "The Wim Hof Method",
-            "author": "Wim Hof",
+            "title": "Breath",
+            "author": "James Nestor",
             "pillar": "recovery",
-            "influenceScore": 89,
-            "summary": "Activate your full human potential through cold and breath."
+            "influenceScore": 92,
+            "summary": "How modern humans lost the ability to breathe correctly and the transformative effects of restoring it."
         },
         {
             "id": 13,
             "rank": 13,
-            "title": "I Will Teach You to Be Rich",
-            "author": "Ramit Sethi",
-            "pillar": "finance",
-            "influenceScore": 89,
-            "summary": "No guilt, no excuses - just a 6-week wealth program."
+            "title": "The Circadian Code",
+            "author": "Satchin Panda",
+            "pillar": "fueling",
+            "influenceScore": 91,
+            "summary": "How aligning eating patterns with your circadian clock dramatically improves metabolic health."
         },
         {
             "id": 14,
             "rank": 14,
+            "title": "The Richest Man in Babylon",
+            "author": "George S. Clason",
+            "pillar": "finance",
+            "influenceScore": 91,
+            "summary": "Ancient Babylonian wisdom applied to modern wealth building and financial principles."
+        },
+        {
+            "id": 15,
+            "rank": 15,
+            "title": "Limitless",
+            "author": "Jim Kwik",
+            "pillar": "cognition",
+            "influenceScore": 90,
+            "summary": "A system for improving mental performance by upgrading mindset, motivation, and learning methods."
+        },
+        {
+            "id": 16,
+            "rank": 16,
+            "title": "The Simple Path to Wealth",
+            "author": "J.L. Collins",
+            "pillar": "finance",
+            "influenceScore": 90,
+            "summary": "A straightforward argument that low-cost index fund investing achieves financial independence for anyone."
+        },
+        {
+            "id": 17,
+            "rank": 17,
+            "title": "Daring Greatly",
+            "author": "Brene Brown",
+            "pillar": "mental",
+            "influenceScore": 90,
+            "summary": "Evidence that vulnerability is the birthplace of innovation, creativity, and authentic human connection."
+        },
+        {
+            "id": 18,
+            "rank": 18,
+            "title": "The Wim Hof Method",
+            "author": "Wim Hof",
+            "pillar": "recovery",
+            "influenceScore": 89,
+            "summary": "Three-pillar system of breathing, cold exposure, and commitment to unlock physical and mental resilience."
+        },
+        {
+            "id": 19,
+            "rank": 19,
+            "title": "I Will Teach You to Be Rich",
+            "author": "Ramit Sethi",
+            "pillar": "finance",
+            "influenceScore": 89,
+            "summary": "No guilt, no excuses — a 6-week program for automating finances and building wealth."
+        },
+        {
+            "id": 20,
+            "rank": 20,
+            "title": "The 4-Hour Workweek",
+            "author": "Tim Ferriss",
+            "pillar": "finance",
+            "influenceScore": 89,
+            "summary": "Manifesto for lifestyle design through automation, outsourcing, and reclaiming time as the ultimate currency."
+        },
+        {
+            "id": 21,
+            "rank": 21,
+            "title": "Power of Now",
+            "author": "Eckhart Tolle",
+            "pillar": "mental",
+            "influenceScore": 89,
+            "summary": "A transformative guide to escaping mental suffering by fully inhabiting the present moment."
+        },
+        {
+            "id": 22,
+            "rank": 22,
+            "title": "Tools of Titans",
+            "author": "Tim Ferriss",
+            "pillar": "cognition",
+            "influenceScore": 88,
+            "summary": "Distilled patterns, habits, and life philosophies from over 200 world-class performers."
+        },
+        {
+            "id": 23,
+            "rank": 23,
+            "title": "Boundless",
+            "author": "Ben Greenfield",
+            "pillar": "physicality",
+            "influenceScore": 88,
+            "summary": "Encyclopedic guide to biohacking every system of the body from fitness to cognition to spirituality."
+        },
+        {
+            "id": 24,
+            "rank": 24,
+            "title": "Think and Grow Rich",
+            "author": "Napoleon Hill",
+            "pillar": "finance",
+            "influenceScore": 88,
+            "summary": "Thirteen actionable principles distilled from studying the mindset of history's most successful individuals."
+        },
+        {
+            "id": 25,
+            "rank": 25,
             "title": "The Mind Illuminated",
             "author": "Culadasa",
             "pillar": "mental",
@@ -290,158 +463,501 @@
             "summary": "Complete meditation guide integrating Buddhist wisdom and brain science."
         },
         {
-            "id": 15,
-            "rank": 15,
+            "id": 26,
+            "rank": 26,
+            "title": "Your Money or Your Life",
+            "author": "Vicki Robin",
+            "pillar": "finance",
+            "influenceScore": 88,
+            "summary": "The foundational FIRE movement text that reframes money as life energy and aligns spending with values."
+        },
+        {
+            "id": 27,
+            "rank": 27,
             "title": "Super Human",
             "author": "Dave Asprey",
             "pillar": "fueling",
             "influenceScore": 87,
-            "summary": "The bulletproof plan to age backward."
+            "summary": "The bulletproof plan to age backward through nutrition and targeted biohacking protocols."
+        },
+        {
+            "id": 28,
+            "rank": 28,
+            "title": "Genius Foods",
+            "author": "Max Lugavere",
+            "pillar": "fueling",
+            "influenceScore": 87,
+            "summary": "Identifies specific foods that optimize brain performance and protect against cognitive decline."
+        },
+        {
+            "id": 29,
+            "rank": 29,
+            "title": "The Complete Guide to Fasting",
+            "author": "Jason Fung & Jimmy Moore",
+            "pillar": "fueling",
+            "influenceScore": 87,
+            "summary": "Comprehensive guide to therapeutic fasting protocols for weight loss and metabolic health."
+        },
+        {
+            "id": 30,
+            "rank": 30,
+            "title": "Dopamine Nation",
+            "author": "Anna Lembke",
+            "pillar": "mental",
+            "influenceScore": 87,
+            "summary": "How pleasure-pain imbalance drives compulsive behavior and a clinical path to reset dopamine circuits."
+        },
+        {
+            "id": 31,
+            "rank": 31,
+            "title": "Spark",
+            "author": "John J. Ratey",
+            "pillar": "physicality",
+            "influenceScore": 86,
+            "summary": "Proves that aerobic exercise is the most powerful tool for optimizing brain function and mood."
+        },
+        {
+            "id": 32,
+            "rank": 32,
+            "title": "Good Calories, Bad Calories",
+            "author": "Gary Taubes",
+            "pillar": "fueling",
+            "influenceScore": 86,
+            "summary": "Meticulous investigation establishing refined carbohydrates as the primary driver of obesity."
+        },
+        {
+            "id": 33,
+            "rank": 33,
+            "title": "Gut",
+            "author": "Giulia Enders",
+            "pillar": "fueling",
+            "influenceScore": 85,
+            "summary": "Witty and scientifically grounded exploration of the gut microbiome and its influence on health."
+        },
+        {
+            "id": 34,
+            "rank": 34,
+            "title": "The Mind-Gut Connection",
+            "author": "Emeran Mayer",
+            "pillar": "fueling",
+            "influenceScore": 85,
+            "summary": "Maps the bidirectional communication between gut and brain governing mood and chronic disease."
+        },
+        {
+            "id": 35,
+            "rank": 35,
+            "title": "Born to Run",
+            "author": "Christopher McDougall",
+            "pillar": "physicality",
+            "influenceScore": 85,
+            "summary": "Journey into the Tarahumara tribe revealing humans are evolutionarily designed for endurance running."
+        },
+        {
+            "id": 36,
+            "rank": 36,
+            "title": "Peak",
+            "author": "Anders Ericsson",
+            "pillar": "cognition",
+            "influenceScore": 85,
+            "summary": "The science behind deliberate practice that separates elite performers from the merely experienced."
+        },
+        {
+            "id": 37,
+            "rank": 37,
+            "title": "Biohackers' Handbook",
+            "author": "Olli Sovijärvi, Teemu Arina & Jaakko Halmetoja",
+            "pillar": "cognition",
+            "influenceScore": 85,
+            "summary": "Comprehensive reference covering sleep, nutrition, exercise, and mind optimization."
+        },
+        {
+            "id": 38,
+            "rank": 38,
+            "title": "Stealing Fire",
+            "author": "Steven Kotler & Jamie Wheal",
+            "pillar": "cognition",
+            "influenceScore": 84,
+            "summary": "How elite performers use altered states of consciousness — from flow to psychedelics — for breakthroughs."
+        },
+        {
+            "id": 39,
+            "rank": 39,
+            "title": "The Willpower Instinct",
+            "author": "Kelly McGonigal",
+            "pillar": "mental",
+            "influenceScore": 84,
+            "summary": "Science-backed guide for strengthening self-control through mindfulness and habit change."
+        },
+        {
+            "id": 40,
+            "rank": 40,
+            "title": "Genius Life",
+            "author": "Max Lugavere",
+            "pillar": "cognition",
+            "influenceScore": 84,
+            "summary": "Lifestyle blueprint connecting diet, movement, light exposure, sleep, and social connection."
+        },
+        {
+            "id": 41,
+            "rank": 41,
+            "title": "Smarter Not Harder",
+            "author": "Dave Asprey",
+            "pillar": "cognition",
+            "influenceScore": 83,
+            "summary": "The laziness principle — achieving maximum results by working with the body's natural systems."
+        },
+        {
+            "id": 42,
+            "rank": 42,
+            "title": "Eat to Beat Disease",
+            "author": "William Li",
+            "pillar": "fueling",
+            "influenceScore": 83,
+            "summary": "Reveals the five defense systems of the body and foods scientifically proven to activate them."
+        },
+        {
+            "id": 43,
+            "rank": 43,
+            "title": "The Rise of Superman",
+            "author": "Steven Kotler",
+            "pillar": "physicality",
+            "influenceScore": 83,
+            "summary": "Maps the neuroscience of peak performance through the lens of extreme sport athletes."
+        },
+        {
+            "id": 44,
+            "rank": 44,
+            "title": "Chatter",
+            "author": "Ethan Kross",
+            "pillar": "mental",
+            "influenceScore": 83,
+            "summary": "Evidence-based tools to transform self-defeating mental chatter into a productive inner coach."
+        },
+        {
+            "id": 45,
+            "rank": 45,
+            "title": "Endure",
+            "author": "Alex Hutchinson",
+            "pillar": "physicality",
+            "influenceScore": 82,
+            "summary": "The science arguing the brain — not the body — is the primary limiting factor in athletic performance."
+        },
+        {
+            "id": 46,
+            "rank": 46,
+            "title": "The Upside of Stress",
+            "author": "Kelly McGonigal",
+            "pillar": "mental",
+            "influenceScore": 82,
+            "summary": "Reframes stress as a biological resource that enhances performance when properly harnessed."
+        },
+        {
+            "id": 47,
+            "rank": 47,
+            "title": "The Longevity Paradox",
+            "author": "Steven Gundry",
+            "pillar": "fueling",
+            "influenceScore": 82,
+            "summary": "Argues gut bacteria and lectins are central to aging, offering a diet-based longevity protocol."
+        },
+        {
+            "id": 48,
+            "rank": 48,
+            "title": "Quit Like a Millionaire",
+            "author": "Kristy Shen & Bryce Leung",
+            "pillar": "finance",
+            "influenceScore": 82,
+            "summary": "A couple who retired at 31 through optimized frugality, index investing, and geographic arbitrage."
+        },
+        {
+            "id": 49,
+            "rank": 49,
+            "title": "The Molecule of More",
+            "author": "Daniel Lieberman & Michael Long",
+            "pillar": "cognition",
+            "influenceScore": 80,
+            "summary": "How dopamine governs desire, ambition, creativity, and addiction by making us want what we don't yet have."
+        },
+        {
+            "id": 50,
+            "rank": 50,
+            "title": "Early Retirement Extreme",
+            "author": "Jacob Lund Fisker",
+            "pillar": "finance",
+            "influenceScore": 80,
+            "summary": "An engineer's approach to radical financial independence through strategic frugality and skill-building."
         }
     ],
     "influencers": [
         {
             "id": 1,
             "name": "Andrew Huberman",
-            "domains": [
-                "cognition",
-                "mental",
-                "recovery"
-            ],
+            "domains": ["cognition", "mental", "recovery", "physicality"],
             "expertise": "Neuroscience & Protocols",
-            "followers": "5.2M",
-            "publications": 12,
+            "followers": "15.4M",
+            "publications": 40,
             "image": "/examples/portraits/andrew-huberman-portrait.jpg"
         },
         {
             "id": 2,
             "name": "Peter Attia",
-            "domains": [
-                "physicality",
-                "fueling",
-                "recovery"
-            ],
-            "expertise": "Longevity & Medicine",
-            "followers": "1.8M",
-            "publications": 8,
+            "domains": ["recovery", "physicality", "fueling"],
+            "expertise": "Longevity & Medicine 3.0",
+            "followers": "3.1M",
+            "publications": 12,
             "image": "/examples/portraits/peter-attia-portrait.jpg"
         },
         {
             "id": 3,
             "name": "Rhonda Patrick",
-            "domains": [
-                "fueling",
-                "recovery"
-            ],
-            "expertise": "Nutrition & Genetics",
-            "followers": "2.1M",
+            "domains": ["fueling", "recovery", "cognition"],
+            "expertise": "Nutrition & Micronutrient Science",
+            "followers": "2.8M",
             "publications": 15,
             "image": "/examples/portraits/rhonda-patrick-portrait.jpg"
         },
         {
             "id": 4,
-            "name": "David Sinclair",
-            "domains": [
-                "recovery",
-                "fueling"
-            ],
-            "expertise": "Aging & Genetics",
-            "followers": "1.5M",
-            "publications": 6,
-            "image": "/examples/portraits/david-sinclair-portrait.jpg"
-        },
-        {
-            "id": 5,
-            "name": "Morgan Housel",
-            "domains": [
-                "finance"
-            ],
-            "expertise": "Behavioral Finance",
-            "followers": "890K",
-            "publications": 4,
-            "image": "/examples/portraits/morgan-housel-portrait.jpg"
-        },
-        {
-            "id": 6,
             "name": "Tim Ferriss",
-            "domains": [
-                "physicality",
-                "cognition",
-                "finance"
-            ],
-            "expertise": "Performance & Lifestyle",
-            "followers": "4.1M",
-            "publications": 9,
+            "domains": ["cognition", "physicality", "finance"],
+            "expertise": "Performance & Lifestyle Design",
+            "followers": "8.5M",
+            "publications": 7,
             "image": "/examples/portraits/tim-ferriss-portrait.jpg"
         },
         {
+            "id": 5,
+            "name": "David Goggins",
+            "domains": ["physicality", "mental"],
+            "expertise": "Mental Toughness & Endurance",
+            "followers": "6.5M",
+            "publications": 2,
+            "image": "/examples/portraits/david-goggins-portrait.jpg"
+        },
+        {
+            "id": 6,
+            "name": "Brene Brown",
+            "domains": ["mental"],
+            "expertise": "Vulnerability & Courage Research",
+            "followers": "5.3M",
+            "publications": 8,
+            "image": "/examples/portraits/brene-brown-portrait.jpg"
+        },
+        {
             "id": 7,
+            "name": "James Clear",
+            "domains": ["mental", "cognition"],
+            "expertise": "Habits & Behavior Science",
+            "followers": "5.2M",
+            "publications": 3,
+            "image": "/examples/portraits/james-clear-portrait.jpg"
+        },
+        {
+            "id": 8,
             "name": "Wim Hof",
-            "domains": [
-                "recovery",
-                "mental"
-            ],
-            "expertise": "Cold Exposure & Breath",
-            "followers": "3.2M",
+            "domains": ["recovery", "mental", "physicality"],
+            "expertise": "Cold Exposure & Breathwork",
+            "followers": "4.8M",
             "publications": 3,
             "image": "/examples/portraits/wim-hof-portrait.jpg"
         },
         {
-            "id": 8,
-            "name": "James Clear",
-            "domains": [
-                "mental",
-                "cognition"
-            ],
-            "expertise": "Habits & Behavior",
-            "followers": "2.8M",
-            "publications": 2,
-            "image": "/examples/portraits/james-clear-portrait.jpg"
+            "id": 9,
+            "name": "Jim Kwik",
+            "domains": ["cognition", "mental"],
+            "expertise": "Accelerated Learning & Brain Performance",
+            "followers": "4.2M",
+            "publications": 3,
+            "image": "/examples/portraits/jim-kwik-portrait.jpg"
         },
         {
-            "id": 9,
+            "id": 10,
+            "name": "Mark Hyman",
+            "domains": ["fueling", "recovery", "mental"],
+            "expertise": "Functional Medicine & Food as Medicine",
+            "followers": "3.6M",
+            "publications": 20,
+            "image": "/examples/portraits/mark-hyman-portrait.jpg"
+        },
+        {
+            "id": 11,
+            "name": "Gary Brecka",
+            "domains": ["recovery", "fueling", "cognition"],
+            "expertise": "Human Biology & Genetic Testing",
+            "followers": "3.2M",
+            "publications": 2,
+            "image": "/examples/portraits/gary-brecka-portrait.jpg"
+        },
+        {
+            "id": 12,
+            "name": "Dave Asprey",
+            "domains": ["cognition", "fueling", "recovery"],
+            "expertise": "Father of Biohacking & Bulletproof",
+            "followers": "2.5M",
+            "publications": 8,
+            "image": "/examples/portraits/dave-asprey-portrait.jpg"
+        },
+        {
+            "id": 13,
+            "name": "Bryan Johnson",
+            "domains": ["recovery", "fueling", "physicality"],
+            "expertise": "Project Blueprint & Age Reversal",
+            "followers": "1.9M",
+            "publications": 5,
+            "image": "/examples/portraits/bryan-johnson-portrait.jpg"
+        },
+        {
+            "id": 14,
+            "name": "Paul Saladino",
+            "domains": ["fueling"],
+            "expertise": "Animal-Based Nutrition & Carnivore Diet",
+            "followers": "1.8M",
+            "publications": 3,
+            "image": "/examples/portraits/paul-saladino-portrait.jpg"
+        },
+        {
+            "id": 15,
+            "name": "Jason Fung",
+            "domains": ["fueling", "recovery"],
+            "expertise": "Therapeutic Fasting & Metabolic Health",
+            "followers": "1.7M",
+            "publications": 8,
+            "image": "/examples/portraits/jason-fung-portrait.jpg"
+        },
+        {
+            "id": 16,
+            "name": "Morgan Housel",
+            "domains": ["finance"],
+            "expertise": "Behavioral Finance & Psychology of Money",
+            "followers": "1.6M",
+            "publications": 5,
+            "image": "/examples/portraits/morgan-housel-portrait.jpg"
+        },
+        {
+            "id": 17,
+            "name": "David Sinclair",
+            "domains": ["recovery", "fueling"],
+            "expertise": "Aging Research & Longevity Genetics",
+            "followers": "1.5M",
+            "publications": 200,
+            "image": "/examples/portraits/david-sinclair-portrait.jpg"
+        },
+        {
+            "id": 18,
+            "name": "Ben Greenfield",
+            "domains": ["physicality", "cognition", "recovery", "fueling"],
+            "expertise": "Total Human Optimization",
+            "followers": "1.4M",
+            "publications": 14,
+            "image": "/examples/portraits/ben-greenfield-portrait.jpg"
+        },
+        {
+            "id": 19,
+            "name": "Rich Roll",
+            "domains": ["physicality", "mental"],
+            "expertise": "Ultra-Endurance & Plant-Based Performance",
+            "followers": "1.3M",
+            "publications": 3,
+            "image": "/examples/portraits/rich-roll-portrait.jpg"
+        },
+        {
+            "id": 20,
+            "name": "Max Lugavere",
+            "domains": ["cognition", "fueling"],
+            "expertise": "Nutritional Neuroscience & Brain Health",
+            "followers": "1.2M",
+            "publications": 4,
+            "image": "/examples/portraits/max-lugavere-portrait.jpg"
+        },
+        {
+            "id": 21,
             "name": "Ramit Sethi",
-            "domains": [
-                "finance"
-            ],
-            "expertise": "Personal Finance",
+            "domains": ["finance"],
+            "expertise": "Personal Finance & Wealth Automation",
             "followers": "1.2M",
             "publications": 5,
             "image": "/examples/portraits/ramit-sethi-portrait.jpg"
         },
         {
-            "id": 10,
+            "id": 22,
+            "name": "Kelly Starrett",
+            "domains": ["physicality", "recovery"],
+            "expertise": "Mobility & Movement Science",
+            "followers": "1.1M",
+            "publications": 4,
+            "image": "/examples/portraits/kelly-starrett-portrait.jpg"
+        },
+        {
+            "id": 23,
+            "name": "Gabrielle Lyon",
+            "domains": ["fueling", "physicality"],
+            "expertise": "Muscle-Centric Medicine & Protein Optimization",
+            "followers": "1.1M",
+            "publications": 4,
+            "image": "/examples/portraits/gabrielle-lyon-portrait.jpg"
+        },
+        {
+            "id": 24,
             "name": "Matthew Walker",
-            "domains": [
-                "recovery"
-            ],
-            "expertise": "Sleep Science",
+            "domains": ["recovery", "cognition"],
+            "expertise": "Sleep Science & Neuroscience",
             "followers": "980K",
-            "publications": 7,
+            "publications": 100,
             "image": "/examples/portraits/matthew-walker-portrait.jpg"
         },
         {
-            "id": 11,
+            "id": 25,
+            "name": "Shawn Stevenson",
+            "domains": ["recovery", "fueling"],
+            "expertise": "Sleep & Nutrition Optimization",
+            "followers": "750K",
+            "publications": 4,
+            "image": "/examples/portraits/shawn-stevenson-portrait.jpg"
+        },
+        {
+            "id": 26,
             "name": "Andy Galpin",
-            "domains": [
-                "physicality"
-            ],
-            "expertise": "Exercise Physiology",
+            "domains": ["physicality"],
+            "expertise": "Exercise Physiology & Muscle Science",
             "followers": "720K",
             "publications": 11,
             "image": "/examples/portraits/andy-galpin-portrait.jpg"
         },
         {
-            "id": 12,
-            "name": "Kelly Starrett",
-            "domains": [
-                "physicality",
-                "recovery"
-            ],
-            "expertise": "Mobility & Movement",
-            "followers": "1.1M",
+            "id": 27,
+            "name": "Laird Hamilton",
+            "domains": ["physicality", "recovery"],
+            "expertise": "Extreme Performance & XPT Training",
+            "followers": "580K",
+            "publications": 2,
+            "image": "/examples/portraits/laird-hamilton-portrait.jpg"
+        },
+        {
+            "id": 28,
+            "name": "Anna Lembke",
+            "domains": ["mental"],
+            "expertise": "Dopamine & Addiction Neuroscience",
+            "followers": "480K",
             "publications": 4,
-            "image": "/examples/portraits/kelly-starrett-portrait.jpg"
+            "image": "/examples/portraits/anna-lembke-portrait.jpg"
+        },
+        {
+            "id": 29,
+            "name": "Satchin Panda",
+            "domains": ["fueling", "recovery"],
+            "expertise": "Circadian Rhythms & Time-Restricted Eating",
+            "followers": "420K",
+            "publications": 120,
+            "image": "/examples/portraits/satchin-panda-portrait.jpg"
+        },
+        {
+            "id": 30,
+            "name": "Stacy Sims",
+            "domains": ["physicality", "fueling", "recovery"],
+            "expertise": "Female-Specific Exercise Physiology",
+            "followers": "420K",
+            "publications": 60,
+            "image": "/examples/portraits/stacy-sims-portrait.jpg"
         }
     ],
     "libraryDocuments": [
@@ -451,10 +967,7 @@
             "author": "Matthew Walker",
             "type": "Book",
             "pillar": "recovery",
-            "tags": [
-                "Sleep Cycles",
-                "HRV"
-            ],
+            "tags": ["Sleep Cycles", "HRV", "Longevity"],
             "rating": 4.9,
             "external": true
         },
@@ -464,10 +977,7 @@
             "author": "Liberture Research",
             "type": "White Paper",
             "pillar": "cognition",
-            "tags": [
-                "Mitochondria",
-                "Nootropics"
-            ],
+            "tags": ["Mitochondria", "Nootropics"],
             "rating": 4.7,
             "external": false
         },
@@ -477,10 +987,7 @@
             "author": "Dr. Jason Fung",
             "type": "Academic Article",
             "pillar": "fueling",
-            "tags": [
-                "Intermittent Fasting",
-                "Ketosis"
-            ],
+            "tags": ["Intermittent Fasting", "Ketosis"],
             "rating": 4.8,
             "external": false
         },
@@ -490,10 +997,7 @@
             "author": "Wim Hof Method",
             "type": "E-Book",
             "pillar": "recovery",
-            "tags": [
-                "Cold Therapy",
-                "HRV"
-            ],
+            "tags": ["Cold Therapy", "HRV", "Hormesis"],
             "rating": 4.6,
             "external": true
         },
@@ -503,10 +1007,7 @@
             "author": "Morgan Housel",
             "type": "Book",
             "pillar": "finance",
-            "tags": [
-                "Compound Interest",
-                "Index Funds"
-            ],
+            "tags": ["Compound Interest", "Index Funds", "Behavioral Finance"],
             "rating": 4.9,
             "external": true
         },
@@ -516,9 +1017,7 @@
             "author": "Harvard Medical",
             "type": "Academic Article",
             "pillar": "recovery",
-            "tags": [
-                "Epigenetics"
-            ],
+            "tags": ["Epigenetics", "Aging Reversal"],
             "rating": 4.5,
             "external": false
         },
@@ -528,10 +1027,7 @@
             "author": "Liberture Community",
             "type": "Long-form Guide",
             "pillar": "mental",
-            "tags": [
-                "HRV",
-                "Meditation"
-            ],
+            "tags": ["HRV", "Meditation", "Resilience"],
             "rating": 4.7,
             "external": false
         },
@@ -541,9 +1037,7 @@
             "author": "Dr. Andy Galpin",
             "type": "E-Book",
             "pillar": "physicality",
-            "tags": [
-                "Strength Training"
-            ],
+            "tags": ["Strength Training", "Athletic Performance"],
             "rating": 4.8,
             "external": true
         },
@@ -553,10 +1047,7 @@
             "author": "Liberture Finance",
             "type": "White Paper",
             "pillar": "finance",
-            "tags": [
-                "Tax Optimization",
-                "FIRE"
-            ],
+            "tags": ["Tax Optimization", "FIRE"],
             "rating": 4.6,
             "external": false
         },
@@ -566,10 +1057,7 @@
             "author": "Examine.com",
             "type": "Academic Article",
             "pillar": "cognition",
-            "tags": [
-                "Nootropics",
-                "Mitochondria"
-            ],
+            "tags": ["Nootropics", "Mitochondria", "Brain Health"],
             "rating": 4.4,
             "external": false
         },
@@ -579,11 +1067,7 @@
             "author": "Ben Greenfield",
             "type": "Book",
             "pillar": "physicality",
-            "tags": [
-                "Biohacking",
-                "Performance",
-                "Longevity"
-            ],
+            "tags": ["Biohacking", "Performance", "Longevity"],
             "rating": 4.8,
             "external": true
         },
@@ -593,11 +1077,7 @@
             "author": "Dave Asprey",
             "type": "Book",
             "pillar": "cognition",
-            "tags": [
-                "Biohacking",
-                "Performance",
-                "Aging Reversal"
-            ],
+            "tags": ["Biohacking", "Performance", "Aging Reversal"],
             "rating": 4.6,
             "external": true
         },
@@ -607,11 +1087,7 @@
             "author": "Dave Asprey",
             "type": "Book",
             "pillar": "fueling",
-            "tags": [
-                "Nutrition Strategy",
-                "Diet Protocols",
-                "Metabolic Flexibility"
-            ],
+            "tags": ["Nutrition Strategy", "Diet Protocols", "Metabolic Flexibility"],
             "rating": 4.7,
             "external": true
         },
@@ -621,11 +1097,7 @@
             "author": "Dave Asprey",
             "type": "Book",
             "pillar": "recovery",
-            "tags": [
-                "Longevity",
-                "Aging Reversal",
-                "Biohacking"
-            ],
+            "tags": ["Longevity", "Aging Reversal", "Biohacking"],
             "rating": 4.7,
             "external": true
         },
@@ -635,11 +1107,7 @@
             "author": "Teemu Arina, Olli Sovijärvi, Jaakko Halmetoja",
             "type": "Book",
             "pillar": "cognition",
-            "tags": [
-                "Biohacking",
-                "Performance",
-                "Neuroscience"
-            ],
+            "tags": ["Biohacking", "Performance", "Neuroscience"],
             "rating": 4.8,
             "external": true
         },
@@ -649,11 +1117,7 @@
             "author": "Jevan Pradas",
             "type": "Book",
             "pillar": "mental",
-            "tags": [
-                "Biohacking",
-                "Performance",
-                "Longevity"
-            ],
+            "tags": ["Meditation", "Performance", "Longevity"],
             "rating": 4.5,
             "external": true
         },
@@ -663,11 +1127,7 @@
             "author": "Peter Attia",
             "type": "Book",
             "pillar": "physicality",
-            "tags": [
-                "Longevity",
-                "Aging Reversal",
-                "Metabolic Flexibility"
-            ],
+            "tags": ["Longevity", "Aging Reversal", "Metabolic Flexibility"],
             "rating": 4.9,
             "external": true
         },
@@ -677,11 +1137,7 @@
             "author": "David A. Sinclair",
             "type": "Book",
             "pillar": "recovery",
-            "tags": [
-                "Epigenetics",
-                "Longevity",
-                "Aging Reversal"
-            ],
+            "tags": ["Epigenetics", "Longevity", "Aging Reversal"],
             "rating": 4.8,
             "external": true
         },
@@ -691,11 +1147,7 @@
             "author": "Tim Ferriss",
             "type": "Book",
             "pillar": "physicality",
-            "tags": [
-                "Performance",
-                "Strength Training",
-                "Diet Protocols"
-            ],
+            "tags": ["Performance", "Strength Training", "Diet Protocols"],
             "rating": 4.7,
             "external": true
         },
@@ -705,153 +1157,409 @@
             "author": "Tim Ferriss",
             "type": "Book",
             "pillar": "cognition",
-            "tags": [
-                "Performance",
-                "Biohacking",
-                "Neuroscience"
-            ],
+            "tags": ["Performance", "Biohacking", "Neuroscience"],
             "rating": 4.6,
             "external": true
         },
         {
             "id": 21,
-            "title": "The Biology of Belief",
-            "author": "Bruce H. Lipton",
-            "type": "Book",
-            "pillar": "mental",
-            "tags": [
-                "Brain Health",
-                "Neuroscience",
-                "Aging Reversal"
-            ],
-            "rating": 4.5,
+            "title": "The Hallmarks of Aging",
+            "author": "Carlos Lopez-Otin et al.",
+            "type": "Academic Article",
+            "pillar": "recovery",
+            "tags": ["Longevity", "Epigenetics", "Aging Reversal"],
+            "rating": 4.9,
             "external": true
         },
         {
             "id": 22,
-            "title": "Quantum Healing",
-            "author": "Deepak Chopra",
-            "type": "Book",
-            "pillar": "mental",
-            "tags": [
-                "Brain Health",
-                "Longevity",
-                "Biohacking"
-            ],
-            "rating": 4.4,
+            "title": "Time-Restricted Eating and Metabolic Health",
+            "author": "Satchin Panda et al.",
+            "type": "Academic Article",
+            "pillar": "fueling",
+            "tags": ["Circadian Rhythm", "Intermittent Fasting", "Metabolic Flexibility"],
+            "rating": 4.8,
             "external": true
         },
         {
             "id": 23,
-            "title": "10% Human",
-            "author": "Alanna Collen",
-            "type": "Book",
-            "pillar": "fueling",
-            "tags": [
-                "Microbiome",
-                "Gut Health",
-                "Nutrition Strategy"
-            ],
-            "rating": 4.6,
+            "title": "Exercise as Medicine — 26 Chronic Diseases",
+            "author": "Bente K. Pedersen & Bengt Saltin",
+            "type": "Academic Article",
+            "pillar": "physicality",
+            "tags": ["Athletic Performance", "Longevity", "Biohacking"],
+            "rating": 4.7,
             "external": true
         },
         {
             "id": 24,
-            "title": "The End of Alzheimer's",
-            "author": "Dale E. Bredesen",
-            "type": "Book",
-            "pillar": "cognition",
-            "tags": [
-                "Alzheimer's Prevention",
-                "Brain Health",
-                "Longevity"
-            ],
+            "title": "Gut Microbiome and Human Health Review",
+            "author": "Emeran Mayer et al.",
+            "type": "Academic Article",
+            "pillar": "fueling",
+            "tags": ["Gut Health", "Microbiome", "Brain Health"],
             "rating": 4.7,
             "external": true
         },
         {
             "id": 25,
-            "title": "Genius Foods",
-            "author": "Max Lugavere",
-            "type": "Book",
-            "pillar": "fueling",
-            "tags": [
-                "Brain Health",
-                "Nutrition Strategy",
-                "Metabolic Flexibility"
-            ],
-            "rating": 4.7,
+            "title": "Blueprint Complete Protocol Documentation",
+            "author": "Bryan Johnson",
+            "type": "Long-form Guide",
+            "pillar": "recovery",
+            "tags": ["Aging Reversal", "Longevity", "Biohacking"],
+            "rating": 4.5,
             "external": true
         },
         {
             "id": 26,
-            "title": "Biohacking for Athletes",
-            "author": "Andreas Breitfeld",
-            "type": "Book",
-            "pillar": "physicality",
-            "tags": [
-                "Athletic Performance",
-                "Biohacking",
-                "Strength Training"
-            ],
+            "title": "Neuroplasticity: The Brain's Ability to Change",
+            "author": "Michael Merzenich",
+            "type": "E-Book",
+            "pillar": "cognition",
+            "tags": ["Neuroplasticity", "Brain Health", "Neuroscience"],
             "rating": 4.6,
             "external": true
         },
         {
             "id": 27,
-            "title": "Better Body – Better Brain",
-            "author": "Anja Leitz",
-            "type": "Book",
-            "pillar": "cognition",
-            "tags": [
-                "Brain Health",
-                "Performance",
-                "Strength Training"
-            ],
+            "title": "Ketogenic Diet as Metabolic Therapy",
+            "author": "Dominic D'Agostino",
+            "type": "White Paper",
+            "pillar": "fueling",
+            "tags": ["Ketosis", "Metabolic Flexibility", "Performance"],
             "rating": 4.6,
             "external": true
         },
         {
             "id": 28,
-            "title": "Living Longer",
-            "author": "Evidence-Based Biohacks",
-            "type": "Book",
+            "title": "Deliberate Cold Exposure: Protocols and Evidence",
+            "author": "Susanna Soberg",
+            "type": "Academic Article",
             "pillar": "recovery",
-            "tags": [
-                "Longevity",
-                "Biohacking",
-                "Aging Reversal"
-            ],
-            "rating": 4.5,
+            "tags": ["Cold Therapy", "Dopamine", "Hormesis"],
+            "rating": 4.7,
             "external": true
         },
         {
             "id": 29,
-            "title": "Biohacking: The Science of Optimizing Your Body",
-            "author": "Health Performance Collective",
-            "type": "Book",
-            "pillar": "physicality",
-            "tags": [
-                "Biohacking",
-                "Performance",
-                "Metabolic Flexibility"
-            ],
-            "rating": 4.5,
+            "title": "The JL Collins Stock Series",
+            "author": "J.L. Collins",
+            "type": "Long-form Guide",
+            "pillar": "finance",
+            "tags": ["Index Funds", "FIRE", "Compound Interest"],
+            "rating": 4.8,
             "external": true
         },
         {
             "id": 30,
-            "title": "The Biohacking Manifesto",
-            "author": "Neuroscience Longevity Lab",
+            "title": "Mindfulness-Based Stress Reduction (MBSR) Protocol",
+            "author": "Jon Kabat-Zinn",
+            "type": "Long-form Guide",
+            "pillar": "mental",
+            "tags": ["Meditation", "Resilience", "Neuroscience"],
+            "rating": 4.8,
+            "external": true
+        },
+        {
+            "id": 31,
+            "title": "VO2 Max as Predictor of All-Cause Mortality",
+            "author": "Nes et al. (HUNT Study)",
+            "type": "Academic Article",
+            "pillar": "physicality",
+            "tags": ["VO2 Max", "Longevity", "Athletic Performance"],
+            "rating": 4.8,
+            "external": true
+        },
+        {
+            "id": 32,
+            "title": "Protein Distribution and Muscle Protein Synthesis",
+            "author": "Stuart Phillips",
+            "type": "Academic Article",
+            "pillar": "fueling",
+            "tags": ["Protein", "Strength Training", "Longevity"],
+            "rating": 4.7,
+            "external": true
+        },
+        {
+            "id": 33,
+            "title": "Sauna Use, Cardiovascular Health, and Longevity",
+            "author": "Rhonda Patrick",
+            "type": "Long-form Guide",
+            "pillar": "recovery",
+            "tags": ["Sauna", "Longevity", "Hormesis"],
+            "rating": 4.7,
+            "external": true
+        },
+        {
+            "id": 34,
+            "title": "Polyvagal Theory: Safety, Connection, and Healing",
+            "author": "Stephen Porges",
+            "type": "Academic Article",
+            "pillar": "mental",
+            "tags": ["HRV", "Resilience", "Trauma"],
+            "rating": 4.7,
+            "external": true
+        },
+        {
+            "id": 35,
+            "title": "Zone 2 Training for Metabolic Health",
+            "author": "Iñigo San Millán",
+            "type": "Long-form Guide",
+            "pillar": "physicality",
+            "tags": ["Zone 2", "Mitochondria", "Athletic Performance"],
+            "rating": 4.8,
+            "external": true
+        },
+        {
+            "id": 36,
+            "title": "Oxygen Advantage: Advanced Breathing Exercises",
+            "author": "Patrick McKeown",
+            "type": "Book",
+            "pillar": "physicality",
+            "tags": ["Breathwork", "Performance", "Athletic Performance"],
+            "rating": 4.5,
+            "external": false
+        },
+        {
+            "id": 37,
+            "title": "Metformin and Rapamycin as Longevity Interventions",
+            "author": "Nir Barzilai et al.",
+            "type": "White Paper",
+            "pillar": "recovery",
+            "tags": ["Longevity", "Aging Reversal", "Biohacking"],
+            "rating": 4.6,
+            "external": true
+        },
+        {
+            "id": 38,
+            "title": "Neuroprotective Effects of Omega-3 Fatty Acids",
+            "author": "Calder et al.",
+            "type": "Academic Article",
+            "pillar": "cognition",
+            "tags": ["Omega-3", "Brain Health", "Neuroscience"],
+            "rating": 4.7,
+            "external": true
+        },
+        {
+            "id": 39,
+            "title": "Fasting Mimicking Diet: Longevity and Disease Prevention",
+            "author": "Valter Longo",
+            "type": "Academic Article",
+            "pillar": "fueling",
+            "tags": ["Autophagy", "Longevity", "Intermittent Fasting"],
+            "rating": 4.7,
+            "external": true
+        },
+        {
+            "id": 40,
+            "title": "Psychedelic-Assisted Therapy: Emerging Evidence",
+            "author": "Robin Carhart-Harris et al.",
+            "type": "Academic Article",
+            "pillar": "mental",
+            "tags": ["Psychedelics", "Neuroplasticity", "Trauma"],
+            "rating": 4.7,
+            "external": true
+        },
+        {
+            "id": 41,
+            "title": "The 4% Rule and Safe Withdrawal Rates",
+            "author": "William Bengen",
+            "type": "Academic Article",
+            "pillar": "finance",
+            "tags": ["FIRE", "Index Funds", "Compound Interest"],
+            "rating": 4.8,
+            "external": true
+        },
+        {
+            "id": 42,
+            "title": "Huberman Lab Sleep Toolkit",
+            "author": "Andrew Huberman",
+            "type": "Long-form Guide",
+            "pillar": "recovery",
+            "tags": ["Sleep Cycles", "Circadian Rhythm", "Neuroscience"],
+            "rating": 4.8,
+            "external": true
+        },
+        {
+            "id": 43,
+            "title": "DEXA Scanning and Body Composition Guide",
+            "author": "Peter Attia",
+            "type": "Long-form Guide",
+            "pillar": "physicality",
+            "tags": ["Athletic Performance", "Metabolic Flexibility", "Biohacking"],
+            "rating": 4.6,
+            "external": true
+        },
+        {
+            "id": 44,
+            "title": "Flow: The Psychology of Optimal Experience",
+            "author": "Mihaly Csikszentmihalyi",
+            "type": "Book",
+            "pillar": "cognition",
+            "tags": ["Flow State", "Performance", "Neuroscience"],
+            "rating": 4.6,
+            "external": false
+        },
+        {
+            "id": 45,
+            "title": "The Epigenetics Revolution",
+            "author": "Nessa Carey",
             "type": "Book",
             "pillar": "recovery",
-            "tags": [
-                "Biohacking",
-                "Longevity",
-                "Aging Reversal"
-            ],
+            "tags": ["Epigenetics", "Aging Reversal", "Longevity"],
+            "rating": 4.5,
+            "external": false
+        },
+        {
+            "id": 46,
+            "title": "Strength Training Anatomy",
+            "author": "Frederic Delavier",
+            "type": "Book",
+            "pillar": "physicality",
+            "tags": ["Strength Training", "Athletic Performance"],
+            "rating": 4.7,
+            "external": false
+        },
+        {
+            "id": 47,
+            "title": "Magnesium: The Missing Mineral for Recovery",
+            "author": "James DiNicolantonio",
+            "type": "White Paper",
+            "pillar": "fueling",
+            "tags": ["Nootropics", "HRV", "Metabolic Flexibility"],
             "rating": 4.5,
             "external": true
+        },
+        {
+            "id": 48,
+            "title": "The Behavior Gap: Smart Money Decisions",
+            "author": "Carl Richards",
+            "type": "Book",
+            "pillar": "finance",
+            "tags": ["Behavioral Finance", "Compound Interest", "FIRE"],
+            "rating": 4.5,
+            "external": false
+        },
+        {
+            "id": 49,
+            "title": "The End of Alzheimer's",
+            "author": "Dale E. Bredesen",
+            "type": "Book",
+            "pillar": "cognition",
+            "tags": ["Alzheimer's Prevention", "Brain Health", "Longevity"],
+            "rating": 4.7,
+            "external": true
+        },
+        {
+            "id": 50,
+            "title": "Genius Foods",
+            "author": "Max Lugavere",
+            "type": "Book",
+            "pillar": "fueling",
+            "tags": ["Brain Health", "Nutrition Strategy", "Metabolic Flexibility"],
+            "rating": 4.7,
+            "external": true
+        },
+        {
+            "id": 51,
+            "title": "10% Human",
+            "author": "Alanna Collen",
+            "type": "Book",
+            "pillar": "fueling",
+            "tags": ["Microbiome", "Gut Health", "Nutrition Strategy"],
+            "rating": 4.6,
+            "external": true
+        },
+        {
+            "id": 52,
+            "title": "The Body Keeps the Score",
+            "author": "Bessel van der Kolk",
+            "type": "Book",
+            "pillar": "mental",
+            "tags": ["Trauma", "Resilience", "Neuroscience"],
+            "rating": 4.9,
+            "external": true
+        },
+        {
+            "id": 53,
+            "title": "Dopamine Nation",
+            "author": "Anna Lembke",
+            "type": "Book",
+            "pillar": "mental",
+            "tags": ["Dopamine", "Habits", "Neuroscience"],
+            "rating": 4.7,
+            "external": true
+        },
+        {
+            "id": 54,
+            "title": "Born to Run",
+            "author": "Christopher McDougall",
+            "type": "Book",
+            "pillar": "physicality",
+            "tags": ["Athletic Performance", "Mobility", "Performance"],
+            "rating": 4.7,
+            "external": true
+        },
+        {
+            "id": 55,
+            "title": "The Optimal Protein Handbook",
+            "author": "Gabrielle Lyon",
+            "type": "E-Book",
+            "pillar": "fueling",
+            "tags": ["Protein", "Strength Training", "Longevity"],
+            "rating": 4.6,
+            "external": true
+        },
+        {
+            "id": 56,
+            "title": "Female-Specific Training and Nutrition Protocol",
+            "author": "Stacy Sims",
+            "type": "Long-form Guide",
+            "pillar": "physicality",
+            "tags": ["Athletic Performance", "Nutrition Strategy", "Performance"],
+            "rating": 4.6,
+            "external": true
+        },
+        {
+            "id": 57,
+            "title": "Psychological Benefits of Regular Exercise",
+            "author": "John Ratey",
+            "type": "Long-form Guide",
+            "pillar": "mental",
+            "tags": ["Neuroplasticity", "Resilience", "Performance"],
+            "rating": 4.7,
+            "external": true
+        },
+        {
+            "id": 58,
+            "title": "Financial Independence Through Geographic Arbitrage",
+            "author": "Go Curry Cracker",
+            "type": "E-Book",
+            "pillar": "finance",
+            "tags": ["FIRE", "Tax Optimization", "Compound Interest"],
+            "rating": 4.4,
+            "external": true
+        },
+        {
+            "id": 59,
+            "title": "Resilience: The Biology of Coping with Stress",
+            "author": "Dennis Charney & Steven Southwick",
+            "type": "Book",
+            "pillar": "mental",
+            "tags": ["Resilience", "Trauma", "Neuroscience"],
+            "rating": 4.5,
+            "external": false
+        },
+        {
+            "id": 60,
+            "title": "Building a Bulletproof Financial Life",
+            "author": "William Bernstein",
+            "type": "E-Book",
+            "pillar": "finance",
+            "tags": ["Behavioral Finance", "Index Funds", "FIRE"],
+            "rating": 4.6,
+            "external": false
         }
     ]
 }
