@@ -13,14 +13,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install --frozen-lockfile
 
       - name: Write .env from secret
         run: echo "${{ secrets.ENV_PRODUCTION }}" > .env
@@ -28,7 +33,7 @@ jobs:
       - name: Build Next.js app
         env:
           NEXT_DISABLE_TURBOPACK: "1"
-        run: npm run build
+        run: pnpm run build
 
       - name: Upload production files via SCP
         uses: appleboy/scp-action@v0.1.4
@@ -36,7 +41,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY}}
-          source: ".next,public,next.config.ts,package.json,package-lock.json,.env"
+          source: ".next,public,next.config.ts,package.json,pnpm-lock.yaml,.env"
           target: /var/www/liberture
           overwrite: true
 
@@ -48,8 +53,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /var/www/liberture
-            npm install
+            npm i -g pnpm || true
+            pnpm install --frozen-lockfile
             export PORT=3033
             pm2 delete liberture || true
-            pm2 start "npm run start" --name liberture
+            pm2 start "pnpm run start" --name liberture
             pm2 save
