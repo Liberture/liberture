@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -117,7 +117,7 @@ model KnowledgeArticle {
   updatedAt   DateTime
   slug        String        @unique
   viewCount   Int           @default(0)
-  content     String?       @db.Text
+  content     String?
   views       ArticleView[]
 }
 
@@ -270,6 +270,7 @@ model User {
   name               String
   image              String?
   password           String?
+  nostrPubkey        String?   @unique
   bosLevel           Int       @default(1)
   role               String    @default("user")
   banned             Boolean   @default(false)
@@ -283,6 +284,20 @@ model User {
   weeklyDigest       Boolean   @default(true)
   Account            Account[]
   Session            Session[]
+  Bookmark           Bookmark[]
+}
+
+model Bookmark {
+  id         String   @id @default(cuid())
+  userId     String
+  entityType String
+  entityId   String
+  createdAt  DateTime @default(now())
+  User       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, entityType, entityId])
+  @@index([userId])
+  @@index([entityType, entityId])
 }
 
 model Verification {
@@ -303,7 +318,7 @@ model ScrapedContent {
   rawContent          String
   contentType         String
   targetEntity        String?
-  extractedData       Json?
+  extractedData       String?
   needsParaphrasing   Boolean   @default(true)
   paraphrasedContent  String?
   enrichmentStatus    String    @default("pending")
