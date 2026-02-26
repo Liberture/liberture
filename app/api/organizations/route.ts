@@ -20,6 +20,6 @@ export async function GET() {
     return NextResponse.json(organizations)
   } catch (error) {
     console.error("Error fetching organizations:", error)
-    return NextResponse.json({ error: "Failed to fetch organizations" }, { status: 500 })
+    return NextResponse.json([])
   }
 }

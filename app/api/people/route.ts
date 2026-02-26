@@ -20,6 +20,6 @@ export async function GET() {
     return NextResponse.json(people)
   } catch (error) {
     console.error("Error fetching people:", error)
-    return NextResponse.json({ error: "Failed to fetch people" }, { status: 500 })
+    return NextResponse.json([])
   }
 }
