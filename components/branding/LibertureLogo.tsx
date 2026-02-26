@@ -10,38 +10,54 @@ interface LibertureLogoProps {
 
 const PILLAR_COLORS = [
   "#8B5CF6",    // Cognition - purple
-  "#06B6D4",    // Recovery - cyan  
+  "#06B6D4",    // Recovery - cyan
   "#10B981",    // Fueling - green
   "#EC4899",    // Mental - pink
   "#F59E0B",    // Physicality - orange
   "#EAB308",    // Finance - yellow
 ];
 
+// Hexagon positions matching the SVG generators in the media kit page
+function hexPositions(cx: number, cy: number, r: number) {
+  return [
+    { x: cx - 0.5 * r, y: cy - 0.866 * r },
+    { x: cx + 0.5 * r, y: cy - 0.866 * r },
+    { x: cx + r,        y: cy },
+    { x: cx + 0.5 * r, y: cy + 0.866 * r },
+    { x: cx - 0.5 * r, y: cy + 0.866 * r },
+    { x: cx - r,        y: cy },
+  ];
+}
+
+// Base hexagonal offsets (unit vectors) for rotation
+const BASE_OFFSETS = [
+  { dx: -0.5, dy: -0.866 },
+  { dx:  0.5, dy: -0.866 },
+  { dx:  1.0, dy:  0.0   },
+  { dx:  0.5, dy:  0.866 },
+  { dx: -0.5, dy:  0.866 },
+  { dx: -1.0, dy:  0.0   },
+];
+
 export function LibertureLogo({ size = 60, animate = true, className = "" }: LibertureLogoProps) {
-  const dotSize = size * 0.12;
-  const spacing = size * 0.15;
-  
-  // Calculate the ellipse path for each dot
-  const getEllipsePath = (index: number, progress: number) => {
-    const centerY = size / 2;
-    const startY = spacing + index * spacing;
-    
-    // Ellipse parameters
-    const radiusX = size * 0.35; // Horizontal radius
-    const radiusY = size * 0.15; // Vertical radius (smaller for ellipse)
-    
-    // Angle based on progress (0 to 2π for full rotation)
-    const angle = progress * Math.PI * 2;
-    
-    // Stagger each dot's starting position
-    const stagger = (index / 6) * Math.PI * 2;
-    const totalAngle = angle + stagger;
-    
-    // Calculate elliptical position
-    const x = size / 2 + radiusX * Math.cos(totalAngle);
-    const y = centerY + radiusY * Math.sin(totalAngle);
-    
-    return { x, y };
+  const dotSize = size * 0.08;
+  const hexR = size * 0.3;
+  const center = size / 2;
+  const positions = hexPositions(center, center, hexR);
+
+  // For animation: compute keyframes for rotating the entire hexagon
+  const FRAMES = 100;
+  const getRotatedKeyframes = (index: number) => {
+    const { dx, dy } = BASE_OFFSETS[index];
+    return Array.from({ length: FRAMES }, (_, i) => {
+      const angle = (i / FRAMES) * Math.PI * 2;
+      const cosA = Math.cos(angle);
+      const sinA = Math.sin(angle);
+      return {
+        x: center + hexR * (dx * cosA - dy * sinA),
+        y: center + hexR * (dx * sinA + dy * cosA),
+      };
+    });
   };
 
   return (
@@ -54,17 +70,18 @@ export function LibertureLogo({ size = 60, animate = true, className = "" }: Lib
         xmlns="http://www.w3.org/2000/svg"
       >
         {PILLAR_COLORS.map((color, index) => {
+          const keyframes = animate ? getRotatedKeyframes(index) : null;
           return (
             <motion.circle
               key={index}
               r={dotSize}
               fill={color}
               animate={animate ? {
-                cx: Array.from({ length: 100 }, (_, i) => getEllipsePath(index, i / 100).x),
-                cy: Array.from({ length: 100 }, (_, i) => getEllipsePath(index, i / 100).y),
+                cx: keyframes!.map(k => k.x),
+                cy: keyframes!.map(k => k.y),
               } : {
-                cx: size / 2,
-                cy: spacing + index * spacing,
+                cx: positions[index].x,
+                cy: positions[index].y,
               }}
               transition={{
                 duration: 6,
