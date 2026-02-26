@@ -19,26 +19,32 @@ export default async function BooksPage({
   const currentPage = parseInt(params.page || "1", 10);
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
 
-  const [books, totalCount] = await Promise.all([
-    prisma.book.findMany({
-      orderBy: [
-        { featured: 'desc' },
-        { rating: 'desc' }
-      ],
-      take: ITEMS_PER_PAGE,
-      skip,
-      include: {
-        Person: {
-          select: {
-            id: true,
-            name: true,
-            slug: true
+  let books: Awaited<ReturnType<typeof prisma.book.findMany<{ include: { Person: { select: { id: true; name: true; slug: true } } } }>>> = [];
+  let totalCount = 0;
+  try {
+    [books, totalCount] = await Promise.all([
+      prisma.book.findMany({
+        orderBy: [
+          { featured: 'desc' },
+          { rating: 'desc' }
+        ],
+        take: ITEMS_PER_PAGE,
+        skip,
+        include: {
+          Person: {
+            select: {
+              id: true,
+              name: true,
+              slug: true
+            }
           }
         }
-      }
-    }),
-    prisma.book.count(),
-  ]);
+      }),
+      prisma.book.count(),
+    ]);
+  } catch {
+    // Database unavailable — render empty state
+  }
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
   const hasNextPage = currentPage < totalPages;

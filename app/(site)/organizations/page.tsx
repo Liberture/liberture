@@ -18,17 +18,23 @@ export default async function OrganizationsPage({
   const currentPage = parseInt(params.page || "1", 10);
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
 
-  const [organizations, totalCount] = await Promise.all([
-    prisma.organization.findMany({
-      orderBy: [
-        { featured: 'desc' },
-        { name: 'asc' }
-      ],
-      take: ITEMS_PER_PAGE,
-      skip,
-    }),
-    prisma.organization.count(),
-  ]);
+  let organizations: Awaited<ReturnType<typeof prisma.organization.findMany>> = [];
+  let totalCount = 0;
+  try {
+    [organizations, totalCount] = await Promise.all([
+      prisma.organization.findMany({
+        orderBy: [
+          { featured: 'desc' },
+          { name: 'asc' }
+        ],
+        take: ITEMS_PER_PAGE,
+        skip,
+      }),
+      prisma.organization.count(),
+    ]);
+  } catch {
+    // Database unavailable — render empty state
+  }
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
   const hasNextPage = currentPage < totalPages;

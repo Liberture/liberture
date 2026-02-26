@@ -32,11 +32,16 @@ export default async function PillarPage({ params }: PageProps) {
 
   const config = pillarConfig[pillar]
 
-  const articles = await prisma.knowledgeArticle.findMany({
-    where: { pillar },
-    select: { id: true, title: true, description: true, tags: true, author: true, readTime: true, url: true, publishedAt: true, slug: true },
-    orderBy: { publishedAt: 'desc' },
-  })
+  let articles: Awaited<ReturnType<typeof prisma.knowledgeArticle.findMany<{ select: { id: true; title: true; description: true; tags: true; author: true; readTime: true; url: true; publishedAt: true; slug: true } }>>> = []
+  try {
+    articles = await prisma.knowledgeArticle.findMany({
+      where: { pillar },
+      select: { id: true, title: true, description: true, tags: true, author: true, readTime: true, url: true, publishedAt: true, slug: true },
+      orderBy: { publishedAt: 'desc' },
+    })
+  } catch {
+    // Database unavailable — render empty state
+  }
 
   const totalReadTime = articles.reduce((sum, a) => sum + a.readTime, 0)
   const otherPillars = VALID_PILLARS.filter(p => p !== pillar).map(p => ({ id: p, config: pillarConfig[p] }))

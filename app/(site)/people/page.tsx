@@ -18,17 +18,23 @@ export default async function PeoplePage({
   const currentPage = parseInt(params.page || "1", 10);
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
 
-  const [people, totalCount] = await Promise.all([
-    prisma.person.findMany({
-      orderBy: [
-        { featured: 'desc' },
-        { name: 'asc' }
-      ],
-      take: ITEMS_PER_PAGE,
-      skip,
-    }),
-    prisma.person.count(),
-  ]);
+  let people: Awaited<ReturnType<typeof prisma.person.findMany>> = [];
+  let totalCount = 0;
+  try {
+    [people, totalCount] = await Promise.all([
+      prisma.person.findMany({
+        orderBy: [
+          { featured: 'desc' },
+          { name: 'asc' }
+        ],
+        take: ITEMS_PER_PAGE,
+        skip,
+      }),
+      prisma.person.count(),
+    ]);
+  } catch {
+    // Database unavailable — render empty state
+  }
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
   const hasNextPage = currentPage < totalPages;

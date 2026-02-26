@@ -15,13 +15,18 @@ const PILLARS = [
 ] as const
 
 export default async function PillarsPage() {
-  const articleCounts = await prisma.knowledgeArticle.groupBy({
-    by: ['pillar'],
-    _count: { id: true },
-  })
-
-  const countMap = Object.fromEntries(articleCounts.map(({ pillar, _count }) => [pillar, _count.id]))
-  const totalArticles = articleCounts.reduce((sum, { _count }) => sum + _count.id, 0)
+  let countMap: Record<string, number> = {}
+  let totalArticles = 0
+  try {
+    const articleCounts = await prisma.knowledgeArticle.groupBy({
+      by: ['pillar'],
+      _count: { id: true },
+    })
+    countMap = Object.fromEntries(articleCounts.map(({ pillar, _count }) => [pillar, _count.id]))
+    totalArticles = articleCounts.reduce((sum, { _count }) => sum + _count.id, 0)
+  } catch {
+    // Database unavailable — render with zero counts
+  }
 
   return (
     <div className="min-h-screen">
