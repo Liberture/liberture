@@ -20,6 +20,7 @@ export async function GET() {
         email: true,
         name: true,
         bosLevel: true,
+        nostrPubkey: true,
         createdAt: true,
       },
     })

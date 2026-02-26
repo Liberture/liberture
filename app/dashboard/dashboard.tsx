@@ -2,12 +2,10 @@
 
 import { useAuth } from "@/lib/auth-context"
 import { BosLevelCard } from "./bos-level-card"
-import { PillarGrid } from "./pillar-grid"
-import { ActiveProtocol } from "./active-protocol"
-import { QuickActions } from "./quick-actions"
-import { RecentActivity } from "./recent-activity"
+import { BookmarksSection } from "./bookmarks-section"
 import { Button } from "@/components/ui/button"
-import { LogOut } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { LogOut, Sparkles } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
@@ -35,7 +33,9 @@ export function Dashboard() {
             </div>
           </Link>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-400">Welcome back, {user?.name || "Operator"}</span>
+            <span className="text-sm text-gray-400">
+              Welcome back, {user?.name || "Operator"}
+            </span>
             <div className="h-10 w-10 rounded-full bg-gradient-to-br from-green-400 to-cyan-400 flex items-center justify-center text-gray-900 font-bold">
               {user?.name?.charAt(0).toUpperCase() || "O"}
             </div>
@@ -48,20 +48,24 @@ export function Dashboard() {
       </header>
 
       {/* Main Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - BOS Level & Active Protocol */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Left Sidebar */}
         <div className="lg:col-span-1 space-y-6">
           <BosLevelCard />
-          <ActiveProtocol />
+
+          {/* Wizard Placeholder */}
+          <Card className="bg-gray-800/70 border-gray-700 backdrop-blur-sm rounded-2xl border-dashed">
+            <CardContent className="p-4 text-center">
+              <Sparkles className="h-6 w-6 text-primary/50 mx-auto mb-2" />
+              <p className="text-sm text-gray-500">Liberture Wizard</p>
+              <p className="text-xs text-gray-600 mt-1">Coming soon</p>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Center Column - Pillar Grid */}
-        <div className="lg:col-span-2 space-y-6">
-          <PillarGrid />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <QuickActions />
-            <RecentActivity />
-          </div>
+        {/* Main Content — Bookmarks */}
+        <div className="lg:col-span-3">
+          <BookmarksSection />
         </div>
       </div>
     </div>
