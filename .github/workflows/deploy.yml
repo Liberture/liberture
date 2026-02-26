@@ -1,0 +1,55 @@
+name: Deploy to Prod
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Write .env from secret
+        run: echo "${{ secrets.ENV_PRODUCTION }}" > .env
+
+      - name: Build Next.js app
+        env:
+          NEXT_DISABLE_TURBOPACK: "1"
+        run: npm run build
+
+      - name: Upload production files via SCP
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY}}
+          source: ".next,public,next.config.ts,package.json,package-lock.json,.env"
+          target: /var/www/liberture
+          overwrite: true
+
+      - name: Restart app via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /var/www/liberture
+            npm install
+            export PORT=3033
+            pm2 delete liberture || true
+            pm2 start "npm run start" --name liberture
+            pm2 save
