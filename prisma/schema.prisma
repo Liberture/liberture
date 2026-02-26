@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -117,7 +117,7 @@ model KnowledgeArticle {
   updatedAt   DateTime
   slug        String        @unique
   viewCount   Int           @default(0)
-  content     String?
+  content     String?       @db.Text
   views       ArticleView[]
 }
 
@@ -318,7 +318,7 @@ model ScrapedContent {
   rawContent          String
   contentType         String
   targetEntity        String?
-  extractedData       String?
+  extractedData       Json?
   needsParaphrasing   Boolean   @default(true)
   paraphrasedContent  String?
   enrichmentStatus    String    @default("pending")
