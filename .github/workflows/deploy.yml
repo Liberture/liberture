@@ -30,6 +30,9 @@ jobs:
       - name: Write .env from secret
         run: echo "${{ secrets.ENV_PRODUCTION }}" > .env
 
+      - name: Generate Prisma client
+        run: pnpm exec prisma generate
+
       - name: Build Next.js app
         env:
           NEXT_DISABLE_TURBOPACK: "1"
