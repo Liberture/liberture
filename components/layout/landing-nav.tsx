@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
 import { LogOut, Menu, X, ChevronDown } from "lucide-react"
 import { translations } from "@/lib/translations"
-import { LibertureWordmark } from "@/components/branding"
+import { LibertureLogo } from "@/components/branding"
 import { PILLAR_ICON_MAP } from "@/lib/pillars"
 
 export function LandingNav() {
@@ -19,8 +19,9 @@ export function LandingNav() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between max-w-7xl">
-        <Link href="/" className="flex items-center group">
-          <LibertureWordmark height={32} className="transition-transform group-hover:scale-105" />
+        <Link href="/" className="flex items-center gap-2 group">
+          <LibertureLogo size={36} className="transition-transform group-hover:scale-105" />
+          <span className="text-xl font-bold text-white tracking-tight">Liberture</span>
         </Link>
 
         {/* Desktop Navigation */}
