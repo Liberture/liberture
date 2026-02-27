@@ -365,6 +365,59 @@ async function main() {
         'Iñigo San-Millán research on Zone 2'
       ]),
       featured: true
+    },
+    {
+      slug: 'grease-the-groove',
+      name: 'Grease the Groove (GTG)',
+      description: 'Neurological strength training method developed by Pavel Tsatsouline that builds strength through frequent, sub-maximal practice throughout the day. Based on the principle that "strength is a skill," GTG leverages neural adaptation and myelination to improve motor unit recruitment without muscle fatigue or hypertrophy. Perform a chosen exercise many times per day at 40-80% of your max, never approaching failure, to forge stronger and faster nerve-to-muscle pathways.',
+      pillar: 'Physicality',
+      creator: 'Pavel Tsatsouline',
+      duration: 'Ongoing daily practice (5-15 sets spread throughout the day)',
+      difficulty: 'beginner',
+      steps: JSON.stringify([
+        'Choose one exercise to focus on (pull-ups, push-ups, dips, pistol squats, or kettlebell presses work best)',
+        'Test your max reps with perfect form for that exercise',
+        'Calculate your working reps: 40-80% of your max (e.g., if your max is 10 pull-ups, do 4-8 per set)',
+        'Spread sets throughout the day — every 30-90 minutes, perform one sub-maximal set',
+        'Never train to failure — every rep should feel smooth and controlled with perfect form',
+        'Rest fully between sets — you should feel fresh before each set, not fatigued',
+        'Place equipment in high-traffic areas (e.g., pull-up bar in a doorway you walk through often)',
+        'Use trigger rules to stay consistent (e.g., "5 push-ups every time I get up from my desk")',
+        'Retest your max every 2-4 weeks to track progress and adjust working reps',
+        'Keep this practice going for at least 4-6 weeks to see significant neural adaptation'
+      ]),
+      benefits: JSON.stringify([
+        'Rapid strength gains through neural adaptation without muscle soreness',
+        'Improves neuromuscular efficiency via myelination of nerve pathways',
+        'Fits into any schedule — no dedicated gym time required',
+        'Maintains physical readiness throughout the day (ideal for tactical athletes and first responders)',
+        'Builds perfect movement patterns through high-quality, fatigue-free repetitions',
+        'Complements any existing training program without adding recovery burden',
+        'Enhances motor unit recruitment — your muscles learn to fire more fibers simultaneously',
+        'Develops discipline and movement consistency as a daily habit'
+      ]),
+      risks: JSON.stringify([
+        'Never train to failure — this "rusties the groove" and trains your nervous system to fail',
+        'Not designed for muscle hypertrophy — if size is your goal, use traditional volume training',
+        'Improvements are exercise-specific and do not transfer broadly to other movements',
+        'Overuse injuries are possible if form degrades — stop immediately if technique breaks down',
+        'Do not use GTG as a replacement for a complete strength and conditioning program',
+        'If you have joint issues or chronic pain in the target movement, consult a professional first'
+      ]),
+      equipment: JSON.stringify([
+        'Pull-up bar (doorframe-mounted recommended for convenience)',
+        'Kettlebell (optional, for presses and swings)',
+        'Timer or reminder app (optional, to cue sets throughout the day)',
+        'No gym required — bodyweight exercises are ideal'
+      ]),
+      references: JSON.stringify([
+        'Pavel Tsatsouline — "Power to the People" (book)',
+        'Pavel Tsatsouline — "The Naked Warrior" (book)',
+        'Hebbian Learning Principle — neurons that fire together, wire together',
+        'https://www.artofmanliness.com/health-fitness/fitness/get-stronger-by-greasing-the-groove/',
+        'https://breakingmuscle.com/greasing-the-groove-how-to-make-it-work-for-you/'
+      ]),
+      featured: true
     }
   ]
 
