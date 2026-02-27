@@ -308,6 +308,7 @@ async function main() {
         'Pavel Tsatsouline — "The Naked Warrior"',
       ]),
       featured: true,
+      updatedAt: new Date(),
     },
   ]
 

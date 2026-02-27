@@ -419,7 +419,8 @@ async function main() {
         'https://www.artofmanliness.com/health-fitness/fitness/get-stronger-by-greasing-the-groove/',
         'https://breakingmuscle.com/greasing-the-groove-how-to-make-it-work-for-you/'
       ]),
-      featured: true
+      featured: true,
+      updatedAt: new Date()
     }
   ]
 
