@@ -44,7 +44,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY}}
-          source: ".next,public,next.config.ts,package.json,pnpm-lock.yaml,.env,prisma,data"
+          source: ".next,public,next.config.ts,package.json,pnpm-lock.yaml,.env,prisma,data,scripts"
           target: /var/www/liberture
           overwrite: true
 
@@ -60,6 +60,7 @@ jobs:
             pnpm install --frozen-lockfile
             pnpm exec prisma generate
             pnpm exec prisma db push --skip-generate || true
+            pnpm exec tsx scripts/seed-directory-quick.ts || true
             export PORT=3033
             pm2 delete liberture || true
             pm2 start "pnpm run start" --name liberture
