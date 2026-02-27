@@ -59,7 +59,7 @@ jobs:
             npm i -g pnpm || true
             pnpm install --frozen-lockfile
             pnpm exec prisma generate
-            pnpm exec prisma db push --skip-generate || true
+            pnpm exec prisma db push --skip-generate --accept-data-loss || true
             pnpm exec tsx scripts/seed-directory-quick.ts || true
             export PORT=3033
             pm2 delete liberture || true
