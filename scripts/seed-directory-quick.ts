@@ -3,6 +3,7 @@
  */
 
 import { PrismaClient } from '@prisma/client'
+import crypto from 'crypto'
 
 const prisma = new PrismaClient()
 
@@ -272,6 +273,7 @@ async function main() {
       featured: true,
     },
     {
+      id: crypto.randomUUID(),
       slug: 'grease-the-groove',
       name: 'Grease the Groove (GTG)',
       description: 'Neurological strength training method developed by Pavel Tsatsouline that builds strength through frequent, sub-maximal practice throughout the day. Based on the principle that "strength is a skill," GTG leverages neural adaptation and myelination to improve motor unit recruitment without muscle fatigue or hypertrophy.',
