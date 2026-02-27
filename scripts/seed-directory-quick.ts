@@ -271,6 +271,42 @@ async function main() {
       references: JSON.stringify(['https://peterattiamd.com']),
       featured: true,
     },
+    {
+      slug: 'grease-the-groove',
+      name: 'Grease the Groove (GTG)',
+      description: 'Neurological strength training method developed by Pavel Tsatsouline that builds strength through frequent, sub-maximal practice throughout the day. Based on the principle that "strength is a skill," GTG leverages neural adaptation and myelination to improve motor unit recruitment without muscle fatigue or hypertrophy.',
+      pillar: 'physicality',
+      creator: 'Pavel Tsatsouline',
+      duration: 'Ongoing daily practice (5-15 sets spread throughout the day)',
+      difficulty: 'beginner',
+      steps: JSON.stringify([
+        'Choose one exercise to focus on (pull-ups, push-ups, dips, pistol squats, or kettlebell presses)',
+        'Test your max reps with perfect form',
+        'Perform 40-80% of your max per set, spread throughout the day (every 30-90 minutes)',
+        'Never train to failure — every rep should feel smooth and controlled',
+        'Rest fully between sets — you should feel fresh, not fatigued',
+        'Place equipment in high-traffic areas (e.g., pull-up bar in a doorway)',
+        'Retest your max every 2-4 weeks and adjust working reps',
+      ]),
+      benefits: JSON.stringify([
+        'Rapid strength gains through neural adaptation',
+        'Improves neuromuscular efficiency via myelination',
+        'Fits into any schedule — no dedicated gym time required',
+        'Builds perfect movement patterns through fatigue-free repetitions',
+        'Complements existing training without adding recovery burden',
+      ]),
+      risks: JSON.stringify([
+        'Never train to failure — trains your nervous system to fail',
+        'Not designed for muscle hypertrophy',
+        'Improvements are exercise-specific and do not transfer broadly',
+      ]),
+      equipment: JSON.stringify(['Pull-up bar', 'Kettlebell (optional)', 'Timer or reminder app (optional)']),
+      references: JSON.stringify([
+        'Pavel Tsatsouline — "Power to the People"',
+        'Pavel Tsatsouline — "The Naked Warrior"',
+      ]),
+      featured: true,
+    },
   ]
 
   for (const protocol of protocols) {
