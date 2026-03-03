@@ -326,34 +326,40 @@ export async function waitForNostrConnect(
             console.log("[NIP-46] Decrypted:", decrypted)
             const request = JSON.parse(decrypted)
             
-            // Remote signer sends "connect" request when scanning QR
-            if (request.method === "connect") {
-              console.log("[NIP-46] Received connect request from signer")
+            // Handle different message types from signer
+            // Some signers send "connect" request, others send "ack" response directly
+            const isConnectRequest = request.method === "connect"
+            const isAckResponse = request.result === "ack"
+            
+            if (isConnectRequest || isAckResponse) {
+              console.log("[NIP-46] Received", isConnectRequest ? "connect request" : "ack response", "from signer")
               
-              // Send acknowledgment back to the signer
-              const ackResponse = JSON.stringify({
-                id: request.id,
-                result: "ack"
-              })
-              
-              const encryptedAck = await encryptNip46(
-                clientSecretKey,
-                event.pubkey,
-                ackResponse
-              )
-              
-              const ackEvent = finalizeEvent(
-                {
-                  kind: 24133,
-                  created_at: Math.floor(Date.now() / 1000),
-                  tags: [["p", event.pubkey]],
-                  content: encryptedAck
-                },
-                clientSecretKey
-              )
-              
-              await relay.publish(ackEvent)
-              console.log("[NIP-46] Sent ack to signer")
+              // If it's a connect request, send acknowledgment back
+              if (isConnectRequest) {
+                const ackResponse = JSON.stringify({
+                  id: request.id,
+                  result: "ack"
+                })
+                
+                const encryptedAck = await encryptNip46(
+                  clientSecretKey,
+                  event.pubkey,
+                  ackResponse
+                )
+                
+                const ackEvent = finalizeEvent(
+                  {
+                    kind: 24133,
+                    created_at: Math.floor(Date.now() / 1000),
+                    tags: [["p", event.pubkey]],
+                    content: encryptedAck
+                  },
+                  clientSecretKey
+                )
+                
+                await relay.publish(ackEvent)
+                console.log("[NIP-46] Sent ack to signer")
+              }
               
               clearTimeout(timeout)
               relay.close()
