@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Ban, UserCog, Shield, ExternalLink, Loader2, Crown, Users } from "lucide-react";
+import { Search, Ban, UserCog, Shield, ExternalLink, Loader2, Crown, Users, UserMinus, UserPlus } from "lucide-react";
 
 // The hardcoded admin pubkey
 const ADMIN_PUBKEY_HEX = "d9590d95a7811e1cb312be66edd664d7e3e6ed57822ad9f213ed620fc6748be8";
@@ -126,6 +126,44 @@ export default function UsersAdmin() {
       }
     } catch (error) {
       console.error("Failed to impersonate user:", error);
+    }
+  };
+
+  const handleRevokeCollaborator = async (userId: string, userName: string) => {
+    if (!confirm(`Revoke collaborator status from ${userName}? Their content will be hidden.`)) return;
+    
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/collaborator`, {
+        method: "DELETE",
+      });
+      
+      if (res.ok) {
+        loadUsers();
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to revoke collaborator");
+      }
+    } catch (error) {
+      console.error("Failed to revoke collaborator:", error);
+    }
+  };
+
+  const handleGrantCollaborator = async (userId: string, userName: string) => {
+    if (!confirm(`Grant collaborator status to ${userName}?`)) return;
+    
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/collaborator`, {
+        method: "POST",
+      });
+      
+      if (res.ok) {
+        loadUsers();
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to grant collaborator");
+      }
+    } catch (error) {
+      console.error("Failed to grant collaborator:", error);
     }
   };
 
@@ -293,6 +331,30 @@ export default function UsersAdmin() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex gap-1 justify-end">
+                      {/* Collaborator toggle - only for users with Nostr pubkey */}
+                      {user.nostrPubkey && !user.isSystemAdmin && (
+                        user.isCollaborator ? (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleRevokeCollaborator(user.id, user.nostrName || user.name)}
+                            className="h-8 w-8 p-0 hover:bg-orange-500/20 hover:text-orange-300"
+                            title="Revoke collaborator"
+                          >
+                            <UserMinus className="h-4 w-4" />
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleGrantCollaborator(user.id, user.nostrName || user.name)}
+                            className="h-8 w-8 p-0 hover:bg-green-500/20 hover:text-green-300"
+                            title="Grant collaborator"
+                          >
+                            <UserPlus className="h-4 w-4" />
+                          </Button>
+                        )
+                      )}
                       {user.banned ? (
                         <Button
                           size="sm"
