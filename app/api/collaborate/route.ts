@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendCollaborationDM } from "@/lib/nostr-dm";
 
 /**
  * Convert npub to hex pubkey using bech32 decoding.
@@ -131,10 +132,27 @@ export async function POST(request: Request) {
       },
     });
 
+    // Send Nostr DM if there's a message
+    let dmSent = false;
+    if (trimmedMessage) {
+      try {
+        const dmResult = await sendCollaborationDM(trimmedMessage, trimmedNpub);
+        dmSent = dmResult.success;
+        if (!dmResult.success) {
+          console.warn("Failed to send collaboration DM:", dmResult.errors);
+        }
+      } catch (e) {
+        console.warn("Failed to send collaboration DM:", e);
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      message: "Request submitted successfully! We'll review it soon.",
+      message: dmSent 
+        ? "Request submitted and message sent via Nostr DM! We'll review it soon."
+        : "Request submitted successfully! We'll review it soon.",
       requestId: collabRequest.id,
+      dmSent,
     });
   } catch (error) {
     console.error("Failed to submit collaboration request:", error);
