@@ -288,17 +288,21 @@ export async function POST(
           break;
       }
       
-      // Log enrichment
-      await prisma.enrichmentLog.create({
-        data: {
-          entityType: type.slice(0, -1), // Remove plural 's'
-          entityId: id,
-          entityName: name,
-          fieldsAdded: JSON.stringify(fieldsAdded),
-          source: "ai",
-          enrichedBy: "perplexity",
-        },
-      });
+      // Log enrichment — don't fail the whole request if logging fails
+      try {
+        await prisma.enrichmentLog.create({
+          data: {
+            entityType: type.slice(0, -1), // Remove plural 's'
+            entityId: id,
+            entityName: name,
+            fieldsAdded: JSON.stringify(fieldsAdded),
+            source: "ai",
+            enrichedBy: "perplexity",
+          },
+        });
+      } catch (logError) {
+        console.error("Failed to log enrichment (non-fatal):", logError);
+      }
     }
     
     return NextResponse.json({

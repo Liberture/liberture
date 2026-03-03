@@ -94,7 +94,7 @@ model Content {
 }
 
 model EnrichmentLog {
-  id          String   @id
+  id          String   @id @default(cuid())
   entityType  String
   entityId    String
   entityName  String
