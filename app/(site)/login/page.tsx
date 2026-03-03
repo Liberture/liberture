@@ -92,80 +92,18 @@ export default function LoginPage() {
           )}
 
           <p className="text-xs text-center text-muted-foreground">
-            Email login coming soon. For now, sign in with your Nostr identity.
+            Why no email login?{" "}
+            <a
+              href="https://medium.com/@liberture/why-we-dont-use-email-auth"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              Learn more
+            </a>
           </p>
         </CardContent>
       </Card>
     </div>
   )
 }
-
-/* =============================================================================
- * PRESERVED: Original email/password login — re-enable when ready
- * =============================================================================
- *
- * import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
- *
- * // Login form state
- * const [loginEmail, setLoginEmail] = useState("")
- * const [loginPassword, setLoginPassword] = useState("")
- *
- * // Register form state
- * const [registerEmail, setRegisterEmail] = useState("")
- * const [registerPassword, setRegisterPassword] = useState("")
- * const [registerName, setRegisterName] = useState("")
- *
- * const handleLogin = async (e: React.FormEvent) => {
- *   e.preventDefault()
- *   setError("")
- *   setLoading(true)
- *   try {
- *     await login(loginEmail, loginPassword)
- *   } catch (err) {
- *     setError(err instanceof Error ? err.message : "Login failed")
- *   } finally {
- *     setLoading(false)
- *   }
- * }
- *
- * const handleRegister = async (e: React.FormEvent) => {
- *   e.preventDefault()
- *   setError("")
- *   setLoading(true)
- *   try {
- *     await register(registerEmail, registerPassword, registerName)
- *   } catch (err) {
- *     setError(err instanceof Error ? err.message : "Registration failed")
- *   } finally {
- *     setLoading(false)
- *   }
- * }
- *
- * <Tabs defaultValue="login" className="w-full">
- *   <TabsList className="grid w-full grid-cols-2">
- *     <TabsTrigger value="login">Login</TabsTrigger>
- *     <TabsTrigger value="register">Register</TabsTrigger>
- *   </TabsList>
- *   <TabsContent value="login">
- *     <form onSubmit={handleLogin} className="space-y-4">
- *       <input type="email" value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} required />
- *       <input type="password" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required />
- *       <Button type="submit" className="w-full" disabled={loading}>
- *         {loading ? "Logging in..." : "Login"}
- *       </Button>
- *     </form>
- *   </TabsContent>
- *   <TabsContent value="register">
- *     <form onSubmit={handleRegister} className="space-y-4">
- *       <input type="text" value={registerName} onChange={(e) => setRegisterName(e.target.value)} required />
- *       <input type="email" value={registerEmail} onChange={(e) => setRegisterEmail(e.target.value)} required />
- *       <input type="password" value={registerPassword} onChange={(e) => setRegisterPassword(e.target.value)} required minLength={6} />
- *       <Button type="submit" className="w-full" disabled={loading}>
- *         {loading ? "Creating account..." : "Create Account"}
- *       </Button>
- *     </form>
- *   </TabsContent>
- * </Tabs>
- *
- * =============================================================================
- */
