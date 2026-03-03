@@ -43,6 +43,7 @@ export default function LoginPage() {
     clientPubkey: string
   } | null>(null)
   const [waitingForConnect, setWaitingForConnect] = useState(false)
+  const [connectComplete, setConnectComplete] = useState(false)
   const [copied, setCopied] = useState(false)
   
   // Bunker state
@@ -127,20 +128,20 @@ export default function LoginPage() {
       console.log("[Login] Calling loginWithNip46...")
       await loginWithNip46(client)
       console.log("[Login] Login complete!")
+      setConnectComplete(true)
     } catch (err) {
       console.error("[Login] Error:", err)
       setError(err instanceof Error ? err.message : "Connection failed")
-    } finally {
       setWaitingForConnect(false)
     }
   }, [connectSession, nip46Module, loginWithNip46])
 
   // Start listening when QR is shown
   useEffect(() => {
-    if (activeTab === "connect" && connectSession && !waitingForConnect && nip46Module) {
+    if (activeTab === "connect" && connectSession && !waitingForConnect && !connectComplete && nip46Module) {
       handleNostrConnect()
     }
-  }, [activeTab, connectSession, waitingForConnect, nip46Module, handleNostrConnect])
+  }, [activeTab, connectSession, waitingForConnect, connectComplete, nip46Module, handleNostrConnect])
 
   // Handle bunker:// login
   const handleBunkerLogin = async () => {
