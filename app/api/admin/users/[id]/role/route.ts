@@ -1,39 +1,33 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth-better";
-import { headers } from "next/headers";
+import { getAuthUser, isAdmin } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+    const { id } = await params;
+    const authUser = await getAuthUser();
 
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    if (!authUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const admin = await isAdmin(authUser.userId);
+    if (!admin) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const { role } = await request.json();
 
-    if (!["user", "admin", "moderator"].includes(role)) {
-      return NextResponse.json(
-        { error: "Invalid role" },
-        { status: 400 }
-      );
+    if (!["user", "admin", "moderator", "contributor"].includes(role)) {
+      return NextResponse.json({ error: "Invalid role" }, { status: 400 });
     }
 
-    // Use Better-Auth admin plugin to set user role
-    await auth.api.setRole({
-      body: {
-        userId: params.id,
-        role,
-      },
-      headers: await headers(),
+    await prisma.user.update({
+      where: { id },
+      data: { role },
     });
 
     return NextResponse.json({ success: true });

@@ -119,6 +119,27 @@ export default function UsersAdmin() {
     }
   };
 
+  const handleRoleChange = async (userId: string, newRole: string) => {
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/role`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: newRole }),
+      });
+      
+      if (res.ok) {
+        setUsers(prev => prev.map(u => 
+          u.id === userId ? { ...u, role: newRole } : u
+        ));
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to update role");
+      }
+    } catch (error) {
+      console.error("Failed to update role:", error);
+    }
+  };
+
   const truncateNpub = (npub: string) => {
     return `${npub.slice(0, 12)}...${npub.slice(-8)}`;
   };
@@ -163,7 +184,8 @@ export default function UsersAdmin() {
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-semibold">User</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold">Nostr Identity</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold">BOS Level</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold">Role</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold">BOS</th>
                 <th className="px-4 py-3 text-left text-xs font-semibold">Status</th>
                 <th className="px-4 py-3 text-right text-xs font-semibold">Actions</th>
               </tr>
@@ -217,8 +239,20 @@ export default function UsersAdmin() {
                     )}
                   </td>
                   <td className="px-4 py-3">
+                    <select
+                      value={user.role || "user"}
+                      onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                      className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs text-slate-300 cursor-pointer hover:border-slate-600"
+                    >
+                      <option value="user">User</option>
+                      <option value="contributor">Contributor</option>
+                      <option value="moderator">Moderator</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </td>
+                  <td className="px-4 py-3">
                     <Badge variant="outline" className="text-xs">
-                      Level {user.bosLevel}
+                      {user.bosLevel}
                     </Badge>
                   </td>
                   <td className="px-4 py-3">
