@@ -107,7 +107,12 @@ export default function EnrichmentHistory() {
       ) : (
         <div className="space-y-3">
           {logs.map((log) => {
-            const fieldsAdded = JSON.parse(log.fieldsAdded);
+            let fieldsAdded: string[] = [];
+            try {
+              fieldsAdded = log.fieldsAdded ? JSON.parse(log.fieldsAdded) : [];
+            } catch {
+              fieldsAdded = [log.fieldsAdded || "unknown"];
+            }
             return (
               <div
                 key={log.id}
