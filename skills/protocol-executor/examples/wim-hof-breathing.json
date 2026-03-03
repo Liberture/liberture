@@ -1,0 +1,39 @@
+{
+  "id": "wim-hof-breathing",
+  "name": "Wim Hof Breathing Method",
+  "pillar": "mental",
+  "duration": "ongoing",
+  "difficulty": "medium",
+  "summary": "Controlled hyperventilation followed by breath retention for stress resilience and focus",
+  "source": "https://www.wimhofmethod.com/breathing-techniques",
+  "studies": [
+    "doi:10.1073/pnas.1322174111",
+    "pubmed:24799686"
+  ],
+  "actions": [
+    {
+      "id": "breathing-session",
+      "name": "Wim Hof breathing (15-20 min)",
+      "time": "morning",
+      "frequency": "daily",
+      "description": "3 rounds of: 30-40 deep breaths (in through nose, out through mouth) → exhale and hold until urge to breathe → deep breath in, hold 15 seconds → exhale. Do on empty stomach, never in water or driving."
+    },
+    {
+      "id": "cold-exposure",
+      "name": "Cold shower finish (30-60 sec)",
+      "time": "morning",
+      "time_relative": "after breathing",
+      "frequency": "daily",
+      "description": "End shower with cold water. Start with 30 seconds, build to 2 minutes over weeks. Focus on breathing through the discomfort.",
+      "optional": true
+    }
+  ],
+  "warnings": [
+    "Never do near water (drowning risk during breath hold)",
+    "Never while driving",
+    "Do on empty stomach",
+    "Stop if dizzy or unwell",
+    "Consult doctor if you have heart conditions"
+  ],
+  "notes": "The breathing creates temporary alkalosis and may cause tingling, lightheadedness. This is normal. Start with 2 rounds if 3 feels intense."
+}

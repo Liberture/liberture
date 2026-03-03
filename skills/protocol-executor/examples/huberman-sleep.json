@@ -1,0 +1,71 @@
+{
+  "id": "huberman-sleep",
+  "name": "Huberman Sleep Protocol",
+  "pillar": "recovery",
+  "duration": "ongoing",
+  "difficulty": "easy",
+  "summary": "Morning light exposure + evening wind-down for optimal circadian rhythm",
+  "source": "https://hubermanlab.com/toolkit-for-sleep/",
+  "studies": [
+    "doi:10.1016/j.cub.2013.10.024",
+    "pubmed:31395998"
+  ],
+  "actions": [
+    {
+      "id": "morning-light",
+      "name": "Morning sunlight (10 min)",
+      "time": "morning",
+      "time_relative": "+30m from wake",
+      "frequency": "daily",
+      "description": "Get 10 minutes of direct sunlight within 30 minutes of waking. Go outside — window glass blocks beneficial wavelengths. No sunglasses. Cloudy days need 20-30 minutes."
+    },
+    {
+      "id": "afternoon-light",
+      "name": "Afternoon sunlight (optional)",
+      "time": "afternoon",
+      "time_trigger": "14:00-16:00",
+      "frequency": "daily",
+      "description": "Brief afternoon sun exposure helps anchor circadian rhythm. Even 5-10 minutes helps.",
+      "optional": true
+    },
+    {
+      "id": "evening-dim",
+      "name": "Dim lights after sunset",
+      "time": "evening",
+      "time_trigger": "sunset",
+      "frequency": "daily",
+      "description": "Reduce overhead lights after sunset. Use lamps at eye level or below. Dimmer is better. This signals your brain that night is coming."
+    },
+    {
+      "id": "screen-filter",
+      "name": "Enable night mode on screens",
+      "time": "evening",
+      "time_trigger": "sunset",
+      "frequency": "daily",
+      "description": "Turn on night shift / warm colors on all devices. Reduces blue light that suppresses melatonin."
+    },
+    {
+      "id": "no-screens",
+      "name": "No screens 1hr before bed",
+      "time": "night",
+      "time_relative": "-60m from sleep",
+      "frequency": "daily",
+      "description": "Put away phone, laptop, TV. Read a physical book, do gentle stretching, or relaxation exercises. This is the hardest one but most impactful."
+    },
+    {
+      "id": "cool-room",
+      "name": "Cool bedroom (65-68°F)",
+      "time": "night",
+      "frequency": "daily",
+      "description": "Body temperature needs to drop for sleep. Keep bedroom cool. Consider a warm shower 1-2 hours before bed (counterintuitive but helps cooling after)."
+    },
+    {
+      "id": "consistent-wake",
+      "name": "Wake at consistent time",
+      "time": "morning",
+      "frequency": "daily",
+      "description": "Wake up at the same time every day, including weekends. This anchors your circadian rhythm. Consistency beats duration."
+    }
+  ],
+  "notes": "Start with morning light — it's the highest impact. Add other actions gradually. Don't try to be perfect on day 1."
+}
