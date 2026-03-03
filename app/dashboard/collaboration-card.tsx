@@ -113,6 +113,11 @@ export function CollaborationCard() {
     )
   }
 
+  // Admin - don't show collaboration card (they're above collaborators)
+  if (user?.isAdmin || user?.role === "admin") {
+    return null // Admins don't need this card
+  }
+
   // Already a collaborator
   if (status?.isCollaborator) {
     return (
