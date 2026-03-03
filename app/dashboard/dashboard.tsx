@@ -5,6 +5,7 @@ import { BosLevelCard } from "./bos-level-card"
 import { BookmarksSection } from "./bookmarks-section"
 import { NostrProfile } from "./nostr-profile"
 import { CollaborationCard } from "./collaboration-card"
+import { CreatorStudio } from "./creator-studio"
 import { Card, CardContent } from "@/components/ui/card"
 import { Sparkles } from "lucide-react"
 
@@ -35,8 +36,12 @@ export function Dashboard() {
           </Card>
         </div>
 
-        {/* Main Content — Bookmarks */}
-        <div className="lg:col-span-3">
+        {/* Main Content */}
+        <div className="lg:col-span-3 space-y-6">
+          {/* Creator Studio - only shows for collaborators/admins */}
+          <CreatorStudio />
+          
+          {/* Bookmarks */}
           <BookmarksSection />
         </div>
       </div>
