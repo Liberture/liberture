@@ -1,6 +1,23 @@
 import Link from "next/link"
 import { Brain, Droplet, Utensils, Dumbbell, Heart, Wallet, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Interactive Life Skills Games | Liberture",
+  description: "Learn fundamental biohacking skills through immersive simulations. Master sleep hygiene, hydration, nutrition, and more through interactive games.",
+  openGraph: {
+    title: "Interactive Life Skills Games | Liberture",
+    description: "Learn fundamental biohacking skills through immersive simulations. Master sleep hygiene, hydration, nutrition, and more.",
+    url: "https://liberture.com/games",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Interactive Life Skills Games | Liberture",
+    description: "Learn fundamental biohacking skills through immersive simulations.",
+  },
+}
 
 const games = [
   {

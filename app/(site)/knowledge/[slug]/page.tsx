@@ -6,15 +6,57 @@ import { Button } from '@/components/ui/button'
 import { Clock, ExternalLink, Calendar, User, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { PILLAR_ICON_MAP } from '@/lib/pillars'
+import { ArticleSchema, BreadcrumbSchema } from '@/components/seo/JsonLd'
+import type { Metadata } from 'next'
 
 interface PageProps {
   params: Promise<{ slug: string }>
 }
 
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params
+  
+  let article = null
+  try {
+    article = await prisma.knowledgeArticle.findUnique({
+      where: { slug },
+      select: {
+        title: true,
+        description: true,
+        author: true,
+      },
+    })
+  } catch {
+    // Database unavailable
+  }
+
+  if (!article) {
+    return {
+      title: 'Article Not Found | Liberture',
+    }
+  }
+
+  return {
+    title: `${article.title} | Liberture Knowledge`,
+    description: article.description || `Learn about ${article.title} from ${article.author} on Liberture.`,
+    openGraph: {
+      title: article.title,
+      description: article.description || `Learn about ${article.title} from ${article.author}.`,
+      url: `https://liberture.com/knowledge/${slug}`,
+      type: 'article',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description: article.description || `Learn about ${article.title}.`,
+    },
+  }
+}
+
 export default async function KnowledgeArticlePage({ params }: PageProps) {
   const { slug } = await params
 
-  let article: Awaited<ReturnType<typeof prisma.knowledgeArticle.findUnique<{ where: { slug: string }; select: { id: true; title: true; description: true; content: true; tags: true; author: true; readTime: true; url: true; publishedAt: true; pillar: true } }>>> = null
+  let article: Awaited<ReturnType<typeof prisma.knowledgeArticle.findUnique<{ where: { slug: string }; select: { id: true; title: true; description: true; content: true; tags: true; author: true; readTime: true; url: true; publishedAt: true; updatedAt: true; pillar: true } }>>> = null
   try {
     article = await prisma.knowledgeArticle.findUnique({
       where: { slug },
@@ -28,6 +70,7 @@ export default async function KnowledgeArticlePage({ params }: PageProps) {
         readTime: true,
         url: true,
         publishedAt: true,
+        updatedAt: true,
         pillar: true,
       },
     })
@@ -41,9 +84,27 @@ export default async function KnowledgeArticlePage({ params }: PageProps) {
 
   const tags = article.tags.split(',').map(t => t.trim()).filter(Boolean)
   const Icon = article.pillar ? PILLAR_ICON_MAP[article.pillar as keyof typeof PILLAR_ICON_MAP] : null
+  const articleUrl = `https://liberture.com/knowledge/${slug}`
 
   return (
     <div className="min-h-screen py-12">
+      {/* JSON-LD Structured Data */}
+      <ArticleSchema
+        title={article.title}
+        description={article.description || ''}
+        url={articleUrl}
+        publishedAt={article.publishedAt.toISOString()}
+        modifiedAt={article.updatedAt?.toISOString()}
+        author={article.author || 'Liberture'}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: 'Home', url: 'https://liberture.com' },
+          { name: 'Knowledge', url: 'https://liberture.com/knowledge' },
+          { name: article.title, url: articleUrl },
+        ]}
+      />
+
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           {/* Back Button */}
