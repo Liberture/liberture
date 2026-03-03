@@ -117,8 +117,9 @@ export class Nip46Client implements Nip46Signer {
         onevent: async (event) => {
           try {
             console.log("[NIP-46] Received event from:", event.pubkey)
+            const secretKeyHex = bytesToHex(this.connection.clientSecretKey)
             const decrypted = await nip04.decrypt(
-              this.connection.clientSecretKey,
+              secretKeyHex,
               event.pubkey,
               event.content
             )
@@ -168,8 +169,9 @@ export class Nip46Client implements Nip46Signer {
     
     console.log("[NIP-46] Sending request:", method, params)
     
+    const secretKeyHex = bytesToHex(this.connection.clientSecretKey)
     const encrypted = await nip04.encrypt(
-      this.connection.clientSecretKey,
+      secretKeyHex,
       this.connection.pubkey,
       request
     )
@@ -290,8 +292,11 @@ export async function waitForNostrConnect(
       {
         onevent: async (event) => {
           console.log("[NIP-46] Received event from:", event.pubkey)
+          console.log("[NIP-46] Event content:", event.content)
           try {
-            const decrypted = await nip04.decrypt(clientSecretKey, event.pubkey, event.content)
+            // Convert secret key to hex for nip04
+            const secretKeyHex = bytesToHex(clientSecretKey)
+            const decrypted = await nip04.decrypt(secretKeyHex, event.pubkey, event.content)
             console.log("[NIP-46] Decrypted:", decrypted)
             const request = JSON.parse(decrypted)
             
@@ -306,7 +311,7 @@ export async function waitForNostrConnect(
               })
               
               const encryptedAck = await nip04.encrypt(
-                clientSecretKey,
+                secretKeyHex,
                 event.pubkey,
                 ackResponse
               )
