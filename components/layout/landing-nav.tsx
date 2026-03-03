@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
-import { LogOut, Menu, X, ChevronDown } from "lucide-react"
+import { LogOut, Menu, X, ChevronDown, User } from "lucide-react"
 import { translations } from "@/lib/translations"
 import { LibertureLogo } from "@/components/branding"
 import { PILLAR_ICON_MAP } from "@/lib/pillars"
@@ -15,6 +15,7 @@ export function LandingNav() {
   const { pillars } = translations.en.common
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [pillarsDropdownOpen, setPillarsDropdownOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
@@ -91,13 +92,46 @@ export function LandingNav() {
             How it Works
           </Link>
 
-          {/* Auth Button */}
+          {/* Auth Button / User Menu */}
           {user ? (
-            <Link href="/dashboard">
-              <Button size="sm" className="bg-primary hover:bg-primary/90">
+            <div 
+              className="relative"
+              onMouseEnter={() => setUserMenuOpen(true)}
+              onMouseLeave={() => setUserMenuOpen(false)}
+            >
+              <Button size="sm" className="bg-primary hover:bg-primary/90 gap-2">
+                <User className="h-4 w-4" />
                 {navigation.dashboard}
+                <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`} />
               </Button>
-            </Link>
+              
+              {userMenuOpen && (
+                <div className="absolute top-full right-0 pt-2 w-48">
+                  <div className="bg-background border border-border/50 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="p-2">
+                      <Link
+                        href="/dashboard"
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-accent/50 transition-colors"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
+                        <User className="h-4 w-4" />
+                        Dashboard
+                      </Link>
+                      <button
+                        onClick={() => {
+                          logout()
+                          setUserMenuOpen(false)
+                        }}
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-red-500/10 transition-colors w-full"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Log out
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           ) : (
             <Link href="/login">
               <Button size="sm" className="bg-primary hover:bg-primary/90">
