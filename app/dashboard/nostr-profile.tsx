@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { User, ExternalLink, FileText, BookOpen, Loader2, RefreshCw } from "lucide-react"
-import { SimplePool } from "nostr-tools"
 
 type ContentItem = {
   id: string
@@ -23,13 +22,6 @@ type NostrProfile = {
   picture?: string
   nip05?: string
 }
-
-const RELAYS = [
-  'wss://relay.mappingbitcoin.com',
-  'wss://relay.damus.io',
-  'wss://nos.lol',
-  'wss://relay.nostr.band',
-]
 
 export function NostrProfile() {
   const { user } = useAuth()
@@ -53,45 +45,42 @@ export function NostrProfile() {
     }
   }
 
-  // Fetch profile from Nostr relays (kind 0 metadata)
+  // Fetch profile from nostr.band REST API (fast, no WebSocket needed)
   const loadProfile = async () => {
     if (!user?.nostrPubkey) return
 
     setProfileLoading(true)
     try {
-      const pool = new SimplePool()
-      
-      const event = await pool.get(RELAYS, {
-        kinds: [0],
-        authors: [user.nostrPubkey],
-      })
+      const res = await fetch(
+        `https://api.nostr.band/v0/profiles/${user.nostrPubkey}`,
+        { signal: AbortSignal.timeout(5000) }
+      )
 
-      if (event) {
-        const metadata = JSON.parse(event.content)
-        setProfile({
-          name: metadata.name || metadata.display_name,
-          about: metadata.about,
-          picture: metadata.picture,
-          nip05: metadata.nip05,
-        })
-      } else {
-        // No profile found on relays, fallback to DB name
-        setProfile({
-          name: user.name,
-          about: undefined,
-          picture: undefined,
-          nip05: undefined,
-        })
+      if (res.ok) {
+        const data = await res.json()
+        const metadata = data?.profile?.content
+          ? JSON.parse(data.profile.content)
+          : null
+
+        if (metadata) {
+          setProfile({
+            name: metadata.name || metadata.display_name,
+            about: metadata.about,
+            picture: metadata.picture,
+            nip05: metadata.nip05,
+          })
+          setProfileLoading(false)
+          return
+        }
       }
-
-      pool.close(RELAYS)
     } catch (error) {
       console.error("Failed to load Nostr profile:", error)
-      // Fallback to DB name on error
-      setProfile({ name: user.name })
-    } finally {
-      setProfileLoading(false)
+      // fall through to fallback
     }
+
+    // Fallback: use name from DB
+    setProfile({ name: user.name })
+    setProfileLoading(false)
   }
 
   useEffect(() => {
