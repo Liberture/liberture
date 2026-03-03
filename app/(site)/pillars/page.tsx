@@ -4,6 +4,23 @@ import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { AnimatedPillarGrid } from '@/components/pillars'
 import { MotionContainer, MotionItem, MotionStats, MotionSection } from '@/components/animations'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'The 6 Pillars of Human Optimization | Liberture',
+  description: 'A comprehensive framework for human performance, longevity, and wellbeing. Explore Cognition, Recovery, Fueling, Mental, Physicality, and Finance pillars.',
+  openGraph: {
+    title: 'The 6 Pillars of Human Optimization | Liberture',
+    description: 'A comprehensive framework for human performance across Cognition, Recovery, Fueling, Mental, Physicality, and Finance.',
+    url: 'https://liberture.com/pillars',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'The 6 Pillars of Human Optimization | Liberture',
+    description: 'A comprehensive framework for human performance and longevity.',
+  },
+}
 
 const PILLARS = [
   { name: 'Cognition', slug: 'cognition', icon: '🧠', tagline: 'Think Sharper', description: 'Optimize brain function, focus, memory, and mental performance', color: 'from-cognition/20 to-cognition/5 hover:from-cognition/30 hover:to-cognition/10', borderColor: 'border-cognition/30' },

@@ -32,7 +32,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       select: { slug: true, updatedAt: true, featured: true }
     });
     
+    // Fetch all marketplace items
+    const marketplaceItems = await prisma.marketplaceItem.findMany({
+      select: { slug: true, updatedAt: true }
+    });
+    
     await prisma.$disconnect();
+    
+    // Valid pillar slugs (must match VALID_PILLARS in /app/(site)/pillars/[pillar]/page.tsx)
+    const pillarSlugs = ['work', 'sleep', 'nutrition', 'mind', 'exercise', 'finance'];
     
     // Build sitemap
     const sitemap: MetadataRoute.Sitemap = [
@@ -58,43 +66,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.9,
       },
       
-      // Pillar pages (hub & spoke model)
+      // Pillars index page
       {
-        url: `${baseUrl}/pillars/cognition`,
+        url: `${baseUrl}/pillars`,
         lastModified: new Date(),
         changeFrequency: 'weekly',
         priority: 0.9,
       },
-      {
-        url: `${baseUrl}/pillars/recovery`,
+      
+      // Individual pillar pages
+      ...pillarSlugs.map((pillar) => ({
+        url: `${baseUrl}/pillars/${pillar}`,
         lastModified: new Date(),
-        changeFrequency: 'weekly',
+        changeFrequency: 'weekly' as const,
         priority: 0.9,
-      },
-      {
-        url: `${baseUrl}/pillars/fueling`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly',
-        priority: 0.9,
-      },
-      {
-        url: `${baseUrl}/pillars/mental`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly',
-        priority: 0.9,
-      },
-      {
-        url: `${baseUrl}/pillars/physicality`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly',
-        priority: 0.9,
-      },
-      {
-        url: `${baseUrl}/pillars/finance`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly',
-        priority: 0.9,
-      },
+      })),
+      
+      // Directory sub-pages
       {
         url: `${baseUrl}/people`,
         lastModified: new Date(),
@@ -120,7 +108,41 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.9,
       },
       
+      // Marketplace
+      {
+        url: `${baseUrl}/marketplace`,
+        lastModified: new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.8,
+      },
+      
+      // Games
+      {
+        url: `${baseUrl}/games`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.7,
+      },
+      {
+        url: `${baseUrl}/games/hydration`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.6,
+      },
+      {
+        url: `${baseUrl}/games/sleep`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.6,
+      },
+      
       // Static pages
+      {
+        url: `${baseUrl}/how-it-works`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.7,
+      },
       {
         url: `${baseUrl}/about`,
         lastModified: new Date(),
@@ -133,8 +155,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         changeFrequency: 'monthly',
         priority: 0.5,
       },
+      {
+        url: `${baseUrl}/media-kit`,
+        lastModified: new Date(),
+        changeFrequency: 'monthly',
+        priority: 0.4,
+      },
+      {
+        url: `${baseUrl}/terms`,
+        lastModified: new Date(),
+        changeFrequency: 'yearly',
+        priority: 0.3,
+      },
+      {
+        url: `${baseUrl}/privacy`,
+        lastModified: new Date(),
+        changeFrequency: 'yearly',
+        priority: 0.3,
+      },
       
-      // Knowledge articles
+      // Knowledge articles (dynamic)
       ...articles.map((article) => ({
         url: `${baseUrl}/knowledge/${article.slug}`,
         lastModified: article.updatedAt,
@@ -142,7 +182,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
       })),
       
-      // People
+      // People (dynamic)
       ...people.map((person) => ({
         url: `${baseUrl}/people/${person.slug}`,
         lastModified: person.updatedAt,
@@ -150,7 +190,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: person.featured ? 0.8 : 0.7,
       })),
       
-      // Books
+      // Books (dynamic)
       ...books.map((book) => ({
         url: `${baseUrl}/books/${book.slug}`,
         lastModified: book.updatedAt,
@@ -158,7 +198,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: book.featured ? 0.8 : 0.7,
       })),
       
-      // Organizations
+      // Organizations (dynamic)
       ...organizations.map((org) => ({
         url: `${baseUrl}/organizations/${org.slug}`,
         lastModified: org.updatedAt,
@@ -166,12 +206,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: org.featured ? 0.8 : 0.7,
       })),
       
-      // Protocols
+      // Protocols (dynamic)
       ...protocols.map((protocol) => ({
         url: `${baseUrl}/protocols/${protocol.slug}`,
         lastModified: protocol.updatedAt,
         changeFrequency: 'monthly' as const,
         priority: protocol.featured ? 0.8 : 0.7,
+      })),
+      
+      // Marketplace items (dynamic) - only if they have detail pages
+      ...marketplaceItems.map((item) => ({
+        url: `${baseUrl}/marketplace/${item.slug}`,
+        lastModified: item.updatedAt,
+        changeFrequency: 'monthly' as const,
+        priority: 0.6,
       })),
     ];
     

@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { BookOpen, TrendingUp } from 'lucide-react'
 import { MotionContainer, MotionItem, MotionLoop, MotionStats, MotionSection, AnimatedArticleGrid, AnimatedOtherPillars } from '@/components/animations'
+import type { Metadata } from 'next'
 
 const VALID_PILLARS = ['work', 'sleep', 'nutrition', 'mind', 'exercise', 'finance'] as const
 type Pillar = (typeof VALID_PILLARS)[number]
@@ -23,6 +24,35 @@ interface PageProps {
 
 export async function generateStaticParams() {
   return VALID_PILLARS.map((pillar) => ({ pillar }))
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { pillar: pillarParam } = await params
+  const pillar = VALID_PILLARS.find(p => p === pillarParam)
+  
+  if (!pillar) {
+    return {
+      title: 'Pillar Not Found | Liberture',
+    }
+  }
+
+  const config = pillarConfig[pillar]
+  
+  return {
+    title: `${config.title} | Liberture`,
+    description: config.description,
+    openGraph: {
+      title: `${config.title} | Liberture`,
+      description: config.description,
+      url: `https://liberture.com/pillars/${pillar}`,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${config.title} | Liberture`,
+      description: config.description,
+    },
+  }
 }
 
 export default async function PillarPage({ params }: PageProps) {
