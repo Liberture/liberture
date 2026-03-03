@@ -49,13 +49,19 @@ export default function NostrSettings() {
   }, []);
 
   const handleSave = async () => {
-    if (!npub.trim()) {
-      setMessage({ type: "error", text: "npub is required" });
+    // Either npub or bunker URL is required
+    if (!npub.trim() && !nbunkerUrl.trim()) {
+      setMessage({ type: "error", text: "Either npub or bunker URL is required" });
       return;
     }
 
-    if (!npub.startsWith("npub1")) {
+    if (npub.trim() && !npub.startsWith("npub1")) {
       setMessage({ type: "error", text: "Invalid npub format — must start with npub1" });
+      return;
+    }
+    
+    if (nbunkerUrl.trim() && !nbunkerUrl.startsWith("bunker://")) {
+      setMessage({ type: "error", text: "Invalid bunker URL — must start with bunker://" });
       return;
     }
 
@@ -133,12 +139,15 @@ export default function NostrSettings() {
         <CardContent className="space-y-6">
           {/* npub input */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-300">Public Key (npub)</label>
+            <label className="text-sm font-medium text-slate-300">
+              Public Key (npub){" "}
+              <span className="text-slate-500 font-normal">— auto-filled from bunker URL</span>
+            </label>
             <div className="relative">
               <Key className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
                 type="text"
-                placeholder="npub1..."
+                placeholder="npub1... (optional if bunker URL provided)"
                 value={npub}
                 onChange={(e) => setNpub(e.target.value)}
                 className="pl-10 bg-slate-900/50 border-slate-700 text-slate-300 font-mono text-sm"
