@@ -90,15 +90,19 @@ export async function GET() {
     const collaboratorPubkeys = new Set<string>();
     for (const c of collaborators) {
       if (c.pubkeyHex) collaboratorPubkeys.add(c.pubkeyHex.toLowerCase());
-      // Also try to extract hex from npub if pubkeyHex is missing
     }
+
+    // Admin pubkey - admins are always considered collaborators
+    const ADMIN_PUBKEY_HEX = "d9590d95a7811e1cb312be66edd664d7e3e6ed57822ad9f213ed620fc6748be8";
 
     // Transform users to include npub and collaborator status
     const transformedUsers = users.map(user => {
       const npub = user.nostrPubkey ? hexToNpub(user.nostrPubkey) : null;
-      const isCollaborator = user.nostrPubkey 
+      const isSystemAdmin = user.nostrPubkey === ADMIN_PUBKEY_HEX;
+      // Admin is always a collaborator, otherwise check the collaborator table
+      const isCollaborator = isSystemAdmin || (user.nostrPubkey 
         ? collaboratorPubkeys.has(user.nostrPubkey.toLowerCase())
-        : false;
+        : false);
 
       return {
         ...user,
