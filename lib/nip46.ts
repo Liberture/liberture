@@ -3,6 +3,36 @@
 import { generateSecretKey, getPublicKey, finalizeEvent } from "nostr-tools/pure"
 import { Relay } from "nostr-tools/relay"
 import * as nip04 from "nostr-tools/nip04"
+import * as nip44 from "nostr-tools/nip44"
+
+// Decrypt using NIP-44 or NIP-04 (auto-detect based on content format)
+async function decryptNip46(secretKey: Uint8Array, pubkey: string, content: string): Promise<string> {
+  // NIP-44 content starts with version byte (base64 of 0x02 = "Ag")
+  if (content.startsWith("A")) {
+    try {
+      const conversationKey = nip44.v2.utils.getConversationKey(secretKey, pubkey)
+      return nip44.v2.decrypt(content, conversationKey)
+    } catch (e) {
+      console.log("[NIP-46] NIP-44 decrypt failed, trying NIP-04:", e)
+    }
+  }
+  
+  // Fall back to NIP-04
+  const secretKeyHex = bytesToHex(secretKey)
+  return nip04.decrypt(secretKeyHex, pubkey, content)
+}
+
+// Encrypt using NIP-44 (preferred) with NIP-04 fallback
+async function encryptNip46(secretKey: Uint8Array, pubkey: string, plaintext: string): Promise<string> {
+  try {
+    const conversationKey = nip44.v2.utils.getConversationKey(secretKey, pubkey)
+    return nip44.v2.encrypt(plaintext, conversationKey)
+  } catch (e) {
+    console.log("[NIP-46] NIP-44 encrypt failed, using NIP-04:", e)
+    const secretKeyHex = bytesToHex(secretKey)
+    return nip04.encrypt(secretKeyHex, pubkey, plaintext)
+  }
+}
 
 // Hex conversion utilities
 function bytesToHex(bytes: Uint8Array): string {
@@ -117,9 +147,8 @@ export class Nip46Client implements Nip46Signer {
         onevent: async (event) => {
           try {
             console.log("[NIP-46] Received event from:", event.pubkey)
-            const secretKeyHex = bytesToHex(this.connection.clientSecretKey)
-            const decrypted = await nip04.decrypt(
-              secretKeyHex,
+            const decrypted = await decryptNip46(
+              this.connection.clientSecretKey,
               event.pubkey,
               event.content
             )
@@ -169,9 +198,8 @@ export class Nip46Client implements Nip46Signer {
     
     console.log("[NIP-46] Sending request:", method, params)
     
-    const secretKeyHex = bytesToHex(this.connection.clientSecretKey)
-    const encrypted = await nip04.encrypt(
-      secretKeyHex,
+    const encrypted = await encryptNip46(
+      this.connection.clientSecretKey,
       this.connection.pubkey,
       request
     )
@@ -294,9 +322,7 @@ export async function waitForNostrConnect(
           console.log("[NIP-46] Received event from:", event.pubkey)
           console.log("[NIP-46] Event content:", event.content)
           try {
-            // Convert secret key to hex for nip04
-            const secretKeyHex = bytesToHex(clientSecretKey)
-            const decrypted = await nip04.decrypt(secretKeyHex, event.pubkey, event.content)
+            const decrypted = await decryptNip46(clientSecretKey, event.pubkey, event.content)
             console.log("[NIP-46] Decrypted:", decrypted)
             const request = JSON.parse(decrypted)
             
@@ -310,8 +336,8 @@ export async function waitForNostrConnect(
                 result: "ack"
               })
               
-              const encryptedAck = await nip04.encrypt(
-                secretKeyHex,
+              const encryptedAck = await encryptNip46(
+                clientSecretKey,
                 event.pubkey,
                 ackResponse
               )
