@@ -234,6 +234,7 @@ model Protocol {
   equipment   String?
   references  String?
   featured    Boolean  @default(false)
+  published   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime
 }

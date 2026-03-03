@@ -27,8 +27,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       select: { slug: true, updatedAt: true, featured: true }
     });
     
-    // Fetch all protocols
+    // Fetch all published protocols
     const protocols = await prisma.protocol.findMany({
+      where: { published: true },
       select: { slug: true, updatedAt: true, featured: true }
     });
     

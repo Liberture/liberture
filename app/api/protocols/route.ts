@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 export async function GET() {
   try {
     const protocols = await prisma.protocol.findMany({
+      where: { published: true },
       select: {
         id: true,
         name: true,

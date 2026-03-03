@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { prisma } from "@/lib/prisma";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -9,22 +10,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://liberture.com';
-    const response = await fetch(`${baseUrl}/api/protocols/${slug}`, {
-      cache: 'no-store',
+    const protocol = await prisma.protocol.findUnique({
+      where: { slug },
+      select: {
+        name: true,
+        description: true,
+        pillar: true,
+        published: true,
+      },
     });
     
-    if (!response.ok) {
+    if (!protocol) {
       return {
         title: 'Protocol Not Found | Liberture',
       };
     }
     
-    const protocol = await response.json();
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://liberture.com';
     const url = `${baseUrl}/protocols/${slug}`;
     const imageUrl = `${baseUrl}/og-image.png`;
     
-    return {
+    const metadata: Metadata = {
       title: `${protocol.name} | ${protocol.pillar} Protocol | Liberture`,
       description: protocol.description.substring(0, 160),
       openGraph: {
@@ -49,6 +55,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         images: [imageUrl],
       },
     };
+    
+    // Exclude unpublished protocols from search engine indexing
+    if (!protocol.published) {
+      metadata.robots = {
+        index: false,
+        follow: false,
+      };
+    }
+    
+    return metadata;
   } catch (error) {
     return {
       title: 'Protocol | Liberture',
