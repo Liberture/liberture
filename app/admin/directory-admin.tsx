@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Plus, Edit, Trash2, Sparkles, ExternalLink, Zap } from "lucide-react";
+import { Search, Plus, Edit, Trash2, Sparkles, ExternalLink, Zap, Send, Loader2, CheckCircle } from "lucide-react";
 import { EditPersonModal } from "./edit-person-modal";
+import { Button } from "@/components/ui/button";
 
 type DirectoryType = "people" | "books" | "organizations" | "protocols";
 
@@ -19,6 +20,9 @@ interface DirectoryItem {
   publications?: string | null;
   speakingEvents?: string | null;
   website?: string | null;
+  image?: string | null;
+  nostrEventId?: string | null;
+  nostrPublishedAt?: string | null;
 }
 
 export default function DirectoryAdmin() {
@@ -27,6 +31,9 @@ export default function DirectoryAdmin() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingItem, setEditingItem] = useState<DirectoryItem | null>(null);
+  const [publishing, setPublishing] = useState<string | null>(null);
+  const [publishingAll, setPublishingAll] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
 
   useEffect(() => {
     fetchItems();
@@ -138,6 +145,96 @@ export default function DirectoryAdmin() {
     }
   }
 
+  async function publishToNostr(item: DirectoryItem) {
+    setPublishing(item.id);
+    
+    try {
+      // Map directory type to publish type
+      const typeMap: Record<DirectoryType, string> = {
+        people: "person",
+        organizations: "organization",
+        protocols: "protocol",
+        books: "book",
+      };
+
+      // Build the data payload
+      const data: any = {
+        slug: item.slug,
+        name: item.name,
+        title: item.title,
+        bio: item.bio,
+        description: item.description,
+        image: item.image,
+        website: item.website,
+        pillars: item.pillars?.split(",").map(p => p.trim()),
+      };
+
+      if (activeType === "books") {
+        data.author = item.author;
+      }
+
+      const response = await fetch("/api/admin/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: typeMap[activeType],
+          data,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to publish");
+      }
+
+      alert(`✅ Published to Nostr!\n\nEvent ID: ${result.eventId}\nRelays: ${result.relaysPublished.join(", ")}`);
+      
+      // Update the item in the list to show it's published
+      setItems(prev => prev.map(i => 
+        i.id === item.id 
+          ? { ...i, nostrEventId: result.eventId, nostrPublishedAt: new Date().toISOString() }
+          : i
+      ));
+    } catch (error: any) {
+      console.error("Publish error:", error);
+      alert(`❌ Failed to publish: ${error.message}`);
+    } finally {
+      setPublishing(null);
+    }
+  }
+
+  async function publishAllToNostr() {
+    const unpublished = filteredItems.filter(item => !item.nostrEventId);
+    
+    if (unpublished.length === 0) {
+      alert("All items are already published!");
+      return;
+    }
+
+    if (!confirm(`Publish ${unpublished.length} ${activeType} to Nostr?\n\nThis will sign and broadcast each entry.`)) {
+      return;
+    }
+
+    setPublishingAll(true);
+    let published = 0;
+    let failed = 0;
+
+    for (const item of unpublished) {
+      try {
+        await publishToNostr(item);
+        published++;
+      } catch {
+        failed++;
+      }
+      // Small delay between publishes
+      await new Promise(r => setTimeout(r, 500));
+    }
+
+    setPublishingAll(false);
+    alert(`Published: ${published}\nFailed: ${failed}`);
+  }
+
   function getDisplayName(item: DirectoryItem): string {
     return item.name || item.title || "Unknown";
   }
@@ -173,13 +270,30 @@ export default function DirectoryAdmin() {
           ))}
         </div>
         
-        <button
-          onClick={enrichAll}
-          className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition-colors flex items-center gap-2"
-        >
-          <Zap className="w-4 h-4" />
-          Enrich All Unenriched
-        </button>
+        <div className="flex gap-2 flex-wrap">
+          <Button
+            onClick={() => setShowAddModal(true)}
+            className="bg-purple-500 hover:bg-purple-600"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add New
+          </Button>
+          <button
+            onClick={publishAllToNostr}
+            disabled={publishingAll}
+            className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors flex items-center gap-2 disabled:opacity-50"
+          >
+            {publishingAll ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            Publish All to Nostr
+          </button>
+          <button
+            onClick={enrichAll}
+            className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition-colors flex items-center gap-2"
+          >
+            <Zap className="w-4 h-4" />
+            Enrich All
+          </button>
+        </div>
       </div>
 
       {/* Search Bar */}
@@ -247,6 +361,24 @@ export default function DirectoryAdmin() {
                 </div>
 
                 <div className="flex items-center gap-2 ml-4">
+                  {item.nostrEventId ? (
+                    <span className="p-2 text-green-400" title={`Published: ${item.nostrEventId}`}>
+                      <CheckCircle className="w-4 h-4" />
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => publishToNostr(item)}
+                      disabled={publishing === item.id}
+                      className="p-2 bg-blue-500/20 text-blue-400 rounded hover:bg-blue-500/30 transition-colors disabled:opacity-50"
+                      title="Publish to Nostr"
+                    >
+                      {publishing === item.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Send className="w-4 h-4" />
+                      )}
+                    </button>
+                  )}
                   <button
                     onClick={() => enrichItem(item)}
                     className="p-2 bg-green-500/20 text-green-400 rounded hover:bg-green-500/30 transition-colors"
@@ -308,6 +440,253 @@ export default function DirectoryAdmin() {
           </div>
         </div>
       )}
+
+      {/* Add New Modal */}
+      {showAddModal && (
+        <AddItemModal
+          type={activeType}
+          onClose={() => setShowAddModal(false)}
+          onSave={async (data) => {
+            // Publish directly to Nostr
+            try {
+              const typeMap: Record<DirectoryType, string> = {
+                people: "person",
+                organizations: "organization",
+                protocols: "protocol",
+                books: "book",
+              };
+
+              const response = await fetch("/api/admin/publish", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  type: typeMap[activeType],
+                  data,
+                }),
+              });
+
+              const result = await response.json();
+
+              if (!response.ok) {
+                throw new Error(result.error || "Failed to publish");
+              }
+
+              alert(`✅ Published to Nostr!\n\nEvent ID: ${result.eventId}`);
+              setShowAddModal(false);
+              fetchItems();
+            } catch (error: any) {
+              alert(`❌ Failed: ${error.message}`);
+            }
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+// Add Item Modal Component
+function AddItemModal({
+  type,
+  onClose,
+  onSave,
+}: {
+  type: DirectoryType;
+  onClose: () => void;
+  onSave: (data: any) => Promise<void>;
+}) {
+  const [saving, setSaving] = useState(false);
+  const [formData, setFormData] = useState({
+    slug: "",
+    name: "",
+    title: "",
+    author: "",
+    bio: "",
+    description: "",
+    image: "",
+    website: "",
+    pillars: "",
+    content: "",
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    
+    const data: any = {
+      slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
+      pillars: formData.pillars.split(",").map(p => p.trim()).filter(Boolean),
+    };
+
+    if (type === "people") {
+      data.name = formData.name;
+      data.bio = formData.bio;
+      data.image = formData.image;
+      data.website = formData.website;
+    } else if (type === "organizations") {
+      data.name = formData.name;
+      data.description = formData.description;
+      data.logo = formData.image;
+      data.website = formData.website;
+    } else if (type === "books") {
+      data.title = formData.title;
+      data.author = formData.author;
+      data.description = formData.description;
+      data.cover = formData.image;
+    } else if (type === "protocols") {
+      data.title = formData.title || formData.name;
+      data.summary = formData.bio || formData.description;
+      data.content = formData.content || formData.description;
+      data.image = formData.image;
+      data.pillar = formData.pillars.split(",")[0]?.trim() || "mind";
+    }
+
+    try {
+      await onSave(data);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+      <div className="bg-slate-900 border border-slate-700 rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <h2 className="text-2xl font-bold mb-4 capitalize">Add New {type.slice(0, -1)}</h2>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {(type === "people" || type === "organizations") && (
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Name *</label>
+              <input
+                type="text"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white"
+              />
+            </div>
+          )}
+
+          {(type === "books" || type === "protocols") && (
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Title *</label>
+              <input
+                type="text"
+                required
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white"
+              />
+            </div>
+          )}
+
+          {type === "books" && (
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Author *</label>
+              <input
+                type="text"
+                required
+                value={formData.author}
+                onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+                className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white"
+              />
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">
+              {type === "people" ? "Bio" : "Description"}
+            </label>
+            <textarea
+              value={type === "people" ? formData.bio : formData.description}
+              onChange={(e) => setFormData({ 
+                ...formData, 
+                [type === "people" ? "bio" : "description"]: e.target.value 
+              })}
+              rows={3}
+              className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white"
+            />
+          </div>
+
+          {type === "protocols" && (
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Content (Markdown)</label>
+              <textarea
+                value={formData.content}
+                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                rows={8}
+                className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white font-mono text-sm"
+                placeholder="# Protocol Content&#10;&#10;Write your protocol instructions here..."
+              />
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Image URL</label>
+            <input
+              type="url"
+              value={formData.image}
+              onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+              className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white"
+              placeholder="https://..."
+            />
+          </div>
+
+          {(type === "people" || type === "organizations") && (
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Website</label>
+              <input
+                type="url"
+                value={formData.website}
+                onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white"
+                placeholder="https://..."
+              />
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">
+              Pillars (comma-separated) *
+            </label>
+            <input
+              type="text"
+              required
+              value={formData.pillars}
+              onChange={(e) => setFormData({ ...formData, pillars: e.target.value })}
+              className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white"
+              placeholder="sleep, nutrition, mind"
+            />
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={saving}
+              className="flex-1 bg-purple-500 hover:bg-purple-600"
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Publishing...
+                </>
+              ) : (
+                <>
+                  <Send className="w-4 h-4 mr-2" />
+                  Publish to Nostr
+                </>
+              )}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
