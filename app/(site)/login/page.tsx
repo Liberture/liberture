@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, Suspense } from "react"
 import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -8,16 +8,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Zap, ExternalLink, AlertCircle, Smartphone, Key, Link2, Copy, Check, Loader2, QrCode } from "lucide-react"
-import { QRCodeSVG } from "qrcode.react"
-import {
-  createNostrConnectSession,
-  waitForNostrConnect,
-  parseBunkerUrl,
-  createBunkerClient,
-  storeBunkerConnection,
-  DEFAULT_NIP46_RELAY,
-  type Nip46Signer
-} from "@/lib/nip46"
+import dynamic from "next/dynamic"
+
+// Dynamic import for QR code to avoid SSR issues
+const QRCodeSVG = dynamic(
+  () => import("qrcode.react").then((mod) => mod.QRCodeSVG),
+  { ssr: false, loading: () => <div className="w-[200px] h-[200px] bg-muted animate-pulse rounded-lg" /> }
+)
 
 // Hex conversion utility
 function bytesToHex(bytes: Uint8Array): string {
@@ -51,6 +48,9 @@ export default function LoginPage() {
   // Bunker state
   const [bunkerUrl, setBunkerUrl] = useState("")
   const [bunkerValid, setBunkerValid] = useState<boolean | null>(null)
+  
+  // NIP-46 module loaded state
+  const [nip46Module, setNip46Module] = useState<typeof import("@/lib/nip46") | null>(null)
 
   // Check for NIP-07 extension
   useEffect(() => {
@@ -60,23 +60,28 @@ export default function LoginPage() {
     return () => clearTimeout(timer)
   }, [])
 
+  // Lazy load NIP-46 module
+  useEffect(() => {
+    import("@/lib/nip46").then(setNip46Module).catch(console.error)
+  }, [])
+
   // Generate nostrconnect URL when tab becomes active
   useEffect(() => {
-    if (activeTab === "connect" && !connectUrl) {
-      const session = createNostrConnectSession(DEFAULT_NIP46_RELAY)
+    if (activeTab === "connect" && !connectUrl && nip46Module) {
+      const session = nip46Module.createNostrConnectSession(nip46Module.DEFAULT_NIP46_RELAY)
       setConnectSession(session)
       setConnectUrl(session.connectUrl)
     }
-  }, [activeTab, connectUrl])
+  }, [activeTab, connectUrl, nip46Module])
 
   // Validate bunker URL
   useEffect(() => {
-    if (!bunkerUrl) {
+    if (!bunkerUrl || !nip46Module) {
       setBunkerValid(null)
       return
     }
-    setBunkerValid(!!parseBunkerUrl(bunkerUrl))
-  }, [bunkerUrl])
+    setBunkerValid(!!nip46Module.parseBunkerUrl(bunkerUrl))
+  }, [bunkerUrl, nip46Module])
 
   // Handle NIP-07 login
   const handleExtensionLogin = async () => {
@@ -93,23 +98,23 @@ export default function LoginPage() {
 
   // Handle nostrconnect:// flow
   const handleNostrConnect = useCallback(async () => {
-    if (!connectSession) return
+    if (!connectSession || !nip46Module) return
     
     setError("")
     setWaitingForConnect(true)
     
     try {
-      const client = await waitForNostrConnect(
+      const client = await nip46Module.waitForNostrConnect(
         connectSession.clientSecretKey,
         connectSession.clientPubkey,
-        DEFAULT_NIP46_RELAY,
+        nip46Module.DEFAULT_NIP46_RELAY,
         120000
       )
       
       // Store connection for session
-      storeBunkerConnection({
+      nip46Module.storeBunkerConnection({
         pubkey: await client.getPublicKey(),
-        relayUrl: DEFAULT_NIP46_RELAY,
+        relayUrl: nip46Module.DEFAULT_NIP46_RELAY,
         clientPubkey: connectSession.clientPubkey,
         clientSecretKeyHex: bytesToHex(connectSession.clientSecretKey)
       })
@@ -120,32 +125,32 @@ export default function LoginPage() {
     } finally {
       setWaitingForConnect(false)
     }
-  }, [connectSession, loginWithNip46])
+  }, [connectSession, nip46Module, loginWithNip46])
 
   // Start listening when QR is shown
   useEffect(() => {
-    if (activeTab === "connect" && connectSession && !waitingForConnect) {
+    if (activeTab === "connect" && connectSession && !waitingForConnect && nip46Module) {
       handleNostrConnect()
     }
-  }, [activeTab, connectSession, waitingForConnect, handleNostrConnect])
+  }, [activeTab, connectSession, waitingForConnect, nip46Module, handleNostrConnect])
 
   // Handle bunker:// login
   const handleBunkerLogin = async () => {
-    if (!bunkerValid) return
+    if (!bunkerValid || !nip46Module) return
     
     setError("")
     setLoading(true)
     
     try {
-      const client = await createBunkerClient(bunkerUrl)
+      const client = await nip46Module.createBunkerClient(bunkerUrl)
       
-      const parsed = parseBunkerUrl(bunkerUrl)!
-      storeBunkerConnection({
+      const parsed = nip46Module.parseBunkerUrl(bunkerUrl)!
+      nip46Module.storeBunkerConnection({
         pubkey: parsed.pubkey,
         relayUrl: parsed.relayUrl,
         secret: parsed.secret,
         clientPubkey: await client.getPublicKey(),
-        clientSecretKeyHex: bytesToHex(new Uint8Array(32)) // Will be regenerated
+        clientSecretKeyHex: bytesToHex(new Uint8Array(32))
       })
       
       await loginWithNip46(client)
@@ -165,7 +170,8 @@ export default function LoginPage() {
 
   // Regenerate connect URL
   const regenerateConnectUrl = () => {
-    const session = createNostrConnectSession(DEFAULT_NIP46_RELAY)
+    if (!nip46Module) return
+    const session = nip46Module.createNostrConnectSession(nip46Module.DEFAULT_NIP46_RELAY)
     setConnectSession(session)
     setConnectUrl(session.connectUrl)
     setWaitingForConnect(false)
@@ -277,7 +283,6 @@ export default function LoginPage() {
                       value={connectUrl}
                       size={200}
                       level="M"
-                      includeMargin={false}
                       bgColor="white"
                       fgColor="black"
                     />
@@ -291,7 +296,7 @@ export default function LoginPage() {
                     <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-2xl">
                       <div className="flex flex-col items-center gap-2">
                         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                        <span className="text-sm font-medium">Waiting...</span>
+                        <span className="text-sm font-medium text-gray-700">Waiting...</span>
                       </div>
                     </div>
                   )}
@@ -320,6 +325,7 @@ export default function LoginPage() {
                     size="sm"
                     className="flex-1 gap-1.5"
                     onClick={regenerateConnectUrl}
+                    disabled={!nip46Module}
                   >
                     <QrCode className="h-4 w-4" /> New QR
                   </Button>
