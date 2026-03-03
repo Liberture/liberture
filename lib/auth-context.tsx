@@ -11,6 +11,7 @@ interface User {
   name: string
   bosLevel: number
   nostrPubkey?: string
+  role?: string
   isAdmin?: boolean
 }
 
