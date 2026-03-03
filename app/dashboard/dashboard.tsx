@@ -3,6 +3,7 @@
 import { useAuth } from "@/lib/auth-context"
 import { BosLevelCard } from "./bos-level-card"
 import { BookmarksSection } from "./bookmarks-section"
+import { NostrProfile } from "./nostr-profile"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { LogOut, Sparkles } from "lucide-react"
@@ -52,6 +53,9 @@ export function Dashboard() {
         {/* Left Sidebar */}
         <div className="lg:col-span-1 space-y-6">
           <BosLevelCard />
+
+          {/* Nostr Profile Section */}
+          {user?.nostrPubkey && <NostrProfile />}
 
           {/* Wizard Placeholder */}
           <Card className="bg-gray-800/70 border-gray-700 backdrop-blur-sm rounded-2xl border-dashed">

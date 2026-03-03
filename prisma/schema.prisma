@@ -26,28 +26,32 @@ model Account {
 }
 
 model Book {
-  id           String   @id
-  slug         String   @unique
-  title        String
-  author       String
-  description  String
-  pillars      String
-  year         Int?
-  pages        Int?
-  isbn         String?
-  amazonUrl    String?
-  rating       Float?
-  keyTakeaways String?
-  forWho       String?
-  featured     Boolean  @default(false)
-  imageUrl     String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime
-  publications String?
-  wikipedia    String?
-  authorId     String?
-  goodreadsUrl String?
-  Person       Person?  @relation(fields: [authorId], references: [id])
+  id            String   @id
+  slug          String   @unique
+  title         String
+  author        String
+  description   String
+  pillars       String
+  year          Int?
+  pages         Int?
+  isbn          String?
+  amazonUrl     String?
+  rating        Float?
+  keyTakeaways  String?
+  forWho        String?
+  featured      Boolean  @default(false)
+  imageUrl      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime
+  publications  String?
+  wikipedia     String?
+  authorId      String?
+  goodreadsUrl  String?
+  authorPubkey  String?
+  nostrEventId  String?
+  nostrDTag     String?
+  wotScore      Float?
+  Person        Person?  @relation(fields: [authorId], references: [id])
 
   @@index([authorId])
 }
@@ -104,21 +108,25 @@ model EnrichmentLog {
 }
 
 model KnowledgeArticle {
-  id          String        @id
-  title       String
-  description String
-  pillar      String
-  tags        String
-  author      String
-  readTime    Int
-  url         String
-  publishedAt DateTime
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime
-  slug        String        @unique
-  viewCount   Int           @default(0)
-  content     String?       @db.Text
-  views       ArticleView[]
+  id            String        @id
+  title         String
+  description   String
+  pillar        String
+  tags          String
+  author        String
+  readTime      Int
+  url           String
+  publishedAt   DateTime
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime
+  slug          String        @unique
+  viewCount     Int           @default(0)
+  content       String?       @db.Text
+  authorPubkey  String?
+  nostrEventId  String?
+  nostrDTag     String?
+  wotScore      Float?
+  views         ArticleView[]
 }
 
 model ArticleView {
@@ -161,22 +169,26 @@ model Newsletter {
 }
 
 model Organization {
-  id           String   @id
-  slug         String   @unique
-  name         String
-  description  String
-  pillars      String
-  type         String
-  founded      String?
-  website      String
-  resources    String?
-  keyPeople    String?
-  featured     Boolean  @default(false)
-  imageUrl     String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime
-  publications String?
-  wikipedia    String?
+  id            String   @id
+  slug          String   @unique
+  name          String
+  description   String
+  pillars       String
+  type          String
+  founded       String?
+  website       String
+  resources     String?
+  keyPeople     String?
+  featured      Boolean  @default(false)
+  imageUrl      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime
+  publications  String?
+  wikipedia     String?
+  authorPubkey  String?
+  nostrEventId  String?
+  nostrDTag     String?
+  wotScore      Float?
 }
 
 model Person {
@@ -220,23 +232,27 @@ model PlatformComment {
 }
 
 model Protocol {
-  id          String   @id
-  slug        String   @unique
-  name        String
-  description String
-  pillar      String
-  creator     String?
-  duration    String?
-  difficulty  String
-  steps       String
-  benefits    String
-  risks       String?
-  equipment   String?
-  references  String?
-  featured    Boolean  @default(false)
-  published   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime
+  id            String   @id
+  slug          String   @unique
+  name          String
+  description   String
+  pillar        String
+  creator       String?
+  duration      String?
+  difficulty    String
+  steps         String
+  benefits      String
+  risks         String?
+  equipment     String?
+  references    String?
+  featured      Boolean  @default(false)
+  published     Boolean  @default(false)
+  authorPubkey  String?
+  nostrEventId  String?
+  nostrDTag     String?
+  wotScore      Float?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime
 }
 
 model Session {
@@ -335,4 +351,47 @@ model ScrapedContent {
   @@index([enrichmentStatus])
   @@index([needsParaphrasing])
   @@index([contentType])
+}
+
+// Nostr Collaboration System
+
+model NostrAccount {
+  id            String   @id @default(cuid())
+  npub          String   @unique
+  pubkeyHex     String   @unique
+  role          String   @default("liberture") // "liberture" | "collaborator"
+  nbunkerUrl    String?  // NIP-46 bunker URL for signing (liberture account only)
+  nbunkerSecret String?  // optional secret — NOTE: should be encrypted at rest in production
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model CollaborationRequest {
+  id          String    @id @default(cuid())
+  npub        String
+  pubkeyHex   String
+  message     String?   // optional "why I want to collaborate" message
+  status      String    @default("pending") // "pending" | "approved" | "rejected"
+  reviewedAt  DateTime?
+  reviewedBy  String?   // admin npub or user id
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([npub])
+}
+
+model Collaborator {
+  id           String   @id @default(cuid())
+  npub         String   @unique
+  pubkeyHex    String   @unique
+  displayName  String?
+  about        String?
+  picture      String?
+  nostrProfile Json?    // cached kind 0 event data
+  isActive     Boolean  @default(true)
+  wotScore     Float?
+  approvedAt   DateTime @default(now())
+  approvedBy   String?
+
+  @@index([pubkeyHex])
 }
