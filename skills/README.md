@@ -26,12 +26,31 @@ A skill is a packaged capability that an OpenClaw agent can use. It has:
 |-------|--------|-------------|
 | [habit-tracker](./habit-tracker/) | 🧘 Mental | Track habits, log completions, generate charts |
 | [protocol-executor](./protocol-executor/) | All | Turn protocols into trackable daily actions |
+| [wearable-coach](./wearable-coach/) | 😴🏋️🧠 | Analyze wearable data, find patterns, recommend protocols |
 
 ### Coming Soon
 
 - Study summarizer (Research) — Summarize papers, extract methodology
 - Progress reporter (All) — Weekly rollup across pillars
 - Fasting timer (🥗 Fueling) — Smart fasting with pattern tracking
+
+## The Ecosystem
+
+```
+┌─────────────┐     ┌──────────────────┐     ┌───────────────────┐
+│  Wearables  │────▶│  Wearable Coach  │────▶│  Recommendations  │
+└─────────────┘     └────────┬─────────┘     └─────────┬─────────┘
+                             │                         │
+                             ▼                         ▼
+                    ┌────────────────┐      ┌──────────────────┐
+                    │ Habit Tracker  │◀─────│ Protocol Executor│
+                    └────────────────┘      └──────────────────┘
+                             │                         ▲
+                             │    Track adherence      │
+                             └─────────────────────────┘
+```
+
+Your data → Analysis → WoT-filtered protocols → Daily habits → Measured impact → Better recommendations
 
 ## Using a Skill
 
