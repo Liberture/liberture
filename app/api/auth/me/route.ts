@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getAuthUser } from '@/lib/auth'
+import { getAuthUser, isAdmin } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
 export async function GET() {
@@ -32,7 +32,15 @@ export async function GET() {
       )
     }
 
-    return NextResponse.json({ user })
+    // Check if user is admin
+    const userIsAdmin = await isAdmin(user.id)
+
+    return NextResponse.json({ 
+      user: {
+        ...user,
+        isAdmin: userIsAdmin
+      }
+    })
   } catch (error) {
     console.error('Me endpoint error:', error)
     return NextResponse.json(
