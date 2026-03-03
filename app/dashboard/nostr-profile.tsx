@@ -7,6 +7,57 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { User, ExternalLink, FileText, BookOpen, Loader2, RefreshCw } from "lucide-react"
 
+// Profile avatar with multiple fallbacks
+function ProfileAvatar({ picture, name, pubkey }: { picture?: string; name?: string; pubkey: string }) {
+  const [imgError, setImgError] = useState(false)
+  const [useRobohash, setUseRobohash] = useState(false)
+  
+  const initial = name?.charAt(0).toUpperCase() || "N"
+  const robohashUrl = `https://robohash.org/${pubkey}?set=set4&size=128x128`
+  
+  // Reset error state when picture changes
+  useEffect(() => {
+    setImgError(false)
+    setUseRobohash(false)
+  }, [picture])
+
+  if (!picture || imgError) {
+    if (useRobohash || !picture) {
+      return (
+        <div className="h-16 w-16 rounded-full bg-gradient-to-br from-purple-500 to-cyan-400 flex items-center justify-center text-white text-2xl font-bold shrink-0 overflow-hidden">
+          <img
+            src={robohashUrl}
+            alt={name || "Profile"}
+            className="h-full w-full rounded-full object-cover"
+            onError={() => {
+              // Final fallback to initial
+            }}
+          />
+        </div>
+      )
+    }
+    return (
+      <div className="h-16 w-16 rounded-full bg-gradient-to-br from-purple-500 to-cyan-400 flex items-center justify-center text-white text-2xl font-bold shrink-0">
+        {initial}
+      </div>
+    )
+  }
+
+  return (
+    <div className="h-16 w-16 rounded-full bg-gradient-to-br from-purple-500 to-cyan-400 flex items-center justify-center text-white text-2xl font-bold shrink-0 overflow-hidden">
+      <img
+        src={picture}
+        alt={name || "Profile"}
+        className="h-full w-full rounded-full object-cover"
+        onError={() => {
+          setImgError(true)
+          setUseRobohash(true)
+        }}
+      />
+    </div>
+  )
+}
+
 type ContentItem = {
   id: string
   title: string
@@ -129,22 +180,11 @@ export function NostrProfile() {
         <CardContent className="space-y-4">
           {/* Profile Info */}
           <div className="flex items-start gap-4">
-            <div className="h-16 w-16 rounded-full bg-gradient-to-br from-purple-500 to-cyan-400 flex items-center justify-center text-white text-2xl font-bold shrink-0 overflow-hidden">
-              {profile?.picture ? (
-                <img
-                  src={profile.picture}
-                  alt={profile.name || "Profile"}
-                  className="h-full w-full rounded-full object-cover"
-                  onError={(e) => {
-                    // Fallback to initial on image load error
-                    e.currentTarget.style.display = 'none'
-                    e.currentTarget.parentElement!.innerHTML = profile?.name?.charAt(0).toUpperCase() || 'N'
-                  }}
-                />
-              ) : (
-                profile?.name?.charAt(0).toUpperCase() || "N"
-              )}
-            </div>
+            <ProfileAvatar 
+              picture={profile?.picture} 
+              name={profile?.name} 
+              pubkey={user.nostrPubkey} 
+            />
             <div className="flex-1 min-w-0">
               <h3 className="text-lg font-semibold text-white truncate">
                 {profile?.name || "Anonymous"}
