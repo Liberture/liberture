@@ -4,7 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
 import { Button } from "@/components/ui/button"
-import { LogOut, Menu, X, ChevronDown, User } from "lucide-react"
+import { LogOut, Menu, X, ChevronDown, User, Shield } from "lucide-react"
 import { translations } from "@/lib/translations"
 import { LibertureLogo } from "@/components/branding"
 import { PILLAR_ICON_MAP } from "@/lib/pillars"
@@ -117,6 +117,16 @@ export function LandingNav() {
                         <User className="h-4 w-4" />
                         Dashboard
                       </Link>
+                      {user.isAdmin && (
+                        <Link
+                          href="/admin"
+                          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-violet-400 hover:bg-violet-500/10 transition-colors"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <Shield className="h-4 w-4" />
+                          Admin Panel
+                        </Link>
+                      )}
                       <button
                         onClick={() => {
                           logout()
