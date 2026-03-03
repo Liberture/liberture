@@ -78,13 +78,36 @@ export async function GET() {
       },
     });
 
-    // Transform users to include npub
-    const transformedUsers = users.map(user => ({
-      ...user,
-      npub: user.nostrPubkey ? hexToNpub(user.nostrPubkey) : null,
-      // Hide fake email if it's a nostr-generated one
-      email: user.email?.endsWith('@nostr.liberture.com') ? null : user.email,
-    }));
+    // Get all collaborators to check status
+    const collaborators = await prisma.collaborator.findMany({
+      select: {
+        npub: true,
+        pubkeyHex: true,
+      },
+    });
+
+    // Create a set of collaborator pubkeys for fast lookup
+    const collaboratorPubkeys = new Set<string>();
+    for (const c of collaborators) {
+      if (c.pubkeyHex) collaboratorPubkeys.add(c.pubkeyHex.toLowerCase());
+      // Also try to extract hex from npub if pubkeyHex is missing
+    }
+
+    // Transform users to include npub and collaborator status
+    const transformedUsers = users.map(user => {
+      const npub = user.nostrPubkey ? hexToNpub(user.nostrPubkey) : null;
+      const isCollaborator = user.nostrPubkey 
+        ? collaboratorPubkeys.has(user.nostrPubkey.toLowerCase())
+        : false;
+
+      return {
+        ...user,
+        npub,
+        isCollaborator,
+        // Hide fake email if it's a nostr-generated one
+        email: user.email?.endsWith('@nostr.liberture.com') ? null : user.email,
+      };
+    });
 
     return NextResponse.json({ users: transformedUsers });
   } catch (error) {

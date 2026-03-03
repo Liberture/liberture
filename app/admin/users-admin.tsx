@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Ban, UserCog, Shield, ExternalLink, Loader2, Crown } from "lucide-react";
+import { Search, Ban, UserCog, Shield, ExternalLink, Loader2, Crown, Users } from "lucide-react";
 
 // The hardcoded admin pubkey
 const ADMIN_PUBKEY_HEX = "d9590d95a7811e1cb312be66edd664d7e3e6ed57822ad9f213ed620fc6748be8";
@@ -25,6 +25,8 @@ type User = {
   nostrPicture?: string;
   // Computed: is this the system admin?
   isSystemAdmin?: boolean;
+  // From API: is this user a collaborator?
+  isCollaborator?: boolean;
 };
 
 export default function UsersAdmin() {
@@ -247,25 +249,33 @@ export default function UsersAdmin() {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    {user.isSystemAdmin ? (
-                      <div className="flex items-center gap-1.5">
-                        <Crown className="h-4 w-4 text-yellow-400" />
-                        <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/50 text-xs">
-                          System Admin
-                        </Badge>
-                      </div>
-                    ) : (
-                      <select
-                        value={user.role || "user"}
-                        onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                        className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs text-slate-300 cursor-pointer hover:border-slate-600"
-                      >
-                        <option value="user">User</option>
-                        <option value="contributor">Contributor</option>
-                        <option value="moderator">Moderator</option>
-                        <option value="admin">Admin</option>
-                      </select>
-                    )}
+                    <div className="flex flex-col gap-1">
+                      {user.isSystemAdmin ? (
+                        <div className="flex items-center gap-1.5">
+                          <Crown className="h-4 w-4 text-yellow-400" />
+                          <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/50 text-xs">
+                            System Admin
+                          </Badge>
+                        </div>
+                      ) : (
+                        <select
+                          value={user.role || "user"}
+                          onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                          className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs text-slate-300 cursor-pointer hover:border-slate-600"
+                        >
+                          <option value="user">User</option>
+                          <option value="contributor">Contributor</option>
+                          <option value="moderator">Moderator</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      )}
+                      {user.isCollaborator && (
+                        <div className="flex items-center gap-1">
+                          <Users className="h-3 w-3 text-green-400" />
+                          <span className="text-xs text-green-400">Collaborator</span>
+                        </div>
+                      )}
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <Badge variant="outline" className="text-xs">
