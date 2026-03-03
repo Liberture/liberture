@@ -21,6 +21,7 @@ export async function GET() {
         name: true,
         bosLevel: true,
         nostrPubkey: true,
+        role: true,
         createdAt: true,
       },
     })
@@ -35,9 +36,18 @@ export async function GET() {
     // Check if user is admin
     const userIsAdmin = await isAdmin(user.id)
 
+    // If admin, make sure role reflects it
+    if (userIsAdmin && user.role !== "admin") {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { role: "admin" }
+      })
+    }
+
     return NextResponse.json({ 
       user: {
         ...user,
+        role: userIsAdmin ? "admin" : user.role,
         isAdmin: userIsAdmin
       }
     })
