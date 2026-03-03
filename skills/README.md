@@ -25,14 +25,13 @@ A skill is a packaged capability that an OpenClaw agent can use. It has:
 | Skill | Pillar | Description |
 |-------|--------|-------------|
 | [habit-tracker](./habit-tracker/) | 🧘 Mental | Track habits, log completions, generate charts |
+| [protocol-executor](./protocol-executor/) | All | Turn protocols into trackable daily actions |
 
 ### Coming Soon
 
-- Sleep cycle calculator (😴 Recovery)
-- Macro calculator (🥗 Fueling)
-- Breathing timer (🧘 Mental)
-- 1RM calculator (🏋️ Physicality)
-- FIRE calculator (💰 Finance)
+- Study summarizer (Research) — Summarize papers, extract methodology
+- Progress reporter (All) — Weekly rollup across pillars
+- Fasting timer (🥗 Fueling) — Smart fasting with pattern tracking
 
 ## Using a Skill
 

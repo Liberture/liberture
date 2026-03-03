@@ -1,0 +1,50 @@
+{
+  "id": "16-8-fasting",
+  "name": "16:8 Intermittent Fasting",
+  "pillar": "fueling",
+  "duration": "ongoing",
+  "difficulty": "medium",
+  "summary": "16-hour fasting window with 8-hour eating window for metabolic health",
+  "source": "https://www.nejm.org/doi/full/10.1056/NEJMra1905136",
+  "studies": [
+    "doi:10.1056/NEJMra1905136",
+    "pubmed:31881139"
+  ],
+  "actions": [
+    {
+      "id": "stop-eating",
+      "name": "Stop eating by 8 PM",
+      "time": "evening",
+      "time_trigger": "20:00",
+      "frequency": "daily",
+      "description": "Last food by 8 PM. This starts your fasting window. Water, black coffee, plain tea are allowed during the fast."
+    },
+    {
+      "id": "morning-fast",
+      "name": "Maintain fast until noon",
+      "time": "morning",
+      "frequency": "daily",
+      "description": "No calories until 12 PM. Black coffee and water are fine. If hungry, drink water or have green tea."
+    },
+    {
+      "id": "break-fast",
+      "name": "First meal at 12 PM",
+      "time": "afternoon",
+      "time_trigger": "12:00",
+      "frequency": "daily",
+      "description": "Break fast with a balanced meal. Include protein. Don't binge — eat normally."
+    },
+    {
+      "id": "eating-window",
+      "name": "All food in 8-hour window",
+      "time": "afternoon",
+      "frequency": "daily",
+      "description": "Eat all meals and snacks between 12 PM and 8 PM. 2-3 meals is typical. No need to restrict what you eat, but don't compensate by overeating."
+    }
+  ],
+  "customization": {
+    "eating_window": "Adjust window to your schedule (e.g., 10 AM - 6 PM). Consistency matters more than exact hours.",
+    "workout_timing": "If training fasted, consider BCAAs or breaking fast slightly earlier on workout days."
+  },
+  "notes": "First week is hardest. Morning hunger fades after adaptation. Stay hydrated. Start with 14:10 if 16:8 feels too aggressive."
+}
