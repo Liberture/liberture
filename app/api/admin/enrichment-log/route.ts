@@ -20,9 +20,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ logs });
   } catch (error) {
     console.error("Error fetching enrichment logs:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch logs" },
-      { status: 500 }
-    );
+    // Return empty gracefully — table may not exist yet in this env
+    return NextResponse.json({ logs: [] });
   }
 }
