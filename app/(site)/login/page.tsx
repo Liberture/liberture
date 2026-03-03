@@ -292,15 +292,14 @@ export default function LoginPage() {
                     </div>
                   )}
                   
-                  {waitingForConnect && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-white/80 rounded-2xl">
-                      <div className="flex flex-col items-center gap-2">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                        <span className="text-sm font-medium text-gray-700">Waiting...</span>
-                      </div>
-                    </div>
-                  )}
                 </div>
+
+                {waitingForConnect && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Waiting for connection...</span>
+                  </div>
+                )}
 
                 <div className="flex gap-2 w-full max-w-[240px]">
                   <Button
