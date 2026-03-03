@@ -1,8 +1,8 @@
 "use client"
 
-import { generateSecretKey, getPublicKey, finalizeEvent, verifyEvent } from "nostr-tools/pure"
+import { generateSecretKey, getPublicKey, finalizeEvent } from "nostr-tools/pure"
 import { Relay } from "nostr-tools/relay"
-import { nip04 } from "nostr-tools"
+import * as nip04 from "nostr-tools/nip04"
 
 // Hex conversion utilities
 function bytesToHex(bytes: Uint8Array): string {
@@ -93,61 +93,80 @@ export class Nip46Client implements Nip46Signer {
   private relay: Relay | null = null
   private pendingRequests: Map<string, { resolve: (result: any) => void; reject: (error: Error) => void }> = new Map()
   private remotePubkey: string | null = null
-  private subscriptionId: string | null = null
+  private connected: boolean = false
 
   constructor(connection: BunkerConnection) {
     this.connection = connection
   }
 
   async connect(): Promise<void> {
+    console.log("[NIP-46] Connecting to relay:", this.connection.relayUrl)
     this.relay = await Relay.connect(this.connection.relayUrl)
+    console.log("[NIP-46] Connected to relay")
     
     // Subscribe to responses from the remote signer
-    const sub = this.relay.subscribe(
+    this.relay.subscribe(
       [
         {
           kinds: [24133],
           "#p": [this.connection.clientPubkey],
-          authors: [this.connection.pubkey]
+          since: Math.floor(Date.now() / 1000) - 60 // Only recent events
         }
       ],
       {
         onevent: async (event) => {
           try {
+            console.log("[NIP-46] Received event from:", event.pubkey)
             const decrypted = await nip04.decrypt(
               this.connection.clientSecretKey,
               event.pubkey,
               event.content
             )
+            console.log("[NIP-46] Decrypted response:", decrypted)
             const response = JSON.parse(decrypted)
             
             const pending = this.pendingRequests.get(response.id)
             if (pending) {
               if (response.error) {
+                console.error("[NIP-46] Request error:", response.error)
                 pending.reject(new Error(response.error))
               } else {
+                console.log("[NIP-46] Request success:", response.result)
                 pending.resolve(response.result)
               }
               this.pendingRequests.delete(response.id)
             }
           } catch (e) {
-            console.error("Failed to process NIP-46 response:", e)
+            console.error("[NIP-46] Failed to process response:", e)
           }
         }
       }
     )
     
-    // If we have a secret, send connect request
+    // If we have a secret, send connect request and wait for ack
     if (this.connection.secret) {
-      await this.sendRequest("connect", [this.connection.pubkey, this.connection.secret])
+      console.log("[NIP-46] Sending connect with secret")
+      try {
+        const result = await this.sendRequest("connect", [this.connection.pubkey, this.connection.secret])
+        console.log("[NIP-46] Connect result:", result)
+        this.connected = true
+      } catch (e) {
+        console.error("[NIP-46] Connect failed:", e)
+        throw e
+      }
+    } else {
+      // No secret means we're already authorized (nostrconnect flow)
+      this.connected = true
     }
   }
 
   private async sendRequest(method: string, params: string[]): Promise<any> {
-    if (!this.relay) throw new Error("Not connected")
+    if (!this.relay) throw new Error("Not connected to relay")
 
     const id = Math.random().toString(36).substring(2, 15)
     const request = JSON.stringify({ id, method, params })
+    
+    console.log("[NIP-46] Sending request:", method, params)
     
     const encrypted = await nip04.encrypt(
       this.connection.clientSecretKey,
@@ -169,14 +188,20 @@ export class Nip46Client implements Nip46Signer {
       this.pendingRequests.set(id, { resolve, reject })
       
       // Timeout after 60 seconds
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         if (this.pendingRequests.has(id)) {
           this.pendingRequests.delete(id)
           reject(new Error("Request timed out"))
         }
       }, 60000)
 
-      this.relay!.publish(event).catch(reject)
+      this.relay!.publish(event)
+        .then(() => console.log("[NIP-46] Event published"))
+        .catch((e) => {
+          clearTimeout(timeout)
+          this.pendingRequests.delete(id)
+          reject(e)
+        })
     })
   }
 
@@ -194,6 +219,7 @@ export class Nip46Client implements Nip46Signer {
   close(): void {
     this.relay?.close()
     this.pendingRequests.clear()
+    this.connected = false
   }
 }
 
@@ -201,6 +227,8 @@ export class Nip46Client implements Nip46Signer {
 export async function createBunkerClient(bunkerUrl: string): Promise<Nip46Client> {
   const parsed = parseBunkerUrl(bunkerUrl)
   if (!parsed) throw new Error("Invalid bunker URL")
+
+  console.log("[NIP-46] Creating bunker client for:", parsed.pubkey)
 
   const clientSecretKey = generateSecretKey()
   const clientPubkey = getPublicKey(clientSecretKey)
@@ -229,6 +257,8 @@ export function createNostrConnectSession(relayUrl: string = DEFAULT_NIP46_RELAY
   const clientPubkey = getPublicKey(clientSecretKey)
   const connectUrl = generateNostrConnectUrl(clientPubkey, relayUrl)
 
+  console.log("[NIP-46] Created nostrconnect session, pubkey:", clientPubkey)
+
   return { clientSecretKey, clientPubkey, connectUrl }
 }
 
@@ -239,10 +269,12 @@ export async function waitForNostrConnect(
   relayUrl: string = DEFAULT_NIP46_RELAY,
   timeoutMs: number = 120000
 ): Promise<Nip46Client> {
+  console.log("[NIP-46] Waiting for nostrconnect on relay:", relayUrl)
   const relay = await Relay.connect(relayUrl)
   
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
+      console.log("[NIP-46] Connection timed out")
       relay.close()
       reject(new Error("Connection timed out"))
     }, timeoutMs)
@@ -251,20 +283,51 @@ export async function waitForNostrConnect(
       [
         {
           kinds: [24133],
-          "#p": [clientPubkey]
+          "#p": [clientPubkey],
+          since: Math.floor(Date.now() / 1000) - 10
         }
       ],
       {
         onevent: async (event) => {
+          console.log("[NIP-46] Received event from:", event.pubkey)
           try {
             const decrypted = await nip04.decrypt(clientSecretKey, event.pubkey, event.content)
+            console.log("[NIP-46] Decrypted:", decrypted)
             const request = JSON.parse(decrypted)
             
             // Remote signer sends "connect" request when scanning QR
             if (request.method === "connect") {
+              console.log("[NIP-46] Received connect request from signer")
+              
+              // Send acknowledgment back to the signer
+              const ackResponse = JSON.stringify({
+                id: request.id,
+                result: "ack"
+              })
+              
+              const encryptedAck = await nip04.encrypt(
+                clientSecretKey,
+                event.pubkey,
+                ackResponse
+              )
+              
+              const ackEvent = finalizeEvent(
+                {
+                  kind: 24133,
+                  created_at: Math.floor(Date.now() / 1000),
+                  tags: [["p", event.pubkey]],
+                  content: encryptedAck
+                },
+                clientSecretKey
+              )
+              
+              await relay.publish(ackEvent)
+              console.log("[NIP-46] Sent ack to signer")
+              
               clearTimeout(timeout)
               relay.close()
 
+              // Create new client for ongoing communication
               const connection: BunkerConnection = {
                 pubkey: event.pubkey,
                 relayUrl,
@@ -274,10 +337,11 @@ export async function waitForNostrConnect(
 
               const client = new Nip46Client(connection)
               await client.connect()
+              console.log("[NIP-46] Client connected successfully")
               resolve(client)
             }
           } catch (e) {
-            console.error("Error processing connect request:", e)
+            console.error("[NIP-46] Error processing connect request:", e)
           }
         }
       }
