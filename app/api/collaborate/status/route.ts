@@ -1,22 +1,40 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { getAuthUser } from "@/lib/auth"
+import { getAuthUser, isAdmin } from "@/lib/auth"
 
 // GET — Check collaboration status for the logged-in user
 export async function GET() {
   try {
-    const user = await getAuthUser()
+    const authUser = await getAuthUser()
 
-    if (!user) {
+    if (!authUser) {
       return NextResponse.json(
         { error: "Not authenticated" },
         { status: 401 }
       )
     }
 
-    if (!user.nostrPubkey) {
+    // Get full user data
+    const user = await prisma.user.findUnique({
+      where: { id: authUser.userId },
+      select: { nostrPubkey: true },
+    })
+
+    if (!user?.nostrPubkey) {
       return NextResponse.json({
         isCollaborator: false,
+        isAdmin: false,
+        hasPendingRequest: false,
+        hasRejectedRequest: false,
+      })
+    }
+
+    // Check if user is admin - admins are automatically collaborators
+    const userIsAdmin = await isAdmin(authUser.userId)
+    if (userIsAdmin) {
+      return NextResponse.json({
+        isCollaborator: true,
+        isAdmin: true,
         hasPendingRequest: false,
         hasRejectedRequest: false,
       })
@@ -35,6 +53,7 @@ export async function GET() {
     if (collaborator) {
       return NextResponse.json({
         isCollaborator: true,
+        isAdmin: false,
         hasPendingRequest: false,
         hasRejectedRequest: false,
       })
@@ -53,6 +72,7 @@ export async function GET() {
     if (request) {
       return NextResponse.json({
         isCollaborator: false,
+        isAdmin: false,
         hasPendingRequest: request.status === "pending",
         hasRejectedRequest: request.status === "rejected",
         requestDate: request.createdAt.toISOString(),
@@ -62,6 +82,7 @@ export async function GET() {
     // No request yet
     return NextResponse.json({
       isCollaborator: false,
+      isAdmin: false,
       hasPendingRequest: false,
       hasRejectedRequest: false,
     })
