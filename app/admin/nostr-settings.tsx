@@ -5,9 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Zap, Link2, Eye, EyeOff, Save, Loader2, Users } from "lucide-react";
-
-const LIBERTURE_NPUB = "npub1m9vsm9d8sy0pevcjhenwm4ny6l37dm2hsg4dnusna43ql3n5305qy4zlg4";
+import { Zap, Link2, Eye, EyeOff, Save, Loader2, Users, Key } from "lucide-react";
 
 type NostrAccountData = {
   id?: string;
@@ -22,6 +20,7 @@ export default function NostrSettings() {
   const [accountData, setAccountData] = useState<NostrAccountData | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [npub, setNpub] = useState("");
   const [nbunkerUrl, setNbunkerUrl] = useState("");
   const [nbunkerSecret, setNbunkerSecret] = useState("");
   const [showSecret, setShowSecret] = useState(false);
@@ -33,16 +32,10 @@ export default function NostrSettings() {
       const data = await res.json();
       if (data.account) {
         setAccountData(data.account);
+        setNpub(data.account.npub || "");
         setNbunkerUrl(data.account.nbunkerUrl || "");
       } else {
-        // No account yet, just set default
-        setAccountData({
-          npub: LIBERTURE_NPUB,
-          pubkeyHex: "",
-          role: "liberture",
-          nbunkerUrl: null,
-          hasSecret: false,
-        });
+        setAccountData(null);
       }
     } catch (error) {
       console.error("Failed to load nostr account:", error);
@@ -56,6 +49,16 @@ export default function NostrSettings() {
   }, []);
 
   const handleSave = async () => {
+    if (!npub.trim()) {
+      setMessage({ type: "error", text: "npub is required" });
+      return;
+    }
+
+    if (!npub.startsWith("npub1")) {
+      setMessage({ type: "error", text: "Invalid npub format — must start with npub1" });
+      return;
+    }
+
     setSaving(true);
     setMessage(null);
 
@@ -64,7 +67,7 @@ export default function NostrSettings() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          npub: LIBERTURE_NPUB,
+          npub: npub.trim(),
           nbunkerUrl: nbunkerUrl || null,
           nbunkerSecret: nbunkerSecret || null,
         }),
@@ -87,6 +90,7 @@ export default function NostrSettings() {
   };
 
   const isConnected = accountData?.nbunkerUrl && accountData.nbunkerUrl.length > 0;
+  const isConfigured = accountData?.npub && accountData.npub.length > 0;
 
   if (loading) {
     return (
@@ -115,45 +119,44 @@ export default function NostrSettings() {
             </div>
             <Badge
               variant="outline"
-              className={isConnected
-                ? "bg-green-500/20 border-green-500 text-green-400"
-                : "bg-yellow-500/20 border-yellow-500 text-yellow-400"
+              className={isConfigured
+                ? isConnected
+                  ? "bg-green-500/20 border-green-500 text-green-400"
+                  : "bg-yellow-500/20 border-yellow-500 text-yellow-400"
+                : "bg-slate-500/20 border-slate-500 text-slate-400"
               }
             >
-              {isConnected ? "Connected" : "Not connected"}
+              {isConfigured ? (isConnected ? "Connected" : "Not connected") : "Not configured"}
             </Badge>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* npub display */}
+          {/* npub input */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-300">Public Key (npub)</label>
-            <div className="flex items-center gap-2">
+            <div className="relative">
+              <Key className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
-                value={LIBERTURE_NPUB}
-                readOnly
-                className="bg-slate-900/50 border-slate-700 text-slate-300 font-mono text-sm"
+                type="text"
+                placeholder="npub1..."
+                value={npub}
+                onChange={(e) => setNpub(e.target.value)}
+                className="pl-10 bg-slate-900/50 border-slate-700 text-slate-300 font-mono text-sm"
               />
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigator.clipboard.writeText(LIBERTURE_NPUB)}
-                className="shrink-0"
-              >
-                Copy
-              </Button>
             </div>
-            <p className="text-xs text-slate-500">
-              View on{" "}
-              <a
-                href={`https://njump.me/${LIBERTURE_NPUB}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-purple-400 hover:underline"
-              >
-                njump.me
-              </a>
-            </p>
+            {accountData?.npub && (
+              <p className="text-xs text-slate-500">
+                View on{" "}
+                <a
+                  href={`https://njump.me/${accountData.npub}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-purple-400 hover:underline"
+                >
+                  njump.me
+                </a>
+              </p>
+            )}
           </div>
 
           {/* NBunker URL */}

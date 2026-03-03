@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getAuthUser } from "@/lib/auth";
-
-// Liberture's official Nostr account
-const LIBERTURE_NPUB = "npub1m9vsm9d8sy0pevcjhenwm4ny6l37dm2hsg4dnusna43ql3n5305qy4zlg4";
+import { getAuthUser, isAdmin } from "@/lib/auth";
 
 /**
  * Convert npub to hex pubkey using bech32 decoding.
@@ -48,13 +45,12 @@ function npubToHex(npub: string): string {
 }
 
 // GET — Return current NostrAccount for role="liberture"
+// Public access allowed (only returns npub, no secrets)
+// Admin access returns full details
 export async function GET() {
   try {
     const user = await getAuthUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
+    
     const account = await prisma.nostrAccount.findFirst({
       where: { role: "liberture" },
       select: {
@@ -63,23 +59,36 @@ export async function GET() {
         pubkeyHex: true,
         role: true,
         nbunkerUrl: true,
-        nbunkerSecret: true, // Will mask this in response
+        nbunkerSecret: true,
         createdAt: true,
         updatedAt: true,
       },
     });
 
-    if (account) {
+    if (!account) {
+      return NextResponse.json({ account: null });
+    }
+
+    // For non-authenticated or non-admin users, only return public info
+    const isUserAdmin = user ? await isAdmin(user.userId) : false;
+    
+    if (!isUserAdmin) {
       return NextResponse.json({
         account: {
-          ...account,
-          nbunkerSecret: undefined, // Never send the actual secret
-          hasSecret: !!account.nbunkerSecret,
+          npub: account.npub,
+          pubkeyHex: account.pubkeyHex,
         },
       });
     }
 
-    return NextResponse.json({ account: null });
+    // Admin gets full details (but still no secret)
+    return NextResponse.json({
+      account: {
+        ...account,
+        nbunkerSecret: undefined, // Never send the actual secret
+        hasSecret: !!account.nbunkerSecret,
+      },
+    });
   } catch (error) {
     console.error("Failed to load nostr account:", error);
     return NextResponse.json(
@@ -90,6 +99,7 @@ export async function GET() {
 }
 
 // POST — Upsert the NostrAccount (npub + nbunkerUrl + nbunkerSecret)
+// Admin only
 export async function POST(request: Request) {
   try {
     const user = await getAuthUser();
@@ -97,13 +107,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const userIsAdmin = await isAdmin(user.userId);
+    if (!userIsAdmin) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     const body = await request.json();
     const { npub, nbunkerUrl, nbunkerSecret } = body;
 
-    // Validate npub
-    if (npub !== LIBERTURE_NPUB) {
+    // Validate npub format
+    if (!npub || !npub.startsWith("npub1")) {
       return NextResponse.json(
-        { error: "Invalid npub - must use Liberture's official account" },
+        { error: "Invalid npub format — must start with npub1" },
         { status: 400 }
       );
     }
@@ -118,9 +133,13 @@ export async function POST(request: Request) {
 
     // Build update data - only update secret if provided
     const updateData: {
+      npub: string;
+      pubkeyHex: string;
       nbunkerUrl: string | null;
       nbunkerSecret?: string | null;
     } = {
+      npub,
+      pubkeyHex,
       nbunkerUrl: nbunkerUrl || null,
     };
 
@@ -130,17 +149,28 @@ export async function POST(request: Request) {
       updateData.nbunkerSecret = nbunkerSecret;
     }
 
-    const account = await prisma.nostrAccount.upsert({
-      where: { npub },
-      update: updateData,
-      create: {
-        npub,
-        pubkeyHex,
-        role: "liberture",
-        nbunkerUrl: nbunkerUrl || null,
-        nbunkerSecret: nbunkerSecret || null,
-      },
+    // Find existing account by role (not npub, since npub can change)
+    const existingAccount = await prisma.nostrAccount.findFirst({
+      where: { role: "liberture" },
     });
+
+    let account;
+    if (existingAccount) {
+      account = await prisma.nostrAccount.update({
+        where: { id: existingAccount.id },
+        data: updateData,
+      });
+    } else {
+      account = await prisma.nostrAccount.create({
+        data: {
+          npub,
+          pubkeyHex,
+          role: "liberture",
+          nbunkerUrl: nbunkerUrl || null,
+          nbunkerSecret: nbunkerSecret || null,
+        },
+      });
+    }
 
     return NextResponse.json({
       account: {

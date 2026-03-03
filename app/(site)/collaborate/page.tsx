@@ -1,12 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Key, MessageSquare, Check, AlertCircle, Zap, ExternalLink } from 'lucide-react'
-
-const LIBERTURE_NPUB = "npub1m9vsm9d8sy0pevcjhenwm4ny6l37dm2hsg4dnusna43ql3n5305qy4zlg4";
 
 export default function CollaboratePage() {
   const [formData, setFormData] = useState({
@@ -15,6 +13,21 @@ export default function CollaboratePage() {
   })
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [responseMessage, setResponseMessage] = useState('')
+  const [libertureNpub, setLibertureNpub] = useState<string | null>(null)
+
+  // Fetch the configured Liberture npub for the DM link
+  useEffect(() => {
+    fetch('/api/admin/nostr-account')
+      .then(res => res.json())
+      .then(data => {
+        if (data.account?.npub) {
+          setLibertureNpub(data.account.npub)
+        }
+      })
+      .catch(() => {
+        // Silently fail — DM link just won't be shown
+      })
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -176,23 +189,25 @@ export default function CollaboratePage() {
             )}
           </form>
 
-          {/* Alternative contact */}
-          <div className="mt-12 p-6 rounded-2xl border border-slate-700 bg-slate-900/50 text-center">
-            <MessageSquare className="h-6 w-6 mx-auto mb-3 text-purple-400" />
-            <h2 className="text-lg font-bold mb-2">Prefer Nostr DMs?</h2>
-            <p className="text-slate-400 mb-4">
-              Message us directly on Nostr — we'd love to hear from you.
-            </p>
-            <a
-              href={`https://njump.me/${LIBERTURE_NPUB}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 hover:underline"
-            >
-              Open Liberture on njump.me
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          </div>
+          {/* Alternative contact — only show if Liberture npub is configured */}
+          {libertureNpub && (
+            <div className="mt-12 p-6 rounded-2xl border border-slate-700 bg-slate-900/50 text-center">
+              <MessageSquare className="h-6 w-6 mx-auto mb-3 text-purple-400" />
+              <h2 className="text-lg font-bold mb-2">Prefer Nostr DMs?</h2>
+              <p className="text-slate-400 mb-4">
+                Message us directly on Nostr — we'd love to hear from you.
+              </p>
+              <a
+                href={`https://njump.me/${libertureNpub}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-purple-400 hover:text-purple-300 hover:underline"
+              >
+                Open Liberture on njump.me
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </div>
