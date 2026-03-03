@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuthUser, isAdmin } from "@/lib/auth";
+import { encrypt, decrypt, isEncrypted } from "@/lib/crypto";
 
 /**
  * Convert npub to hex pubkey using bech32 decoding.
@@ -145,8 +146,15 @@ export async function POST(request: Request) {
 
     // Only update secret if a new value is provided
     if (nbunkerSecret) {
-      // NOTE: In production, this should be encrypted before storing
-      updateData.nbunkerSecret = nbunkerSecret;
+      try {
+        updateData.nbunkerSecret = encrypt(nbunkerSecret);
+      } catch (e) {
+        console.error("Encryption failed:", e);
+        return NextResponse.json(
+          { error: "Failed to encrypt secret. Check ENCRYPTION_KEY env var." },
+          { status: 500 }
+        );
+      }
     }
 
     // Find existing account by role (not npub, since npub can change)
