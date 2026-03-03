@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { User, ExternalLink, FileText, BookOpen, Loader2, RefreshCw } from "lucide-react"
+import { SimplePool } from "nostr-tools"
 
 type ContentItem = {
   id: string
@@ -22,6 +23,13 @@ type NostrProfile = {
   picture?: string
   nip05?: string
 }
+
+const RELAYS = [
+  'wss://relay.mappingbitcoin.com',
+  'wss://relay.damus.io',
+  'wss://nos.lol',
+  'wss://relay.nostr.band',
+]
 
 export function NostrProfile() {
   const { user } = useAuth()
@@ -45,22 +53,42 @@ export function NostrProfile() {
     }
   }
 
-  // Fetch profile from Nostr (placeholder - would need relay connection)
+  // Fetch profile from Nostr relays (kind 0 metadata)
   const loadProfile = async () => {
     if (!user?.nostrPubkey) return
 
     setProfileLoading(true)
     try {
-      // For now, just use placeholder data
-      // In production, this would fetch kind 0 from relays
-      setProfile({
-        name: user.name,
-        about: null,
-        picture: null,
-        nip05: null,
+      const pool = new SimplePool()
+      
+      const event = await pool.get(RELAYS, {
+        kinds: [0],
+        authors: [user.nostrPubkey],
       })
+
+      if (event) {
+        const metadata = JSON.parse(event.content)
+        setProfile({
+          name: metadata.name || metadata.display_name,
+          about: metadata.about,
+          picture: metadata.picture,
+          nip05: metadata.nip05,
+        })
+      } else {
+        // No profile found on relays, fallback to DB name
+        setProfile({
+          name: user.name,
+          about: undefined,
+          picture: undefined,
+          nip05: undefined,
+        })
+      }
+
+      pool.close(RELAYS)
     } catch (error) {
-      console.error("Failed to load profile:", error)
+      console.error("Failed to load Nostr profile:", error)
+      // Fallback to DB name on error
+      setProfile({ name: user.name })
     } finally {
       setProfileLoading(false)
     }
@@ -102,12 +130,6 @@ export function NostrProfile() {
     return `${pubkey.slice(0, 8)}...${pubkey.slice(-8)}`
   }
 
-  // Convert hex pubkey to npub for display (simplified)
-  const hexToNpub = (hex: string) => {
-    // This is a placeholder - in production use proper bech32 encoding
-    return `npub1${hex.slice(0, 8)}...`
-  }
-
   return (
     <div className="space-y-6">
       {/* Profile Card */}
@@ -133,12 +155,17 @@ export function NostrProfile() {
         <CardContent className="space-y-4">
           {/* Profile Info */}
           <div className="flex items-start gap-4">
-            <div className="h-16 w-16 rounded-full bg-gradient-to-br from-purple-500 to-cyan-400 flex items-center justify-center text-white text-2xl font-bold shrink-0">
+            <div className="h-16 w-16 rounded-full bg-gradient-to-br from-purple-500 to-cyan-400 flex items-center justify-center text-white text-2xl font-bold shrink-0 overflow-hidden">
               {profile?.picture ? (
                 <img
                   src={profile.picture}
                   alt={profile.name || "Profile"}
                   className="h-full w-full rounded-full object-cover"
+                  onError={(e) => {
+                    // Fallback to initial on image load error
+                    e.currentTarget.style.display = 'none'
+                    e.currentTarget.parentElement!.innerHTML = profile?.name?.charAt(0).toUpperCase() || 'N'
+                  }}
                 />
               ) : (
                 profile?.name?.charAt(0).toUpperCase() || "N"
