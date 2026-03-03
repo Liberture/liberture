@@ -45,41 +45,26 @@ export function NostrProfile() {
     }
   }
 
-  // Fetch profile from nostr.band REST API (fast, no WebSocket needed)
+  // Fetch profile from server-side API route (purplepag.es + primal fallback)
   const loadProfile = async () => {
     if (!user?.nostrPubkey) return
 
     setProfileLoading(true)
     try {
-      const res = await fetch(
-        `https://api.nostr.band/v0/profiles/${user.nostrPubkey}`,
-        { signal: AbortSignal.timeout(5000) }
-      )
-
+      const res = await fetch(`/api/nostr-profile/${user.nostrPubkey}`)
       if (res.ok) {
         const data = await res.json()
-        const metadata = data?.profile?.content
-          ? JSON.parse(data.profile.content)
-          : null
-
-        if (metadata) {
-          setProfile({
-            name: metadata.name || metadata.display_name,
-            about: metadata.about,
-            picture: metadata.picture,
-            nip05: metadata.nip05,
-          })
+        if (data.profile) {
+          setProfile(data.profile)
           setProfileLoading(false)
           return
         }
       }
-    } catch (error) {
-      console.error("Failed to load Nostr profile:", error)
-      // fall through to fallback
+    } catch (e) {
+      console.error("Failed to load profile", e)
     }
-
-    // Fallback: use name from DB
-    setProfile({ name: user.name })
+    // Fallback: show truncated pubkey with no name
+    setProfile({ name: undefined })
     setProfileLoading(false)
   }
 
