@@ -2,12 +2,12 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendCollaborationDM } from "@/lib/nostr-dm";
 
+const BECH32_ALPHABET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";
+
 /**
  * Convert npub to hex pubkey using bech32 decoding.
  */
 function npubToHex(npub: string): string {
-  const ALPHABET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";
-  
   if (!npub.startsWith("npub1")) {
     throw new Error("Invalid npub format");
   }
@@ -16,7 +16,7 @@ function npubToHex(npub: string): string {
   const decoded: number[] = [];
   
   for (const char of data) {
-    const index = ALPHABET.indexOf(char);
+    const index = BECH32_ALPHABET.indexOf(char);
     if (index === -1) throw new Error("Invalid character in npub");
     decoded.push(index);
   }
@@ -39,60 +39,158 @@ function npubToHex(npub: string): string {
 }
 
 /**
+ * Convert hex pubkey to npub using bech32 encoding.
+ */
+function hexToNpub(hex: string): string {
+  // Convert hex to bytes
+  const bytes: number[] = [];
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes.push(parseInt(hex.slice(i, i + 2), 16));
+  }
+
+  // Convert 8-bit bytes to 5-bit groups
+  let acc = 0;
+  let bits = 0;
+  const data: number[] = [];
+  
+  for (const byte of bytes) {
+    acc = (acc << 8) | byte;
+    bits += 8;
+    while (bits >= 5) {
+      bits -= 5;
+      data.push((acc >> bits) & 31);
+    }
+  }
+  if (bits > 0) {
+    data.push((acc << (5 - bits)) & 31);
+  }
+
+  // Calculate bech32 checksum
+  const hrp = "npub";
+  const values = [...data];
+  
+  function polymod(values: number[]): number {
+    const GEN = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
+    let chk = 1;
+    for (const v of values) {
+      const top = chk >> 25;
+      chk = ((chk & 0x1ffffff) << 5) ^ v;
+      for (let i = 0; i < 5; i++) {
+        if ((top >> i) & 1) chk ^= GEN[i];
+      }
+    }
+    return chk;
+  }
+
+  function hrpExpand(hrp: string): number[] {
+    const result: number[] = [];
+    for (const c of hrp) {
+      result.push(c.charCodeAt(0) >> 5);
+    }
+    result.push(0);
+    for (const c of hrp) {
+      result.push(c.charCodeAt(0) & 31);
+    }
+    return result;
+  }
+
+  const checksumInput = [...hrpExpand(hrp), ...values, 0, 0, 0, 0, 0, 0];
+  const checksumValue = polymod(checksumInput) ^ 1;
+  const checksum: number[] = [];
+  for (let i = 0; i < 6; i++) {
+    checksum.push((checksumValue >> (5 * (5 - i))) & 31);
+  }
+
+  const encoded = [...values, ...checksum]
+    .map((v) => BECH32_ALPHABET[v])
+    .join("");
+
+  return `${hrp}1${encoded}`;
+}
+
+/**
+ * Check if string is valid hex pubkey (64 hex chars).
+ */
+function isValidHexPubkey(hex: string): boolean {
+  return /^[0-9a-f]{64}$/i.test(hex);
+}
+
+/**
  * Validate npub format (basic check).
  */
 function isValidNpub(npub: string): boolean {
   if (!npub.startsWith("npub1")) return false;
   if (npub.length !== 63) return false; // npub1 + 58 chars
   
-  const ALPHABET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";
   for (const char of npub.slice(5)) {
-    if (!ALPHABET.includes(char)) return false;
+    if (!BECH32_ALPHABET.includes(char)) return false;
   }
   
   return true;
+}
+
+/**
+ * Normalize pubkey input to both npub and hex formats.
+ * Accepts either npub or hex pubkey.
+ */
+function normalizePubkey(input: string): { npub: string; hex: string } | null {
+  const trimmed = input.trim().toLowerCase();
+  
+  if (isValidNpub(trimmed)) {
+    try {
+      return { npub: trimmed, hex: npubToHex(trimmed) };
+    } catch {
+      return null;
+    }
+  }
+  
+  if (isValidHexPubkey(trimmed)) {
+    try {
+      return { npub: hexToNpub(trimmed), hex: trimmed };
+    } catch {
+      return null;
+    }
+  }
+  
+  return null;
 }
 
 // POST — Submit a collaboration request
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { npub, message } = body;
+    const { npub: pubkeyInput, message } = body;
 
-    // Validate npub
-    if (!npub || typeof npub !== "string") {
+    // Validate pubkey (accepts npub or hex)
+    if (!pubkeyInput || typeof pubkeyInput !== "string") {
       return NextResponse.json(
-        { error: "npub is required" },
+        { error: "Pubkey is required" },
         { status: 400 }
       );
     }
 
-    const trimmedNpub = npub.trim().toLowerCase();
-
-    if (!isValidNpub(trimmedNpub)) {
+    // Normalize to both formats
+    const normalized = normalizePubkey(pubkeyInput);
+    if (!normalized) {
       return NextResponse.json(
-        { error: "Invalid npub format. It should start with 'npub1' and be 63 characters long." },
+        { error: "Invalid pubkey format. Provide either an npub or 64-character hex pubkey." },
         { status: 400 }
       );
     }
+
+    const { npub: normalizedNpub, hex: pubkeyHex } = normalized;
 
     // Validate message (optional, max 500 chars)
     const trimmedMessage = message?.trim().slice(0, 500) || null;
 
-    // Convert npub to hex
-    let pubkeyHex: string;
-    try {
-      pubkeyHex = npubToHex(trimmedNpub);
-    } catch (e) {
-      return NextResponse.json(
-        { error: "Failed to decode npub" },
-        { status: 400 }
-      );
-    }
-
-    // Check if already a collaborator
-    const existingCollaborator = await prisma.collaborator.findUnique({
-      where: { npub: trimmedNpub },
+    // Check if already a collaborator (check both npub and hex)
+    const existingCollaborator = await prisma.collaborator.findFirst({
+      where: {
+        OR: [
+          { npub: normalizedNpub },
+          { pubkeyHex: pubkeyHex },
+        ],
+      },
     });
 
     if (existingCollaborator) {
@@ -102,9 +200,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if request already exists
-    const existingRequest = await prisma.collaborationRequest.findUnique({
-      where: { npub: trimmedNpub },
+    // Check if request already exists (check both npub and hex)
+    const existingRequest = await prisma.collaborationRequest.findFirst({
+      where: {
+        OR: [
+          { npub: normalizedNpub },
+          { pubkeyHex: pubkeyHex },
+        ],
+      },
     });
 
     if (existingRequest) {
@@ -125,7 +228,7 @@ export async function POST(request: Request) {
     // Create the request
     const collabRequest = await prisma.collaborationRequest.create({
       data: {
-        npub: trimmedNpub,
+        npub: normalizedNpub,
         pubkeyHex,
         message: trimmedMessage,
         status: "pending",
@@ -136,7 +239,7 @@ export async function POST(request: Request) {
     let dmSent = false;
     if (trimmedMessage) {
       try {
-        const dmResult = await sendCollaborationDM(trimmedMessage, trimmedNpub);
+        const dmResult = await sendCollaborationDM(trimmedMessage, normalizedNpub);
         dmSent = dmResult.success;
         if (!dmResult.success) {
           console.warn("Failed to send collaboration DM:", dmResult.errors);
