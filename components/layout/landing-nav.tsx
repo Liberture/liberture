@@ -84,6 +84,12 @@ export function LandingNav() {
           >
             Knowledge
           </Link>
+          <Link
+            href="/how-it-works"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            How it Works
+          </Link>
 
           {/* Auth Button */}
           {user ? (
@@ -152,6 +158,13 @@ export function LandingNav() {
                 className="px-4 py-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
               >
                 Knowledge
+              </Link>
+              <Link
+                href="/how-it-works"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-4 py-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              >
+                How it Works
               </Link>
 
               <div className="border-t border-border/50 mt-2 pt-2">
