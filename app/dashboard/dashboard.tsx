@@ -4,6 +4,7 @@ import { useAuth } from "@/lib/auth-context"
 import { BosLevelCard } from "./bos-level-card"
 import { BookmarksSection } from "./bookmarks-section"
 import { NostrProfile } from "./nostr-profile"
+import { CollaborationCard } from "./collaboration-card"
 import { Card, CardContent } from "@/components/ui/card"
 import { Sparkles } from "lucide-react"
 
@@ -20,6 +21,9 @@ export function Dashboard() {
 
           {/* Nostr Profile Section */}
           {user?.nostrPubkey && <NostrProfile />}
+
+          {/* Collaboration Card */}
+          <CollaborationCard />
 
           {/* Wizard Placeholder */}
           <Card className="bg-gray-800/70 border-gray-700 backdrop-blur-sm rounded-2xl border-dashed">
