@@ -34,25 +34,27 @@ export async function getAuthUser(): Promise<JWTPayload | null> {
  * Check if a user is an admin.
  * Admin = user whose nostrPubkey matches a configured liberture NostrAccount
  *         OR user with a real email (not @nostr.liberture.com fake email)
+ *         OR (bootstrap mode) any authenticated user if no liberture account exists yet
  */
 export async function isAdmin(userId: string): Promise<boolean> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { email: true, nostrPubkey: true }
   })
-  
   if (!user) return false
-  
-  // Legacy: email-based admins (email doesn't end in @nostr.liberture.com)
+
+  // Legacy: real email admins (not the fake @nostr.liberture.com ones)
   if (user.email && !user.email.endsWith('@nostr.liberture.com')) return true
-  
-  // Nostr: check if user's pubkey matches any configured liberture NostrAccount
-  if (user.nostrPubkey) {
-    const libertureAccount = await prisma.nostrAccount.findFirst({
-      where: { role: 'liberture', pubkeyHex: user.nostrPubkey }
-    })
-    if (libertureAccount) return true
-  }
-  
-  return false
+
+  // Check if any liberture NostrAccount is configured
+  const libertureAccount = await prisma.nostrAccount.findFirst({
+    where: { role: 'liberture' },
+    select: { pubkeyHex: true }
+  })
+
+  // Bootstrap mode: no account configured yet → any authenticated user is admin
+  if (!libertureAccount) return true
+
+  // Account configured: only matching pubkey is admin
+  return user.nostrPubkey === libertureAccount.pubkeyHex
 }
