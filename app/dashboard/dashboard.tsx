@@ -1,12 +1,11 @@
 "use client"
 
-import Link from "next/link"
 import { useAuth } from "@/lib/auth-context"
 import { BosLevelCard } from "./bos-level-card"
 import { BookmarksSection } from "./bookmarks-section"
 import { NostrProfile } from "./nostr-profile"
 import { Card, CardContent } from "@/components/ui/card"
-import { Sparkles, Shield } from "lucide-react"
+import { Sparkles } from "lucide-react"
 
 export function Dashboard() {
   const { user } = useAuth()
@@ -21,23 +20,6 @@ export function Dashboard() {
 
           {/* Nostr Profile Section */}
           {user?.nostrPubkey && <NostrProfile />}
-
-          {/* Admin Panel Link - Only for admins */}
-          {user?.isAdmin && (
-            <Link href="/admin">
-              <Card className="bg-gradient-to-br from-violet-900/50 to-purple-900/50 border-violet-500/30 backdrop-blur-sm rounded-2xl hover:border-violet-500/50 transition-colors cursor-pointer">
-                <CardContent className="p-4 flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-violet-500/20 flex items-center justify-center">
-                    <Shield className="h-5 w-5 text-violet-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-violet-200">Admin Panel</p>
-                    <p className="text-xs text-violet-400/70">Manage content & users</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          )}
 
           {/* Wizard Placeholder */}
           <Card className="bg-gray-800/70 border-gray-700 backdrop-blur-sm rounded-2xl border-dashed">
