@@ -15,6 +15,12 @@ export interface UnsignedNostrEvent {
   content: string
 }
 
+// NIP-46 Signer interface
+export interface NostrSigner {
+  getPublicKey(): Promise<string>
+  signEvent(event: UnsignedNostrEvent): Promise<NostrEvent>
+}
+
 declare global {
   interface Window {
     nostr?: {
@@ -22,6 +28,10 @@ declare global {
       signEvent(event: UnsignedNostrEvent): Promise<NostrEvent>
       getRelays?(): Promise<Record<string, { read: boolean; write: boolean }>>
       nip04?: {
+        encrypt(pubkey: string, plaintext: string): Promise<string>
+        decrypt(pubkey: string, ciphertext: string): Promise<string>
+      }
+      nip44?: {
         encrypt(pubkey: string, plaintext: string): Promise<string>
         decrypt(pubkey: string, ciphertext: string): Promise<string>
       }
