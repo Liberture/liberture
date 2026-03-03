@@ -105,7 +105,6 @@ export default function LoginPage() {
     setWaitingForConnect(true)
     
     try {
-      console.log("[Login] Waiting for nostrconnect...")
       const client = await nip46Module.waitForNostrConnect(
         connectSession.clientSecretKey,
         connectSession.clientPubkey,
@@ -113,10 +112,7 @@ export default function LoginPage() {
         120000
       )
       
-      console.log("[Login] Connected! Getting pubkey...")
-      // Store connection for session
       const pubkey = await client.getPublicKey()
-      console.log("[Login] Got pubkey:", pubkey)
       
       nip46Module.storeBunkerConnection({
         pubkey,
@@ -125,12 +121,9 @@ export default function LoginPage() {
         clientSecretKeyHex: bytesToHex(connectSession.clientSecretKey)
       })
       
-      console.log("[Login] Calling loginWithNip46...")
       await loginWithNip46(client)
-      console.log("[Login] Login complete!")
       setConnectComplete(true)
     } catch (err) {
-      console.error("[Login] Error:", err)
       setError(err instanceof Error ? err.message : "Connection failed")
       setWaitingForConnect(false)
     }
