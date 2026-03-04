@@ -33,9 +33,9 @@ const PILLARS = [
   { id: "sleep", label: "Sleep", color: "bg-indigo-500" },
   { id: "nutrition", label: "Nutrition", color: "bg-green-500" },
   { id: "exercise", label: "Exercise", color: "bg-orange-500" },
-  { id: "stress", label: "Stress", color: "bg-purple-500" },
-  { id: "substances", label: "Substances", color: "bg-red-500" },
-  { id: "social", label: "Social", color: "bg-cyan-500" },
+  { id: "mind", label: "Mind", color: "bg-purple-500" },
+  { id: "work", label: "Work", color: "bg-blue-500" },
+  { id: "finance", label: "Finance", color: "bg-emerald-500" },
 ]
 
 const CONTENT_TYPES = [
