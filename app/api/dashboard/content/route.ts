@@ -232,10 +232,11 @@ export async function POST(request: Request) {
       content: result,
       message: `${type} created successfully`,
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to create content:", error)
+    const errorMessage = error?.message || error?.toString() || "Unknown error"
     return NextResponse.json(
-      { error: "Failed to create content" },
+      { error: `Failed to create content: ${errorMessage}` },
       { status: 500 }
     )
   }
