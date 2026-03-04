@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { type, title, description, pillar, tags } = body
+    const { type, title, description, pillar, tags, nostrEventId, nostrDTag } = body
 
     if (!type || !title || !description || !pillar) {
       return NextResponse.json(
@@ -69,7 +69,8 @@ export async function POST(request: Request) {
       )
     }
 
-    const baseSlug = slugify(title)
+    // Use nostrDTag as slug if provided (already validated), otherwise generate
+    const baseSlug = nostrDTag || slugify(title)
     const tagsString = Array.isArray(tags) ? tags.join(", ") : (tags || "")
 
     let result: any
@@ -101,6 +102,8 @@ export async function POST(request: Request) {
             content: content || "",
             publishedAt: now,
             updatedAt: now,
+            nostrEventId: nostrEventId || null,
+            nostrDTag: nostrDTag || slug,
           },
         })
         break
@@ -130,6 +133,8 @@ export async function POST(request: Request) {
             authorPubkey: user.nostrPubkey,
             published: true,
             updatedAt: new Date(),
+            nostrEventId: nostrEventId || null,
+            nostrDTag: nostrDTag || slug,
           },
         })
         break
@@ -155,6 +160,8 @@ export async function POST(request: Request) {
             year: year ? parseInt(year) : null,
             authorPubkey: user.nostrPubkey,
             updatedAt: new Date(),
+            nostrEventId: nostrEventId || null,
+            nostrDTag: nostrDTag || slug,
           },
         })
         break
@@ -206,6 +213,8 @@ export async function POST(request: Request) {
             website: website || "",
             authorPubkey: user.nostrPubkey,
             updatedAt: new Date(),
+            nostrEventId: nostrEventId || null,
+            nostrDTag: nostrDTag || slug,
           },
         })
         break
