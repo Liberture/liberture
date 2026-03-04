@@ -8,7 +8,7 @@
     "upvotes": 89,
     "replies": 12,
     "time": "2 days ago",
-    "pillar": "cognition"
+    "pillar": "work"
   },
   {
     "id": 2,
@@ -19,7 +19,7 @@
     "upvotes": 67,
     "replies": 8,
     "time": "4 days ago",
-    "pillar": "recovery"
+    "pillar": "sleep"
   },
   {
     "id": 3,
@@ -30,7 +30,7 @@
     "upvotes": 156,
     "replies": 23,
     "time": "1 week ago",
-    "pillar": "cognition"
+    "pillar": "work"
   },
   {
     "id": 4,
@@ -41,6 +41,6 @@
     "upvotes": 23,
     "replies": 15,
     "time": "1 week ago",
-    "pillar": "mental"
+    "pillar": "mind"
   }
 ]

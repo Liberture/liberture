@@ -15,8 +15,8 @@ const newMarketplaceItems = [
     reviews: 312,
     price: 49,
     duration: "6 weeks",
-    color: "bg-cognition/10 border-cognition/30 hover:border-cognition/50",
-    iconColor: "text-cognition",
+    color: "bg-work/10 border-work/30 hover:border-work/50",
+    iconColor: "text-work",
   },
   {
     title: "Memory Palace Technique Masterclass",
@@ -28,8 +28,8 @@ const newMarketplaceItems = [
     reviews: 189,
     price: 39,
     duration: "4 weeks",
-    color: "bg-cognition/10 border-cognition/30 hover:border-cognition/50",
-    iconColor: "text-cognition",
+    color: "bg-work/10 border-work/30 hover:border-work/50",
+    iconColor: "text-work",
   },
   {
     title: "Brain-Derived Neurotrophic Factor (BDNF) Optimization",
@@ -41,8 +41,8 @@ const newMarketplaceItems = [
     reviews: 445,
     price: 0,
     duration: "Self-paced",
-    color: "bg-cognition/10 border-cognition/30 hover:border-cognition/50",
-    iconColor: "text-cognition",
+    color: "bg-work/10 border-work/30 hover:border-work/50",
+    iconColor: "text-work",
   },
   {
     title: "Caffeine Cycling for Sustained Performance",
@@ -54,8 +54,8 @@ const newMarketplaceItems = [
     reviews: 567,
     price: 0,
     duration: "Ongoing",
-    color: "bg-cognition/10 border-cognition/30 hover:border-cognition/50",
-    iconColor: "text-cognition",
+    color: "bg-work/10 border-work/30 hover:border-work/50",
+    iconColor: "text-work",
   },
 
   // RECOVERY
@@ -69,8 +69,8 @@ const newMarketplaceItems = [
     reviews: 891,
     price: 69,
     duration: "8 weeks",
-    color: "bg-recovery/10 border-recovery/30 hover:border-recovery/50",
-    iconColor: "text-recovery",
+    color: "bg-sleep/10 border-sleep/30 hover:border-sleep/50",
+    iconColor: "text-sleep",
   },
   {
     title: "Contrast Therapy Protocol: Hot & Cold",
@@ -82,8 +82,8 @@ const newMarketplaceItems = [
     reviews: 423,
     price: 59,
     duration: "12 weeks",
-    color: "bg-recovery/10 border-recovery/30 hover:border-recovery/50",
-    iconColor: "text-recovery",
+    color: "bg-sleep/10 border-sleep/30 hover:border-sleep/50",
+    iconColor: "text-sleep",
   },
   {
     title: "HRV-Guided Training: Listen to Your Body",
@@ -95,8 +95,8 @@ const newMarketplaceItems = [
     reviews: 678,
     price: 0,
     duration: "Ongoing",
-    color: "bg-recovery/10 border-recovery/30 hover:border-recovery/50",
-    iconColor: "text-recovery",
+    color: "bg-sleep/10 border-sleep/30 hover:border-sleep/50",
+    iconColor: "text-sleep",
   },
   {
     title: "Breathing Techniques for Recovery",
@@ -108,8 +108,8 @@ const newMarketplaceItems = [
     reviews: 1203,
     price: 0,
     duration: "Self-paced",
-    color: "bg-recovery/10 border-recovery/30 hover:border-recovery/50",
-    iconColor: "text-recovery",
+    color: "bg-sleep/10 border-sleep/30 hover:border-sleep/50",
+    iconColor: "text-sleep",
   },
   {
     title: "Red Light Therapy Home Protocol",
@@ -121,8 +121,8 @@ const newMarketplaceItems = [
     reviews: 334,
     price: 0,
     duration: "Self-paced",
-    color: "bg-recovery/10 border-recovery/30 hover:border-recovery/50",
-    iconColor: "text-recovery",
+    color: "bg-sleep/10 border-sleep/30 hover:border-sleep/50",
+    iconColor: "text-sleep",
   },
 
   // FUELING
@@ -136,8 +136,8 @@ const newMarketplaceItems = [
     reviews: 289,
     price: 79,
     duration: "90 days",
-    color: "bg-fueling/10 border-fueling/30 hover:border-fueling/50",
-    iconColor: "text-fueling",
+    color: "bg-nutrition/10 border-nutrition/30 hover:border-nutrition/50",
+    iconColor: "text-nutrition",
   },
   {
     title: "Ketogenic Diet Masterclass",
@@ -149,8 +149,8 @@ const newMarketplaceItems = [
     reviews: 567,
     price: 89,
     duration: "12 weeks",
-    color: "bg-fueling/10 border-fueling/30 hover:border-fueling/50",
-    iconColor: "text-fueling",
+    color: "bg-nutrition/10 border-nutrition/30 hover:border-nutrition/50",
+    iconColor: "text-nutrition",
   },
   {
     title: "Microbiome Optimization Protocol",
@@ -162,8 +162,8 @@ const newMarketplaceItems = [
     reviews: 412,
     price: 49,
     duration: "8 weeks",
-    color: "bg-fueling/10 border-fueling/30 hover:border-fueling/50",
-    iconColor: "text-fueling",
+    color: "bg-nutrition/10 border-nutrition/30 hover:border-nutrition/50",
+    iconColor: "text-nutrition",
   },
   {
     title: "Insulin Sensitivity Optimization",
@@ -175,8 +175,8 @@ const newMarketplaceItems = [
     reviews: 789,
     price: 0,
     duration: "Ongoing",
-    color: "bg-fueling/10 border-fueling/30 hover:border-fueling/50",
-    iconColor: "text-fueling",
+    color: "bg-nutrition/10 border-nutrition/30 hover:border-nutrition/50",
+    iconColor: "text-nutrition",
   },
   {
     title: "Meal Timing for Performance",
@@ -188,8 +188,8 @@ const newMarketplaceItems = [
     reviews: 623,
     price: 0,
     duration: "Self-paced",
-    color: "bg-fueling/10 border-fueling/30 hover:border-fueling/50",
-    iconColor: "text-fueling",
+    color: "bg-nutrition/10 border-nutrition/30 hover:border-nutrition/50",
+    iconColor: "text-nutrition",
   },
 
   // MENTAL
@@ -203,8 +203,8 @@ const newMarketplaceItems = [
     reviews: 678,
     price: 39,
     duration: "6 weeks",
-    color: "bg-mental/10 border-mental/30 hover:border-mental/50",
-    iconColor: "text-mental",
+    color: "bg-mind/10 border-mind/30 hover:border-mind/50",
+    iconColor: "text-mind",
   },
   {
     title: "Neurofeedback Training Protocol",
@@ -216,8 +216,8 @@ const newMarketplaceItems = [
     reviews: 234,
     price: 149,
     duration: "16 weeks",
-    color: "bg-mental/10 border-mental/30 hover:border-mental/50",
-    iconColor: "text-mental",
+    color: "bg-mind/10 border-mind/30 hover:border-mind/50",
+    iconColor: "text-mind",
   },
   {
     title: "Anxiety Reduction Toolbox",
@@ -229,8 +229,8 @@ const newMarketplaceItems = [
     reviews: 1456,
     price: 0,
     duration: "Self-paced",
-    color: "bg-mental/10 border-mental/30 hover:border-mental/50",
-    iconColor: "text-mental",
+    color: "bg-mind/10 border-mind/30 hover:border-mind/50",
+    iconColor: "text-mind",
   },
   {
     title: "Journaling for Mental Clarity",
@@ -242,8 +242,8 @@ const newMarketplaceItems = [
     reviews: 892,
     price: 0,
     duration: "Ongoing",
-    color: "bg-mental/10 border-mental/30 hover:border-mental/50",
-    iconColor: "text-mental",
+    color: "bg-mind/10 border-mind/30 hover:border-mind/50",
+    iconColor: "text-mind",
   },
 
   // PHYSICALITY
@@ -257,8 +257,8 @@ const newMarketplaceItems = [
     reviews: 734,
     price: 99,
     duration: "12 weeks",
-    color: "bg-physicality/10 border-physicality/30 hover:border-physicality/50",
-    iconColor: "text-physicality",
+    color: "bg-exercise/10 border-exercise/30 hover:border-exercise/50",
+    iconColor: "text-exercise",
   },
   {
     title: "Mobility Mastery: Complete Joint Health",
@@ -270,8 +270,8 @@ const newMarketplaceItems = [
     reviews: 567,
     price: 69,
     duration: "10 weeks",
-    color: "bg-physicality/10 border-physicality/30 hover:border-physicality/50",
-    iconColor: "text-physicality",
+    color: "bg-exercise/10 border-exercise/30 hover:border-exercise/50",
+    iconColor: "text-exercise",
   },
   {
     title: "Zone 2 Cardio Foundation",
@@ -283,8 +283,8 @@ const newMarketplaceItems = [
     reviews: 945,
     price: 0,
     duration: "Ongoing",
-    color: "bg-physicality/10 border-physicality/30 hover:border-physicality/50",
-    iconColor: "text-physicality",
+    color: "bg-exercise/10 border-exercise/30 hover:border-exercise/50",
+    iconColor: "text-exercise",
   },
   {
     title: "Rucking Protocol for Busy People",
@@ -296,8 +296,8 @@ const newMarketplaceItems = [
     reviews: 623,
     price: 0,
     duration: "Self-paced",
-    color: "bg-physicality/10 border-physicality/30 hover:border-physicality/50",
-    iconColor: "text-physicality",
+    color: "bg-exercise/10 border-exercise/30 hover:border-exercise/50",
+    iconColor: "text-exercise",
   },
   {
     title: "Functional Movement Screening",
@@ -309,8 +309,8 @@ const newMarketplaceItems = [
     reviews: 478,
     price: 0,
     duration: "Self-paced",
-    color: "bg-physicality/10 border-physicality/30 hover:border-physicality/50",
-    iconColor: "text-physicality",
+    color: "bg-exercise/10 border-exercise/30 hover:border-exercise/50",
+    iconColor: "text-exercise",
   },
 
   // FINANCE

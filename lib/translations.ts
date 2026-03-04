@@ -329,7 +329,7 @@ export const translations: { en: Translations } = {
             pillar: "Nutrition",
             type: "Premium Protocol",
             author: "Dr. Sarah Chen",
-            color: "bg-fueling/20 border-fueling/30",
+            color: "bg-nutrition/20 border-nutrition/30",
             icon: "nutrition",
           },
           {
@@ -337,7 +337,7 @@ export const translations: { en: Translations } = {
             pillar: "Sleep",
             type: "Video Course",
             author: "Prof. Matthew Walker",
-            color: "bg-recovery/20 border-recovery/30",
+            color: "bg-sleep/20 border-sleep/30",
             icon: "sleep",
           },
           {
@@ -345,7 +345,7 @@ export const translations: { en: Translations } = {
             pillar: "Work",
             type: "Interactive Game",
             author: "Liberture Labs",
-            color: "bg-cognition/20 border-cognition/30",
+            color: "bg-work/20 border-work/30",
             icon: "work",
           },
         ],

@@ -10,11 +10,11 @@ const VALID_PILLARS = ['work', 'sleep', 'nutrition', 'mind', 'exercise', 'financ
 type Pillar = (typeof VALID_PILLARS)[number]
 
 const pillarConfig: Record<Pillar, { title: string; description: string; color: string; icon: string; tagline: string }> = {
-  work: { title: 'Work & Cognition', description: 'Optimize your brain for focus, memory, learning, and peak mental performance.', color: 'from-cognition/20 to-cognition/5', icon: '🧠', tagline: 'Think Sharper' },
-  sleep: { title: 'Sleep & Recovery', description: 'Master sleep, stress management, and active recovery for sustainable performance.', color: 'from-recovery/20 to-recovery/5', icon: '💤', tagline: 'Rest Better' },
-  nutrition: { title: 'Nutrition & Fueling', description: 'Nutrition strategies for energy, longevity, and metabolic health.', color: 'from-fueling/20 to-fueling/5', icon: '🥗', tagline: 'Eat Smarter' },
-  mind: { title: 'Mind & Mental Health', description: 'Build resilience, emotional intelligence, and psychological strength.', color: 'from-mental/20 to-mental/5', icon: '🧘', tagline: 'Feel Stronger' },
-  exercise: { title: 'Exercise & Physicality', description: 'Training, movement, and body optimization for functional longevity.', color: 'from-physicality/20 to-physicality/5', icon: '💪', tagline: 'Move Better' },
+  work: { title: 'Work & Cognition', description: 'Optimize your brain for focus, memory, learning, and peak mental performance.', color: 'from-work/20 to-work/5', icon: '🧠', tagline: 'Think Sharper' },
+  sleep: { title: 'Sleep & Recovery', description: 'Master sleep, stress management, and active recovery for sustainable performance.', color: 'from-sleep/20 to-sleep/5', icon: '💤', tagline: 'Rest Better' },
+  nutrition: { title: 'Nutrition & Fueling', description: 'Nutrition strategies for energy, longevity, and metabolic health.', color: 'from-nutrition/20 to-nutrition/5', icon: '🥗', tagline: 'Eat Smarter' },
+  mind: { title: 'Mind & Mental Health', description: 'Build resilience, emotional intelligence, and psychological strength.', color: 'from-mind/20 to-mind/5', icon: '🧘', tagline: 'Feel Stronger' },
+  exercise: { title: 'Exercise & Physicality', description: 'Training, movement, and body optimization for functional longevity.', color: 'from-exercise/20 to-exercise/5', icon: '💪', tagline: 'Move Better' },
   finance: { title: 'Finance & Wealth', description: 'Financial independence, passive income, and wealth-building strategies.', color: 'from-finance/20 to-finance/5', icon: '💰', tagline: 'Build Wealth' },
 }
 

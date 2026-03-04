@@ -110,7 +110,7 @@ function parsePerson(event: NostrEvent): ParsedPerson {
     twitter: content.twitter,
     expertise: content.expertise || [],
     pillars: getAllTagValues(event.tags, "t").filter(t => 
-      ["sleep", "nutrition", "exercise", "mind", "social", "environment"].includes(t)
+      ["work", "sleep", "nutrition", "mind", "exercise", "finance"].includes(t)
     ),
     createdAt: event.created_at,
   }
@@ -128,7 +128,7 @@ function parseOrganization(event: NostrEvent): ParsedOrganization {
     website: content.website,
     category: content.category,
     pillars: getAllTagValues(event.tags, "t").filter(t => 
-      ["sleep", "nutrition", "exercise", "mind", "social", "environment"].includes(t)
+      ["work", "sleep", "nutrition", "mind", "exercise", "finance"].includes(t)
     ),
     createdAt: event.created_at,
   }
@@ -137,7 +137,7 @@ function parseOrganization(event: NostrEvent): ParsedOrganization {
 // Parse a protocol event
 function parseProtocol(event: NostrEvent): ParsedProtocol {
   const allTags = getAllTagValues(event.tags, "t")
-  const pillarTags = ["sleep", "nutrition", "exercise", "mind", "social", "environment"]
+  const pillarTags = ["work", "sleep", "nutrition", "mind", "exercise", "finance"]
   const pillar = allTags.find(t => pillarTags.includes(t)) || "mind"
   const otherTags = allTags.filter(t => !pillarTags.includes(t) && t !== "protocol")
 
@@ -161,7 +161,7 @@ function parseProtocol(event: NostrEvent): ParsedProtocol {
 function parseBook(event: NostrEvent): ParsedBook {
   const content = JSON.parse(event.content || "{}")
   const allTags = getAllTagValues(event.tags, "t")
-  const pillarTags = ["sleep", "nutrition", "exercise", "mind", "social", "environment"]
+  const pillarTags = ["work", "sleep", "nutrition", "mind", "exercise", "finance"]
   
   return {
     id: event.id,

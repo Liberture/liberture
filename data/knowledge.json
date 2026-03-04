@@ -242,7 +242,7 @@
             "rank": 1,
             "title": "Why We Sleep",
             "author": "Matthew Walker",
-            "pillar": "recovery",
+            "pillar": "sleep",
             "influenceScore": 98,
             "summary": "The definitive guide to sleep science, revealing how sleep deprivation affects every aspect of health, memory, and longevity."
         },
@@ -251,7 +251,7 @@
             "rank": 2,
             "title": "Outlive",
             "author": "Peter Attia",
-            "pillar": "recovery",
+            "pillar": "sleep",
             "influenceScore": 97,
             "summary": "A rigorous framework for extending healthspan through proactive Medicine 3.0 strategies."
         },
@@ -260,7 +260,7 @@
             "rank": 3,
             "title": "Atomic Habits",
             "author": "James Clear",
-            "pillar": "mental",
+            "pillar": "mind",
             "influenceScore": 97,
             "summary": "A practical framework for building lasting habits through small, incremental changes that compound over time."
         },
@@ -269,7 +269,7 @@
             "rank": 4,
             "title": "The 4-Hour Body",
             "author": "Tim Ferriss",
-            "pillar": "physicality",
+            "pillar": "exercise",
             "influenceScore": 96,
             "summary": "Unconventional self-experimentation protocols for rapid fat loss, strength, and body transformation."
         },
@@ -278,7 +278,7 @@
             "rank": 5,
             "title": "Deep Work",
             "author": "Cal Newport",
-            "pillar": "cognition",
+            "pillar": "work",
             "influenceScore": 95,
             "summary": "Rules for focused success in a distracted world through deep concentration practices."
         },
@@ -296,7 +296,7 @@
             "rank": 7,
             "title": "Lifespan",
             "author": "David Sinclair",
-            "pillar": "recovery",
+            "pillar": "sleep",
             "influenceScore": 95,
             "summary": "Harvard geneticist presents the Information Theory of Aging and practical interventions to slow aging."
         },
@@ -314,7 +314,7 @@
             "rank": 9,
             "title": "Can't Hurt Me",
             "author": "David Goggins",
-            "pillar": "mental",
+            "pillar": "mind",
             "influenceScore": 93,
             "summary": "Navy SEAL reveals the 40% Rule and calloused mind philosophy for operating beyond perceived limits."
         },
@@ -323,7 +323,7 @@
             "rank": 10,
             "title": "The Obesity Code",
             "author": "Jason Fung",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "influenceScore": 93,
             "summary": "Dismantles calorie-counting myths to reveal the hormonal root causes of obesity centered on insulin."
         },
@@ -332,7 +332,7 @@
             "rank": 11,
             "title": "The Body Keeps the Score",
             "author": "Bessel van der Kolk",
-            "pillar": "mental",
+            "pillar": "mind",
             "influenceScore": 93,
             "summary": "Landmark text on how trauma reshapes the brain and body, and how somatic therapies can restore healing."
         },
@@ -341,7 +341,7 @@
             "rank": 12,
             "title": "Breath",
             "author": "James Nestor",
-            "pillar": "recovery",
+            "pillar": "sleep",
             "influenceScore": 92,
             "summary": "How modern humans lost the ability to breathe correctly and the transformative effects of restoring it."
         },
@@ -350,7 +350,7 @@
             "rank": 13,
             "title": "The Circadian Code",
             "author": "Satchin Panda",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "influenceScore": 91,
             "summary": "How aligning eating patterns with your circadian clock dramatically improves metabolic health."
         },
@@ -368,7 +368,7 @@
             "rank": 15,
             "title": "Limitless",
             "author": "Jim Kwik",
-            "pillar": "cognition",
+            "pillar": "work",
             "influenceScore": 90,
             "summary": "A system for improving mental performance by upgrading mindset, motivation, and learning methods."
         },
@@ -386,7 +386,7 @@
             "rank": 17,
             "title": "Daring Greatly",
             "author": "Brene Brown",
-            "pillar": "mental",
+            "pillar": "mind",
             "influenceScore": 90,
             "summary": "Evidence that vulnerability is the birthplace of innovation, creativity, and authentic human connection."
         },
@@ -395,7 +395,7 @@
             "rank": 18,
             "title": "The Wim Hof Method",
             "author": "Wim Hof",
-            "pillar": "recovery",
+            "pillar": "sleep",
             "influenceScore": 89,
             "summary": "Three-pillar system of breathing, cold exposure, and commitment to unlock physical and mental resilience."
         },
@@ -422,7 +422,7 @@
             "rank": 21,
             "title": "Power of Now",
             "author": "Eckhart Tolle",
-            "pillar": "mental",
+            "pillar": "mind",
             "influenceScore": 89,
             "summary": "A transformative guide to escaping mental suffering by fully inhabiting the present moment."
         },
@@ -431,7 +431,7 @@
             "rank": 22,
             "title": "Tools of Titans",
             "author": "Tim Ferriss",
-            "pillar": "cognition",
+            "pillar": "work",
             "influenceScore": 88,
             "summary": "Distilled patterns, habits, and life philosophies from over 200 world-class performers."
         },
@@ -440,7 +440,7 @@
             "rank": 23,
             "title": "Boundless",
             "author": "Ben Greenfield",
-            "pillar": "physicality",
+            "pillar": "exercise",
             "influenceScore": 88,
             "summary": "Encyclopedic guide to biohacking every system of the body from fitness to cognition to spirituality."
         },
@@ -458,7 +458,7 @@
             "rank": 25,
             "title": "The Mind Illuminated",
             "author": "Culadasa",
-            "pillar": "mental",
+            "pillar": "mind",
             "influenceScore": 88,
             "summary": "Complete meditation guide integrating Buddhist wisdom and brain science."
         },
@@ -476,7 +476,7 @@
             "rank": 27,
             "title": "Super Human",
             "author": "Dave Asprey",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "influenceScore": 87,
             "summary": "The bulletproof plan to age backward through nutrition and targeted biohacking protocols."
         },
@@ -485,7 +485,7 @@
             "rank": 28,
             "title": "Genius Foods",
             "author": "Max Lugavere",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "influenceScore": 87,
             "summary": "Identifies specific foods that optimize brain performance and protect against cognitive decline."
         },
@@ -494,7 +494,7 @@
             "rank": 29,
             "title": "The Complete Guide to Fasting",
             "author": "Jason Fung & Jimmy Moore",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "influenceScore": 87,
             "summary": "Comprehensive guide to therapeutic fasting protocols for weight loss and metabolic health."
         },
@@ -503,7 +503,7 @@
             "rank": 30,
             "title": "Dopamine Nation",
             "author": "Anna Lembke",
-            "pillar": "mental",
+            "pillar": "mind",
             "influenceScore": 87,
             "summary": "How pleasure-pain imbalance drives compulsive behavior and a clinical path to reset dopamine circuits."
         },
@@ -512,7 +512,7 @@
             "rank": 31,
             "title": "Spark",
             "author": "John J. Ratey",
-            "pillar": "physicality",
+            "pillar": "exercise",
             "influenceScore": 86,
             "summary": "Proves that aerobic exercise is the most powerful tool for optimizing brain function and mood."
         },
@@ -521,7 +521,7 @@
             "rank": 32,
             "title": "Good Calories, Bad Calories",
             "author": "Gary Taubes",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "influenceScore": 86,
             "summary": "Meticulous investigation establishing refined carbohydrates as the primary driver of obesity."
         },
@@ -530,7 +530,7 @@
             "rank": 33,
             "title": "Gut",
             "author": "Giulia Enders",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "influenceScore": 85,
             "summary": "Witty and scientifically grounded exploration of the gut microbiome and its influence on health."
         },
@@ -539,7 +539,7 @@
             "rank": 34,
             "title": "The Mind-Gut Connection",
             "author": "Emeran Mayer",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "influenceScore": 85,
             "summary": "Maps the bidirectional communication between gut and brain governing mood and chronic disease."
         },
@@ -548,7 +548,7 @@
             "rank": 35,
             "title": "Born to Run",
             "author": "Christopher McDougall",
-            "pillar": "physicality",
+            "pillar": "exercise",
             "influenceScore": 85,
             "summary": "Journey into the Tarahumara tribe revealing humans are evolutionarily designed for endurance running."
         },
@@ -557,7 +557,7 @@
             "rank": 36,
             "title": "Peak",
             "author": "Anders Ericsson",
-            "pillar": "cognition",
+            "pillar": "work",
             "influenceScore": 85,
             "summary": "The science behind deliberate practice that separates elite performers from the merely experienced."
         },
@@ -566,7 +566,7 @@
             "rank": 37,
             "title": "Biohackers' Handbook",
             "author": "Olli Sovijärvi, Teemu Arina & Jaakko Halmetoja",
-            "pillar": "cognition",
+            "pillar": "work",
             "influenceScore": 85,
             "summary": "Comprehensive reference covering sleep, nutrition, exercise, and mind optimization."
         },
@@ -575,7 +575,7 @@
             "rank": 38,
             "title": "Stealing Fire",
             "author": "Steven Kotler & Jamie Wheal",
-            "pillar": "cognition",
+            "pillar": "work",
             "influenceScore": 84,
             "summary": "How elite performers use altered states of consciousness — from flow to psychedelics — for breakthroughs."
         },
@@ -584,7 +584,7 @@
             "rank": 39,
             "title": "The Willpower Instinct",
             "author": "Kelly McGonigal",
-            "pillar": "mental",
+            "pillar": "mind",
             "influenceScore": 84,
             "summary": "Science-backed guide for strengthening self-control through mindfulness and habit change."
         },
@@ -593,7 +593,7 @@
             "rank": 40,
             "title": "Genius Life",
             "author": "Max Lugavere",
-            "pillar": "cognition",
+            "pillar": "work",
             "influenceScore": 84,
             "summary": "Lifestyle blueprint connecting diet, movement, light exposure, sleep, and social connection."
         },
@@ -602,7 +602,7 @@
             "rank": 41,
             "title": "Smarter Not Harder",
             "author": "Dave Asprey",
-            "pillar": "cognition",
+            "pillar": "work",
             "influenceScore": 83,
             "summary": "The laziness principle — achieving maximum results by working with the body's natural systems."
         },
@@ -611,7 +611,7 @@
             "rank": 42,
             "title": "Eat to Beat Disease",
             "author": "William Li",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "influenceScore": 83,
             "summary": "Reveals the five defense systems of the body and foods scientifically proven to activate them."
         },
@@ -620,7 +620,7 @@
             "rank": 43,
             "title": "The Rise of Superman",
             "author": "Steven Kotler",
-            "pillar": "physicality",
+            "pillar": "exercise",
             "influenceScore": 83,
             "summary": "Maps the neuroscience of peak performance through the lens of extreme sport athletes."
         },
@@ -629,7 +629,7 @@
             "rank": 44,
             "title": "Chatter",
             "author": "Ethan Kross",
-            "pillar": "mental",
+            "pillar": "mind",
             "influenceScore": 83,
             "summary": "Evidence-based tools to transform self-defeating mental chatter into a productive inner coach."
         },
@@ -638,7 +638,7 @@
             "rank": 45,
             "title": "Endure",
             "author": "Alex Hutchinson",
-            "pillar": "physicality",
+            "pillar": "exercise",
             "influenceScore": 82,
             "summary": "The science arguing the brain — not the body — is the primary limiting factor in athletic performance."
         },
@@ -647,7 +647,7 @@
             "rank": 46,
             "title": "The Upside of Stress",
             "author": "Kelly McGonigal",
-            "pillar": "mental",
+            "pillar": "mind",
             "influenceScore": 82,
             "summary": "Reframes stress as a biological resource that enhances performance when properly harnessed."
         },
@@ -656,7 +656,7 @@
             "rank": 47,
             "title": "The Longevity Paradox",
             "author": "Steven Gundry",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "influenceScore": 82,
             "summary": "Argues gut bacteria and lectins are central to aging, offering a diet-based longevity protocol."
         },
@@ -674,7 +674,7 @@
             "rank": 49,
             "title": "The Molecule of More",
             "author": "Daniel Lieberman & Michael Long",
-            "pillar": "cognition",
+            "pillar": "work",
             "influenceScore": 80,
             "summary": "How dopamine governs desire, ambition, creativity, and addiction by making us want what we don't yet have."
         },
@@ -966,7 +966,7 @@
             "title": "Why We Sleep",
             "author": "Matthew Walker",
             "type": "Book",
-            "pillar": "recovery",
+            "pillar": "sleep",
             "tags": ["Sleep Cycles", "HRV", "Longevity"],
             "rating": 4.9,
             "external": true
@@ -976,7 +976,7 @@
             "title": "Mitochondrial Biogenesis Protocol",
             "author": "Liberture Research",
             "type": "White Paper",
-            "pillar": "cognition",
+            "pillar": "work",
             "tags": ["Mitochondria", "Nootropics"],
             "rating": 4.7,
             "external": false
@@ -986,7 +986,7 @@
             "title": "Intermittent Fasting Meta-Analysis",
             "author": "Dr. Jason Fung",
             "type": "Academic Article",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "tags": ["Intermittent Fasting", "Ketosis"],
             "rating": 4.8,
             "external": false
@@ -996,7 +996,7 @@
             "title": "Cold Exposure Adaptation Guide",
             "author": "Wim Hof Method",
             "type": "E-Book",
-            "pillar": "recovery",
+            "pillar": "sleep",
             "tags": ["Cold Therapy", "HRV", "Hormesis"],
             "rating": 4.6,
             "external": true
@@ -1016,7 +1016,7 @@
             "title": "Epigenetic Markers of Aging",
             "author": "Harvard Medical",
             "type": "Academic Article",
-            "pillar": "recovery",
+            "pillar": "sleep",
             "tags": ["Epigenetics", "Aging Reversal"],
             "rating": 4.5,
             "external": false
@@ -1026,7 +1026,7 @@
             "title": "HRV Training Complete Guide",
             "author": "Liberture Community",
             "type": "Long-form Guide",
-            "pillar": "mental",
+            "pillar": "mind",
             "tags": ["HRV", "Meditation", "Resilience"],
             "rating": 4.7,
             "external": false
@@ -1036,7 +1036,7 @@
             "title": "Strength Training Periodization",
             "author": "Dr. Andy Galpin",
             "type": "E-Book",
-            "pillar": "physicality",
+            "pillar": "exercise",
             "tags": ["Strength Training", "Athletic Performance"],
             "rating": 4.8,
             "external": true
@@ -1056,7 +1056,7 @@
             "title": "Nootropic Stack Research Review",
             "author": "Examine.com",
             "type": "Academic Article",
-            "pillar": "cognition",
+            "pillar": "work",
             "tags": ["Nootropics", "Mitochondria", "Brain Health"],
             "rating": 4.4,
             "external": false
@@ -1066,7 +1066,7 @@
             "title": "Boundless",
             "author": "Ben Greenfield",
             "type": "Book",
-            "pillar": "physicality",
+            "pillar": "exercise",
             "tags": ["Biohacking", "Performance", "Longevity"],
             "rating": 4.8,
             "external": true
@@ -1076,7 +1076,7 @@
             "title": "Smarter Not Harder",
             "author": "Dave Asprey",
             "type": "Book",
-            "pillar": "cognition",
+            "pillar": "work",
             "tags": ["Biohacking", "Performance", "Aging Reversal"],
             "rating": 4.6,
             "external": true
@@ -1086,7 +1086,7 @@
             "title": "The Bulletproof Diet",
             "author": "Dave Asprey",
             "type": "Book",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "tags": ["Nutrition Strategy", "Diet Protocols", "Metabolic Flexibility"],
             "rating": 4.7,
             "external": true
@@ -1096,7 +1096,7 @@
             "title": "Super Human",
             "author": "Dave Asprey",
             "type": "Book",
-            "pillar": "recovery",
+            "pillar": "sleep",
             "tags": ["Longevity", "Aging Reversal", "Biohacking"],
             "rating": 4.7,
             "external": true
@@ -1106,7 +1106,7 @@
             "title": "Biohackers' Handbook",
             "author": "Teemu Arina, Olli Sovijärvi, Jaakko Halmetoja",
             "type": "Book",
-            "pillar": "cognition",
+            "pillar": "work",
             "tags": ["Biohacking", "Performance", "Neuroscience"],
             "rating": 4.8,
             "external": true
@@ -1116,7 +1116,7 @@
             "title": "The Awakened Ape",
             "author": "Jevan Pradas",
             "type": "Book",
-            "pillar": "mental",
+            "pillar": "mind",
             "tags": ["Meditation", "Performance", "Longevity"],
             "rating": 4.5,
             "external": true
@@ -1126,7 +1126,7 @@
             "title": "Outlive",
             "author": "Peter Attia",
             "type": "Book",
-            "pillar": "physicality",
+            "pillar": "exercise",
             "tags": ["Longevity", "Aging Reversal", "Metabolic Flexibility"],
             "rating": 4.9,
             "external": true
@@ -1136,7 +1136,7 @@
             "title": "Lifespan",
             "author": "David A. Sinclair",
             "type": "Book",
-            "pillar": "recovery",
+            "pillar": "sleep",
             "tags": ["Epigenetics", "Longevity", "Aging Reversal"],
             "rating": 4.8,
             "external": true
@@ -1146,7 +1146,7 @@
             "title": "The 4-Hour Body",
             "author": "Tim Ferriss",
             "type": "Book",
-            "pillar": "physicality",
+            "pillar": "exercise",
             "tags": ["Performance", "Strength Training", "Diet Protocols"],
             "rating": 4.7,
             "external": true
@@ -1156,7 +1156,7 @@
             "title": "Tools of Titans",
             "author": "Tim Ferriss",
             "type": "Book",
-            "pillar": "cognition",
+            "pillar": "work",
             "tags": ["Performance", "Biohacking", "Neuroscience"],
             "rating": 4.6,
             "external": true
@@ -1166,7 +1166,7 @@
             "title": "The Hallmarks of Aging",
             "author": "Carlos Lopez-Otin et al.",
             "type": "Academic Article",
-            "pillar": "recovery",
+            "pillar": "sleep",
             "tags": ["Longevity", "Epigenetics", "Aging Reversal"],
             "rating": 4.9,
             "external": true
@@ -1176,7 +1176,7 @@
             "title": "Time-Restricted Eating and Metabolic Health",
             "author": "Satchin Panda et al.",
             "type": "Academic Article",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "tags": ["Circadian Rhythm", "Intermittent Fasting", "Metabolic Flexibility"],
             "rating": 4.8,
             "external": true
@@ -1186,7 +1186,7 @@
             "title": "Exercise as Medicine — 26 Chronic Diseases",
             "author": "Bente K. Pedersen & Bengt Saltin",
             "type": "Academic Article",
-            "pillar": "physicality",
+            "pillar": "exercise",
             "tags": ["Athletic Performance", "Longevity", "Biohacking"],
             "rating": 4.7,
             "external": true
@@ -1196,7 +1196,7 @@
             "title": "Gut Microbiome and Human Health Review",
             "author": "Emeran Mayer et al.",
             "type": "Academic Article",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "tags": ["Gut Health", "Microbiome", "Brain Health"],
             "rating": 4.7,
             "external": true
@@ -1206,7 +1206,7 @@
             "title": "Blueprint Complete Protocol Documentation",
             "author": "Bryan Johnson",
             "type": "Long-form Guide",
-            "pillar": "recovery",
+            "pillar": "sleep",
             "tags": ["Aging Reversal", "Longevity", "Biohacking"],
             "rating": 4.5,
             "external": true
@@ -1216,7 +1216,7 @@
             "title": "Neuroplasticity: The Brain's Ability to Change",
             "author": "Michael Merzenich",
             "type": "E-Book",
-            "pillar": "cognition",
+            "pillar": "work",
             "tags": ["Neuroplasticity", "Brain Health", "Neuroscience"],
             "rating": 4.6,
             "external": true
@@ -1226,7 +1226,7 @@
             "title": "Ketogenic Diet as Metabolic Therapy",
             "author": "Dominic D'Agostino",
             "type": "White Paper",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "tags": ["Ketosis", "Metabolic Flexibility", "Performance"],
             "rating": 4.6,
             "external": true
@@ -1236,7 +1236,7 @@
             "title": "Deliberate Cold Exposure: Protocols and Evidence",
             "author": "Susanna Soberg",
             "type": "Academic Article",
-            "pillar": "recovery",
+            "pillar": "sleep",
             "tags": ["Cold Therapy", "Dopamine", "Hormesis"],
             "rating": 4.7,
             "external": true
@@ -1256,7 +1256,7 @@
             "title": "Mindfulness-Based Stress Reduction (MBSR) Protocol",
             "author": "Jon Kabat-Zinn",
             "type": "Long-form Guide",
-            "pillar": "mental",
+            "pillar": "mind",
             "tags": ["Meditation", "Resilience", "Neuroscience"],
             "rating": 4.8,
             "external": true
@@ -1266,7 +1266,7 @@
             "title": "VO2 Max as Predictor of All-Cause Mortality",
             "author": "Nes et al. (HUNT Study)",
             "type": "Academic Article",
-            "pillar": "physicality",
+            "pillar": "exercise",
             "tags": ["VO2 Max", "Longevity", "Athletic Performance"],
             "rating": 4.8,
             "external": true
@@ -1276,7 +1276,7 @@
             "title": "Protein Distribution and Muscle Protein Synthesis",
             "author": "Stuart Phillips",
             "type": "Academic Article",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "tags": ["Protein", "Strength Training", "Longevity"],
             "rating": 4.7,
             "external": true
@@ -1286,7 +1286,7 @@
             "title": "Sauna Use, Cardiovascular Health, and Longevity",
             "author": "Rhonda Patrick",
             "type": "Long-form Guide",
-            "pillar": "recovery",
+            "pillar": "sleep",
             "tags": ["Sauna", "Longevity", "Hormesis"],
             "rating": 4.7,
             "external": true
@@ -1296,7 +1296,7 @@
             "title": "Polyvagal Theory: Safety, Connection, and Healing",
             "author": "Stephen Porges",
             "type": "Academic Article",
-            "pillar": "mental",
+            "pillar": "mind",
             "tags": ["HRV", "Resilience", "Trauma"],
             "rating": 4.7,
             "external": true
@@ -1306,7 +1306,7 @@
             "title": "Zone 2 Training for Metabolic Health",
             "author": "Iñigo San Millán",
             "type": "Long-form Guide",
-            "pillar": "physicality",
+            "pillar": "exercise",
             "tags": ["Zone 2", "Mitochondria", "Athletic Performance"],
             "rating": 4.8,
             "external": true
@@ -1316,7 +1316,7 @@
             "title": "Oxygen Advantage: Advanced Breathing Exercises",
             "author": "Patrick McKeown",
             "type": "Book",
-            "pillar": "physicality",
+            "pillar": "exercise",
             "tags": ["Breathwork", "Performance", "Athletic Performance"],
             "rating": 4.5,
             "external": false
@@ -1326,7 +1326,7 @@
             "title": "Metformin and Rapamycin as Longevity Interventions",
             "author": "Nir Barzilai et al.",
             "type": "White Paper",
-            "pillar": "recovery",
+            "pillar": "sleep",
             "tags": ["Longevity", "Aging Reversal", "Biohacking"],
             "rating": 4.6,
             "external": true
@@ -1336,7 +1336,7 @@
             "title": "Neuroprotective Effects of Omega-3 Fatty Acids",
             "author": "Calder et al.",
             "type": "Academic Article",
-            "pillar": "cognition",
+            "pillar": "work",
             "tags": ["Omega-3", "Brain Health", "Neuroscience"],
             "rating": 4.7,
             "external": true
@@ -1346,7 +1346,7 @@
             "title": "Fasting Mimicking Diet: Longevity and Disease Prevention",
             "author": "Valter Longo",
             "type": "Academic Article",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "tags": ["Autophagy", "Longevity", "Intermittent Fasting"],
             "rating": 4.7,
             "external": true
@@ -1356,7 +1356,7 @@
             "title": "Psychedelic-Assisted Therapy: Emerging Evidence",
             "author": "Robin Carhart-Harris et al.",
             "type": "Academic Article",
-            "pillar": "mental",
+            "pillar": "mind",
             "tags": ["Psychedelics", "Neuroplasticity", "Trauma"],
             "rating": 4.7,
             "external": true
@@ -1376,7 +1376,7 @@
             "title": "Huberman Lab Sleep Toolkit",
             "author": "Andrew Huberman",
             "type": "Long-form Guide",
-            "pillar": "recovery",
+            "pillar": "sleep",
             "tags": ["Sleep Cycles", "Circadian Rhythm", "Neuroscience"],
             "rating": 4.8,
             "external": true
@@ -1386,7 +1386,7 @@
             "title": "DEXA Scanning and Body Composition Guide",
             "author": "Peter Attia",
             "type": "Long-form Guide",
-            "pillar": "physicality",
+            "pillar": "exercise",
             "tags": ["Athletic Performance", "Metabolic Flexibility", "Biohacking"],
             "rating": 4.6,
             "external": true
@@ -1396,7 +1396,7 @@
             "title": "Flow: The Psychology of Optimal Experience",
             "author": "Mihaly Csikszentmihalyi",
             "type": "Book",
-            "pillar": "cognition",
+            "pillar": "work",
             "tags": ["Flow State", "Performance", "Neuroscience"],
             "rating": 4.6,
             "external": false
@@ -1406,7 +1406,7 @@
             "title": "The Epigenetics Revolution",
             "author": "Nessa Carey",
             "type": "Book",
-            "pillar": "recovery",
+            "pillar": "sleep",
             "tags": ["Epigenetics", "Aging Reversal", "Longevity"],
             "rating": 4.5,
             "external": false
@@ -1416,7 +1416,7 @@
             "title": "Strength Training Anatomy",
             "author": "Frederic Delavier",
             "type": "Book",
-            "pillar": "physicality",
+            "pillar": "exercise",
             "tags": ["Strength Training", "Athletic Performance"],
             "rating": 4.7,
             "external": false
@@ -1426,7 +1426,7 @@
             "title": "Magnesium: The Missing Mineral for Recovery",
             "author": "James DiNicolantonio",
             "type": "White Paper",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "tags": ["Nootropics", "HRV", "Metabolic Flexibility"],
             "rating": 4.5,
             "external": true
@@ -1446,7 +1446,7 @@
             "title": "The End of Alzheimer's",
             "author": "Dale E. Bredesen",
             "type": "Book",
-            "pillar": "cognition",
+            "pillar": "work",
             "tags": ["Alzheimer's Prevention", "Brain Health", "Longevity"],
             "rating": 4.7,
             "external": true
@@ -1456,7 +1456,7 @@
             "title": "Genius Foods",
             "author": "Max Lugavere",
             "type": "Book",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "tags": ["Brain Health", "Nutrition Strategy", "Metabolic Flexibility"],
             "rating": 4.7,
             "external": true
@@ -1466,7 +1466,7 @@
             "title": "10% Human",
             "author": "Alanna Collen",
             "type": "Book",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "tags": ["Microbiome", "Gut Health", "Nutrition Strategy"],
             "rating": 4.6,
             "external": true
@@ -1476,7 +1476,7 @@
             "title": "The Body Keeps the Score",
             "author": "Bessel van der Kolk",
             "type": "Book",
-            "pillar": "mental",
+            "pillar": "mind",
             "tags": ["Trauma", "Resilience", "Neuroscience"],
             "rating": 4.9,
             "external": true
@@ -1486,7 +1486,7 @@
             "title": "Dopamine Nation",
             "author": "Anna Lembke",
             "type": "Book",
-            "pillar": "mental",
+            "pillar": "mind",
             "tags": ["Dopamine", "Habits", "Neuroscience"],
             "rating": 4.7,
             "external": true
@@ -1496,7 +1496,7 @@
             "title": "Born to Run",
             "author": "Christopher McDougall",
             "type": "Book",
-            "pillar": "physicality",
+            "pillar": "exercise",
             "tags": ["Athletic Performance", "Mobility", "Performance"],
             "rating": 4.7,
             "external": true
@@ -1506,7 +1506,7 @@
             "title": "The Optimal Protein Handbook",
             "author": "Gabrielle Lyon",
             "type": "E-Book",
-            "pillar": "fueling",
+            "pillar": "nutrition",
             "tags": ["Protein", "Strength Training", "Longevity"],
             "rating": 4.6,
             "external": true
@@ -1516,7 +1516,7 @@
             "title": "Female-Specific Training and Nutrition Protocol",
             "author": "Stacy Sims",
             "type": "Long-form Guide",
-            "pillar": "physicality",
+            "pillar": "exercise",
             "tags": ["Athletic Performance", "Nutrition Strategy", "Performance"],
             "rating": 4.6,
             "external": true
@@ -1526,7 +1526,7 @@
             "title": "Psychological Benefits of Regular Exercise",
             "author": "John Ratey",
             "type": "Long-form Guide",
-            "pillar": "mental",
+            "pillar": "mind",
             "tags": ["Neuroplasticity", "Resilience", "Performance"],
             "rating": 4.7,
             "external": true
@@ -1546,7 +1546,7 @@
             "title": "Resilience: The Biology of Coping with Stress",
             "author": "Dennis Charney & Steven Southwick",
             "type": "Book",
-            "pillar": "mental",
+            "pillar": "mind",
             "tags": ["Resilience", "Trauma", "Neuroscience"],
             "rating": 4.5,
             "external": false
