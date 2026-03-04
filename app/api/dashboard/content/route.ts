@@ -85,6 +85,7 @@ export async function POST(request: Request) {
           slug = `${baseSlug}-${Date.now().toString(36)}`
         }
 
+        const now = new Date()
         result = await prisma.knowledgeArticle.create({
           data: {
             id: randomUUID(),
@@ -98,7 +99,8 @@ export async function POST(request: Request) {
             url: `/knowledge/${slug}`,
             slug,
             content: content || "",
-            publishedAt: new Date(),
+            publishedAt: now,
+            updatedAt: now,
           },
         })
         break
@@ -127,6 +129,7 @@ export async function POST(request: Request) {
             risks: "",
             authorPubkey: user.nostrPubkey,
             published: true,
+            updatedAt: new Date(),
           },
         })
         break
@@ -151,6 +154,7 @@ export async function POST(request: Request) {
             author: bookAuthor || "Unknown",
             year: year ? parseInt(year) : null,
             authorPubkey: user.nostrPubkey,
+            updatedAt: new Date(),
           },
         })
         break
@@ -175,6 +179,7 @@ export async function POST(request: Request) {
             title: personTitle || "",
             expertise: expertise || "",
             website: website || "",
+            updatedAt: new Date(),
           },
         })
         break
@@ -200,6 +205,7 @@ export async function POST(request: Request) {
             founded: founded || "",
             website: website || "",
             authorPubkey: user.nostrPubkey,
+            updatedAt: new Date(),
           },
         })
         break
