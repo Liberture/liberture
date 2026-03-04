@@ -1,5 +1,6 @@
-export type PillarSlug = 'cognition' | 'recovery' | 'fueling' | 'mental' | 'physicality' | 'finance'
 export type PillarId = 'work' | 'sleep' | 'nutrition' | 'mind' | 'exercise' | 'finance'
+// Legacy alias - use PillarId instead
+export type PillarSlug = PillarId
 
 export interface PillarData {
   name: string

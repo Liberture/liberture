@@ -23,11 +23,11 @@ export const metadata: Metadata = {
 }
 
 const PILLARS = [
-  { name: 'Cognition', slug: 'cognition', icon: '🧠', tagline: 'Think Sharper', description: 'Optimize brain function, focus, memory, and mental performance', color: 'from-cognition/20 to-cognition/5 hover:from-cognition/30 hover:to-cognition/10', borderColor: 'border-cognition/30' },
-  { name: 'Recovery', slug: 'recovery', icon: '💤', tagline: 'Rest Better', description: 'Master sleep, stress management, and sustainable performance', color: 'from-recovery/20 to-recovery/5 hover:from-recovery/30 hover:to-recovery/10', borderColor: 'border-recovery/30' },
-  { name: 'Fueling', slug: 'fueling', icon: '🥗', tagline: 'Eat Smarter', description: 'Nutrition strategies for energy, longevity, and metabolic health', color: 'from-fueling/20 to-fueling/5 hover:from-fueling/30 hover:to-fueling/10', borderColor: 'border-fueling/30' },
-  { name: 'Mental', slug: 'mental', icon: '🧘', tagline: 'Feel Stronger', description: 'Build resilience, emotional intelligence, and psychological strength', color: 'from-mental/20 to-mental/5 hover:from-mental/30 hover:to-mental/10', borderColor: 'border-mental/30' },
-  { name: 'Physicality', slug: 'physicality', icon: '💪', tagline: 'Move Better', description: 'Training, movement, and body optimization for longevity', color: 'from-physicality/20 to-physicality/5 hover:from-physicality/30 hover:to-physicality/10', borderColor: 'border-physicality/30' },
+  { name: 'Cognition', slug: 'cognition', icon: '🧠', tagline: 'Think Sharper', description: 'Optimize brain function, focus, memory, and mental performance', color: 'from-work/20 to-work/5 hover:from-work/30 hover:to-work/10', borderColor: 'border-work/30' },
+  { name: 'Recovery', slug: 'recovery', icon: '💤', tagline: 'Rest Better', description: 'Master sleep, stress management, and sustainable performance', color: 'from-sleep/20 to-sleep/5 hover:from-sleep/30 hover:to-sleep/10', borderColor: 'border-sleep/30' },
+  { name: 'Fueling', slug: 'fueling', icon: '🥗', tagline: 'Eat Smarter', description: 'Nutrition strategies for energy, longevity, and metabolic health', color: 'from-nutrition/20 to-nutrition/5 hover:from-nutrition/30 hover:to-nutrition/10', borderColor: 'border-nutrition/30' },
+  { name: 'Mental', slug: 'mental', icon: '🧘', tagline: 'Feel Stronger', description: 'Build resilience, emotional intelligence, and psychological strength', color: 'from-mind/20 to-mind/5 hover:from-mind/30 hover:to-mind/10', borderColor: 'border-mind/30' },
+  { name: 'Physicality', slug: 'physicality', icon: '💪', tagline: 'Move Better', description: 'Training, movement, and body optimization for longevity', color: 'from-exercise/20 to-exercise/5 hover:from-exercise/30 hover:to-exercise/10', borderColor: 'border-exercise/30' },
   { name: 'Finance', slug: 'finance', icon: '💰', tagline: 'Build Wealth', description: 'Financial independence, passive income, and wealth strategies', color: 'from-finance/20 to-finance/5 hover:from-finance/30 hover:to-finance/10', borderColor: 'border-finance/30' },
 ] as const
 

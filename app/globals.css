@@ -25,12 +25,12 @@
   --input: oklch(0.25 0.015 250);
   --ring: oklch(0.55 0.2 260);
 
-  /* Pillar colors - added finance pillar */
-  --cognition: oklch(0.7 0.15 260);
-  --recovery: oklch(0.75 0.15 195);
-  --fueling: oklch(0.75 0.2 145);
-  --mental: oklch(0.75 0.18 350);
-  --physicality: oklch(0.75 0.18 45);
+  /* Pillar colors - standardized names */
+  --work: oklch(0.7 0.15 260);
+  --sleep: oklch(0.75 0.15 195);
+  --nutrition: oklch(0.75 0.2 145);
+  --mind: oklch(0.75 0.18 350);
+  --exercise: oklch(0.75 0.18 45);
   --finance: oklch(0.75 0.18 85);
 
   --radius: 0.75rem;
@@ -66,12 +66,11 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-cognition: var(--cognition);
-  --color-recovery: var(--recovery);
-  --color-fueling: var(--fueling);
-  --color-mental: var(--mental);
-  --color-physicality: var(--physicality);
-  /* added finance color */
+  --color-work: var(--work);
+  --color-sleep: var(--sleep);
+  --color-nutrition: var(--nutrition);
+  --color-mind: var(--mind);
+  --color-exercise: var(--exercise);
   --color-finance: var(--finance);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

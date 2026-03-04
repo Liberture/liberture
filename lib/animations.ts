@@ -57,15 +57,10 @@ export const rotateAnimation: Variants = {
 type PillarAnim = { animate: Record<string, number | number[]>; transition: Transition }
 
 export const pillarAnimations: Record<string, PillarAnim> = {
-  cognition: { animate: { scale: [1, 1.1, 1], opacity: [1, 0.8, 1] }, transition: { duration: 2, repeat: Infinity, ease: "easeInOut" } },
   work: { animate: { scale: [1, 1.1, 1], opacity: [1, 0.8, 1] }, transition: { duration: 2, repeat: Infinity, ease: "easeInOut" } },
-  recovery: { animate: { scale: [1, 1.15, 1, 1.05, 1] }, transition: { duration: 1.5, repeat: Infinity, ease: "easeInOut", times: [0, 0.2, 0.3, 0.5, 1] } },
   sleep: { animate: { scale: [1, 1.15, 1, 1.05, 1] }, transition: { duration: 1.5, repeat: Infinity, ease: "easeInOut", times: [0, 0.2, 0.3, 0.5, 1] } },
-  fueling: { animate: { rotate: [-5, 5, -5], scale: [1, 1.05, 1] }, transition: { duration: 3, repeat: Infinity, ease: "easeInOut" } },
   nutrition: { animate: { rotate: [-5, 5, -5], scale: [1, 1.05, 1] }, transition: { duration: 3, repeat: Infinity, ease: "easeInOut" } },
-  mental: { animate: { opacity: [1, 0.5, 1, 0.7, 1], scale: [1, 1.1, 1] }, transition: { duration: 2.5, repeat: Infinity, ease: "easeInOut" } },
   mind: { animate: { opacity: [1, 0.5, 1, 0.7, 1], scale: [1, 1.1, 1] }, transition: { duration: 2.5, repeat: Infinity, ease: "easeInOut" } },
-  physicality: { animate: { y: [0, -8, 0], rotate: [-2, 2, -2] }, transition: { duration: 2, repeat: Infinity, ease: "easeInOut" } },
   exercise: { animate: { y: [0, -8, 0], rotate: [-2, 2, -2] }, transition: { duration: 2, repeat: Infinity, ease: "easeInOut" } },
   finance: { animate: { rotateY: [0, 180, 360], scale: [1, 0.95, 1] }, transition: { duration: 4, repeat: Infinity, ease: "easeInOut" } },
 }

@@ -37,20 +37,20 @@ import { VortexShell, IslandRidge, TriadBasins, RippleBloom } from "@/components
 import { stagger } from "@/lib/animations"
 
 const pillars = [
-  { id: "cognition", name: "Cognition", icon: Brain, color: "text-cognition", bg: "bg-cognition/10", border: "border-cognition/30" },
-  { id: "recovery", name: "Recovery", icon: Heart, color: "text-recovery", bg: "bg-recovery/10", border: "border-recovery/30" },
-  { id: "fueling", name: "Fueling", icon: Leaf, color: "text-fueling", bg: "bg-fueling/10", border: "border-fueling/30" },
-  { id: "mental", name: "Mental", icon: Zap, color: "text-mental", bg: "bg-mental/10", border: "border-mental/30" },
-  { id: "physicality", name: "Physicality", icon: Dumbbell, color: "text-physicality", bg: "bg-physicality/10", border: "border-physicality/30" },
+  { id: "cognition", name: "Cognition", icon: Brain, color: "text-work", bg: "bg-work/10", border: "border-work/30" },
+  { id: "recovery", name: "Recovery", icon: Heart, color: "text-sleep", bg: "bg-sleep/10", border: "border-sleep/30" },
+  { id: "fueling", name: "Fueling", icon: Leaf, color: "text-nutrition", bg: "bg-nutrition/10", border: "border-nutrition/30" },
+  { id: "mental", name: "Mental", icon: Zap, color: "text-mind", bg: "bg-mind/10", border: "border-mind/30" },
+  { id: "physicality", name: "Physicality", icon: Dumbbell, color: "text-exercise", bg: "bg-exercise/10", border: "border-exercise/30" },
   { id: "finance", name: "Finance", icon: Wallet, color: "text-finance", bg: "bg-finance/10", border: "border-finance/30" },
 ]
 
 const dataFlowSteps = [
-  { icon: Watch, label: "Wearables", sublabel: "Oura, Whoop, Garmin", color: "text-recovery" },
+  { icon: Watch, label: "Wearables", sublabel: "Oura, Whoop, Garmin", color: "text-sleep" },
   { icon: BarChart3, label: "Wearable Coach", sublabel: "Analyze patterns", color: "text-primary" },
-  { icon: CircleDot, label: "Nostr WoT", sublabel: "Trusted protocols", color: "text-mental" },
-  { icon: Play, label: "Executor", sublabel: "Daily actions", color: "text-fueling" },
-  { icon: CheckCircle2, label: "Tracker", sublabel: "Log & measure", color: "text-cognition" },
+  { icon: CircleDot, label: "Nostr WoT", sublabel: "Trusted protocols", color: "text-mind" },
+  { icon: Play, label: "Executor", sublabel: "Daily actions", color: "text-nutrition" },
+  { icon: CheckCircle2, label: "Tracker", sublabel: "Log & measure", color: "text-work" },
 ]
 
 const skills = [
@@ -58,9 +58,9 @@ const skills = [
     id: "wearable-coach",
     name: "Wearable Coach",
     icon: Activity,
-    color: "text-recovery",
-    bg: "bg-recovery/10",
-    border: "border-recovery/30",
+    color: "text-sleep",
+    bg: "bg-sleep/10",
+    border: "border-sleep/30",
     description: "Analyze your wearable data, find patterns, get WoT-filtered protocol recommendations.",
     capabilities: [
       "Sync from Oura, Whoop, Garmin, Apple Health",
@@ -86,9 +86,9 @@ const skills = [
     id: "protocol-executor",
     name: "Protocol Executor",
     icon: Target,
-    color: "text-fueling",
-    bg: "bg-fueling/10",
-    border: "border-fueling/30",
+    color: "text-nutrition",
+    bg: "bg-nutrition/10",
+    border: "border-nutrition/30",
     description: "Turn protocols into daily trackable habits with contextual reminders.",
     capabilities: [
       "Parse protocols into daily actions",
@@ -119,9 +119,9 @@ I'll remind you at the right times. Day 1 starts tomorrow.`,
     id: "habit-tracker",
     name: "Habit Tracker",
     icon: ListChecks,
-    color: "text-cognition",
-    bg: "bg-cognition/10",
-    border: "border-cognition/30",
+    color: "text-work",
+    bg: "bg-work/10",
+    border: "border-work/30",
     description: "Track habits, log completions, visualize streaks and progress.",
     capabilities: [
       "List all habits with stats",
@@ -423,7 +423,7 @@ export default function HowItWorksPage() {
                     Morning sunlight exposure + evening light reduction to optimize circadian rhythm. Based on peer-reviewed research.
                   </p>
                 </div>
-                <CircleDot className="w-5 h-5 text-mental flex-shrink-0" />
+                <CircleDot className="w-5 h-5 text-mind flex-shrink-0" />
               </div>
               <div className="flex flex-wrap gap-4 text-sm">
                 <div className="flex items-center gap-1">
@@ -437,7 +437,7 @@ export default function HowItWorksPage() {
                   <span className="text-muted-foreground">Trusted Reviews</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <BookOpen className="w-4 h-4 text-fueling" />
+                  <BookOpen className="w-4 h-4 text-nutrition" />
                   <span className="font-medium">3</span>
                   <span className="text-muted-foreground">Verified Studies</span>
                 </div>
@@ -462,19 +462,19 @@ export default function HowItWorksPage() {
         {/* Nostr Event Kinds */}
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center justify-center gap-2 mb-6">
-            <CircleDot className="w-5 h-5 text-mental" />
+            <CircleDot className="w-5 h-5 text-mind" />
             <h3 className="font-semibold">Built on Nostr</h3>
           </div>
           <div className="grid md:grid-cols-3 gap-4">
             {nostrEventKinds.map((event, index) => (
               <motion.div
                 key={event.kind}
-                className="p-4 rounded-xl bg-card/50 border border-mental/20"
+                className="p-4 rounded-xl bg-card/50 border border-mind/20"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 + index * 0.1 }}
               >
-                <code className="text-xs text-mental font-mono">Kind {event.kind}</code>
+                <code className="text-xs text-mind font-mono">Kind {event.kind}</code>
                 <h4 className="font-medium mt-1">{event.name}</h4>
                 <p className="text-xs text-muted-foreground mt-1">{event.description}</p>
               </motion.div>

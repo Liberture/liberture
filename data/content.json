@@ -4,7 +4,7 @@
       "id": "1",
       "title": "Flow State Activation Protocol",
       "description": "A comprehensive 21-day program designed to help you reliably access deep focus and flow states on demand. Based on the latest neuroscience research on attention, motivation, and cognitive performance.",
-      "pillar": "cognition",
+      "pillar": "work",
       "type": "Premium Protocol",
       "author": { "name": "Dr. Andrew Huberman", "isInfluencer": true, "avatarUrl": "/examples/portraits/andrew-huberman-portrait.jpg" },
       "price": 79,
@@ -21,19 +21,19 @@
         { "title": "Flow: The Psychology of Optimal Experience", "author": "Mihaly Csikszentmihalyi", "year": 1990, "type": "Book" }
       ],
       "relatedProtocols": [
-        { "id": "2", "title": "Beginner Nootropic Stack Guide", "pillar": "cognition" },
-        { "id": "11", "title": "Stress Resilience Protocol", "pillar": "mental" }
+        { "id": "2", "title": "Beginner Nootropic Stack Guide", "pillar": "work" },
+        { "id": "11", "title": "Stress Resilience Protocol", "pillar": "mind" }
       ],
       "similarContent": [
-        { "id": "3", "title": "Speed Reading Neural Trainer", "pillar": "cognition", "type": "Interactive" },
-        { "id": "10", "title": "HRV Biofeedback Training Game", "pillar": "mental", "type": "Interactive" }
+        { "id": "3", "title": "Speed Reading Neural Trainer", "pillar": "work", "type": "Interactive" },
+        { "id": "10", "title": "HRV Biofeedback Training Game", "pillar": "mind", "type": "Interactive" }
       ]
     },
     {
       "id": "4",
       "title": "Sleep Architecture Masterclass",
       "description": "A complete video course on optimizing every stage of your sleep cycle. Learn the science behind deep sleep, REM, and how to hack your circadian rhythm for peak recovery and cognitive performance.",
-      "pillar": "recovery",
+      "pillar": "sleep",
       "type": "Video Course",
       "author": { "name": "Prof. Matthew Walker", "isInfluencer": true, "avatarUrl": "/examples/portraits/matthew-walker-professor.jpg" },
       "price": 149,
@@ -50,12 +50,12 @@
         { "title": "Sleep, Work, and Normal Aging", "author": "Scullin & Bliwise", "year": 2015, "type": "Academic Paper" }
       ],
       "relatedProtocols": [
-        { "id": "5", "title": "Cold Exposure Sleep Protocol", "pillar": "recovery" },
-        { "id": "6", "title": "1:1 Sleep Optimization Coaching", "pillar": "recovery" }
+        { "id": "5", "title": "Cold Exposure Sleep Protocol", "pillar": "sleep" },
+        { "id": "6", "title": "1:1 Sleep Optimization Coaching", "pillar": "sleep" }
       ],
       "similarContent": [
-        { "id": "5", "title": "Cold Exposure Sleep Protocol", "pillar": "recovery", "type": "Open Source" },
-        { "id": "11", "title": "Stress Resilience Protocol", "pillar": "mental", "type": "Premium" }
+        { "id": "5", "title": "Cold Exposure Sleep Protocol", "pillar": "sleep", "type": "Open Source" },
+        { "id": "11", "title": "Stress Resilience Protocol", "pillar": "mind", "type": "Premium" }
       ]
     },
     {

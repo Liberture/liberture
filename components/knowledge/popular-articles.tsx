@@ -26,11 +26,11 @@ interface PopularArticlesProps {
 }
 
 const pillarColors: Record<string, string> = {
-  Cognition: "bg-cognition/10 text-cognition border-cognition/30",
-  Recovery: "bg-recovery/10 text-recovery border-recovery/30",
-  Fueling: "bg-fueling/10 text-fueling border-fueling/30",
-  Mental: "bg-mental/10 text-mental border-mental/30",
-  Physicality: "bg-physicality/10 text-physicality border-physicality/30",
+  Cognition: "bg-work/10 text-work border-work/30",
+  Recovery: "bg-sleep/10 text-sleep border-sleep/30",
+  Fueling: "bg-nutrition/10 text-nutrition border-nutrition/30",
+  Mental: "bg-mind/10 text-mind border-mind/30",
+  Physicality: "bg-exercise/10 text-exercise border-exercise/30",
   Finance: "bg-finance/10 text-finance border-finance/30",
 }
 
