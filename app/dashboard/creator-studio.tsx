@@ -340,14 +340,9 @@ export function CreatorStudio() {
         }, 2000)
       } else {
         const data = await res.json()
-        // Content was published to Nostr but DB save failed - still show success
-        console.warn("DB save failed but Nostr publish succeeded:", data.error)
-        setSuccess(true)
-        resetForm()
-        setTimeout(() => {
-          setSelectedType(null)
-          setSuccess(false)
-        }, 2000)
+        // Nostr publish succeeded but DB save failed - warn user
+        console.error("DB save failed:", data.error)
+        alert(`Published to Nostr ⚡ but failed to save to Liberture database: ${data.error}\n\nYour content is live on Nostr but won't appear on liberture.com until the database issue is fixed.`)
       }
     } catch (error: any) {
       console.error("Failed to submit:", error)

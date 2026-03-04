@@ -29,7 +29,8 @@ export default function KnowledgeAdmin() {
     try {
       const res = await fetch("/api/knowledge");
       const data = await res.json();
-      setArticles(data.articles || []);
+      // API returns libraryDocuments which includes DB articles
+      setArticles(data.libraryDocuments || []);
     } catch (error) {
       console.error("Failed to load articles:", error);
     } finally {
