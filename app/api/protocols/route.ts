@@ -4,11 +4,12 @@ import { prisma } from "@/lib/prisma"
 
 export async function GET(request: NextRequest) {
   const pillar = request.nextUrl.searchParams.get("pillar") || undefined
+  const all = request.nextUrl.searchParams.get("all") === "true"
 
   try {
     const dbProtocols = await prisma.protocol.findMany({
       where: {
-        published: true,
+        ...(!all && { published: true }),
         ...(pillar && { pillar }),
       },
       select: {
@@ -22,9 +23,9 @@ export async function GET(request: NextRequest) {
       orderBy: { name: "asc" },
     })
 
-    return NextResponse.json(dbProtocols)
+    return NextResponse.json({ protocols: dbProtocols })
   } catch (error) {
     console.error("Error fetching protocols:", error)
-    return NextResponse.json([])
+    return NextResponse.json({ protocols: [] })
   }
 }

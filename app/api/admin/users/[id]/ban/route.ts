@@ -1,34 +1,27 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth-better";
-import { headers } from "next/headers";
+import { getAuthUser, isAdmin } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+    const { id } = await params;
+    const authUser = await getAuthUser();
 
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    if (!authUser || !(await isAdmin(authUser.userId))) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { reason } = await request.json();
 
-    // Use Better-Auth admin plugin to ban user
-    await auth.api.banUser({
-      body: {
-        userId: params.id,
+    await prisma.user.update({
+      where: { id },
+      data: {
+        banned: true,
         banReason: reason || "No reason provided",
-        // Optional: set ban expiration
-        // banExpires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
       },
-      headers: await headers(),
     });
 
     return NextResponse.json({ success: true });

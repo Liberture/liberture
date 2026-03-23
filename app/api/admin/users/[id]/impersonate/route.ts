@@ -1,32 +1,42 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth-better";
-import { headers } from "next/headers";
+import { getAuthUser, isAdmin, signToken } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { cookies } from "next/headers";
 
 export async function POST(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+    const { id } = await params;
+    const authUser = await getAuthUser();
 
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+    if (!authUser || !(await isAdmin(authUser.userId))) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Use Better-Auth admin plugin to impersonate
-    const result = await auth.api.impersonateUser({
-      body: {
-        userId: params.id,
-      },
-      headers: await headers(),
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: { id: true, email: true },
     });
 
-    return NextResponse.json({ success: true, impersonationToken: result });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Create a JWT for the impersonated user
+    const jwt = signToken({ userId: user.id, email: user.email });
+
+    const cookieStore = await cookies();
+    cookieStore.set("auth_token", jwt, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7,
+      path: "/",
+    });
+
+    return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error("Failed to impersonate user:", error);
     return NextResponse.json(
