@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Ban, UserCog, Shield, ExternalLink, Loader2, Crown, Users, UserMinus, UserPlus } from "lucide-react";
+import { Search, Ban, UserCog, Shield, ExternalLink, Loader2, Crown } from "lucide-react";
 
 // The hardcoded admin pubkey
 const ADMIN_PUBKEY_HEX = "d9590d95a7811e1cb312be66edd664d7e3e6ed57822ad9f213ed620fc6748be8";
@@ -20,13 +20,7 @@ type User = {
   nostrPubkey: string | null;
   npub: string | null;
   createdAt: string;
-  // Nostr profile data (fetched client-side)
-  nostrName?: string;
-  nostrPicture?: string;
-  // Computed: is this the system admin?
   isSystemAdmin?: boolean;
-  // From API: is this user a collaborator?
-  isCollaborator?: boolean;
 };
 
 export default function UsersAdmin() {
@@ -43,35 +37,10 @@ export default function UsersAdmin() {
         isSystemAdmin: u.nostrPubkey === ADMIN_PUBKEY_HEX,
       }));
       setUsers(userList);
-      
-      // Fetch Nostr profiles for users with pubkeys
-      fetchNostrProfiles(userList);
     } catch (error) {
       console.error("Failed to load users:", error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchNostrProfiles = async (userList: User[]) => {
-    const usersWithPubkey = userList.filter(u => u.nostrPubkey);
-    
-    for (const user of usersWithPubkey) {
-      try {
-        const res = await fetch(`/api/nostr-profile/${user.nostrPubkey}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.profile) {
-            setUsers(prev => prev.map(u => 
-              u.id === user.id 
-                ? { ...u, nostrName: data.profile.name, nostrPicture: data.profile.picture }
-                : u
-            ));
-          }
-        }
-      } catch (e) {
-        // Ignore profile fetch errors
-      }
     }
   };
 
@@ -83,14 +52,14 @@ export default function UsersAdmin() {
     if (!reason) {
       reason = prompt("Ban reason:") || "No reason provided";
     }
-    
+
     try {
       const res = await fetch(`/api/admin/users/${userId}/ban`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason }),
       });
-      
+
       if (res.ok) {
         loadUsers();
       }
@@ -104,7 +73,7 @@ export default function UsersAdmin() {
       const res = await fetch(`/api/admin/users/${userId}/unban`, {
         method: "POST",
       });
-      
+
       if (res.ok) {
         loadUsers();
       }
@@ -115,55 +84,17 @@ export default function UsersAdmin() {
 
   const handleImpersonate = async (userId: string) => {
     if (!confirm("Impersonate this user? You will be logged in as them.")) return;
-    
+
     try {
       const res = await fetch(`/api/admin/users/${userId}/impersonate`, {
         method: "POST",
       });
-      
+
       if (res.ok) {
         window.location.href = "/dashboard";
       }
     } catch (error) {
       console.error("Failed to impersonate user:", error);
-    }
-  };
-
-  const handleRevokeCollaborator = async (userId: string, userName: string) => {
-    if (!confirm(`Revoke collaborator status from ${userName}? Their content will be hidden.`)) return;
-    
-    try {
-      const res = await fetch(`/api/admin/users/${userId}/collaborator`, {
-        method: "DELETE",
-      });
-      
-      if (res.ok) {
-        loadUsers();
-      } else {
-        const data = await res.json();
-        alert(data.error || "Failed to revoke collaborator");
-      }
-    } catch (error) {
-      console.error("Failed to revoke collaborator:", error);
-    }
-  };
-
-  const handleGrantCollaborator = async (userId: string, userName: string) => {
-    if (!confirm(`Grant collaborator status to ${userName}?`)) return;
-    
-    try {
-      const res = await fetch(`/api/admin/users/${userId}/collaborator`, {
-        method: "POST",
-      });
-      
-      if (res.ok) {
-        loadUsers();
-      } else {
-        const data = await res.json();
-        alert(data.error || "Failed to grant collaborator");
-      }
-    } catch (error) {
-      console.error("Failed to grant collaborator:", error);
     }
   };
 
@@ -174,9 +105,9 @@ export default function UsersAdmin() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ role: newRole }),
       });
-      
+
       if (res.ok) {
-        setUsers(prev => prev.map(u => 
+        setUsers(prev => prev.map(u =>
           u.id === userId ? { ...u, role: newRole } : u
         ));
       } else {
@@ -194,7 +125,6 @@ export default function UsersAdmin() {
 
   const filteredUsers = users.filter(
     (user) =>
-      (user.nostrName?.toLowerCase().includes(search.toLowerCase())) ||
       (user.npub?.toLowerCase().includes(search.toLowerCase())) ||
       (user.name?.toLowerCase().includes(search.toLowerCase())) ||
       (user.email?.toLowerCase().includes(search.toLowerCase()))
@@ -243,25 +173,15 @@ export default function UsersAdmin() {
                 <tr key={user.id} className="hover:bg-slate-800/20">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      {user.nostrPicture ? (
-                        <img 
-                          src={user.nostrPicture} 
-                          alt="" 
-                          className="h-8 w-8 rounded-full object-cover"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                      ) : (
-                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-cyan-400 flex items-center justify-center text-white text-xs font-bold">
-                          {(user.nostrName || user.name || "?").charAt(0).toUpperCase()}
-                        </div>
-                      )}
+                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-cyan-400 flex items-center justify-center text-white text-xs font-bold">
+                        {(user.name || "?").charAt(0).toUpperCase()}
+                      </div>
                       <div>
                         <div className="text-sm font-medium text-white">
-                          {user.nostrName || user.name || "Anonymous"}
+                          {user.name || "Anonymous"}
                         </div>
                         <div className="text-xs text-slate-500">
+                          {user.email && <span>{user.email} &middot; </span>}
                           Joined {new Date(user.createdAt).toLocaleDateString()}
                         </div>
                       </div>
@@ -287,33 +207,25 @@ export default function UsersAdmin() {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex flex-col gap-1">
-                      {user.isSystemAdmin ? (
-                        <div className="flex items-center gap-1.5">
-                          <Crown className="h-4 w-4 text-yellow-400" />
-                          <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/50 text-xs">
-                            System Admin
-                          </Badge>
-                        </div>
-                      ) : (
-                        <select
-                          value={user.role || "user"}
-                          onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                          className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs text-slate-300 cursor-pointer hover:border-slate-600"
-                        >
-                          <option value="user">User</option>
-                          <option value="contributor">Contributor</option>
-                          <option value="moderator">Moderator</option>
-                          <option value="admin">Admin</option>
-                        </select>
-                      )}
-                      {user.isCollaborator && (
-                        <div className="flex items-center gap-1">
-                          <Users className="h-3 w-3 text-green-400" />
-                          <span className="text-xs text-green-400">Collaborator</span>
-                        </div>
-                      )}
-                    </div>
+                    {user.isSystemAdmin ? (
+                      <div className="flex items-center gap-1.5">
+                        <Crown className="h-4 w-4 text-yellow-400" />
+                        <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/50 text-xs">
+                          System Admin
+                        </Badge>
+                      </div>
+                    ) : (
+                      <select
+                        value={user.role || "user"}
+                        onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                        className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs text-slate-300 cursor-pointer hover:border-slate-600"
+                      >
+                        <option value="user">User</option>
+                        <option value="contributor">Contributor</option>
+                        <option value="moderator">Moderator</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <Badge variant="outline" className="text-xs">
@@ -331,30 +243,6 @@ export default function UsersAdmin() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex gap-1 justify-end">
-                      {/* Collaborator toggle - only for users with Nostr pubkey */}
-                      {user.nostrPubkey && !user.isSystemAdmin && (
-                        user.isCollaborator ? (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleRevokeCollaborator(user.id, user.nostrName || user.name)}
-                            className="h-8 w-8 p-0 hover:bg-orange-500/20 hover:text-orange-300"
-                            title="Revoke collaborator"
-                          >
-                            <UserMinus className="h-4 w-4" />
-                          </Button>
-                        ) : (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleGrantCollaborator(user.id, user.nostrName || user.name)}
-                            className="h-8 w-8 p-0 hover:bg-green-500/20 hover:text-green-300"
-                            title="Grant collaborator"
-                          >
-                            <UserPlus className="h-4 w-4" />
-                          </Button>
-                        )
-                      )}
                       {user.banned ? (
                         <Button
                           size="sm"
@@ -366,25 +254,29 @@ export default function UsersAdmin() {
                           <Shield className="h-4 w-4" />
                         </Button>
                       ) : (
+                        !user.isSystemAdmin && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleBan(user.id, "")}
+                            className="h-8 w-8 p-0 hover:bg-red-500/20 hover:text-red-300"
+                            title="Ban user"
+                          >
+                            <Ban className="h-4 w-4" />
+                          </Button>
+                        )
+                      )}
+                      {!user.isSystemAdmin && (
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => handleBan(user.id, "")}
-                          className="h-8 w-8 p-0 hover:bg-red-500/20 hover:text-red-300"
-                          title="Ban user"
+                          onClick={() => handleImpersonate(user.id)}
+                          className="h-8 w-8 p-0 hover:bg-purple-500/20 hover:text-purple-300"
+                          title="Impersonate user"
                         >
-                          <Ban className="h-4 w-4" />
+                          <UserCog className="h-4 w-4" />
                         </Button>
                       )}
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleImpersonate(user.id)}
-                        className="h-8 w-8 p-0 hover:bg-purple-500/20 hover:text-purple-300"
-                        title="Impersonate user"
-                      >
-                        <UserCog className="h-4 w-4" />
-                      </Button>
                     </div>
                   </td>
                 </tr>

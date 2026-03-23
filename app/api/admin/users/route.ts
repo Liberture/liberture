@@ -1,19 +1,15 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 // Convert hex pubkey to npub
 function hexToNpub(hex: string): string {
   const BECH32_ALPHABET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";
-  
-  // Convert hex to bytes
+
   const bytes: number[] = [];
   for (let i = 0; i < hex.length; i += 2) {
     bytes.push(parseInt(hex.slice(i, i + 2), 16));
   }
 
-  // Convert 8-bit to 5-bit
   const data: number[] = [];
   let acc = 0;
   let bits = 0;
@@ -29,10 +25,9 @@ function hexToNpub(hex: string): string {
     data.push((acc << (5 - bits)) & 0x1f);
   }
 
-  // Calculate checksum
   const hrp = "npub";
   const GEN = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
-  
+
   function polymod(values: number[]): number {
     let chk = 1;
     for (const v of values) {
@@ -44,11 +39,11 @@ function hexToNpub(hex: string): string {
     }
     return chk;
   }
-  
+
   const hrpExpand = [...hrp].map(c => c.charCodeAt(0) >> 5)
     .concat([0])
     .concat([...hrp].map(c => c.charCodeAt(0) & 31));
-  
+
   const values = [...hrpExpand, ...data, 0, 0, 0, 0, 0, 0];
   const polymodResult = polymod(values) ^ 1;
   const checksum: number[] = [];
@@ -78,36 +73,12 @@ export async function GET() {
       },
     });
 
-    // Get all collaborators to check status
-    const collaborators = await prisma.collaborator.findMany({
-      select: {
-        npub: true,
-        pubkeyHex: true,
-      },
-    });
-
-    // Create a set of collaborator pubkeys for fast lookup
-    const collaboratorPubkeys = new Set<string>();
-    for (const c of collaborators) {
-      if (c.pubkeyHex) collaboratorPubkeys.add(c.pubkeyHex.toLowerCase());
-    }
-
-    // Admin pubkey - admins are always considered collaborators
-    const ADMIN_PUBKEY_HEX = "d9590d95a7811e1cb312be66edd664d7e3e6ed57822ad9f213ed620fc6748be8";
-
-    // Transform users to include npub and collaborator status
     const transformedUsers = users.map(user => {
       const npub = user.nostrPubkey ? hexToNpub(user.nostrPubkey) : null;
-      const isSystemAdmin = user.nostrPubkey === ADMIN_PUBKEY_HEX;
-      // Admin is always a collaborator, otherwise check the collaborator table
-      const isCollaborator = isSystemAdmin || (user.nostrPubkey 
-        ? collaboratorPubkeys.has(user.nostrPubkey.toLowerCase())
-        : false);
 
       return {
         ...user,
         npub,
-        isCollaborator,
         // Hide fake email if it's a nostr-generated one
         email: user.email?.endsWith('@nostr.liberture.com') ? null : user.email,
       };

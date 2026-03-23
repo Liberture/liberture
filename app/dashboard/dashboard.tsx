@@ -3,8 +3,6 @@
 import { useAuth } from "@/lib/auth-context"
 import { BosLevelCard } from "./bos-level-card"
 import { BookmarksSection } from "./bookmarks-section"
-import { NostrProfile } from "./nostr-profile"
-import { CollaborationCard } from "./collaboration-card"
 import { CreatorStudio } from "./creator-studio"
 import { Card, CardContent } from "@/components/ui/card"
 import { Sparkles } from "lucide-react"
@@ -20,12 +18,6 @@ export function Dashboard() {
         <div className="lg:col-span-1 space-y-6">
           <BosLevelCard />
 
-          {/* Nostr Profile Section */}
-          {user?.nostrPubkey && <NostrProfile />}
-
-          {/* Collaboration Card */}
-          <CollaborationCard />
-
           {/* Wizard Placeholder */}
           <Card className="bg-gray-800/70 border-gray-700 backdrop-blur-sm rounded-2xl border-dashed">
             <CardContent className="p-4 text-center">
@@ -38,9 +30,9 @@ export function Dashboard() {
 
         {/* Main Content */}
         <div className="lg:col-span-3 space-y-6">
-          {/* Creator Studio - only shows for collaborators/admins */}
+          {/* Creator Studio - only shows for admins */}
           <CreatorStudio />
-          
+
           {/* Bookmarks */}
           <BookmarksSection />
         </div>

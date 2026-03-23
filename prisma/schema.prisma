@@ -47,10 +47,6 @@ model Book {
   wikipedia     String?
   authorId      String?
   goodreadsUrl  String?
-  authorPubkey  String?
-  nostrEventId  String?
-  nostrDTag     String?
-  wotScore      Float?
   Person        Person?  @relation(fields: [authorId], references: [id])
 
   @@index([authorId])
@@ -122,10 +118,6 @@ model KnowledgeArticle {
   slug          String        @unique
   viewCount     Int           @default(0)
   content       String?       @db.Text
-  authorPubkey  String?
-  nostrEventId  String?
-  nostrDTag     String?
-  wotScore      Float?
   views         ArticleView[]
 }
 
@@ -185,10 +177,6 @@ model Organization {
   updatedAt     DateTime
   publications  String?
   wikipedia     String?
-  authorPubkey  String?
-  nostrEventId  String?
-  nostrDTag     String?
-  wotScore      Float?
 }
 
 model Person {
@@ -247,10 +235,6 @@ model Protocol {
   references    String?
   featured      Boolean  @default(false)
   published     Boolean  @default(false)
-  authorPubkey  String?
-  nostrEventId  String?
-  nostrDTag     String?
-  wotScore      Float?
   createdAt     DateTime @default(now())
   updatedAt     DateTime
 }
@@ -353,45 +337,3 @@ model ScrapedContent {
   @@index([contentType])
 }
 
-// Nostr Collaboration System
-
-model NostrAccount {
-  id            String   @id @default(cuid())
-  npub          String   @unique
-  pubkeyHex     String   @unique
-  role          String   @default("liberture") // "liberture" | "collaborator"
-  nbunkerUrl    String?  // NIP-46 bunker URL for signing (liberture account only)
-  nbunkerSecret String?  // optional secret — NOTE: should be encrypted at rest in production
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
-model CollaborationRequest {
-  id          String    @id @default(cuid())
-  npub        String
-  pubkeyHex   String
-  message     String?   // optional "why I want to collaborate" message
-  status      String    @default("pending") // "pending" | "approved" | "rejected"
-  reviewedAt  DateTime?
-  reviewedBy  String?   // admin npub or user id
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  @@unique([npub])
-}
-
-model Collaborator {
-  id           String   @id @default(cuid())
-  npub         String   @unique
-  pubkeyHex    String   @unique
-  displayName  String?
-  about        String?
-  picture      String?
-  nostrProfile Json?    // cached kind 0 event data
-  isActive     Boolean  @default(true)
-  wotScore     Float?
-  approvedAt   DateTime @default(now())
-  approvedBy   String?
-
-  @@index([pubkeyHex])
-}
