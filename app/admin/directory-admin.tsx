@@ -38,7 +38,7 @@ export default function DirectoryAdmin() {
   async function fetchItems() {
     setLoading(true);
     try {
-      const response = await fetch(`/api/${activeType}`);
+      const response = await fetch(`/api/${activeType}?all=true`);
       const data = await response.json();
       setItems(data[activeType] || []);
     } catch (error) {
