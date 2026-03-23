@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Plus, Edit, Trash2, Sparkles, ExternalLink, Zap, Send, Loader2, CheckCircle } from "lucide-react";
+import { Search, Plus, Edit, Trash2, Sparkles, ExternalLink, Zap, Loader2 } from "lucide-react";
 import { EditPersonModal } from "./edit-person-modal";
 import { Button } from "@/components/ui/button";
 
@@ -21,8 +21,6 @@ interface DirectoryItem {
   speakingEvents?: string | null;
   website?: string | null;
   image?: string | null;
-  nostrEventId?: string | null;
-  nostrPublishedAt?: string | null;
 }
 
 export default function DirectoryAdmin() {
@@ -31,8 +29,6 @@ export default function DirectoryAdmin() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingItem, setEditingItem] = useState<DirectoryItem | null>(null);
-  const [publishing, setPublishing] = useState<string | null>(null);
-  const [publishingAll, setPublishingAll] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
 
   useEffect(() => {
@@ -54,7 +50,6 @@ export default function DirectoryAdmin() {
 
   async function enrichItem(item: DirectoryItem) {
     try {
-      // Add to queue instead of processing immediately
       const response = await fetch('/api/admin/enrich-queue', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -65,13 +60,13 @@ export default function DirectoryAdmin() {
           priority: 'normal',
         }),
       });
-      
+
       if (!response.ok) {
         throw new Error("Failed to queue enrichment");
       }
-      
+
       const data = await response.json();
-      alert(`✅ Added to enrichment queue!\n\nJob ID: ${data.jobId}\n\nWill be processed automatically by heartbeat.`);
+      alert(`Added to enrichment queue!\n\nJob ID: ${data.jobId}\n\nWill be processed automatically by heartbeat.`);
     } catch (error) {
       console.error("Enrichment error:", error);
       alert("Failed to queue enrichment. Check console for details.");
@@ -80,11 +75,11 @@ export default function DirectoryAdmin() {
 
   async function enrichAll() {
     const unenriched = filteredItems.filter(item => !hasEnrichmentData(item));
-    
+
     if (!confirm(`Add ${unenriched.length} ${activeType} to enrichment queue?\n\nThey will be processed automatically in batches.`)) {
       return;
     }
-    
+
     let queued = 0;
     for (const item of unenriched) {
       try {
@@ -98,7 +93,7 @@ export default function DirectoryAdmin() {
             priority: 'bulk',
           }),
         });
-        
+
         if (response.ok) {
           queued++;
         }
@@ -106,8 +101,8 @@ export default function DirectoryAdmin() {
         console.error(`Failed to queue ${item.name || item.title}`, error);
       }
     }
-    
-    alert(`✅ Queued ${queued} entries!\n\nThey will be enriched automatically during heartbeat checks.`);
+
+    alert(`Queued ${queued} entries!\n\nThey will be enriched automatically during heartbeat checks.`);
   }
 
   async function savePerson(person: any) {
@@ -116,11 +111,11 @@ export default function DirectoryAdmin() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(person),
     });
-    
+
     if (!response.ok) {
       throw new Error("Failed to save person");
     }
-    
+
     fetchItems();
   }
 
@@ -128,111 +123,21 @@ export default function DirectoryAdmin() {
     if (!confirm(`Delete ${item.name || item.title}? This cannot be undone.`)) {
       return;
     }
-    
+
     try {
       const response = await fetch(`/api/${activeType}/id/${item.id}`, {
         method: "DELETE",
       });
-      
+
       if (!response.ok) {
         throw new Error("Failed to delete");
       }
-      
+
       fetchItems();
     } catch (error) {
       console.error("Delete error:", error);
       alert("Failed to delete entry");
     }
-  }
-
-  async function publishToNostr(item: DirectoryItem) {
-    setPublishing(item.id);
-    
-    try {
-      // Map directory type to publish type
-      const typeMap: Record<DirectoryType, string> = {
-        people: "person",
-        organizations: "organization",
-        protocols: "protocol",
-        books: "book",
-      };
-
-      // Build the data payload
-      const data: any = {
-        slug: item.slug,
-        name: item.name,
-        title: item.title,
-        bio: item.bio,
-        description: item.description,
-        image: item.image,
-        website: item.website,
-        pillars: item.pillars?.split(",").map(p => p.trim()),
-      };
-
-      if (activeType === "books") {
-        data.author = item.author;
-      }
-
-      const response = await fetch("/api/admin/publish", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: typeMap[activeType],
-          data,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || "Failed to publish");
-      }
-
-      alert(`✅ Published to Nostr!\n\nEvent ID: ${result.eventId}\nRelays: ${result.relaysPublished.join(", ")}`);
-      
-      // Update the item in the list to show it's published
-      setItems(prev => prev.map(i => 
-        i.id === item.id 
-          ? { ...i, nostrEventId: result.eventId, nostrPublishedAt: new Date().toISOString() }
-          : i
-      ));
-    } catch (error: any) {
-      console.error("Publish error:", error);
-      alert(`❌ Failed to publish: ${error.message}`);
-    } finally {
-      setPublishing(null);
-    }
-  }
-
-  async function publishAllToNostr() {
-    const unpublished = filteredItems.filter(item => !item.nostrEventId);
-    
-    if (unpublished.length === 0) {
-      alert("All items are already published!");
-      return;
-    }
-
-    if (!confirm(`Publish ${unpublished.length} ${activeType} to Nostr?\n\nThis will sign and broadcast each entry.`)) {
-      return;
-    }
-
-    setPublishingAll(true);
-    let published = 0;
-    let failed = 0;
-
-    for (const item of unpublished) {
-      try {
-        await publishToNostr(item);
-        published++;
-      } catch {
-        failed++;
-      }
-      // Small delay between publishes
-      await new Promise(r => setTimeout(r, 500));
-    }
-
-    setPublishingAll(false);
-    alert(`Published: ${published}\nFailed: ${failed}`);
   }
 
   function getDisplayName(item: DirectoryItem): string {
@@ -269,7 +174,7 @@ export default function DirectoryAdmin() {
             </button>
           ))}
         </div>
-        
+
         <div className="flex gap-2 flex-wrap">
           <Button
             onClick={() => setShowAddModal(true)}
@@ -278,14 +183,6 @@ export default function DirectoryAdmin() {
             <Plus className="w-4 h-4 mr-2" />
             Add New
           </Button>
-          <button
-            onClick={publishAllToNostr}
-            disabled={publishingAll}
-            className="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors flex items-center gap-2 disabled:opacity-50"
-          >
-            {publishingAll ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            Publish All to Nostr
-          </button>
           <button
             onClick={enrichAll}
             className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition-colors flex items-center gap-2"
@@ -307,6 +204,13 @@ export default function DirectoryAdmin() {
           className="w-full pl-10 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
         />
       </div>
+
+      {/* Items Count */}
+      {!loading && (
+        <p className="text-sm text-slate-400">
+          {filteredItems.length} {activeType} {searchTerm && `matching "${searchTerm}"`}
+        </p>
+      )}
 
       {/* Items List */}
       {loading ? (
@@ -361,24 +265,6 @@ export default function DirectoryAdmin() {
                 </div>
 
                 <div className="flex items-center gap-2 ml-4">
-                  {item.nostrEventId ? (
-                    <span className="p-2 text-green-400" title={`Published: ${item.nostrEventId}`}>
-                      <CheckCircle className="w-4 h-4" />
-                    </span>
-                  ) : (
-                    <button
-                      onClick={() => publishToNostr(item)}
-                      disabled={publishing === item.id}
-                      className="p-2 bg-blue-500/20 text-blue-400 rounded hover:bg-blue-500/30 transition-colors disabled:opacity-50"
-                      title="Publish to Nostr"
-                    >
-                      {publishing === item.id ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Send className="w-4 h-4" />
-                      )}
-                    </button>
-                  )}
                   <button
                     onClick={() => enrichItem(item)}
                     className="p-2 bg-green-500/20 text-green-400 rounded hover:bg-green-500/30 transition-colors"
@@ -421,7 +307,7 @@ export default function DirectoryAdmin() {
           onSave={savePerson}
         />
       )}
-      
+
       {editingItem && activeType !== "people" && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-slate-900 border border-slate-700 rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
@@ -447,35 +333,23 @@ export default function DirectoryAdmin() {
           type={activeType}
           onClose={() => setShowAddModal(false)}
           onSave={async (data) => {
-            // Publish directly to Nostr
             try {
-              const typeMap: Record<DirectoryType, string> = {
-                people: "person",
-                organizations: "organization",
-                protocols: "protocol",
-                books: "book",
-              };
-
-              const response = await fetch("/api/admin/publish", {
+              const response = await fetch(`/api/${activeType}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  type: typeMap[activeType],
-                  data,
-                }),
+                body: JSON.stringify(data),
               });
 
               const result = await response.json();
 
               if (!response.ok) {
-                throw new Error(result.error || "Failed to publish");
+                throw new Error(result.error || "Failed to save");
               }
 
-              alert(`✅ Published to Nostr!\n\nEvent ID: ${result.eventId}`);
               setShowAddModal(false);
               fetchItems();
             } catch (error: any) {
-              alert(`❌ Failed: ${error.message}`);
+              alert(`Failed: ${error.message}`);
             }
           }}
         />
@@ -511,32 +385,30 @@ function AddItemModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    
+
     const data: any = {
       slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
-      pillars: formData.pillars.split(",").map(p => p.trim()).filter(Boolean),
+      pillars: formData.pillars,
     };
 
     if (type === "people") {
       data.name = formData.name;
       data.bio = formData.bio;
-      data.image = formData.image;
+      data.imageUrl = formData.image;
       data.website = formData.website;
     } else if (type === "organizations") {
       data.name = formData.name;
       data.description = formData.description;
-      data.logo = formData.image;
+      data.imageUrl = formData.image;
       data.website = formData.website;
     } else if (type === "books") {
       data.title = formData.title;
       data.author = formData.author;
       data.description = formData.description;
-      data.cover = formData.image;
+      data.imageUrl = formData.image;
     } else if (type === "protocols") {
-      data.title = formData.title || formData.name;
-      data.summary = formData.bio || formData.description;
-      data.content = formData.content || formData.description;
-      data.image = formData.image;
+      data.name = formData.title || formData.name;
+      data.description = formData.bio || formData.description;
       data.pillar = formData.pillars.split(",")[0]?.trim() || "mind";
     }
 
@@ -551,7 +423,7 @@ function AddItemModal({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-slate-900 border border-slate-700 rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <h2 className="text-2xl font-bold mb-4 capitalize">Add New {type.slice(0, -1)}</h2>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           {(type === "people" || type === "organizations") && (
             <div>
@@ -598,27 +470,14 @@ function AddItemModal({
             </label>
             <textarea
               value={type === "people" ? formData.bio : formData.description}
-              onChange={(e) => setFormData({ 
-                ...formData, 
-                [type === "people" ? "bio" : "description"]: e.target.value 
+              onChange={(e) => setFormData({
+                ...formData,
+                [type === "people" ? "bio" : "description"]: e.target.value
               })}
               rows={3}
               className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white"
             />
           </div>
-
-          {type === "protocols" && (
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1">Content (Markdown)</label>
-              <textarea
-                value={formData.content}
-                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                rows={8}
-                className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white font-mono text-sm"
-                placeholder="# Protocol Content&#10;&#10;Write your protocol instructions here..."
-              />
-            </div>
-          )}
 
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1">Image URL</label>
@@ -675,12 +534,12 @@ function AddItemModal({
               {saving ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Publishing...
+                  Saving...
                 </>
               ) : (
                 <>
-                  <Send className="w-4 h-4 mr-2" />
-                  Publish to Nostr
+                  <Plus className="w-4 h-4 mr-2" />
+                  Save
                 </>
               )}
             </Button>

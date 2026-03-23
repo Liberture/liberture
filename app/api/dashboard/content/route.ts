@@ -13,27 +13,7 @@ function slugify(text: string): string {
     .replace(/^-+|-+$/g, "")
 }
 
-// Check if user can create content (admin or collaborator)
-async function canCreateContent(userId: string, nostrPubkey: string | null): Promise<boolean> {
-  // Admin can always create
-  if (await isAdmin(userId)) return true
-
-  // Check if collaborator
-  if (!nostrPubkey) return false
-
-  const collaborator = await prisma.collaborator.findFirst({
-    where: {
-      OR: [
-        { pubkeyHex: nostrPubkey },
-        { pubkeyHex: nostrPubkey.toLowerCase() },
-      ],
-    },
-  })
-
-  return !!collaborator
-}
-
-// POST — Create new content
+// POST — Create new content (admin only)
 export async function POST(request: Request) {
   try {
     const authUser = await getAuthUser()
@@ -41,26 +21,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
     }
 
+    if (!(await isAdmin(authUser.userId))) {
+      return NextResponse.json({ error: "Admin access required" }, { status: 403 })
+    }
+
     // Get full user data
     const user = await prisma.user.findUnique({
       where: { id: authUser.userId },
-      select: { id: true, nostrPubkey: true, name: true },
+      select: { id: true, name: true },
     })
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    // Check permissions
-    if (!(await canCreateContent(user.id, user.nostrPubkey))) {
-      return NextResponse.json(
-        { error: "You must be a collaborator to create content" },
-        { status: 403 }
-      )
-    }
-
     const body = await request.json()
-    const { type, title, description, pillar, tags, nostrEventId, nostrDTag } = body
+    const { type, title, description, pillar, tags } = body
 
     if (!type || !title || !description || !pillar) {
       return NextResponse.json(
@@ -69,8 +45,7 @@ export async function POST(request: Request) {
       )
     }
 
-    // Use nostrDTag as slug if provided (already validated), otherwise generate
-    const baseSlug = nostrDTag || slugify(title)
+    const baseSlug = slugify(title)
     const tagsString = Array.isArray(tags) ? tags.join(", ") : (tags || "")
 
     let result: any
@@ -78,8 +53,7 @@ export async function POST(request: Request) {
     switch (type) {
       case "article": {
         const { content, readTime } = body
-        
-        // Check for duplicate slug
+
         let slug = baseSlug
         const existing = await prisma.knowledgeArticle.findUnique({ where: { slug } })
         if (existing) {
@@ -95,15 +69,12 @@ export async function POST(request: Request) {
             pillar,
             tags: tagsString,
             author: user.name || "Anonymous",
-            authorPubkey: user.nostrPubkey,
             readTime: readTime || 5,
             url: `/knowledge/${slug}`,
             slug,
             content: content || "",
             publishedAt: now,
             updatedAt: now,
-            nostrEventId: nostrEventId || null,
-            nostrDTag: nostrDTag || slug,
           },
         })
         break
@@ -111,7 +82,7 @@ export async function POST(request: Request) {
 
       case "protocol": {
         const { difficulty, duration, steps, benefits } = body
-        
+
         let slug = baseSlug
         const existing = await prisma.protocol.findUnique({ where: { slug } })
         if (existing) {
@@ -130,11 +101,8 @@ export async function POST(request: Request) {
             steps: steps || "",
             benefits: benefits || "",
             risks: "",
-            authorPubkey: user.nostrPubkey,
             published: true,
             updatedAt: new Date(),
-            nostrEventId: nostrEventId || null,
-            nostrDTag: nostrDTag || slug,
           },
         })
         break
@@ -142,7 +110,7 @@ export async function POST(request: Request) {
 
       case "book": {
         const { author: bookAuthor, year } = body
-        
+
         let slug = baseSlug
         const existing = await prisma.book.findUnique({ where: { slug } })
         if (existing) {
@@ -158,10 +126,7 @@ export async function POST(request: Request) {
             slug,
             author: bookAuthor || "Unknown",
             year: year ? parseInt(year) : null,
-            authorPubkey: user.nostrPubkey,
             updatedAt: new Date(),
-            nostrEventId: nostrEventId || null,
-            nostrDTag: nostrDTag || slug,
           },
         })
         break
@@ -169,7 +134,7 @@ export async function POST(request: Request) {
 
       case "person": {
         const { title: personTitle, expertise, website } = body
-        
+
         let slug = baseSlug
         const existing = await prisma.person.findUnique({ where: { slug } })
         if (existing) {
@@ -194,7 +159,7 @@ export async function POST(request: Request) {
 
       case "organization": {
         const { orgType, founded, website } = body
-        
+
         let slug = baseSlug
         const existing = await prisma.organization.findUnique({ where: { slug } })
         if (existing) {
@@ -211,10 +176,7 @@ export async function POST(request: Request) {
             type: orgType || "research",
             founded: founded || "",
             website: website || "",
-            authorPubkey: user.nostrPubkey,
             updatedAt: new Date(),
-            nostrEventId: nostrEventId || null,
-            nostrDTag: nostrDTag || slug,
           },
         })
         break
@@ -250,31 +212,19 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 })
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: authUser.userId },
-      select: { nostrPubkey: true },
-    })
-
-    if (!user?.nostrPubkey) {
-      return NextResponse.json({ content: [] })
-    }
-
-    // Fetch all content types created by this user
+    // For now, return recent content across all types
     const [articles, protocols, books] = await Promise.all([
       prisma.knowledgeArticle.findMany({
-        where: { authorPubkey: user.nostrPubkey },
         select: { id: true, title: true, slug: true, pillar: true, createdAt: true },
         orderBy: { createdAt: "desc" },
         take: 10,
       }),
       prisma.protocol.findMany({
-        where: { authorPubkey: user.nostrPubkey },
         select: { id: true, name: true, slug: true, pillar: true, createdAt: true },
         orderBy: { createdAt: "desc" },
         take: 10,
       }),
       prisma.book.findMany({
-        where: { authorPubkey: user.nostrPubkey },
         select: { id: true, title: true, slug: true, pillars: true, createdAt: true },
         orderBy: { createdAt: "desc" },
         take: 10,

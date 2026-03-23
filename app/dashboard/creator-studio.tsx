@@ -6,12 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import "@/types/nostr"
-import { 
-  PenLine, 
-  FileText, 
-  FlaskConical, 
+import {
+  PenLine,
+  FileText,
+  FlaskConical,
   BookOpen,
   Users,
   X,
@@ -21,27 +19,10 @@ import {
   ChevronRight,
   Clock,
   Tag,
-  Zap
+  Save
 } from "lucide-react"
 
-// Nostr event kinds
-const KIND_LONG_FORM = 30023 // NIP-23 long-form content
-
-// Relays to publish to
-const PUBLISH_RELAYS = [
-  "wss://relay.damus.io",
-  "wss://relay.nostr.band", 
-  "wss://nos.lol",
-  "wss://relay.snort.social",
-  "wss://purplepag.es",
-]
-
-type ContentType = "article" | "protocol" | "book" | "person" | "organization"
-
-type CollaborationStatus = {
-  isCollaborator: boolean
-  isAdmin: boolean
-}
+type ContentType = "article" | "protocol" | "book" | "person"
 
 const PILLARS = [
   { id: "sleep", label: "Sleep", color: "bg-indigo-500" },
@@ -53,31 +34,31 @@ const PILLARS = [
 ]
 
 const CONTENT_TYPES = [
-  { 
-    id: "article" as ContentType, 
-    label: "Article", 
-    icon: FileText, 
+  {
+    id: "article" as ContentType,
+    label: "Article",
+    icon: FileText,
     description: "Long-form knowledge content",
     color: "from-blue-500 to-cyan-500"
   },
-  { 
-    id: "protocol" as ContentType, 
-    label: "Protocol", 
-    icon: FlaskConical, 
+  {
+    id: "protocol" as ContentType,
+    label: "Protocol",
+    icon: FlaskConical,
     description: "Step-by-step health protocol",
     color: "from-purple-500 to-pink-500"
   },
-  { 
-    id: "book" as ContentType, 
-    label: "Book", 
-    icon: BookOpen, 
+  {
+    id: "book" as ContentType,
+    label: "Book",
+    icon: BookOpen,
     description: "Book recommendation",
     color: "from-amber-500 to-orange-500"
   },
-  { 
-    id: "person" as ContentType, 
-    label: "Person", 
-    icon: Users, 
+  {
+    id: "person" as ContentType,
+    label: "Person",
+    icon: Users,
     description: "Notable health figure",
     color: "from-green-500 to-emerald-500"
   },
@@ -85,7 +66,7 @@ const CONTENT_TYPES = [
 
 export function CreatorStudio() {
   const { user } = useAuth()
-  const [status, setStatus] = useState<CollaborationStatus | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(true)
   const [selectedType, setSelectedType] = useState<ContentType | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -115,18 +96,18 @@ export function CreatorStudio() {
   const [website, setWebsite] = useState("")
 
   useEffect(() => {
-    checkStatus()
+    checkAdmin()
   }, [])
 
-  const checkStatus = async () => {
+  const checkAdmin = async () => {
     try {
-      const res = await fetch("/api/collaborate/status")
+      const res = await fetch("/api/auth/me")
       if (res.ok) {
         const data = await res.json()
-        setStatus(data)
+        setIsAdmin(data.user?.isAdmin === true)
       }
     } catch (error) {
-      console.error("Failed to check status:", error)
+      console.error("Failed to check admin status:", error)
     } finally {
       setLoading(false)
     }
@@ -150,179 +131,31 @@ export function CreatorStudio() {
     setWebsite("")
   }
 
-  // Publish event to relays
-  const publishToRelays = async (signedEvent: any): Promise<string[]> => {
-    const publishedTo: string[] = []
-    
-    await Promise.allSettled(
-      PUBLISH_RELAYS.map(async (url) => {
-        try {
-          const ws = new WebSocket(url)
-          await new Promise<void>((resolve, reject) => {
-            const timeout = setTimeout(() => {
-              ws.close()
-              reject(new Error("Timeout"))
-            }, 10000)
-            
-            ws.onopen = () => {
-              ws.send(JSON.stringify(["EVENT", signedEvent]))
-            }
-            
-            ws.onmessage = (msg) => {
-              try {
-                const data = JSON.parse(msg.data)
-                if (data[0] === "OK" && data[1] === signedEvent.id) {
-                  clearTimeout(timeout)
-                  publishedTo.push(url)
-                  ws.close()
-                  resolve()
-                }
-              } catch {}
-            }
-            
-            ws.onerror = () => {
-              clearTimeout(timeout)
-              ws.close()
-              reject(new Error("WebSocket error"))
-            }
-          })
-        } catch (e) {
-          console.warn(`Failed to publish to ${url}:`, e)
-        }
-      })
-    )
-    
-    return publishedTo
-  }
-
-  // Create slug from title
-  const slugify = (text: string): string => {
-    return text
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/[\s_-]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-  }
-
   const handleSubmit = async () => {
     if (!selectedType || !title || !description || !pillar) return
-
-    // Check for Nostr extension
-    if (!window.nostr) {
-      alert("Please install a Nostr extension (like Alby or nos2x) to sign and publish content.")
-      return
-    }
 
     setSubmitting(true)
     setSuccess(false)
 
     try {
-      // Get user's pubkey
-      const pubkey = await window.nostr.getPublicKey()
-      
-      // Create the slug
-      const slug = slugify(title)
-      
-      // Build tags array for the event
-      const eventTags: string[][] = [
-        ["d", slug], // Addressable identifier
-        ["title", title],
-        ["summary", description],
-        ["t", pillar], // Pillar as tag
-      ]
-      
-      // Add custom tags
       const customTags = tags.split(",").map(t => t.trim()).filter(Boolean)
-      customTags.forEach(tag => {
-        eventTags.push(["t", tag])
-      })
-      
-      // Build content based on type
-      let eventContent = ""
-      let eventKind = KIND_LONG_FORM
-      
-      if (selectedType === "article") {
-        eventContent = content || description
-        eventTags.push(["published_at", Math.floor(Date.now() / 1000).toString()])
-        if (readTime) eventTags.push(["read_time", readTime])
-      } else if (selectedType === "protocol") {
-        eventContent = `# ${title}\n\n${description}\n\n## Difficulty\n${difficulty}\n\n## Duration\n${duration || "Varies"}\n\n## Steps\n${steps}\n\n## Benefits\n${benefits}`
-        eventTags.push(["type", "protocol"])
-        eventTags.push(["difficulty", difficulty])
-        if (duration) eventTags.push(["duration", duration])
-      } else if (selectedType === "book") {
-        eventContent = `# ${title}\n\nBy ${author || "Unknown"}\n\n${description}`
-        eventTags.push(["type", "book"])
-        if (author) eventTags.push(["author", author])
-        if (year) eventTags.push(["year", year])
-      } else if (selectedType === "person") {
-        eventContent = `# ${title}\n\n${personTitle ? `**${personTitle}**\n\n` : ""}${description}\n\n${expertise ? `## Expertise\n${expertise}` : ""}`
-        eventTags.push(["type", "person"])
-        if (personTitle) eventTags.push(["role", personTitle])
-        if (expertise) eventTags.push(["expertise", expertise])
-        if (website) eventTags.push(["website", website])
-      }
 
-      // Create unsigned event
-      const unsignedEvent = {
-        kind: eventKind,
-        created_at: Math.floor(Date.now() / 1000),
-        tags: eventTags,
-        content: eventContent,
-      }
-
-      // Sign with extension
-      const signedEvent = await window.nostr.signEvent(unsignedEvent)
-      
-      // Publish to relays
-      const publishedTo = await publishToRelays(signedEvent)
-      
-      if (publishedTo.length === 0) {
-        throw new Error("Failed to publish to any relay")
-      }
-
-      // Save to database with event info
-      const baseData = {
+      let payload: any = {
         type: selectedType,
         title,
         description,
         pillar,
         tags: customTags,
-        nostrEventId: signedEvent.id,
-        nostrDTag: slug,
-        publishedRelays: publishedTo,
       }
 
-      let payload: any = baseData
-
       if (selectedType === "article") {
-        payload = {
-          ...baseData,
-          content,
-          readTime: parseInt(readTime) || 5,
-        }
+        payload = { ...payload, content, readTime: parseInt(readTime) || 5 }
       } else if (selectedType === "protocol") {
-        payload = {
-          ...baseData,
-          difficulty,
-          duration,
-          steps,
-          benefits,
-        }
+        payload = { ...payload, difficulty, duration, steps, benefits }
       } else if (selectedType === "book") {
-        payload = {
-          ...baseData,
-          author,
-          year: year ? parseInt(year) : null,
-        }
+        payload = { ...payload, author, year: year ? parseInt(year) : null }
       } else if (selectedType === "person") {
-        payload = {
-          ...baseData,
-          title: personTitle,
-          expertise,
-          website,
-        }
+        payload = { ...payload, title: personTitle, expertise, website }
       }
 
       const res = await fetch("/api/dashboard/content", {
@@ -340,23 +173,16 @@ export function CreatorStudio() {
         }, 2000)
       } else {
         const data = await res.json()
-        // Nostr publish succeeded but DB save failed - warn user
-        console.error("DB save failed:", data.error)
-        alert(`Published to Nostr ⚡ but failed to save to Liberture database: ${data.error}\n\nYour content is live on Nostr but won't appear on liberture.com until the database issue is fixed.`)
+        alert(data.error || "Failed to create content")
       }
     } catch (error: any) {
       console.error("Failed to submit:", error)
-      if (error.message?.includes("User rejected")) {
-        alert("Signature cancelled. Content was not published.")
-      } else {
-        alert(error.message || "Failed to create content")
-      }
+      alert(error.message || "Failed to create content")
     } finally {
       setSubmitting(false)
     }
   }
 
-  // Not a collaborator or admin
   if (loading) {
     return (
       <Card className="bg-gray-800/70 border-gray-700 backdrop-blur-sm rounded-2xl">
@@ -367,8 +193,8 @@ export function CreatorStudio() {
     )
   }
 
-  if (!status?.isCollaborator && !status?.isAdmin) {
-    return null // Don't show anything if not a collaborator
+  if (!isAdmin) {
+    return null
   }
 
   // Success state
@@ -377,10 +203,10 @@ export function CreatorStudio() {
       <Card className="bg-gradient-to-br from-green-900/30 to-emerald-900/20 border-green-700/50 backdrop-blur-sm rounded-2xl">
         <CardContent className="p-6 text-center">
           <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-            <Zap className="h-6 w-6 text-green-400" />
+            <Check className="h-6 w-6 text-green-400" />
           </div>
-          <h3 className="text-lg font-semibold text-green-300">Published to Nostr! ⚡</h3>
-          <p className="text-sm text-gray-400 mt-1">Your content is now live on the network</p>
+          <h3 className="text-lg font-semibold text-green-300">Content Saved!</h3>
+          <p className="text-sm text-gray-400 mt-1">Your content has been added to the database</p>
         </CardContent>
       </Card>
     )
@@ -651,12 +477,12 @@ export function CreatorStudio() {
           {submitting ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              Signing & Publishing...
+              Saving...
             </>
           ) : (
             <>
-              <Zap className="h-4 w-4 mr-2" />
-              Sign & Publish to Nostr
+              <Save className="h-4 w-4 mr-2" />
+              Save to Database
             </>
           )}
         </Button>

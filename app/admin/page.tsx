@@ -9,8 +9,6 @@ import CommentsAdmin from "./comments-admin";
 import UsersAdmin from "./users-admin";
 import DirectoryAdmin from "./directory-admin";
 import EnrichmentHistory from "./enrichment-history";
-import NostrSettings from "./nostr-settings";
-import CollaborationRequests from "./collaboration-requests";
 
 export default function AdminPanel() {
   return (
@@ -24,8 +22,6 @@ export default function AdminPanel() {
         <Tabs defaultValue="users" className="w-full">
           <TabsList className="bg-slate-800/50 border border-slate-700 flex-wrap h-auto gap-1 p-1">
             <TabsTrigger value="users" className="text-xs md:text-sm">Users</TabsTrigger>
-            <TabsTrigger value="nostr" className="text-xs md:text-sm">Nostr</TabsTrigger>
-            <TabsTrigger value="collaborators" className="text-xs md:text-sm">Collaborators</TabsTrigger>
             <TabsTrigger value="directory" className="text-xs md:text-sm">Directory</TabsTrigger>
             <TabsTrigger value="enrichment" className="text-xs md:text-sm">Enrichment</TabsTrigger>
             <TabsTrigger value="marketplace" className="text-xs md:text-sm">Marketplace</TabsTrigger>
@@ -37,14 +33,6 @@ export default function AdminPanel() {
 
           <TabsContent value="users">
             <UsersAdmin />
-          </TabsContent>
-
-          <TabsContent value="nostr">
-            <NostrSettings />
-          </TabsContent>
-
-          <TabsContent value="collaborators">
-            <CollaborationRequests />
           </TabsContent>
 
           <TabsContent value="directory">
