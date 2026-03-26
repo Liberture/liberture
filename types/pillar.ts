@@ -5,7 +5,6 @@ export type PillarSlug = PillarId
 export interface PillarData {
   name: string
   slug: string
-  icon: string
   tagline: string
   description: string
   color: string
@@ -14,7 +13,6 @@ export interface PillarData {
 
 export interface PillarConfig {
   title: string
-  icon: string
   tagline: string
   description?: string
   color?: string

@@ -7,14 +7,17 @@ import { Badge } from "@/components/ui/badge"
 import { Clock, ExternalLink } from "lucide-react"
 import Link from "next/link"
 import type { Article } from "@/types"
+import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
+import type { PillarId } from "@/lib/translations"
 
 interface Props {
   articles: Article[]
   pillar: string
-  icon: string
 }
 
-export function AnimatedArticleGrid({ articles, pillar, icon }: Props) {
+export function AnimatedArticleGrid({ articles, pillar }: Props) {
+  const Icon = PILLAR_ICON_MAP[pillar as PillarId]
+  const styles = PILLAR_STYLES[pillar as PillarId]
   return (
     <motion.div
       className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
@@ -36,8 +39,8 @@ export function AnimatedArticleGrid({ articles, pillar, icon }: Props) {
             <Card className="h-full group hover:shadow-xl transition-shadow duration-300">
               <CardHeader>
                 <div className="flex items-center justify-between mb-2">
-                  <Badge variant="outline" className="text-xs">
-                    {icon} {pillar}
+                  <Badge variant="outline" className={`text-xs ${styles?.text || ''}`}>
+                    {Icon && <Icon className="h-3 w-3 mr-1" />} {pillar}
                   </Badge>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <Clock className="h-3 w-3" />
@@ -76,7 +79,7 @@ export function AnimatedArticleGrid({ articles, pillar, icon }: Props) {
                         <ExternalLink className="h-3 w-3" />
                       </a>
                     )}
-                    <Link href={`/knowledge/${article.slug}`} className="text-xs text-primary hover:underline font-medium">
+                    <Link href={`/articles/${article.slug}`} className="text-xs text-primary hover:underline font-medium">
                       Read
                     </Link>
                   </div>

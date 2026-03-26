@@ -15,34 +15,28 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params
-  
+
   let article = null
   try {
-    article = await prisma.knowledgeArticle.findUnique({
+    article = await prisma.article.findUnique({
       where: { slug },
-      select: {
-        title: true,
-        description: true,
-        author: true,
-      },
+      select: { title: true, description: true, author: true },
     })
   } catch {
     // Database unavailable
   }
 
   if (!article) {
-    return {
-      title: 'Article Not Found | Liberture',
-    }
+    return { title: 'Article Not Found | Liberture' }
   }
 
   return {
-    title: `${article.title} | Liberture Knowledge`,
+    title: `${article.title} | Liberture`,
     description: article.description || `Learn about ${article.title} from ${article.author} on Liberture.`,
     openGraph: {
       title: article.title,
       description: article.description || `Learn about ${article.title} from ${article.author}.`,
-      url: `https://liberture.com/knowledge/${slug}`,
+      url: `https://liberture.com/articles/${slug}`,
       type: 'article',
     },
     twitter: {
@@ -53,12 +47,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default async function KnowledgeArticlePage({ params }: PageProps) {
+export default async function ArticlePage({ params }: PageProps) {
   const { slug } = await params
 
-  let article: Awaited<ReturnType<typeof prisma.knowledgeArticle.findUnique<{ where: { slug: string }; select: { id: true; title: true; description: true; content: true; tags: true; author: true; readTime: true; url: true; publishedAt: true; updatedAt: true; pillar: true } }>>> = null
+  let article: Awaited<ReturnType<typeof prisma.article.findUnique<{ where: { slug: string }; select: { id: true; title: true; description: true; content: true; tags: true; author: true; readTime: true; url: true; publishedAt: true; updatedAt: true; pillar: true } }>>> = null
   try {
-    article = await prisma.knowledgeArticle.findUnique({
+    article = await prisma.article.findUnique({
       where: { slug },
       select: {
         id: true,
@@ -84,11 +78,10 @@ export default async function KnowledgeArticlePage({ params }: PageProps) {
 
   const tags = article.tags.split(',').map(t => t.trim()).filter(Boolean)
   const Icon = article.pillar ? PILLAR_ICON_MAP[article.pillar as keyof typeof PILLAR_ICON_MAP] : null
-  const articleUrl = `https://liberture.com/knowledge/${slug}`
+  const articleUrl = `https://liberture.com/articles/${slug}`
 
   return (
     <div className="min-h-screen py-12">
-      {/* JSON-LD Structured Data */}
       <ArticleSchema
         title={article.title}
         description={article.description || ''}
@@ -100,25 +93,22 @@ export default async function KnowledgeArticlePage({ params }: PageProps) {
       <BreadcrumbSchema
         items={[
           { name: 'Home', url: 'https://liberture.com' },
-          { name: 'Knowledge', url: 'https://liberture.com/knowledge' },
+          { name: 'Articles', url: 'https://liberture.com/articles' },
           { name: article.title, url: articleUrl },
         ]}
       />
 
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          {/* Back Button */}
           <Link
-            href={article.pillar ? `/pillars/${article.pillar}` : '/knowledge'}
+            href={article.pillar ? `/pillars/${article.pillar}` : '/articles'}
             className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to {article.pillar ? `${article.pillar} pillar` : 'Knowledge'}
+            Back to {article.pillar ? `${article.pillar} pillar` : 'Articles'}
           </Link>
 
-          {/* Article Header */}
           <div className="space-y-6 mb-12">
-            {/* Pillar Badge */}
             {article.pillar && Icon && (
               <div className="flex items-center gap-2">
                 <Badge variant="outline" className="text-sm">
@@ -133,19 +123,16 @@ export default async function KnowledgeArticlePage({ params }: PageProps) {
               </div>
             )}
 
-            {/* Title */}
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
               {article.title}
             </h1>
 
-            {/* Description */}
             {article.description && (
               <p className="text-xl text-muted-foreground">
                 {article.description}
               </p>
             )}
 
-            {/* Meta Info */}
             <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground pt-4 border-t border-border/50">
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4" />
@@ -157,20 +144,19 @@ export default async function KnowledgeArticlePage({ params }: PageProps) {
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                <span>{new Date(article.publishedAt).toLocaleDateString('en-US', { 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
+                <span>{new Date(article.publishedAt).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
                 })}</span>
               </div>
             </div>
           </div>
 
-          {/* Article Content */}
           <Card className="mb-8">
             <CardContent className="prose prose-lg dark:prose-invert max-w-none p-8">
               {article.content ? (
-                <div 
+                <div
                   dangerouslySetInnerHTML={{ __html: article.content }}
                   className="whitespace-pre-wrap"
                 />
@@ -182,7 +168,6 @@ export default async function KnowledgeArticlePage({ params }: PageProps) {
             </CardContent>
           </Card>
 
-          {/* Source Reference */}
           {article.url && (
             <Card className="mb-8 border-primary/20 bg-primary/5">
               <CardContent className="p-6">
@@ -203,11 +188,7 @@ export default async function KnowledgeArticlePage({ params }: PageProps) {
                     </a>
                   </div>
                   <Button variant="outline" size="sm" asChild>
-                    <a
-                      href={article.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
+                    <a href={article.url} target="_blank" rel="noopener noreferrer">
                       Visit Source
                     </a>
                   </Button>
@@ -216,7 +197,6 @@ export default async function KnowledgeArticlePage({ params }: PageProps) {
             </Card>
           )}
 
-          {/* Tags Cloud */}
           {tags.length > 0 && (
             <Card>
               <CardContent className="p-6">

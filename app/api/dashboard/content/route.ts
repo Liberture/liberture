@@ -55,13 +55,13 @@ export async function POST(request: Request) {
         const { content, readTime } = body
 
         let slug = baseSlug
-        const existing = await prisma.knowledgeArticle.findUnique({ where: { slug } })
+        const existing = await prisma.article.findUnique({ where: { slug } })
         if (existing) {
           slug = `${baseSlug}-${Date.now().toString(36)}`
         }
 
         const now = new Date()
-        result = await prisma.knowledgeArticle.create({
+        result = await prisma.article.create({
           data: {
             id: randomUUID(),
             title,
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
             tags: tagsString,
             author: user.name || "Anonymous",
             readTime: readTime || 5,
-            url: `/knowledge/${slug}`,
+            url: `/articles/${slug}`,
             slug,
             content: content || "",
             publishedAt: now,
@@ -214,7 +214,7 @@ export async function GET(request: Request) {
 
     // For now, return recent content across all types
     const [articles, protocols, books] = await Promise.all([
-      prisma.knowledgeArticle.findMany({
+      prisma.article.findMany({
         select: { id: true, title: true, slug: true, pillar: true, createdAt: true },
         orderBy: { createdAt: "desc" },
         take: 10,

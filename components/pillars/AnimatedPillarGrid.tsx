@@ -22,7 +22,7 @@ export function AnimatedPillarGrid({ pillars, countMap }: AnimatedPillarGridProp
         <AnimatedPillarCard
           key={pillar.slug}
           pillar={pillar}
-          count={countMap[pillar.name] || 0}
+          count={countMap[pillar.slug] || 0}
           index={index}
         />
       ))}

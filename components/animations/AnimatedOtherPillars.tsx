@@ -4,6 +4,8 @@ import { motion } from "framer-motion"
 import { stagger, transition, hover, loop } from "@/lib/animations"
 import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
+import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
+import type { PillarId } from "@/lib/translations"
 import type { PillarWithConfig } from "@/types"
 
 interface Props {
@@ -31,9 +33,15 @@ export function AnimatedOtherPillars({ pillars }: Props) {
           <Link href={`/pillars/${pillar.id.toLowerCase()}`} className="group block">
             <Card className="hover:shadow-lg transition-shadow duration-300">
               <CardContent className="p-6 text-center space-y-2">
-                <motion.div className="text-4xl" animate={loop.breathe}>
-                  {pillar.config.icon}
-                </motion.div>
+                {(() => {
+                  const Icon = PILLAR_ICON_MAP[pillar.id as PillarId]
+                  const styles = PILLAR_STYLES[pillar.id as PillarId]
+                  return (
+                    <motion.div className={`flex justify-center ${styles?.text || ''}`} animate={loop.breathe}>
+                      {Icon && <Icon className="h-10 w-10" />}
+                    </motion.div>
+                  )
+                })()}
                 <h4 className="font-semibold group-hover:text-primary transition-colors">
                   {pillar.config.title}
                 </h4>

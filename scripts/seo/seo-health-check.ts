@@ -107,7 +107,7 @@ async function checkRobotsTxt() {
 async function checkMetaTags() {
   console.log('📝 Checking meta tags consistency...');
   
-  const articles = await prisma.knowledgeArticle.findMany({
+  const articles = await prisma.article.findMany({
     select: { id: true, title: true, description: true, slug: true }
   });
   
@@ -157,7 +157,7 @@ async function checkMetaTags() {
 async function checkContentQuality() {
   console.log('📚 Checking content quality...');
   
-  const articles = await prisma.knowledgeArticle.findMany({
+  const articles = await prisma.article.findMany({
     select: { title: true, description: true, readTime: true, tags: true }
   });
   
@@ -191,7 +191,7 @@ async function checkInternalLinks() {
   
   // This would require storing article content in DB
   // For now, just check if we have enough articles to cross-link
-  const articleCount = await prisma.knowledgeArticle.count();
+  const articleCount = await prisma.article.count();
   
   if (articleCount < 10) {
     issues.push({

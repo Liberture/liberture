@@ -23,19 +23,19 @@ export const metadata: Metadata = {
 }
 
 const PILLARS = [
-  { name: 'Cognition', slug: 'cognition', icon: '🧠', tagline: 'Think Sharper', description: 'Optimize brain function, focus, memory, and mental performance', color: 'from-work/20 to-work/5 hover:from-work/30 hover:to-work/10', borderColor: 'border-work/30' },
-  { name: 'Recovery', slug: 'recovery', icon: '💤', tagline: 'Rest Better', description: 'Master sleep, stress management, and sustainable performance', color: 'from-sleep/20 to-sleep/5 hover:from-sleep/30 hover:to-sleep/10', borderColor: 'border-sleep/30' },
-  { name: 'Fueling', slug: 'fueling', icon: '🥗', tagline: 'Eat Smarter', description: 'Nutrition strategies for energy, longevity, and metabolic health', color: 'from-nutrition/20 to-nutrition/5 hover:from-nutrition/30 hover:to-nutrition/10', borderColor: 'border-nutrition/30' },
-  { name: 'Mental', slug: 'mental', icon: '🧘', tagline: 'Feel Stronger', description: 'Build resilience, emotional intelligence, and psychological strength', color: 'from-mind/20 to-mind/5 hover:from-mind/30 hover:to-mind/10', borderColor: 'border-mind/30' },
-  { name: 'Physicality', slug: 'physicality', icon: '💪', tagline: 'Move Better', description: 'Training, movement, and body optimization for longevity', color: 'from-exercise/20 to-exercise/5 hover:from-exercise/30 hover:to-exercise/10', borderColor: 'border-exercise/30' },
-  { name: 'Finance', slug: 'finance', icon: '💰', tagline: 'Build Wealth', description: 'Financial independence, passive income, and wealth strategies', color: 'from-finance/20 to-finance/5 hover:from-finance/30 hover:to-finance/10', borderColor: 'border-finance/30' },
+  { name: 'Work', slug: 'work', tagline: 'Think Sharper', description: 'Optimize productivity, flow states, work environment, and professional performance for meaningful achievement.', color: 'from-work/20 to-work/5 hover:from-work/30 hover:to-work/10', borderColor: 'border-work/30' },
+  { name: 'Sleep', slug: 'sleep', tagline: 'Rest Better', description: 'Master sleep architecture, circadian rhythm, and recovery protocols to maximize restoration and longevity.', color: 'from-sleep/20 to-sleep/5 hover:from-sleep/30 hover:to-sleep/10', borderColor: 'border-sleep/30' },
+  { name: 'Nutrition', slug: 'nutrition', tagline: 'Eat Smarter', description: 'Optimize digestion, microbiome, macros, and supplementation for peak energy and metabolic health.', color: 'from-nutrition/20 to-nutrition/5 hover:from-nutrition/30 hover:to-nutrition/10', borderColor: 'border-nutrition/30' },
+  { name: 'Mind', slug: 'mind', tagline: 'Feel Stronger', description: 'Enhance brain function, neurotransmitters, nootropics, and mental resilience for cognitive excellence.', color: 'from-mind/20 to-mind/5 hover:from-mind/30 hover:to-mind/10', borderColor: 'border-mind/30' },
+  { name: 'Exercise', slug: 'exercise', tagline: 'Move Better', description: 'Build strength, cardiovascular capacity, mobility, and athletic performance through evidence-based training.', color: 'from-exercise/20 to-exercise/5 hover:from-exercise/30 hover:to-exercise/10', borderColor: 'border-exercise/30' },
+  { name: 'Finance', slug: 'finance', tagline: 'Build Wealth', description: 'Master wealth creation, financial independence, and resource optimization for life freedom.', color: 'from-finance/20 to-finance/5 hover:from-finance/30 hover:to-finance/10', borderColor: 'border-finance/30' },
 ] as const
 
 export default async function PillarsPage() {
   let countMap: Record<string, number> = {}
   let totalArticles = 0
   try {
-    const articleCounts = await prisma.knowledgeArticle.groupBy({
+    const articleCounts = await prisma.article.groupBy({
       by: ['pillar'],
       _count: { id: true },
     })
@@ -90,7 +90,7 @@ export default async function PillarsPage() {
                 Choose a pillar that resonates with you, or explore them all. Every article is curated from trusted experts and backed by science.
               </p>
               <div className="flex items-center justify-center gap-4 pt-4">
-                <Link href="/knowledge" className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
+                <Link href="/articles" className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
                   Browse All Articles <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link href="/directory" className="inline-flex items-center gap-2 px-6 py-3 border border-border rounded-lg hover:bg-muted transition-colors">

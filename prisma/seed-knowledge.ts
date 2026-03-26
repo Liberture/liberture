@@ -472,9 +472,9 @@ async function main() {
 
   for (const article of knowledgeArticles) {
     const slug = article.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-    const existing = await prisma.knowledgeArticle.findUnique({ where: { slug } })
+    const existing = await prisma.article.findUnique({ where: { slug } })
     if (!existing) {
-      await prisma.knowledgeArticle.create({
+      await prisma.article.create({
         data: {
           ...article,
           id: randomUUID(),

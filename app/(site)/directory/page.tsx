@@ -1,13 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, Users, Building2, Zap, BookOpen, ArrowRight } from "lucide-react"
+import { Search, Users, Building2, Zap, BookOpen, FileText, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
-type EntityType = "all" | "people" | "organizations" | "protocols" | "books"
+type EntityType = "all" | "people" | "organizations" | "protocols" | "books" | "articles"
 
 interface DirectoryItem {
   id: string
@@ -28,11 +28,12 @@ export default function DirectoryPage() {
   useEffect(() => {
     async function fetchDirectory() {
       try {
-        const [peopleRes, orgsRes, protocolsRes, booksRes] = await Promise.all([
+        const [peopleRes, orgsRes, protocolsRes, booksRes, articlesRes] = await Promise.all([
           fetch("/api/people").then((r) => r.json()),
           fetch("/api/organizations").then((r) => r.json()),
           fetch("/api/protocols").then((r) => r.json()),
           fetch("/api/books").then((r) => r.json()),
+          fetch("/api/articles").then((r) => r.json()),
         ])
 
         const items: DirectoryItem[] = [
@@ -68,6 +69,14 @@ export default function DirectoryPage() {
             slug: b.slug,
             tags: b.pillars ? b.pillars.split(',').map((s: string) => s.trim()) : [],
           })),
+          ...(articlesRes.articles || []).map((a: any) => ({
+            id: a.id,
+            name: a.title,
+            type: "articles" as EntityType,
+            description: a.description || "",
+            slug: a.slug,
+            tags: Array.isArray(a.tags) ? a.tags : [a.pillar].filter(Boolean),
+          })),
         ]
 
         setAllItems(items)
@@ -99,6 +108,7 @@ export default function DirectoryPage() {
     organizations: searchFilteredItems.filter((i) => i.type === "organizations").length,
     protocols: searchFilteredItems.filter((i) => i.type === "protocols").length,
     books: searchFilteredItems.filter((i) => i.type === "books").length,
+    articles: searchFilteredItems.filter((i) => i.type === "articles").length,
   }
 
   // Filter items based on search AND type
@@ -113,6 +123,7 @@ export default function DirectoryPage() {
     organizations: filteredItems.filter((i) => i.type === "organizations"),
     protocols: filteredItems.filter((i) => i.type === "protocols"),
     books: filteredItems.filter((i) => i.type === "books"),
+    articles: filteredItems.filter((i) => i.type === "articles"),
   }
 
   const filters: Array<{ value: EntityType; label: string; icon: any; color: string }> = [
@@ -121,6 +132,7 @@ export default function DirectoryPage() {
     { value: "organizations", label: "Organizations", icon: Building2, color: "text-cyan-400" },
     { value: "protocols", label: "Protocols", icon: Zap, color: "text-green-400" },
     { value: "books", label: "Books", icon: BookOpen, color: "text-orange-400" },
+    { value: "articles", label: "Articles", icon: FileText, color: "text-blue-400" },
   ]
 
   return (
@@ -243,6 +255,18 @@ export default function DirectoryPage() {
                     showAll={activeFilter !== "books"}
                   />
                 )}
+
+                {/* Articles Section */}
+                {(activeFilter === "all" || activeFilter === "articles") && groupedItems.articles.length > 0 && (
+                  <DirectorySection
+                    title="Articles"
+                    icon={FileText}
+                    color="blue"
+                    items={groupedItems.articles}
+                    baseUrl="/articles"
+                    showAll={activeFilter !== "articles"}
+                  />
+                )}
               </div>
             )}
           </>
@@ -267,6 +291,7 @@ function DirectorySection({ title, icon: Icon, color, items, baseUrl, showAll }:
     cyan: "text-cyan-400 border-cyan-500/30 bg-cyan-500/10",
     green: "text-green-400 border-green-500/30 bg-green-500/10",
     orange: "text-orange-400 border-orange-500/30 bg-orange-500/10",
+    blue: "text-blue-400 border-blue-500/30 bg-blue-500/10",
   }
 
   const displayItems = showAll ? items.slice(0, 6) : items

@@ -4,6 +4,22 @@ import { prisma } from "@/lib/prisma"
 
 export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url)
+    const influencers = searchParams.get('influencers')
+
+    // Influencers filtered view (requires migration to add influencerRank column)
+    if (influencers === 'true') {
+      try {
+        const dbPeople = await prisma.person.findMany({
+          where: { influencerRank: { not: null } },
+          orderBy: { influencerRank: "asc" },
+        })
+        return NextResponse.json({ people: dbPeople })
+      } catch {
+        // Column doesn't exist yet — return all people as fallback
+      }
+    }
+
     const dbPeople = await prisma.person.findMany({
       select: {
         id: true,

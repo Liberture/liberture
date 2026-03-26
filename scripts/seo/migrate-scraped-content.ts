@@ -53,7 +53,7 @@ async function migrateContent() {
     
     try {
       // Update the knowledge article with content
-      await prisma.knowledgeArticle.update({
+      await prisma.article.update({
         where: { id: scraped.publishedEntityId },
         data: {
           content: scraped.paraphrasedContent,

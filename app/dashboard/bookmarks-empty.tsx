@@ -7,7 +7,7 @@ import type { LucideIcon } from "lucide-react"
 
 const emptyStates: Record<string, { icon: LucideIcon; message: string; cta: string; href: string }> = {
   book: { icon: BookOpen, message: "No books bookmarked yet", cta: "Browse Books", href: "/books" },
-  article: { icon: FileText, message: "No articles saved yet", cta: "Explore Knowledge", href: "/knowledge" },
+  article: { icon: FileText, message: "No articles saved yet", cta: "Explore Articles", href: "/articles" },
   person: { icon: Users, message: "No people followed yet", cta: "Discover People", href: "/people" },
   protocol: { icon: FlaskConical, message: "No protocols saved yet", cta: "Find Protocols", href: "/protocols" },
   organization: { icon: Building2, message: "No organizations saved yet", cta: "View Organizations", href: "/organizations" },

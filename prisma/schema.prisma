@@ -26,28 +26,30 @@ model Account {
 }
 
 model Book {
-  id            String   @id
-  slug          String   @unique
-  title         String
-  author        String
-  description   String
-  pillars       String
-  year          Int?
-  pages         Int?
-  isbn          String?
-  amazonUrl     String?
-  rating        Float?
-  keyTakeaways  String?
-  forWho        String?
-  featured      Boolean  @default(false)
-  imageUrl      String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime
-  publications  String?
-  wikipedia     String?
-  authorId      String?
-  goodreadsUrl  String?
-  Person        Person?  @relation(fields: [authorId], references: [id])
+  id              String   @id
+  slug            String   @unique
+  title           String
+  author          String
+  description     String
+  pillars         String
+  year            Int?
+  pages           Int?
+  isbn            String?
+  amazonUrl       String?
+  rating          Float?
+  keyTakeaways    String?
+  forWho          String?
+  featured        Boolean  @default(false)
+  imageUrl        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime
+  publications    String?
+  wikipedia       String?
+  authorId        String?
+  goodreadsUrl    String?
+  influenceScore  Int?
+  libertureRank   Int?
+  Person          Person?  @relation(fields: [authorId], references: [id])
 
   @@index([authorId])
 }
@@ -103,7 +105,7 @@ model EnrichmentLog {
   @@index([entityType, entityId])
 }
 
-model KnowledgeArticle {
+model Article {
   id            String        @id
   title         String
   description   String
@@ -118,7 +120,12 @@ model KnowledgeArticle {
   slug          String        @unique
   viewCount     Int           @default(0)
   content       String?       @db.Text
+  type          String        @default("article")
+  rating        Float?
+  external      Boolean       @default(false)
   views         ArticleView[]
+
+  @@map("KnowledgeArticle")
 }
 
 model ArticleView {
@@ -127,7 +134,7 @@ model ArticleView {
   viewedAt  DateTime          @default(now())
   userAgent String?
   referrer  String?
-  article   KnowledgeArticle  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  article   Article           @relation(fields: [articleId], references: [id], onDelete: Cascade)
 
   @@index([articleId])
   @@index([viewedAt])
@@ -180,30 +187,31 @@ model Organization {
 }
 
 model Person {
-  id             String   @id
-  slug           String   @unique
-  name           String
-  title          String
-  bio            String
-  pillars        String
-  expertise      String
-  followers      String?
-  website        String?
-  twitter        String?
-  instagram      String?
-  youtube        String?
-  podcast        String?
-  imageUrl       String?
-  achievements   String?
-  publications   String?
-  protocols      String?
-  featured       Boolean  @default(false)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime
-  speakingEvents String?
-  wikipedia      String?
-  category       String   @default("practitioner")
-  Book           Book[]
+  id              String   @id
+  slug            String   @unique
+  name            String
+  title           String
+  bio             String
+  pillars         String
+  expertise       String
+  followers       String?
+  website         String?
+  twitter         String?
+  instagram       String?
+  youtube         String?
+  podcast         String?
+  imageUrl        String?
+  achievements    String?
+  publications    String?
+  protocols       String?
+  featured        Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime
+  speakingEvents  String?
+  wikipedia       String?
+  category        String   @default("practitioner")
+  influencerRank  Int?
+  Book            Book[]
 }
 
 model PlatformComment {

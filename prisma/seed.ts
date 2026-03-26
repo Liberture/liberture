@@ -8,9 +8,6 @@ async function main() {
   console.log('🌱 Seeding database...')
 
   // Load JSON data
-  const knowledgeData = JSON.parse(
-    readFileSync(join(__dirname, '../data/knowledge.json'), 'utf-8')
-  )
   const marketplaceData = JSON.parse(
     readFileSync(join(__dirname, '../data/marketplace-items.json'), 'utf-8')
   )
@@ -24,31 +21,7 @@ async function main() {
     readFileSync(join(__dirname, '../data/platform-comments.json'), 'utf-8')
   )
 
-  // Seed Knowledge Articles
-  console.log('📚 Seeding knowledge articles...')
-  const articles = knowledgeData.articles || []
-  for (const article of articles) {
-    const slug = article.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-    const existing = await prisma.knowledgeArticle.findUnique({ where: { slug } })
-    if (!existing) {
-      await prisma.knowledgeArticle.create({
-        data: {
-          id: article.id?.toString() || undefined,
-          title: article.title,
-          slug,
-          description: article.description,
-          pillar: article.pillar,
-          tags: JSON.stringify(article.tags || []),
-          author: article.author,
-          readTime: article.readTime,
-          url: article.url,
-          publishedAt: new Date(article.publishedAt),
-          updatedAt: new Date(),
-        },
-      })
-    }
-  }
-  console.log(`✅ Created ${articles.length} knowledge articles`)
+  // Note: Articles are now seeded via scripts/migrate-knowledge-to-directory.ts
 
   // Seed Marketplace Items
   console.log('🛒 Seeding marketplace items...')
