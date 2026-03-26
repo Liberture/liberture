@@ -28,7 +28,7 @@ export default function DirectoryPage() {
   useEffect(() => {
     async function fetchDirectory() {
       try {
-        const [people, orgs, protocols, books] = await Promise.all([
+        const [peopleRes, orgsRes, protocolsRes, booksRes] = await Promise.all([
           fetch("/api/people").then((r) => r.json()),
           fetch("/api/organizations").then((r) => r.json()),
           fetch("/api/protocols").then((r) => r.json()),
@@ -36,7 +36,7 @@ export default function DirectoryPage() {
         ])
 
         const items: DirectoryItem[] = [
-          ...people.map((p: any) => ({
+          ...(peopleRes.people || []).map((p: any) => ({
             id: p.id,
             name: p.name,
             type: "people" as EntityType,
@@ -44,7 +44,7 @@ export default function DirectoryPage() {
             slug: p.slug,
             tags: p.pillars ? p.pillars.split(',').map((s: string) => s.trim()) : [],
           })),
-          ...orgs.map((o: any) => ({
+          ...(orgsRes.organizations || []).map((o: any) => ({
             id: o.id,
             name: o.name,
             type: "organizations" as EntityType,
@@ -52,7 +52,7 @@ export default function DirectoryPage() {
             slug: o.slug,
             tags: o.pillars ? o.pillars.split(',').map((s: string) => s.trim()) : [],
           })),
-          ...protocols.map((p: any) => ({
+          ...(protocolsRes.protocols || []).map((p: any) => ({
             id: p.id,
             name: p.name,
             type: "protocols" as EntityType,
@@ -60,7 +60,7 @@ export default function DirectoryPage() {
             slug: p.slug,
             tags: [p.pillar].filter(Boolean),
           })),
-          ...books.map((b: any) => ({
+          ...(booksRes.books || []).map((b: any) => ({
             id: b.id,
             name: b.title,
             type: "books" as EntityType,
