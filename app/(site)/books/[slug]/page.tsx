@@ -91,7 +91,7 @@ export default function BookPage() {
   }
 
   const keyTakeaways = book.keyTakeaways ? JSON.parse(book.keyTakeaways) : [];
-  const pillars = book.pillars.split(',').map(p => p.trim());
+  const pillars = (book.pillars || '').split(',').map(p => p.trim()).filter(Boolean);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white">

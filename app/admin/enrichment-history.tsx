@@ -109,7 +109,8 @@ export default function EnrichmentHistory() {
           {logs.map((log) => {
             let fieldsAdded: string[] = [];
             try {
-              fieldsAdded = log.fieldsAdded ? JSON.parse(log.fieldsAdded) : [];
+              const parsed = log.fieldsAdded ? JSON.parse(log.fieldsAdded) : [];
+              fieldsAdded = Array.isArray(parsed) ? parsed : Object.keys(parsed);
             } catch {
               fieldsAdded = [log.fieldsAdded || "unknown"];
             }

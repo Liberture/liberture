@@ -83,7 +83,7 @@ export default function OrganizationPage() {
   }
 
   const resources = organization.resources ? JSON.parse(organization.resources) : [];
-  const pillars = organization.pillars.split(',').map(p => p.trim());
+  const pillars = (organization.pillars || '').split(',').map(p => p.trim()).filter(Boolean);
 
   const organizationSchema = {
     '@context': 'https://schema.org',

@@ -70,7 +70,7 @@ export default async function BooksPage({
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {books.map((book) => {
-              const pillars = book.pillars.split(',').map(p => p.trim());
+              const pillars = (book.pillars || '').split(',').map(p => p.trim()).filter(Boolean);
               
               return (
                 <div

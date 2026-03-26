@@ -15,7 +15,8 @@ interface DirectoryItem {
   author?: string;
   bio?: string;
   description?: string;
-  pillars: string;
+  pillars?: string;
+  pillar?: string;
   wikipedia?: string | null;
   publications?: string | null;
   speakingEvents?: string | null;
@@ -253,7 +254,7 @@ export default function DirectoryAdmin() {
                     {item.bio || item.description}
                   </p>
                   <div className="flex items-center gap-2 mt-2">
-                    {item.pillars.split(",").map((pillar, i) => (
+                    {(item.pillars || item.pillar || "").split(",").map((pillar, i) => (
                       <span
                         key={i}
                         className="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded"

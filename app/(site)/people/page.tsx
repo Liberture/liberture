@@ -60,7 +60,7 @@ export default async function PeoplePage({
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {people.map((person) => {
-              const pillars = person.pillars.split(',').map(p => p.trim());
+              const pillars = (person.pillars || '').split(',').map(p => p.trim()).filter(Boolean);
               
               return (
                 <Link
