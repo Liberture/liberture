@@ -119,7 +119,7 @@ export default function PersonPage() {
   const achievements = person.achievements ? JSON.parse(person.achievements) : [];
   const publications = person.publications ? JSON.parse(person.publications) : [];
   const speakingEvents = person.speakingEvents ? JSON.parse(person.speakingEvents) : [];
-  const pillars = person.pillars.split(',').map(p => p.trim());
+  const pillars = (person.pillars || '').split(',').map(p => p.trim()).filter(Boolean);
 
   return (
     <>

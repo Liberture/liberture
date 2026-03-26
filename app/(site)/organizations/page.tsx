@@ -60,7 +60,7 @@ export default async function OrganizationsPage({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {organizations.map((org) => {
-              const pillars = org.pillars.split(',').map(p => p.trim());
+              const pillars = (org.pillars || '').split(',').map(p => p.trim()).filter(Boolean);
               
               return (
                 <Link
