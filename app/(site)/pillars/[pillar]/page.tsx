@@ -3,19 +3,20 @@ import { prisma } from '@/lib/prisma'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { BookOpen, TrendingUp } from 'lucide-react'
-import { MotionContainer, MotionItem, MotionLoop, MotionStats, MotionSection, AnimatedArticleGrid, AnimatedOtherPillars } from '@/components/animations'
+import { MotionContainer, MotionItem, MotionStats, MotionSection, AnimatedArticleGrid, AnimatedOtherPillars } from '@/components/animations'
+import { PillarIcon } from '@/components/pillars/PillarIcon'
 import type { Metadata } from 'next'
 
 const VALID_PILLARS = ['work', 'sleep', 'nutrition', 'mind', 'exercise', 'finance'] as const
 type Pillar = (typeof VALID_PILLARS)[number]
 
-const pillarConfig: Record<Pillar, { title: string; description: string; color: string; icon: string; tagline: string }> = {
-  work: { title: 'Work & Cognition', description: 'Optimize your brain for focus, memory, learning, and peak mental performance.', color: 'from-work/20 to-work/5', icon: '🧠', tagline: 'Think Sharper' },
-  sleep: { title: 'Sleep & Recovery', description: 'Master sleep, stress management, and active recovery for sustainable performance.', color: 'from-sleep/20 to-sleep/5', icon: '💤', tagline: 'Rest Better' },
-  nutrition: { title: 'Nutrition & Fueling', description: 'Nutrition strategies for energy, longevity, and metabolic health.', color: 'from-nutrition/20 to-nutrition/5', icon: '🥗', tagline: 'Eat Smarter' },
-  mind: { title: 'Mind & Mental Health', description: 'Build resilience, emotional intelligence, and psychological strength.', color: 'from-mind/20 to-mind/5', icon: '🧘', tagline: 'Feel Stronger' },
-  exercise: { title: 'Exercise & Physicality', description: 'Training, movement, and body optimization for functional longevity.', color: 'from-exercise/20 to-exercise/5', icon: '💪', tagline: 'Move Better' },
-  finance: { title: 'Finance & Wealth', description: 'Financial independence, passive income, and wealth-building strategies.', color: 'from-finance/20 to-finance/5', icon: '💰', tagline: 'Build Wealth' },
+const pillarConfig: Record<Pillar, { title: string; description: string; color: string; tagline: string }> = {
+  work: { title: 'Work & Cognition', description: 'Optimize your brain for focus, memory, learning, and peak mental performance.', color: 'from-work/20 to-work/5', tagline: 'Think Sharper' },
+  sleep: { title: 'Sleep & Recovery', description: 'Master sleep, stress management, and active recovery for sustainable performance.', color: 'from-sleep/20 to-sleep/5', tagline: 'Rest Better' },
+  nutrition: { title: 'Nutrition & Fueling', description: 'Nutrition strategies for energy, longevity, and metabolic health.', color: 'from-nutrition/20 to-nutrition/5', tagline: 'Eat Smarter' },
+  mind: { title: 'Mind & Mental Health', description: 'Build resilience, emotional intelligence, and psychological strength.', color: 'from-mind/20 to-mind/5', tagline: 'Feel Stronger' },
+  exercise: { title: 'Exercise & Physicality', description: 'Training, movement, and body optimization for functional longevity.', color: 'from-exercise/20 to-exercise/5', tagline: 'Move Better' },
+  finance: { title: 'Finance & Wealth', description: 'Financial independence, passive income, and wealth-building strategies.', color: 'from-finance/20 to-finance/5', tagline: 'Build Wealth' },
 }
 
 interface PageProps {
@@ -62,9 +63,9 @@ export default async function PillarPage({ params }: PageProps) {
 
   const config = pillarConfig[pillar]
 
-  let articles: Awaited<ReturnType<typeof prisma.knowledgeArticle.findMany<{ select: { id: true; title: true; description: true; tags: true; author: true; readTime: true; url: true; publishedAt: true; slug: true } }>>> = []
+  let articles: Awaited<ReturnType<typeof prisma.article.findMany<{ select: { id: true; title: true; description: true; tags: true; author: true; readTime: true; url: true; publishedAt: true; slug: true } }>>> = []
   try {
-    articles = await prisma.knowledgeArticle.findMany({
+    articles = await prisma.article.findMany({
       where: { pillar },
       select: { id: true, title: true, description: true, tags: true, author: true, readTime: true, url: true, publishedAt: true, slug: true },
       orderBy: { publishedAt: 'desc' },
@@ -82,9 +83,7 @@ export default async function PillarPage({ params }: PageProps) {
         <div className="container mx-auto px-4">
           <MotionContainer className="max-w-4xl mx-auto text-center space-y-6">
             <MotionItem>
-              <MotionLoop className="text-6xl mb-4 inline-block" type="pulse">
-                {config.icon}
-              </MotionLoop>
+              <PillarIcon pillarId={pillar} size="lg" animate />
             </MotionItem>
             <MotionItem delay={0.1}>
               <Badge variant="outline" className="text-sm">{config.tagline}</Badge>
@@ -132,7 +131,7 @@ export default async function PillarPage({ params }: PageProps) {
                 </Card>
               </MotionSection>
             ) : (
-              <AnimatedArticleGrid articles={articles} pillar={pillar} icon={config.icon} />
+              <AnimatedArticleGrid articles={articles} pillar={pillar} />
             )}
           </div>
         </div>

@@ -8,7 +8,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   
   try {
     // Fetch all knowledge articles
-    const articles = await prisma.knowledgeArticle.findMany({
+    const articles = await prisma.article.findMany({
       select: { slug: true, updatedAt: true }
     });
     
@@ -61,7 +61,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 1.0,
       },
       {
-        url: `${baseUrl}/knowledge`,
+        url: `${baseUrl}/articles`,
         lastModified: new Date(),
         changeFrequency: 'daily',
         priority: 0.9,
@@ -175,9 +175,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.3,
       },
       
-      // Knowledge articles (dynamic)
+      // Articles (dynamic)
       ...articles.map((article) => ({
-        url: `${baseUrl}/knowledge/${article.slug}`,
+        url: `${baseUrl}/articles/${article.slug}`,
         lastModified: article.updatedAt,
         changeFrequency: 'weekly' as const,
         priority: 0.8,

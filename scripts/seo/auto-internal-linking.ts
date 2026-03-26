@@ -41,7 +41,7 @@ async function findInternalLinkOpportunities() {
   console.log('🔗 Analyzing articles for internal linking opportunities...\n');
   
   // Get all articles
-  const articles = await prisma.knowledgeArticle.findMany({
+  const articles = await prisma.article.findMany({
     select: {
       id: true,
       title: true,

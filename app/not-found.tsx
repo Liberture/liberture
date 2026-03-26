@@ -59,10 +59,10 @@ export default function NotFound() {
             </Button>
           </Link>
 
-          <Link href="/knowledge">
+          <Link href="/articles">
             <Button variant="outline" className="w-full gap-2">
               <BookOpen className="h-4 w-4" />
-              Knowledge
+              Articles
             </Button>
           </Link>
 

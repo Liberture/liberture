@@ -6,7 +6,9 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { getPillarAnimation, transition, hover } from "@/lib/animations"
+import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
 import type { PillarData } from "@/types"
+import type { PillarId } from "@/lib/translations"
 
 interface AnimatedPillarCardProps {
   pillar: PillarData
@@ -16,6 +18,8 @@ interface AnimatedPillarCardProps {
 
 export function AnimatedPillarCard({ pillar, count, index }: AnimatedPillarCardProps) {
   const iconAnim = getPillarAnimation(pillar.slug)
+  const Icon = PILLAR_ICON_MAP[pillar.slug as PillarId]
+  const styles = PILLAR_STYLES[pillar.slug as PillarId]
 
   return (
     <Link href={`/pillars/${pillar.slug}`} className="group">
@@ -29,12 +33,12 @@ export function AnimatedPillarCard({ pillar, count, index }: AnimatedPillarCardP
           <CardContent className="p-8 space-y-4">
             <div className="flex items-start justify-between">
               <motion.div
-                className="text-6xl"
+                className={styles?.text}
                 animate={iconAnim.animate}
                 transition={iconAnim.transition}
                 style={{ transformStyle: "preserve-3d" }}
               >
-                {pillar.icon}
+                {Icon && <Icon className="h-14 w-14" />}
               </motion.div>
               <Badge variant="secondary" className="text-xs">
                 {count} {count === 1 ? "article" : "articles"}

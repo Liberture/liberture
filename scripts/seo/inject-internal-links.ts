@@ -74,7 +74,7 @@ async function injectInternalLinks() {
   console.log('🔗 Injecting internal links into articles...\n');
   
   // Get all articles with content
-  const articles = await prisma.knowledgeArticle.findMany({
+  const articles = await prisma.article.findMany({
     where: {
       content: { not: null }
     },
@@ -91,7 +91,7 @@ async function injectInternalLinks() {
   console.log(`📚 Processing ${articles.length} articles with content\n`);
   
   // Get all possible link targets
-  const allArticles = await prisma.knowledgeArticle.findMany({
+  const allArticles = await prisma.article.findMany({
     select: {
       id: true,
       title: true,
@@ -147,7 +147,7 @@ async function injectInternalLinks() {
     
     // Update article if links were added
     if (linksAdded > 0) {
-      await prisma.knowledgeArticle.update({
+      await prisma.article.update({
         where: { id: article.id },
         data: {
           content: updatedContent,

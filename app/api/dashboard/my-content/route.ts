@@ -27,7 +27,7 @@ export async function GET() {
         orderBy: { updatedAt: "desc" },
         take: 10,
       }),
-      prisma.knowledgeArticle.findMany({
+      prisma.article.findMany({
         select: {
           id: true,
           title: true,

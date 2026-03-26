@@ -1,7 +1,6 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import KnowledgeAdmin from "./knowledge-admin";
 import MarketplaceAdmin from "./marketplace-admin";
 import ContentAdmin from "./content-admin";
 import SocialAdmin from "./social-admin";
@@ -26,7 +25,6 @@ export default function AdminPanel() {
             <TabsTrigger value="enrichment" className="text-xs md:text-sm">Enrichment</TabsTrigger>
             <TabsTrigger value="marketplace" className="text-xs md:text-sm">Marketplace</TabsTrigger>
             <TabsTrigger value="content" className="text-xs md:text-sm">Content</TabsTrigger>
-            <TabsTrigger value="knowledge" className="text-xs md:text-sm">Knowledge</TabsTrigger>
             <TabsTrigger value="social" className="text-xs md:text-sm">Social</TabsTrigger>
             <TabsTrigger value="comments" className="text-xs md:text-sm">Comments</TabsTrigger>
           </TabsList>
@@ -49,10 +47,6 @@ export default function AdminPanel() {
 
           <TabsContent value="content">
             <ContentAdmin />
-          </TabsContent>
-
-          <TabsContent value="knowledge">
-            <KnowledgeAdmin />
           </TabsContent>
 
           <TabsContent value="social">

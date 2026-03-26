@@ -63,7 +63,7 @@ async function publishEnrichedContent() {
       const slug = slugify(title);
       
       // Check if slug already exists
-      const existing = await prisma.knowledgeArticle.findUnique({
+      const existing = await prisma.article.findUnique({
         where: { slug }
       });
       
@@ -77,7 +77,7 @@ async function publishEnrichedContent() {
       const readTime = Math.max(1, Math.round(wordCount / 200));
       
       // Create knowledge article
-      const article = await prisma.knowledgeArticle.create({
+      const article = await prisma.article.create({
         data: {
           id: Math.random().toString(36).substring(2, 15),
           title,

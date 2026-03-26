@@ -34,7 +34,7 @@ export async function getBookmarksWithEntities(
         entities = await prisma.book.findMany({ where: { id: { in: ids } } })
         break
       case 'article':
-        entities = await prisma.knowledgeArticle.findMany({ where: { id: { in: ids } } })
+        entities = await prisma.article.findMany({ where: { id: { in: ids } } })
         break
       case 'person':
         entities = await prisma.person.findMany({ where: { id: { in: ids } } })
