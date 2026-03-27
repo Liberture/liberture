@@ -100,7 +100,7 @@ export function LandingPillars() {
             <Link key={pillar.id} href={`/pillars/${pillar.id}`}>
               <motion.div
                 className={`p-6 rounded-2xl bg-gradient-to-b ${gradient} border ${border} cursor-pointer transition-all hover:shadow-lg`}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.12, transition: { type: "spring", stiffness: 300, damping: 20 } }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.5 }}

@@ -9,6 +9,37 @@ import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
 import { translations } from "@/lib/translations"
 import { stagger } from "@/lib/animations"
 
+const PILLAR_GLOW: Record<string, string> = {
+  work: "#8B5CF6",
+  sleep: "#06B6D4",
+  nutrition: "#10B981",
+  mind: "#EC4899",
+  exercise: "#F59E0B",
+  finance: "#EAB308",
+}
+
+function getOrbitKeyframes(index: number, total: number) {
+  const a = 480
+  const b = 200
+  const steps = 90
+  const phaseOffset = (index / total) * 2 * Math.PI
+  const x: number[] = []
+  const y: number[] = []
+  const scale: number[] = []
+  const opacity: number[] = []
+
+  for (let i = 0; i <= steps; i++) {
+    const angle = (2 * Math.PI * i) / steps + phaseOffset
+    x.push(Math.round(a * Math.cos(angle)))
+    y.push(Math.round(b * Math.sin(angle)))
+    const depth = (Math.sin(angle) + 1) / 2
+    scale.push(+(0.7 + depth * 0.6).toFixed(2))
+    opacity.push(+(0.15 + depth * 0.3).toFixed(2))
+  }
+
+  return { x, y, scale, opacity }
+}
+
 export function LandingHero() {
   const { hero } = translations.en.landing
   const pillars = translations.en.common.pillars
@@ -22,6 +53,37 @@ export function LandingHero() {
         className="-right-10 -top-10 rotate-6"
         opacity={0.24}
       />
+
+      {/* Elliptic orbit of pillar icons */}
+      <div className="absolute inset-0 z-[1] pointer-events-none" aria-hidden="true">
+        <div className="absolute left-1/2 top-1/2">
+          {pillars.map((pillar, index) => {
+            const Icon = PILLAR_ICON_MAP[pillar.id]
+            const keyframes = getOrbitKeyframes(index, pillars.length)
+            const glowColor = PILLAR_GLOW[pillar.id]
+            return (
+              <motion.div
+                key={`orbit-${pillar.id}`}
+                className="absolute"
+                style={{ marginLeft: -24, marginTop: -24 }}
+                animate={keyframes}
+                transition={{
+                  duration: 25,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+              >
+                <Icon
+                  className={`h-12 w-12 ${PILLAR_STYLES[pillar.id].text}`}
+                  style={{ filter: `drop-shadow(0 0 16px ${glowColor}) drop-shadow(0 0 6px ${glowColor})` }}
+                  strokeWidth={1.5}
+                />
+              </motion.div>
+            )
+          })}
+        </div>
+      </div>
+
       <div className="container relative z-10 mx-auto max-w-7xl">
         <motion.div 
           className="text-center max-w-4xl mx-auto"
