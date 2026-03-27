@@ -4,10 +4,13 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Ban, UserCog, Shield, ExternalLink, Loader2, Crown } from "lucide-react";
+import { Search, Ban, UserCog, Shield, ExternalLink, Loader2, Crown, Copy, Check } from "lucide-react";
 
-// The hardcoded admin pubkey
-const ADMIN_PUBKEY_HEX = "d9590d95a7811e1cb312be66edd664d7e3e6ed57822ad9f213ed620fc6748be8";
+// The hardcoded admin pubkeys
+const ADMIN_PUBKEYS_HEX = [
+  "d9590d95a7811e1cb312be66edd664d7e3e6ed57822ad9f213ed620fc6748be8",
+  "419b7df0b0701bc75c7a105722549dd16220c41f51e79d92b7697d6e7124181a",
+];
 
 type User = {
   id: string;
@@ -23,10 +26,45 @@ type User = {
   isSystemAdmin?: boolean;
 };
 
+type NostrProfile = {
+  name?: string;
+  display_name?: string;
+  picture?: string;
+  about?: string;
+  nip05?: string;
+};
+
 export default function UsersAdmin() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [copiedNpub, setCopiedNpub] = useState<string | null>(null);
+  const [nostrProfiles, setNostrProfiles] = useState<Record<string, NostrProfile>>({});
+
+  const copyNpub = async (npub: string) => {
+    await navigator.clipboard.writeText(npub);
+    setCopiedNpub(npub);
+    setTimeout(() => setCopiedNpub(null), 2000);
+  };
+
+  const loadNostrProfiles = async (userList: User[]) => {
+    const pubkeys = userList
+      .map((u) => u.nostrPubkey)
+      .filter((pk): pk is string => !!pk);
+    if (pubkeys.length === 0) return;
+
+    try {
+      const res = await fetch("/api/admin/nostr-profiles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pubkeys }),
+      });
+      const data = await res.json();
+      setNostrProfiles(data.profiles || {});
+    } catch (error) {
+      console.error("Failed to load Nostr profiles:", error);
+    }
+  };
 
   const loadUsers = async () => {
     try {
@@ -34,9 +72,10 @@ export default function UsersAdmin() {
       const data = await res.json();
       const userList = (data.users || []).map((u: User) => ({
         ...u,
-        isSystemAdmin: u.nostrPubkey === ADMIN_PUBKEY_HEX,
+        isSystemAdmin: u.nostrPubkey ? ADMIN_PUBKEYS_HEX.includes(u.nostrPubkey) : false,
       }));
       setUsers(userList);
+      loadNostrProfiles(userList);
     } catch (error) {
       console.error("Failed to load users:", error);
     } finally {
@@ -123,12 +162,18 @@ export default function UsersAdmin() {
     return `${npub.slice(0, 12)}...${npub.slice(-8)}`;
   };
 
-  const filteredUsers = users.filter(
-    (user) =>
-      (user.npub?.toLowerCase().includes(search.toLowerCase())) ||
-      (user.name?.toLowerCase().includes(search.toLowerCase())) ||
-      (user.email?.toLowerCase().includes(search.toLowerCase()))
-  );
+  const filteredUsers = users.filter((user) => {
+    const s = search.toLowerCase();
+    const nostrProfile = user.nostrPubkey ? nostrProfiles[user.nostrPubkey] : null;
+    return (
+      user.npub?.toLowerCase().includes(s) ||
+      user.name?.toLowerCase().includes(s) ||
+      user.email?.toLowerCase().includes(s) ||
+      nostrProfile?.display_name?.toLowerCase().includes(s) ||
+      nostrProfile?.name?.toLowerCase().includes(s) ||
+      nostrProfile?.nip05?.toLowerCase().includes(s)
+    );
+  });
 
   if (loading) {
     return (
@@ -172,27 +217,57 @@ export default function UsersAdmin() {
               {filteredUsers.map((user) => (
                 <tr key={user.id} className="hover:bg-slate-800/20">
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-cyan-400 flex items-center justify-center text-white text-xs font-bold">
-                        {(user.name || "?").charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <div className="text-sm font-medium text-white">
-                          {user.name || "Anonymous"}
+                    {(() => {
+                      const nostrProfile = user.nostrPubkey ? nostrProfiles[user.nostrPubkey] : null;
+                      const displayName = nostrProfile?.display_name || nostrProfile?.name || user.name || "Anonymous";
+                      const profilePic = nostrProfile?.picture;
+                      return (
+                        <div className="flex items-center gap-3">
+                          {profilePic ? (
+                            <img
+                              src={profilePic}
+                              alt={displayName}
+                              className="h-8 w-8 rounded-full object-cover flex-shrink-0"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = "none";
+                                (e.target as HTMLImageElement).nextElementSibling?.classList.remove("hidden");
+                              }}
+                            />
+                          ) : null}
+                          <div className={`h-8 w-8 rounded-full bg-gradient-to-br from-purple-500 to-cyan-400 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 ${profilePic ? "hidden" : ""}`}>
+                            {displayName.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-sm font-medium text-white truncate">
+                              {displayName}
+                            </div>
+                            {nostrProfile?.nip05 && (
+                              <div className="text-xs text-purple-400 truncate">{nostrProfile.nip05}</div>
+                            )}
+                            <div className="text-xs text-slate-500">
+                              {user.email && <span>{user.email} &middot; </span>}
+                              Joined {new Date(user.createdAt).toLocaleDateString()}
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-xs text-slate-500">
-                          {user.email && <span>{user.email} &middot; </span>}
-                          Joined {new Date(user.createdAt).toLocaleDateString()}
-                        </div>
-                      </div>
-                    </div>
+                      );
+                    })()}
                   </td>
                   <td className="px-4 py-3">
                     {user.npub ? (
                       <div className="flex items-center gap-2">
-                        <code className="text-xs text-purple-400 bg-purple-500/10 px-2 py-1 rounded">
-                          {truncateNpub(user.npub)}
-                        </code>
+                        <button
+                          onClick={() => copyNpub(user.npub!)}
+                          className="flex items-center gap-1.5 text-xs text-purple-400 bg-purple-500/10 px-2 py-1 rounded hover:bg-purple-500/20 transition-colors cursor-pointer"
+                          title="Click to copy npub"
+                        >
+                          <code>{truncateNpub(user.npub)}</code>
+                          {copiedNpub === user.npub ? (
+                            <Check className="h-3 w-3 text-green-400" />
+                          ) : (
+                            <Copy className="h-3 w-3 text-slate-400" />
+                          )}
+                        </button>
                         <a
                           href={`https://njump.me/${user.npub}`}
                           target="_blank"
