@@ -33,14 +33,21 @@ const PILLARS = [
 
 export default async function PillarsPage() {
   let countMap: Record<string, number> = {}
-  let totalArticles = 0
+  let totalItems = 0
   try {
-    const articleCounts = await prisma.article.groupBy({
-      by: ['pillar'],
-      _count: { id: true },
-    })
-    countMap = Object.fromEntries(articleCounts.map(({ pillar, _count }) => [pillar, _count.id]))
-    totalArticles = articleCounts.reduce((sum, { _count }) => sum + _count.id, 0)
+    const pillars = ['work', 'sleep', 'nutrition', 'mind', 'exercise', 'finance']
+    const counts = await Promise.all(pillars.map(async (p) => {
+      const [articles, people, books, orgs, protocols] = await Promise.all([
+        prisma.article.count({ where: { pillar: p } }),
+        prisma.person.count({ where: { pillars: { contains: p } } }),
+        prisma.book.count({ where: { pillars: { contains: p } } }),
+        prisma.organization.count({ where: { pillars: { contains: p } } }),
+        prisma.protocol.count({ where: { pillar: p, published: true } }),
+      ])
+      return { pillar: p, total: articles + people + books + orgs + protocols }
+    }))
+    countMap = Object.fromEntries(counts.map(({ pillar, total }) => [pillar, total]))
+    totalItems = counts.reduce((sum, { total }) => sum + total, 0)
   } catch {
     // Database unavailable — render with zero counts
   }
@@ -64,7 +71,7 @@ export default async function PillarsPage() {
             <MotionStats
               className="flex items-center justify-center gap-8 pt-6"
               stats={[
-                { value: totalArticles, label: 'Total Articles' },
+                { value: totalItems, label: 'Total Resources' },
                 { value: 6, label: 'Pillars' },
                 { value: '100%', label: 'Free' },
               ]}
