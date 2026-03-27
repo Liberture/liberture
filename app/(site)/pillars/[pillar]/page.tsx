@@ -8,6 +8,8 @@ import { MotionContainer, MotionItem, MotionStats, MotionSection, AnimatedArticl
 import { PillarIcon } from '@/components/pillars/PillarIcon'
 import type { Metadata } from 'next'
 
+export const dynamic = 'force-dynamic'
+
 const VALID_PILLARS = ['work', 'sleep', 'nutrition', 'mind', 'exercise', 'finance'] as const
 type Pillar = (typeof VALID_PILLARS)[number]
 
@@ -22,10 +24,6 @@ const pillarConfig: Record<Pillar, { title: string; description: string; color: 
 
 interface PageProps {
   params: Promise<{ pillar: string }>
-}
-
-export async function generateStaticParams() {
-  return VALID_PILLARS.map((pillar) => ({ pillar }))
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
