@@ -2,7 +2,6 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MarketplaceAdmin from "./marketplace-admin";
-import ContentAdmin from "./content-admin";
 import SocialAdmin from "./social-admin";
 import CommentsAdmin from "./comments-admin";
 import UsersAdmin from "./users-admin";
@@ -24,7 +23,6 @@ export default function AdminPanel() {
             <TabsTrigger value="directory" className="text-xs md:text-sm">Directory</TabsTrigger>
             <TabsTrigger value="enrichment" className="text-xs md:text-sm">Enrichment</TabsTrigger>
             <TabsTrigger value="marketplace" className="text-xs md:text-sm">Marketplace</TabsTrigger>
-            <TabsTrigger value="content" className="text-xs md:text-sm">Content</TabsTrigger>
             <TabsTrigger value="social" className="text-xs md:text-sm">Social</TabsTrigger>
             <TabsTrigger value="comments" className="text-xs md:text-sm">Comments</TabsTrigger>
           </TabsList>
@@ -43,10 +41,6 @@ export default function AdminPanel() {
 
           <TabsContent value="marketplace">
             <MarketplaceAdmin />
-          </TabsContent>
-
-          <TabsContent value="content">
-            <ContentAdmin />
           </TabsContent>
 
           <TabsContent value="social">
