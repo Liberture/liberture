@@ -78,46 +78,47 @@ export function LandingHero() {
             {pillars.map((pillar, index) => {
               const Icon = PILLAR_ICON_MAP[pillar.id]
               return (
-                <motion.div 
-                  key={pillar.id} 
-                  className="flex flex-col items-center gap-2 group"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1 + index * 0.1, duration: 0.5 }}
-                  whileHover={{ scale: 1.1 }}
-                >
+                <Link key={pillar.id} href={`/pillars/${pillar.id}`}>
                   <motion.div
-                    className={`p-3 rounded-xl bg-card border border-border/50 group-hover:border-border transition-colors`}
-                    animate={{
-                      y: [0, -3, 0],
-                      rotate: [0, 2, 0, -2, 0],
-                    }}
-                    transition={{
-                      duration: 3 + index * 0.3,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                    whileHover={{ 
-                      boxShadow: `0 0 20px ${PILLAR_STYLES[pillar.id].color}40`,
-                      borderColor: PILLAR_STYLES[pillar.id].color
-                    }}
+                    className="flex flex-col items-center gap-2 group cursor-pointer"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1 + index * 0.1, duration: 0.5 }}
+                    whileHover={{ scale: 1.15, y: -4 }}
                   >
                     <motion.div
+                      className={`p-4 rounded-xl bg-card border border-border/50 group-hover:border-border transition-all duration-300 group-hover:shadow-lg`}
                       animate={{
-                        scale: [1, 1.05, 1],
+                        y: [0, -3, 0],
+                        rotate: [0, 2, 0, -2, 0],
                       }}
                       transition={{
-                        duration: 2 + index * 0.2,
+                        duration: 3 + index * 0.3,
                         repeat: Infinity,
                         ease: "easeInOut",
                       }}
-                      whileHover={{ rotate: 360 }}
+                      whileHover={{
+                        boxShadow: `0 0 24px ${PILLAR_STYLES[pillar.id].color}50`,
+                        borderColor: PILLAR_STYLES[pillar.id].color
+                      }}
                     >
-                      <Icon className={`h-6 w-6 ${PILLAR_STYLES[pillar.id].text}`} />
+                      <motion.div
+                        animate={{
+                          scale: [1, 1.05, 1],
+                        }}
+                        transition={{
+                          duration: 2 + index * 0.2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                        whileHover={{ rotate: 360 }}
+                      >
+                        <Icon className={`h-8 w-8 ${PILLAR_STYLES[pillar.id].text}`} />
+                      </motion.div>
                     </motion.div>
+                    <span className={`text-xs text-muted-foreground group-hover:${PILLAR_STYLES[pillar.id].text} transition-colors`}>{pillar.name}</span>
                   </motion.div>
-                  <span className="text-xs text-muted-foreground">{pillar.name}</span>
-                </motion.div>
+                </Link>
               )
             })}
           </motion.div>
