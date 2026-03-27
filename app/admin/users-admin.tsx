@@ -4,7 +4,14 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Search, Ban, UserCog, Shield, ExternalLink, Loader2, Crown, Copy, Check } from "lucide-react";
+import { Search, Ban, UserCog, Shield, ExternalLink, Loader2, Crown, Copy, Check, ChevronDown } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // The hardcoded admin pubkeys
 const ADMIN_PUBKEYS_HEX = [
@@ -34,12 +41,20 @@ type NostrProfile = {
   nip05?: string;
 };
 
+const ROLE_CONFIG: Record<string, { label: string; color: string; bg: string; border: string }> = {
+  user: { label: "User", color: "text-slate-400", bg: "bg-slate-500/10", border: "border-slate-500/30" },
+  contributor: { label: "Contributor", color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/30" },
+  moderator: { label: "Moderator", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/30" },
+  admin: { label: "Admin", color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/30" },
+};
+
 export default function UsersAdmin() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [copiedNpub, setCopiedNpub] = useState<string | null>(null);
   const [nostrProfiles, setNostrProfiles] = useState<Record<string, NostrProfile>>({});
+  const [savingRole, setSavingRole] = useState<string | null>(null);
 
   const copyNpub = async (npub: string) => {
     await navigator.clipboard.writeText(npub);
@@ -138,6 +153,7 @@ export default function UsersAdmin() {
   };
 
   const handleRoleChange = async (userId: string, newRole: string) => {
+    setSavingRole(userId);
     try {
       const res = await fetch(`/api/admin/users/${userId}/role`, {
         method: "PUT",
@@ -155,6 +171,8 @@ export default function UsersAdmin() {
       }
     } catch (error) {
       console.error("Failed to update role:", error);
+    } finally {
+      setSavingRole(null);
     }
   };
 
@@ -290,16 +308,26 @@ export default function UsersAdmin() {
                         </Badge>
                       </div>
                     ) : (
-                      <select
+                      <Select
                         value={user.role || "user"}
-                        onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                        className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs text-slate-300 cursor-pointer hover:border-slate-600"
+                        onValueChange={(value) => handleRoleChange(user.id, value)}
+                        disabled={savingRole === user.id}
                       >
-                        <option value="user">User</option>
-                        <option value="contributor">Contributor</option>
-                        <option value="moderator">Moderator</option>
-                        <option value="admin">Admin</option>
-                      </select>
+                        <SelectTrigger className={`h-7 w-[130px] text-xs rounded-lg border ${ROLE_CONFIG[user.role || "user"]?.border || "border-slate-700"} ${ROLE_CONFIG[user.role || "user"]?.bg || "bg-slate-800/50"} ${ROLE_CONFIG[user.role || "user"]?.color || "text-slate-300"} focus:ring-1 focus:ring-purple-500 focus:ring-offset-0`}>
+                          {savingRole === user.id ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : (
+                            <SelectValue />
+                          )}
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(ROLE_CONFIG).map(([value, config]) => (
+                            <SelectItem key={value} value={value} className={`text-xs ${config.color}`}>
+                              {config.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     )}
                   </td>
                   <td className="px-4 py-3">
