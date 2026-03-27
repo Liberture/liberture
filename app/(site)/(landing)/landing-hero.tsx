@@ -146,7 +146,7 @@ export function LandingHero() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 1 + index * 0.1, duration: 0.5 }}
-                    whileHover={{ scale: 1.15, y: -4 }}
+                    whileHover={{ scale: 1.2, y: -6, transition: { type: "spring", stiffness: 300, damping: 20 } }}
                   >
                     <motion.div
                       className={`p-4 rounded-xl bg-card border border-border/50 group-hover:border-border transition-all duration-300 group-hover:shadow-lg`}
