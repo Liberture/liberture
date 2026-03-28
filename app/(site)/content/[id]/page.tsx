@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { use, useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -8,13 +8,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Star, Clock, Users } from "lucide-react"
 import { PILLAR_STYLES, PILLAR_ICON_MAP, normalizePillarId } from "@/lib/pillars"
 
-export default function ContentPage({ params }: { params: { id: string } }) {
+export default function ContentPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
   const [content, setContent] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch(`/api/content/${params.id}`)
-      .then(res => res.json())
+    fetch(`/api/content/${id}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Not found')
+        return res.json()
+      })
       .then(data => {
         setContent(data)
         setLoading(false)
@@ -23,7 +27,7 @@ export default function ContentPage({ params }: { params: { id: string } }) {
         console.error('Failed to load content:', err)
         setLoading(false)
       })
-  }, [params.id])
+  }, [id])
 
   if (loading) {
     return (
