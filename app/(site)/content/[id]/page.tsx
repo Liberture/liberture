@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Star, Clock, Users } from "lucide-react"
-import { PILLAR_STYLES, PILLAR_ICON_MAP } from "@/lib/pillars"
+import { PILLAR_STYLES, PILLAR_ICON_MAP, normalizePillarId } from "@/lib/pillars"
 
 export default function ContentPage({ params }: { params: { id: string } }) {
   const [content, setContent] = useState<any>(null)
@@ -46,8 +46,9 @@ export default function ContentPage({ params }: { params: { id: string } }) {
     )
   }
 
-  const PillarIcon = PILLAR_ICON_MAP[content.pillar as keyof typeof PILLAR_ICON_MAP]
-  const pillarStyle = PILLAR_STYLES[content.pillar as keyof typeof PILLAR_STYLES]
+  const normalizedPillar = normalizePillarId(content.pillar)
+  const PillarIcon = PILLAR_ICON_MAP[normalizedPillar]
+  const pillarStyle = PILLAR_STYLES[normalizedPillar]
 
   return (
     <main className="container mx-auto px-4 py-8 max-w-6xl">
