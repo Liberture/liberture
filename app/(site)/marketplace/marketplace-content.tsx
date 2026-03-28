@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { BookOpen, Video, Gamepad2, FileText, Users, Crown, Search, Filter, Star, Clock, ArrowRight, GraduationCap } from "lucide-react"
-import { createPillarFilterOptions, PILLAR_ICON_MAP } from "@/lib/pillars"
+import { createPillarFilterOptions, PILLAR_ICON_MAP, normalizePillarId } from "@/lib/pillars"
 import { translations } from "@/lib/translations"
 import type { MarketplaceTypeId, PillarId } from "@/lib/translations"
 
@@ -87,7 +87,8 @@ export function MarketplaceContent() {
   }, [])
 
   const filteredItems = marketplaceItems.filter((item) => {
-    const matchesPillar = selectedPillar === "all" || item.pillar === selectedPillar
+    const normalizedPillar = normalizePillarId(item.pillar)
+    const matchesPillar = selectedPillar === "all" || normalizedPillar === selectedPillar
     const matchesType = selectedType === "all" || item.type === selectedType
     const matchesSearch =
       searchQuery === "" ||
@@ -159,8 +160,9 @@ export function MarketplaceContent() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredItems.map((item) => {
             const TypeIcon = getTypeIcon(item.type)
-            const pillarMeta = pillarFilters.find((p) => p.id === item.pillar)
-            const PillarIcon = pillarMeta?.icon || PILLAR_ICON_MAP[item.pillar]
+            const normalizedPillar = normalizePillarId(item.pillar)
+            const pillarMeta = pillarFilters.find((p) => p.id === normalizedPillar)
+            const PillarIcon = pillarMeta?.icon || PILLAR_ICON_MAP[normalizedPillar]
 
             return (
               <Link
