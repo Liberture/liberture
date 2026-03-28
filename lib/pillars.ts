@@ -3,6 +3,29 @@ import { Brain, Dumbbell, Heart, Leaf, Wallet, Zap } from "lucide-react"
 
 import { translations, type PillarId } from "./translations"
 
+/**
+ * Maps DB pillar names (cognition, recovery, fueling, mental, physicality)
+ * to frontend PillarId values (work, sleep, nutrition, mind, exercise).
+ */
+const DB_PILLAR_TO_FRONTEND: Record<string, PillarId> = {
+  cognition: "work",
+  recovery: "sleep",
+  fueling: "nutrition",
+  mental: "mind",
+  physicality: "exercise",
+  finance: "finance",
+  // Frontend IDs map to themselves
+  work: "work",
+  sleep: "sleep",
+  nutrition: "nutrition",
+  mind: "mind",
+  exercise: "exercise",
+}
+
+export function normalizePillarId(dbPillar: string): PillarId {
+  return DB_PILLAR_TO_FRONTEND[dbPillar.toLowerCase()] ?? "work"
+}
+
 export const PILLAR_ICON_MAP: Record<PillarId, LucideIcon> = {
   work: Brain,
   sleep: Heart,
