@@ -20,6 +20,7 @@ export async function PATCH(
       data: {
         name: body.name,
         description: body.description,
+        why: body.why || null,
         pillar: body.pillar,
         creator: body.creator || null,
         duration: body.duration || null,

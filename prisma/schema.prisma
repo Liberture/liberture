@@ -228,10 +228,11 @@ model PlatformComment {
 }
 
 model Protocol {
-  id            String   @id
+  id            String   @id @default(uuid())
   slug          String   @unique
   name          String
   description   String
+  why           String?
   pillar        String
   creator       String?
   duration      String?
@@ -244,7 +245,22 @@ model Protocol {
   featured      Boolean  @default(false)
   published     Boolean  @default(false)
   createdAt     DateTime @default(now())
-  updatedAt     DateTime
+  updatedAt     DateTime @updatedAt
+  relationsFrom ProtocolRelation[] @relation("ProtocolRelationFrom")
+  relationsTo   ProtocolRelation[] @relation("ProtocolRelationTo")
+}
+
+model ProtocolRelation {
+  id        String   @id @default(cuid())
+  fromSlug  String
+  toSlug    String
+  kind      String   // "synergy" (work well together) | "alternative" (same goal, different route)
+  note      String
+  createdAt DateTime @default(now())
+  from      Protocol @relation("ProtocolRelationFrom", fields: [fromSlug], references: [slug], onDelete: Cascade)
+  to        Protocol @relation("ProtocolRelationTo", fields: [toSlug], references: [slug], onDelete: Cascade)
+
+  @@unique([fromSlug, toSlug, kind])
 }
 
 model Session {

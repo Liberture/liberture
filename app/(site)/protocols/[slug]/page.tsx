@@ -3,14 +3,21 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Target, AlertTriangle, Package } from "lucide-react";
+import { Target, AlertTriangle, Package, Lightbulb, BookOpen, Link2, Shuffle } from "lucide-react";
 import { ArticleSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
+
+type RelatedProtocol = {
+  kind: string;
+  note: string;
+  protocol: { slug: string; name: string; pillar: string; description: string };
+};
 
 type Protocol = {
   id: string;
   slug: string;
   name: string;
   description: string;
+  why: string | null;
   pillar: string;
   creator: string | null;
   duration: string | null;
@@ -21,13 +28,26 @@ type Protocol = {
   equipment: string | null;
   references: string | null;
   featured: boolean;
+  related?: RelatedProtocol[];
 };
 
 const difficultyColors = {
   beginner: 'bg-green-500/20 text-green-400 border-green-500/30',
   intermediate: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
   advanced: 'bg-red-500/20 text-red-400 border-red-500/30',
+  expert: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
 };
+
+function parseList(value: string | null): string[] {
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [String(parsed)];
+  } catch {
+    // Legacy rows may hold plain text instead of a JSON array
+    return value.trim() ? [value] : [];
+  }
+}
 
 export default function ProtocolPage() {
   const params = useParams();
@@ -90,10 +110,13 @@ export default function ProtocolPage() {
     );
   }
 
-  const steps = JSON.parse(protocol.steps);
-  const benefits = JSON.parse(protocol.benefits);
-  const risks = protocol.risks ? JSON.parse(protocol.risks) : [];
-  const equipment = protocol.equipment ? JSON.parse(protocol.equipment) : [];
+  const steps = parseList(protocol.steps);
+  const benefits = parseList(protocol.benefits);
+  const risks = parseList(protocol.risks);
+  const equipment = parseList(protocol.equipment);
+  const references = parseList(protocol.references);
+  const synergies = (protocol.related || []).filter((r) => r.kind === 'synergy');
+  const alternatives = (protocol.related || []).filter((r) => r.kind === 'alternative');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white">
@@ -164,6 +187,17 @@ export default function ProtocolPage() {
                 <p className="text-slate-300 text-lg leading-relaxed">{protocol.description}</p>
               </div>
 
+              {/* Why This Works */}
+              {protocol.why && (
+                <div className="rounded-2xl border border-amber-700/40 bg-amber-900/10 p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Lightbulb className="w-6 h-6 text-amber-400" />
+                    <h2 className="text-2xl font-bold text-amber-400">Why This Works</h2>
+                  </div>
+                  <p className="text-slate-300 leading-relaxed">{protocol.why}</p>
+                </div>
+              )}
+
               {/* Steps */}
               <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
                 <h2 className="text-2xl font-bold mb-4">Steps</h2>
@@ -204,6 +238,74 @@ export default function ProtocolPage() {
                       <li key={i} className="flex items-start gap-3">
                         <span className="text-red-400 mt-1">!</span>
                         <span className="text-slate-300">{risk}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Works Well With */}
+              {synergies.length > 0 && (
+                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Link2 className="w-6 h-6 text-green-400" />
+                    <h2 className="text-2xl font-bold">Works Well With</h2>
+                  </div>
+                  <div className="space-y-4">
+                    {synergies.map((rel, i) => (
+                      <Link
+                        key={i}
+                        href={`/protocols/${rel.protocol.slug}`}
+                        className="block rounded-xl border border-slate-700 bg-slate-800/50 p-4 hover:border-green-500/50 transition-colors"
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-semibold text-green-400">{rel.protocol.name}</span>
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 capitalize">{rel.protocol.pillar}</span>
+                        </div>
+                        <p className="text-sm text-slate-400">{rel.note}</p>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Same Goal, Different Route */}
+              {alternatives.length > 0 && (
+                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Shuffle className="w-6 h-6 text-cyan-400" />
+                    <h2 className="text-2xl font-bold">Same Goal, Different Route</h2>
+                  </div>
+                  <div className="space-y-4">
+                    {alternatives.map((rel, i) => (
+                      <Link
+                        key={i}
+                        href={`/protocols/${rel.protocol.slug}`}
+                        className="block rounded-xl border border-slate-700 bg-slate-800/50 p-4 hover:border-cyan-500/50 transition-colors"
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-semibold text-cyan-400">{rel.protocol.name}</span>
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 capitalize">{rel.protocol.pillar}</span>
+                        </div>
+                        <p className="text-sm text-slate-400">{rel.note}</p>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Sources & References */}
+              {references.length > 0 && (
+                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <BookOpen className="w-6 h-6 text-purple-400" />
+                    <h2 className="text-2xl font-bold">Sources & References</h2>
+                  </div>
+                  <ul className="space-y-3">
+                    {references.map((ref: string, i: number) => (
+                      <li key={i} className="flex items-start gap-3">
+                        <span className="text-purple-400 mt-1 text-sm font-mono">[{i + 1}]</span>
+                        <span className="text-slate-400 text-sm">{ref}</span>
                       </li>
                     ))}
                   </ul>
