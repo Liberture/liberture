@@ -63,6 +63,7 @@ jobs:
             pnpm exec prisma generate
             pnpm exec prisma db push --skip-generate --accept-data-loss || true
             pnpm exec tsx scripts/seed-directory-quick.ts || true
+            pnpm exec tsx scripts/seed-marketplace-protocols.ts || true
             export PORT=3033
             pm2 delete liberture || true
             pm2 start "pnpm run start" --name liberture
