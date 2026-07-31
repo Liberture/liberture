@@ -221,26 +221,28 @@ export default function HowItWorksPage() {
 
         {/* Loop Visualization */}
         <div className="max-w-5xl mx-auto">
-          <div className="flex flex-wrap items-center justify-center gap-2 md:gap-4 mb-8">
+          <div className="flex items-start justify-center gap-1.5 md:gap-4 mb-8">
             {loopSteps.map((step, index) => {
               const Icon = step.icon
               return (
                 <motion.div
                   key={step.label}
-                  className="flex items-center gap-2 md:gap-4"
+                  className="flex items-start gap-1.5 md:gap-4"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <div className="flex flex-col items-center">
+                  <div className="flex flex-col items-center w-16 md:w-28">
                     <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-card border border-border/50 flex items-center justify-center mb-2">
                       <Icon className={`w-6 h-6 md:w-7 md:h-7 ${step.color}`} />
                     </div>
-                    <span className="text-xs md:text-sm font-medium">{step.label}</span>
-                    <span className="text-xs text-muted-foreground hidden md:block">{step.sublabel}</span>
+                    <span className="text-xs md:text-sm font-medium text-center">{step.label}</span>
+                    <span className="text-xs text-muted-foreground hidden md:block text-center">{step.sublabel}</span>
                   </div>
                   {index < loopSteps.length - 1 && (
-                    <ArrowRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    <div className="h-14 md:h-16 flex items-center">
+                      <ArrowRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                    </div>
                   )}
                 </motion.div>
               )
