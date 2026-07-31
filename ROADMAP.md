@@ -22,6 +22,14 @@ The how-it-works page now sells this vision; most of it is still to be BUILT.
       `/api/tracker/*`. This is the differentiator — prioritize after core tracking.
 - [ ] Protocol sharing: share-by-link, adopt-and-remix; marketplace already has
       models/routes (`MarketplaceItem`, `/marketplace`) to build on.
+- [ ] Unify /marketplace with the protocol library — marketplace items and
+      protocols are unrelated tables today; per the new direction the marketplace
+      should surface protocols (with their why/references/relations).
+- [ ] Admin form: add `why` textarea + relation editor (API PATCH already accepts
+      `why`; relations only seedable via script for now).
+- [ ] Protocols list page: surface relation counts / "part of a stack" badges;
+      also fix pillar filtering for legacy capitalized pillar values (`Recovery`
+      etc. never match pillar pages — normalize or migrate old rows).
 - [ ] Rip out Nostr from the rest of the app (auth route `app/api/auth/nostr`,
       admin nostr-profiles, dashboard mentions) — how-it-works is clean, rest isn't.
 
@@ -53,6 +61,11 @@ The how-it-works page now sells this vision; most of it is still to be BUILT.
 
 ## Done
 
+- 2026-07-31 — Protocol library foundation (commit `1b4de15`): `why` field +
+  `ProtocolRelation` model (synergy/alternative + note); 12 evidence-referenced
+  protocols seeded (2/pillar, published, canonical pillar ids) cross-linked by
+  13 relations; detail page now renders Why This Works, Works Well With,
+  Same Goal Different Route, and Sources & References (previously a dead field).
 - 2026-07-31 — Direction pivot committed to the site: rewrote /how-it-works around
   the self-hostable habit tracker + AI-assistant API + sharing/marketplace story,
   dropped all Nostr/OpenClaw/wearables philosophy (commit `6c00403`).
