@@ -55,8 +55,10 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            set -e
+            export CI=true
             cd /var/www/liberture
-            npm i -g pnpm || true
+            npm i -g pnpm@10 || true
             pnpm install --frozen-lockfile
             pnpm exec prisma generate
             pnpm exec prisma db push --skip-generate --accept-data-loss || true
@@ -65,3 +67,10 @@ jobs:
             pm2 delete liberture || true
             pm2 start "pnpm run start" --name liberture
             pm2 save
+            for i in $(seq 1 15); do
+              sleep 2
+              curl -sf -o /dev/null http://localhost:3033/ && echo "App is serving" && exit 0
+            done
+            echo "App failed to serve after restart:"
+            pm2 logs liberture --lines 50 --nostream
+            exit 1
