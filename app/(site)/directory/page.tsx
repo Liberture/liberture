@@ -6,6 +6,7 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { TriadBasins, VortexShell } from "@/components/patterns"
 
 type EntityType = "all" | "people" | "organizations" | "protocols" | "books" | "articles"
 
@@ -136,8 +137,23 @@ export default function DirectoryPage() {
   ]
 
   return (
-    <div className="min-h-screen py-20 px-4">
-      <div className="container mx-auto max-w-6xl">
+    <div className="relative min-h-screen overflow-hidden py-20 px-4">
+      <VortexShell
+        placement="corner"
+        gradient="plasma"
+        size="500px"
+        className="-right-20 -top-20"
+        opacity={0.15}
+      />
+      <TriadBasins
+        placement="corner"
+        gradient="acidLime"
+        size="380px"
+        className="-left-24 top-1/2"
+        opacity={0.1}
+      />
+
+      <div className="container relative mx-auto max-w-6xl">
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
