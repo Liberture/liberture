@@ -41,9 +41,9 @@ export default function ContentPage({ params }: { params: Promise<{ id: string }
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">Content not found</div>
-        <Link href="/marketplace">
+        <Link href="/protocols">
           <Button variant="outline" className="mt-4">
-            Back to Marketplace
+            Back to Protocols
           </Button>
         </Link>
       </div>
@@ -57,10 +57,10 @@ export default function ContentPage({ params }: { params: Promise<{ id: string }
   return (
     <main className="container mx-auto px-4 py-8 max-w-6xl">
       {/* Back Button */}
-      <Link href="/marketplace">
+      <Link href="/protocols">
         <Button variant="ghost" className="mb-6">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Marketplace
+          Back to Protocols
         </Button>
       </Link>
 

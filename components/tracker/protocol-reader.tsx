@@ -1,8 +1,8 @@
 "use client"
 
 import { AnimatePresence, motion } from "framer-motion"
-import { useEffect } from "react"
-import { AlertTriangle, Check, Clock, Plus, Sparkles, X } from "lucide-react"
+import { useEffect, useState } from "react"
+import { AlertTriangle, Check, Clock, Download, Plus, Share2, Sparkles, X } from "lucide-react"
 
 import { PILLAR_STYLES } from "@/lib/pillars"
 import { scheduleLabel } from "@/lib/tracker/streaks"
@@ -21,12 +21,22 @@ export function ProtocolReader({
   selected,
   onToggle,
   onClose,
+  /** Adds share + download actions. Off in the wizard, where the only choice is keep-or-drop. */
+  shareable = false,
+  addLabel,
 }: {
   protocol: CatalogProtocol | null
   selected: boolean
   onToggle: () => void
   onClose: () => void
+  shareable?: boolean
+  addLabel?: { add: string; added: string }
 }) {
+  const [shared, setShared] = useState(false)
+
+  // Reset the "Copied" acknowledgement when a different protocol is opened.
+  useEffect(() => setShared(false), [protocol?.slug])
+
   // Escape closes, and the page behind shouldn't scroll while the sheet is open.
   useEffect(() => {
     if (!protocol) return
@@ -41,6 +51,58 @@ export function ProtocolReader({
       window.removeEventListener("keydown", onKey)
     }
   }, [protocol, onClose])
+
+  const share = async () => {
+    if (!protocol) return
+    const url = `${window.location.origin}/protocols/${protocol.slug}`
+    // Native sheet where it exists (mostly mobile), clipboard everywhere else.
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: protocol.name, text: protocol.tagline, url })
+        return
+      } catch {
+        // Dismissing the share sheet is not an error worth surfacing.
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url)
+      setShared(true)
+      window.setTimeout(() => setShared(false), 2000)
+    } catch {
+      window.prompt("Copy this protocol's link:", url)
+    }
+  }
+
+  const download = () => {
+    if (!protocol) return
+    const payload = {
+      slug: protocol.slug,
+      name: protocol.name,
+      pillar: protocol.pillar,
+      difficulty: protocol.difficulty,
+      duration: protocol.duration,
+      description: protocol.description,
+      why: protocol.why,
+      benefits: protocol.benefits,
+      risks: protocol.risks,
+      evidence: protocol.evidence,
+      habits: protocol.habits.map((h) => ({
+        slug: h.slug,
+        name: h.name,
+        why: h.why,
+        time: h.time,
+        schedule: h.schedule,
+      })),
+      source: `https://liberture.com/protocols/${protocol.slug}`,
+    }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `${protocol.slug}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   return (
     <AnimatePresence>
@@ -157,12 +219,42 @@ export function ProtocolReader({
               </Section>
             </div>
 
-            <footer className="border-t border-white/10 p-4">
+            <footer className="flex flex-col gap-2 border-t border-white/10 p-4 sm:flex-row">
+              {shareable ? (
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={share}
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/15 px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-white/30 hover:text-foreground sm:flex-none"
+                  >
+                    {shared ? (
+                      <>
+                        <Check className="h-4 w-4" aria-hidden />
+                        Link copied
+                      </>
+                    ) : (
+                      <>
+                        <Share2 className="h-4 w-4" aria-hidden />
+                        Share
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={download}
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/15 px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-white/30 hover:text-foreground sm:flex-none"
+                  >
+                    <Download className="h-4 w-4" aria-hidden />
+                    Download
+                  </button>
+                </div>
+              ) : null}
+
               <button
                 type="button"
                 onClick={onToggle}
                 className={cn(
-                  "flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 font-semibold transition-colors",
+                  "flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-3 font-semibold transition-colors",
                   selected
                     ? "border border-white/15 bg-white/5 text-foreground hover:bg-white/10"
                     : "bg-primary text-primary-foreground hover:bg-primary/90",
@@ -171,12 +263,12 @@ export function ProtocolReader({
                 {selected ? (
                   <>
                     <Check className="h-4 w-4" aria-hidden />
-                    Added — tap to remove
+                    {addLabel?.added ?? "Added — tap to remove"}
                   </>
                 ) : (
                   <>
                     <Plus className="h-4 w-4" aria-hidden />
-                    Add to my tracker
+                    {addLabel?.add ?? "Add to my tracker"}
                   </>
                 )}
               </button>
