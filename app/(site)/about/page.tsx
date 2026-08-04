@@ -1,11 +1,14 @@
 "use client"
 
+import Link from "next/link"
 import { motion } from "framer-motion"
 import { LandingSection } from "../(landing)/landing-section"
 import { Brain, Code, Zap, Target, Heart, Sparkles } from "lucide-react"
 import { stagger } from "@/lib/animations"
+import { useTrackerEntry } from "@/lib/tracker/use-entry"
 
 export default function AboutPage() {
+  const entry = useTrackerEntry("Get Started Free")
   const founders = [
     {
       name: "Leon Acosta",
@@ -165,12 +168,12 @@ export default function AboutPage() {
           <p className="text-muted-foreground mb-6">
             We're just getting started. Join thousands of people taking control of their biology.
           </p>
-          <a
-            href="/get-started"
+          <Link
+            href={entry.href}
             className="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-primary hover:bg-primary/90 text-white font-semibold transition-colors"
           >
-            Get Started Free
-          </a>
+            {entry.label}
+          </Link>
         </motion.div>
       </LandingSection>
     </main>

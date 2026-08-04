@@ -7,6 +7,7 @@ import { ArrowRight, Zap } from "lucide-react"
 import { FoldedDrift, RippleBloom } from "@/components/patterns"
 import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
 import { translations } from "@/lib/translations"
+import { useTrackerEntry } from "@/lib/tracker/use-entry"
 import { stagger } from "@/lib/animations"
 
 const PILLAR_GLOW: Record<string, string> = {
@@ -42,6 +43,7 @@ function getOrbitKeyframes(index: number, total: number) {
 
 export function LandingHero() {
   const { hero } = translations.en.landing
+  const entry = useTrackerEntry(hero.primaryCta)
   const pillars = translations.en.common.pillars
   return (
     <section className="relative overflow-hidden pt-32 pb-20 px-4">
@@ -120,9 +122,9 @@ export function LandingHero() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
             variants={stagger.item}
           >
-            <Link href="/get-started">
+            <Link href={entry.href}>
               <Button size="lg" className="bg-primary hover:bg-primary/90 gap-2 text-lg px-8">
-                {hero.primaryCta} <ArrowRight className="h-5 w-5" />
+                {entry.label} <ArrowRight className="h-5 w-5" />
               </Button>
             </Link>
             <Link href="#how-it-works">
