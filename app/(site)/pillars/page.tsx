@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { AnimatedPillarGrid } from '@/components/pillars'
+import { IslandRidge, RippleBloom, VortexShell } from '@/components/patterns'
 import { MotionContainer, MotionItem, MotionStats, MotionSection } from '@/components/animations'
 import type { Metadata } from 'next'
 
@@ -54,8 +55,23 @@ export default async function PillarsPage() {
 
   return (
     <div className="min-h-screen">
-      <section className="relative py-20 bg-gradient-to-br from-primary/10 to-background">
-        <div className="container mx-auto px-4">
+      <section className="relative overflow-hidden py-20 bg-gradient-to-br from-primary/10 to-background">
+        <VortexShell
+          placement="corner"
+          gradient="plasma"
+          size="500px"
+          className="-right-20 -top-20"
+          opacity={0.15}
+        />
+        <IslandRidge
+          placement="corner"
+          gradient="neon"
+          size="340px"
+          className="-left-24 bottom-0"
+          opacity={0.12}
+        />
+
+        <div className="container relative mx-auto px-4">
           <MotionContainer className="max-w-4xl mx-auto text-center space-y-6">
             <MotionItem>
               <Badge variant="outline" className="text-sm">Your Biological Operating System</Badge>
@@ -89,8 +105,16 @@ export default async function PillarsPage() {
       </section>
 
       <MotionSection delay={0.2}>
-        <section className="py-16 bg-muted/30">
-          <div className="container mx-auto px-4">
+        <section className="relative overflow-hidden py-16 bg-muted/30">
+          <RippleBloom
+            placement="corner"
+            gradient="plasma"
+            size="380px"
+            className="-left-20 bottom-0"
+            opacity={0.12}
+          />
+
+          <div className="container relative mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center space-y-6">
               <h2 className="text-3xl font-bold">Start Your Optimization Journey</h2>
               <p className="text-muted-foreground">

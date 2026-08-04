@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { PillarFilter } from "@/components/pillars/pillar-filter"
+import { IslandRidge, RippleBloom } from "@/components/patterns"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -104,8 +105,23 @@ export function MarketplaceContent() {
   }
 
   return (
-    <div className="min-h-screen py-8 px-4">
-      <div className="container mx-auto max-w-7xl">
+    <div className="relative min-h-screen overflow-hidden py-8 px-4">
+      <IslandRidge
+        placement="corner"
+        gradient="neon"
+        size="420px"
+        className="-left-24 -top-16"
+        opacity={0.13}
+      />
+      <RippleBloom
+        placement="corner"
+        gradient="plasma"
+        size="380px"
+        className="-right-20 top-1/3"
+        opacity={0.11}
+      />
+
+      <div className="container relative mx-auto max-w-7xl">
         {/* Header */}
         <div className="text-center mb-10">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">{marketplaceTranslations.heading}</h1>
