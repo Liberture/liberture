@@ -1,12 +1,35 @@
 import { MetadataRoute } from 'next';
 
+const baseUrl = 'https://liberture.com';
+
+// Private / non-indexable surfaces. Kept in one place so the generated groups
+// stay consistent across every user-agent.
+const disallow = [
+  '/admin',
+  '/admin-login',
+  '/api/',
+  '/dashboard',
+  '/login',
+  '/coming-soon',
+];
+
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: {
-      userAgent: '*',
-      allow: '/',
-      disallow: ['/admin/', '/api/', '/auth/'],
-    },
-    sitemap: 'https://liberture.com/sitemap.xml',
+    rules: [
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow,
+      },
+      // Aggressive commercial crawlers: same rules, throttled.
+      {
+        userAgent: ['AhrefsBot', 'SemrushBot'],
+        allow: '/',
+        disallow,
+        crawlDelay: 5,
+      },
+    ],
+    sitemap: `${baseUrl}/sitemap.xml`,
+    host: baseUrl,
   };
 }
