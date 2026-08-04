@@ -8,6 +8,7 @@ import { LogOut, Menu, X, ChevronDown, User, Shield } from "lucide-react"
 import { translations } from "@/lib/translations"
 import { LibertureLogo } from "@/components/branding"
 import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
+import { useTracker } from "@/lib/tracker/use-tracker"
 
 export function LandingNav() {
   const { user, logout } = useAuth()
@@ -16,6 +17,13 @@ export function LandingNav() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [pillarsDropdownOpen, setPillarsDropdownOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+
+  // Once the setup wizard has been completed there's a tracker to return to,
+  // so the entry-point button stops inviting the user to start over.
+  const { state: tracker, hydrated } = useTracker()
+  const setUp = hydrated && tracker.onboarded
+  const entryHref = setUp ? "/tracker" : "/get-started"
+  const entryLabel = setUp ? navigation.dashboard : navigation.getStarted
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
@@ -144,9 +152,9 @@ export function LandingNav() {
               )}
             </div>
           ) : (
-            <Link href="/get-started">
+            <Link href={entryHref}>
               <Button size="sm" className="bg-primary hover:bg-primary/90">
-                {navigation.getStarted}
+                {entryLabel}
               </Button>
             </Link>
           )}
@@ -235,9 +243,9 @@ export function LandingNav() {
                     </Button>
                   </>
                 ) : (
-                  <Link href="/get-started" onClick={() => setMobileMenuOpen(false)}>
+                  <Link href={entryHref} onClick={() => setMobileMenuOpen(false)}>
                     <Button size="sm" className="w-full bg-primary hover:bg-primary/90">
-                      {navigation.getStarted}
+                      {entryLabel}
                     </Button>
                   </Link>
                 )}

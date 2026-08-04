@@ -151,6 +151,26 @@ export function useTracker() {
     [update],
   )
 
+  /**
+   * Holds a protocol chosen before setup is finished. Nothing is written to the
+   * tracker until the wizard completes — an abandoned setup adds nothing.
+   */
+  const togglePending = useCallback(
+    (slug: string) =>
+      update((prev) => ({
+        ...prev,
+        pendingProtocols: prev.pendingProtocols.includes(slug)
+          ? prev.pendingProtocols.filter((s) => s !== slug)
+          : [...prev.pendingProtocols, slug],
+      })),
+    [update],
+  )
+
+  const clearPending = useCallback(
+    () => update((prev) => ({ ...prev, pendingProtocols: [] })),
+    [update],
+  )
+
   const completeOnboarding = useCallback(
     (displayName?: string) =>
       update((prev) => ({
@@ -158,6 +178,8 @@ export function useTracker() {
         onboarded: true,
         displayName: displayName?.trim() || prev.displayName,
         createdAt: prev.createdAt ?? new Date().toISOString(),
+        // Whatever was held for setup has been dealt with by the wizard.
+        pendingProtocols: [],
       })),
     [update],
   )
@@ -200,6 +222,8 @@ export function useTracker() {
     toggleCompletion,
     isCompleted,
     setFocusPillars,
+    togglePending,
+    clearPending,
     completeOnboarding,
     reset,
     replaceState,

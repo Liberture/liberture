@@ -76,6 +76,13 @@ export function LibertureLogo({ size = 60, animate = true, className = "" }: Lib
               key={index}
               r={dotSize}
               fill={color}
+              // Without a resting cx/cy the first paint renders cx="undefined",
+              // which the browser rejects. The attributes cover the server
+              // render; `initial` gives Framer a starting value so a remount
+              // mid-animation doesn't briefly emit undefined either.
+              cx={positions[index].x}
+              cy={positions[index].y}
+              initial={{ cx: positions[index].x, cy: positions[index].y }}
               animate={animate ? {
                 cx: keyframes!.map(k => k.x),
                 cy: keyframes!.map(k => k.y),
