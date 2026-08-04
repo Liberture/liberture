@@ -120,7 +120,7 @@ export function LandingHero() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
             variants={stagger.item}
           >
-            <Link href="/login">
+            <Link href="/get-started">
               <Button size="lg" className="bg-primary hover:bg-primary/90 gap-2 text-lg px-8">
                 {hero.primaryCta} <ArrowRight className="h-5 w-5" />
               </Button>

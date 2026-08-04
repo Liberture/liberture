@@ -166,7 +166,7 @@ export default function AboutPage() {
             We're just getting started. Join thousands of people taking control of their biology.
           </p>
           <a
-            href="/login"
+            href="/get-started"
             className="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-primary hover:bg-primary/90 text-white font-semibold transition-colors"
           >
             Get Started Free

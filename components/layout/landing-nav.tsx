@@ -144,7 +144,7 @@ export function LandingNav() {
               )}
             </div>
           ) : (
-            <Link href="/login">
+            <Link href="/get-started">
               <Button size="sm" className="bg-primary hover:bg-primary/90">
                 {navigation.getStarted}
               </Button>
@@ -235,7 +235,7 @@ export function LandingNav() {
                     </Button>
                   </>
                 ) : (
-                  <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                  <Link href="/get-started" onClick={() => setMobileMenuOpen(false)}>
                     <Button size="sm" className="w-full bg-primary hover:bg-primary/90">
                       {navigation.getStarted}
                     </Button>
