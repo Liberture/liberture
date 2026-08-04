@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion"
 import { useRouter } from "next/navigation"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { ArrowLeft, ArrowRight, Check, Loader2, Sparkles } from "lucide-react"
 
 import { PillarChoice, PillarTag } from "@/components/tracker/pillar-chip"
@@ -24,7 +24,8 @@ type StepIndex = 0 | 1 | 2 | 3
 
 export default function GetStartedPage() {
   const router = useRouter()
-  const { hydrated, adoptProtocol, addHabits, setFocusPillars, completeOnboarding } = useTracker()
+  const { state, hydrated, adoptProtocol, addHabits, setFocusPillars, completeOnboarding } =
+    useTracker()
 
   const [step, setStep] = useState<StepIndex>(0)
   const [name, setName] = useState("")
@@ -33,6 +34,20 @@ export default function GetStartedPage() {
   const [habitSlugs, setHabitSlugs] = useState<string[]>([])
   const [reading, setReading] = useState<string | null>(null)
   const [finishing, setFinishing] = useState(false)
+
+  // Protocols picked on /protocols before setup was finished are carried in as
+  // pre-selections. Seeded once, so the user can still deselect them here.
+  const seeded = useRef(false)
+  useEffect(() => {
+    if (!hydrated || seeded.current) return
+    seeded.current = true
+    if (state.pendingProtocols.length > 0) {
+      setProtocolSlugs((prev) => [
+        ...prev,
+        ...state.pendingProtocols.filter((s) => !prev.includes(s)),
+      ])
+    }
+  }, [hydrated, state.pendingProtocols])
 
   const orderedProtocols = useMemo(() => protocolsForPillars(pillars), [pillars])
   const orderedHabits = useMemo(() => {
@@ -82,6 +97,20 @@ export default function GetStartedPage() {
 
       <div className="container relative mx-auto max-w-5xl px-4 py-12 sm:py-16">
         <StepBar step={step} />
+
+        {hydrated && state.pendingProtocols.length > 0 ? (
+          <motion.p
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-6 flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary"
+          >
+            <Sparkles className="h-4 w-4 shrink-0" aria-hidden />
+            {state.pendingProtocols.length} protocol
+            {state.pendingProtocols.length === 1 ? "" : "s"} carried over from the library —
+            finish setup and {state.pendingProtocols.length === 1 ? "it becomes" : "they become"}{" "}
+            daily habits.
+          </motion.p>
+        ) : null}
 
         <AnimatePresence mode="wait">
           <motion.div

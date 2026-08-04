@@ -85,6 +85,12 @@ export interface TrackerState {
   habits: Habit[]
   completions: Completion[]
   adoptedProtocols: string[]
+  /**
+   * Protocols picked from /protocols before the setup wizard was finished.
+   * They are held here — not turned into habits — until the wizard completes,
+   * so an abandoned setup leaves the tracker untouched.
+   */
+  pendingProtocols: string[]
   createdAt?: string
   updatedAt?: string
 }
@@ -96,4 +102,5 @@ export const EMPTY_STATE: TrackerState = {
   habits: [],
   completions: [],
   adoptedProtocols: [],
+  pendingProtocols: [],
 }

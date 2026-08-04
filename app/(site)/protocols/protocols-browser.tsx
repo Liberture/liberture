@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useMemo, useState } from "react"
 import { ArrowRight, Check, Search, SlidersHorizontal } from "lucide-react"
 
@@ -19,12 +20,14 @@ type Filter = "all" | PillarId
 const PILLARS = translations.en.common.pillars
 
 export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }) {
-  const { state, hydrated, adoptProtocol, dropProtocol, completeOnboarding } = useTracker()
+  const router = useRouter()
+  const { state, hydrated, adoptProtocol, dropProtocol, togglePending } = useTracker()
   const [query, setQuery] = useState("")
   const [pillar, setPillar] = useState<Filter>("all")
   const [reading, setReading] = useState<string | null>(null)
 
-  const adopted = new Set(state.adoptedProtocols)
+  // Before setup is finished, a pick is only held — the wizard commits it.
+  const selected = new Set(state.onboarded ? state.adoptedProtocols : state.pendingProtocols)
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -47,14 +50,21 @@ export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }
   }, [protocols])
 
   const toggle = (slug: string) => {
-    if (adopted.has(slug)) {
-      dropProtocol(slug)
+    // Setup already done: the tracker exists, so add or remove it directly.
+    if (state.onboarded) {
+      if (selected.has(slug)) dropProtocol(slug)
+      else adoptProtocol(slug)
       return
     }
-    adoptProtocol(slug)
-    // Adopting a protocol is itself a first choice, so someone arriving straight
-    // from /protocols shouldn't be bounced back into the wizard to see it.
-    if (!state.onboarded) completeOnboarding()
+
+    // Setup not done: hold the pick and hand off to the wizard, which is what
+    // actually creates the habits. Abandon the wizard and nothing is added.
+    const removing = selected.has(slug)
+    togglePending(slug)
+    if (!removing) {
+      setReading(null)
+      router.push("/get-started")
+    }
   }
 
   return (
@@ -122,13 +132,15 @@ export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }
           <p className="text-sm text-muted-foreground">
             Showing {visible.length} of {protocols.length} protocols
           </p>
-          {hydrated && adopted.size > 0 ? (
+          {hydrated && selected.size > 0 ? (
             <Link
-              href="/tracker"
+              href={state.onboarded ? "/tracker" : "/get-started"}
               className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
             >
               <Check className="h-4 w-4" aria-hidden />
-              {adopted.size} in your tracker
+              {state.onboarded
+                ? `${selected.size} in your tracker`
+                : `${selected.size} waiting — finish setup`}
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           ) : null}
@@ -162,7 +174,7 @@ export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }
                 >
                   <ProtocolCard
                     protocol={protocol}
-                    selected={adopted.has(protocol.slug)}
+                    selected={selected.has(protocol.slug)}
                     onRead={() => setReading(protocol.slug)}
                     onToggle={() => toggle(protocol.slug)}
                   />
@@ -175,10 +187,15 @@ export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }
 
       <ProtocolReader
         protocol={reading ? protocols.find((p) => p.slug === reading) ?? null : null}
-        selected={reading ? adopted.has(reading) : false}
+        selected={reading ? selected.has(reading) : false}
         onToggle={() => reading && toggle(reading)}
         onClose={() => setReading(null)}
         shareable
+        addLabel={
+          state.onboarded
+            ? undefined
+            : { add: "Add & set up my tracker", added: "Selected — tap to remove" }
+        }
       />
     </div>
   )
