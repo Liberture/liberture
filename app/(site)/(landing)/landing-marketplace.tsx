@@ -39,7 +39,7 @@ export function LandingMarketplace() {
     }
   })
   return (
-    <LandingSection id="marketplace" className="bg-card/30">
+    <LandingSection id="protocols" className="bg-card/30">
       <LandingSectionHeader
         badge={marketplace.badge}
         heading={marketplace.heading}
@@ -79,7 +79,7 @@ export function LandingMarketplace() {
 
       {/* CTA */}
       <div className="text-center">
-        <Link href="/marketplace">
+        <Link href="/protocols">
           <Button size="lg" variant="outline" className="gap-2 bg-transparent">
             {marketplace.cta} <ArrowRight className="h-4 w-4" />
           </Button>

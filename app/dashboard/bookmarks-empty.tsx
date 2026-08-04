@@ -11,7 +11,7 @@ const emptyStates: Record<string, { icon: LucideIcon; message: string; cta: stri
   person: { icon: Users, message: "No people followed yet", cta: "Discover People", href: "/people" },
   protocol: { icon: FlaskConical, message: "No protocols saved yet", cta: "Find Protocols", href: "/protocols" },
   organization: { icon: Building2, message: "No organizations saved yet", cta: "View Organizations", href: "/organizations" },
-  marketplace: { icon: ShoppingBag, message: "No items saved yet", cta: "Browse Marketplace", href: "/marketplace" },
+  marketplace: { icon: ShoppingBag, message: "No items saved yet", cta: "Browse Protocols", href: "/protocols" },
 }
 
 export function BookmarksEmpty({ entityType }: { entityType: string }) {

@@ -104,7 +104,7 @@ export default function GetStartedPage() {
             {step === 1 ? (
               <section className="space-y-6">
                 <StepHeader
-                  badge="The Marketplace"
+                  badge="The Protocol Library"
                   title="Pick the protocols worth your time."
                   description="Each one is a structured routine backed by real sources. Read before you commit — then it becomes daily habits you can edit."
                 />

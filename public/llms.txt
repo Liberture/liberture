@@ -56,9 +56,10 @@ The platform is organized around 6 fundamental pillars of human optimization:
 - Topics: cold exposure, fasting, supplements, sleep, breathwork
 - URL pattern: /knowledge/[slug]
 
-### Marketplace (curated products)
-- Vetted biohacking tools and supplements
-- URL pattern: /marketplace/[slug]
+### Protocols (the protocol library)
+- Structured, evidence-referenced routines that break down into daily habits
+- Explore, share, download as JSON, or add to the habit tracker at /tracker
+- URL pattern: /protocols/[slug]
 
 ## Key Features
 
@@ -137,9 +138,8 @@ Key sections:
 - People: /people - Influential figures in biohacking
 - Books: /books - Curated biohacking library
 - Organizations: /organizations - Key institutions
-- Protocols: /protocols - Step-by-step guides
+- Protocols: /protocols - Evidence-backed routines you can explore, share, download and track
 - Knowledge: /knowledge - Educational articles
-- Marketplace: /marketplace - Vetted products
 - About: /about - Mission and story
 - Contact: /contact - Get in touch
 

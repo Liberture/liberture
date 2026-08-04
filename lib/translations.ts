@@ -215,7 +215,7 @@ export const translations: { en: Translations } = {
     navigation: {
       features: "Features",
       pillars: "Six Pillars",
-      marketplace: "Marketplace",
+      marketplace: "Protocols",
       knowledge: "Knowledge Base",
       howItWorks: "How It Works",
       dashboard: "Dashboard",
@@ -319,10 +319,10 @@ export const translations: { en: Translations } = {
         description: "Each pillar represents a critical domain of human performance. Balance all six to achieve true optimization.",
       },
       marketplace: {
-        badge: "Knowledge Hub",
-        heading: "The Liberture Marketplace",
+        badge: "The Protocol Library",
+        heading: "Protocols, with the evidence attached",
         description:
-          "Your central hub for actionable protocols, expert coaching, and educational resources. Curated content aligned with your optimization journey.",
+          "Structured routines you can explore, share and download — or add to your tracker, where they become daily habits.",
         featuredItems: [
           {
             title: "7-Day Ketogenic Induction Protocol",
@@ -349,7 +349,7 @@ export const translations: { en: Translations } = {
             icon: "work",
           },
         ],
-        cta: "Explore Full Marketplace",
+        cta: "Explore All Protocols",
       },
       knowledge: {
         heading: "Curated Knowledge Library",

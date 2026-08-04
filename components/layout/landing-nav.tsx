@@ -81,10 +81,10 @@ export function LandingNav() {
             Directory
           </Link>
           <Link
-            href="/marketplace"
+            href="/protocols"
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            Marketplace
+            Protocols
           </Link>
           <Link
             href="/how-it-works"
@@ -199,11 +199,11 @@ export function LandingNav() {
                 Directory
               </Link>
               <Link
-                href="/marketplace"
+                href="/protocols"
                 onClick={() => setMobileMenuOpen(false)}
                 className="px-4 py-3 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
               >
-                Marketplace
+                Protocols
               </Link>
               <Link
                 href="/how-it-works"

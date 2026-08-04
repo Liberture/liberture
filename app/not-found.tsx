@@ -52,10 +52,10 @@ export default function NotFound() {
             </Button>
           </Link>
 
-          <Link href="/marketplace">
+          <Link href="/protocols">
             <Button variant="outline" className="w-full gap-2">
               <ShoppingBag className="h-4 w-4" />
-              Marketplace
+              Protocols
             </Button>
           </Link>
 

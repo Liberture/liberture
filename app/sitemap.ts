@@ -37,9 +37,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     { url: `${baseUrl}/people`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${baseUrl}/organizations`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${baseUrl}/protocols`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${baseUrl}/protocols`, lastModified: now, changeFrequency: 'weekly', priority: 1.0 },
     { url: `${baseUrl}/books`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${baseUrl}/marketplace`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${baseUrl}/games`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${baseUrl}/games/hydration`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${baseUrl}/games/sleep`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
@@ -52,7 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/privacy`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
   ];
 
-  const [articles, people, books, organizations, protocols, marketplaceItems] = await Promise.all([
+  const [articles, people, books, organizations, protocols] = await Promise.all([
     safe('articles', () => prisma.article.findMany({ select: { slug: true, updatedAt: true } })),
     safe('people', () => prisma.person.findMany({ select: { slug: true, updatedAt: true, featured: true } })),
     safe('books', () => prisma.book.findMany({ select: { slug: true, updatedAt: true, featured: true } })),
@@ -64,9 +63,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         where: { published: true },
         select: { slug: true, updatedAt: true, featured: true },
       }),
-    ),
-    safe('marketplace', () =>
-      prisma.marketplaceItem.findMany({ select: { slug: true, updatedAt: true } }),
     ),
   ]);
 
@@ -106,13 +102,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: protocol.updatedAt,
       changeFrequency: 'monthly' as const,
       priority: protocol.featured ? 0.8 : 0.7,
-    })),
-
-    ...marketplaceItems.map((item) => ({
-      url: `${baseUrl}/marketplace/${item.slug}`,
-      lastModified: item.updatedAt,
-      changeFrequency: 'monthly' as const,
-      priority: 0.6,
     })),
   ];
 }
