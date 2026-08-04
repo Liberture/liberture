@@ -32,6 +32,11 @@ export const metadata: Metadata = {
   authors: [{ name: "Liberture" }],
   creator: "Liberture",
   publisher: "Liberture",
+  // "./" resolves against the current route, giving every page a
+  // self-referencing canonical unless it overrides `alternates`.
+  alternates: {
+    canonical: "./",
+  },
   openGraph: {
     title: "Liberture | Biological Operating System",
     description:

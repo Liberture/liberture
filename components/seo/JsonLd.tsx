@@ -1,15 +1,21 @@
-import Script from 'next/script';
-
 type JsonLdProps = {
   data: Record<string, any>;
 };
 
+/**
+ * Renders structured data as a plain <script> tag so it lands in the
+ * server-rendered HTML. next/script defers injection to the client, which
+ * hides JSON-LD from crawlers that don't execute JavaScript, and dedupes by
+ * `id` — so sibling schemas sharing an id silently drop.
+ */
 export function JsonLd({ data }: JsonLdProps) {
+  // Escape `<` so DB-sourced strings can't break out of the script element.
+  const json = JSON.stringify(data).replace(/</g, '\\u003c');
+
   return (
-    <Script
-      id="json-ld"
+    <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: json }}
     />
   );
 }
@@ -41,14 +47,8 @@ export function WebSiteSchema() {
     name: 'Liberture',
     url: 'https://liberture.com',
     description: 'Master your biology. Unlock your potential. The unified platform for human optimization.',
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: 'https://liberture.com/search?q={search_term_string}',
-      },
-      'query-input': 'required name=search_term_string',
-    },
+    // No `potentialAction` / SearchAction until a real /search route exists —
+    // declaring a sitelinks searchbox that 404s is an invalid markup signal.
   };
 
   return <JsonLd data={schema} />;
