@@ -8,7 +8,7 @@ import { LogOut, Menu, X, ChevronDown, User, Shield } from "lucide-react"
 import { translations } from "@/lib/translations"
 import { LibertureLogo } from "@/components/branding"
 import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
-import { useTracker } from "@/lib/tracker/use-tracker"
+import { useTrackerEntry } from "@/lib/tracker/use-entry"
 
 export function LandingNav() {
   const { user, logout } = useAuth()
@@ -20,10 +20,7 @@ export function LandingNav() {
 
   // Once the setup wizard has been completed there's a tracker to return to,
   // so the entry-point button stops inviting the user to start over.
-  const { state: tracker, hydrated } = useTracker()
-  const setUp = hydrated && tracker.onboarded
-  const entryHref = setUp ? "/tracker" : "/get-started"
-  const entryLabel = setUp ? navigation.dashboard : navigation.getStarted
+  const entry = useTrackerEntry(navigation.getStarted, navigation.dashboard)
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
@@ -152,9 +149,9 @@ export function LandingNav() {
               )}
             </div>
           ) : (
-            <Link href={entryHref}>
+            <Link href={entry.href}>
               <Button size="sm" className="bg-primary hover:bg-primary/90">
-                {entryLabel}
+                {entry.label}
               </Button>
             </Link>
           )}
@@ -243,9 +240,9 @@ export function LandingNav() {
                     </Button>
                   </>
                 ) : (
-                  <Link href={entryHref} onClick={() => setMobileMenuOpen(false)}>
+                  <Link href={entry.href} onClick={() => setMobileMenuOpen(false)}>
                     <Button size="sm" className="w-full bg-primary hover:bg-primary/90">
-                      {entryLabel}
+                      {entry.label}
                     </Button>
                   </Link>
                 )}

@@ -35,6 +35,7 @@ import Link from "next/link"
 import { LandingSection, LandingSectionHeader } from "../(landing)/landing-section"
 import { VortexShell, IslandRidge, TriadBasins, RippleBloom } from "@/components/patterns"
 import { stagger } from "@/lib/animations"
+import { useTrackerEntry } from "@/lib/tracker/use-entry"
 
 const pillars = [
   { id: "cognition", name: "Cognition", icon: Brain, color: "text-work", bg: "bg-work/10", border: "border-work/30" },
@@ -162,6 +163,7 @@ const selfHostSteps = [
 ]
 
 export default function HowItWorksPage() {
+  const entry = useTrackerEntry("Get Started Free")
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
@@ -625,10 +627,10 @@ export default function HowItWorksPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/get-started"
+              href={entry.href}
               className="inline-flex items-center justify-center gap-2 px-8 py-3 rounded-lg bg-primary hover:bg-primary/90 text-white font-semibold transition-colors"
             >
-              Get Started Free
+              {entry.label}
             </Link>
             <Link
               href="/protocols"
