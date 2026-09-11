@@ -9,27 +9,27 @@ import { LandingSection, LandingSectionHeader } from "./landing-section"
 // Custom animations for each pillar icon
 const PILLAR_ANIMATIONS: Record<PillarId, any> = {
   work: {
-    // Brain: thinking pulse effect
+    // Briefcase: a small purposeful tilt
     animate: {
-      scale: [1, 1.1, 1],
-      opacity: [1, 0.8, 1],
+      rotate: [-3, 3, -3],
+      y: [0, -2, 0],
     },
     transition: {
-      duration: 2,
+      duration: 3,
       repeat: Infinity,
       ease: "easeInOut",
     },
   },
   sleep: {
-    // Heart: heartbeat rhythm
+    // Moon: slow drifting glow
     animate: {
-      scale: [1, 1.15, 1, 1.05, 1],
+      y: [0, -4, 0],
+      opacity: [1, 0.65, 1],
     },
     transition: {
-      duration: 1.5,
+      duration: 4,
       repeat: Infinity,
       ease: "easeInOut",
-      times: [0, 0.2, 0.3, 0.5, 1],
     },
   },
   nutrition: {
@@ -45,14 +45,13 @@ const PILLAR_ANIMATIONS: Record<PillarId, any> = {
     },
   },
   mind: {
-    // Zap: electric spark flash
+    // Brain: thinking pulse effect
     animate: {
-      opacity: [1, 0.5, 1, 0.7, 1],
       scale: [1, 1.1, 1],
-      rotate: [0, 5, -5, 0],
+      opacity: [1, 0.8, 1],
     },
     transition: {
-      duration: 2.5,
+      duration: 2,
       repeat: Infinity,
       ease: "easeInOut",
     },
