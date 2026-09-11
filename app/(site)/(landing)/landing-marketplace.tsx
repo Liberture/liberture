@@ -59,7 +59,7 @@ export function LandingMarketplace() {
       {/* Featured Items */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
         {marketplace.featuredItems.map((item) => {
-          const Icon = PILLAR_ICON_MAP[item.icon] ?? PILLAR_ICON_MAP.cognition
+          const Icon = PILLAR_ICON_MAP[item.icon]
           return (
             <div
               key={item.title}

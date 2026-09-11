@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback } from 'react'
-import { Download, Copy, Check, Package, Image, Type, Palette, FileText, Monitor, Brain, Heart, Leaf, Zap, Dumbbell, Wallet, Layers, FileJson } from 'lucide-react'
+import { Download, Copy, Check, Package, Image, Type, Palette, FileText, Monitor, Brain, Briefcase, Leaf, Moon, Dumbbell, Wallet, Layers, FileJson } from 'lucide-react'
 import { LandingSection } from '../(landing)/landing-section'
 import { LibertureLogo, LibertureLogoStatic } from '@/components/branding/LibertureLogo'
 import { Button } from '@/components/ui/button'
@@ -11,12 +11,12 @@ import { Button } from '@/components/ui/button'
 // ---------------------------------------------------------------------------
 
 const PILLAR_COLORS = [
-  { id: 'cognition', name: 'Cognition', hex: '#8B5CF6', rgb: '139, 92, 246' },
-  { id: 'recovery', name: 'Recovery', hex: '#06B6D4', rgb: '6, 182, 212' },
-  { id: 'fueling', name: 'Fueling', hex: '#10B981', rgb: '16, 185, 129' },
-  { id: 'mental', name: 'Mental', hex: '#EC4899', rgb: '236, 72, 153' },
-  { id: 'physicality', name: 'Physicality', hex: '#F59E0B', rgb: '245, 158, 11' },
-  { id: 'finance', name: 'Finance', hex: '#EAB308', rgb: '234, 179, 8' },
+  { id: 'work', name: 'Work', hex: '#659DFB', rgb: '101, 157, 251' },
+  { id: 'sleep', name: 'Sleep', hex: '#00CACB', rgb: '0, 202, 203' },
+  { id: 'nutrition', name: 'Nutrition', hex: '#45CD55', rgb: '69, 205, 85' },
+  { id: 'mind', name: 'Mind', hex: '#FF78BE', rgb: '255, 120, 190' },
+  { id: 'exercise', name: 'Exercise', hex: '#FF823F', rgb: '255, 130, 63' },
+  { id: 'finance', name: 'Finance', hex: '#E1A200', rgb: '225, 162, 0' },
 ]
 
 const BRAND_COLORS = [
@@ -47,13 +47,16 @@ const BANNER_CONFIGS = [
   { id: 'discord', name: 'Discord Banner', width: 960, height: 540, desc: 'Server banner image' },
 ]
 
+// Ids and names follow PillarId; colors are the --work..--finance tokens from
+// globals.css. The cognition/recovery/fueling/mental/physicality spellings are
+// database values only — see DB_PILLAR_TO_FRONTEND in lib/pillars.ts.
 const PILLAR_ICON_DATA = [
-  { id: 'cognition', name: 'Cognition', color: '#8B5CF6', icon: 'Brain', file: '/media-kit/pillars/cognition.svg' },
-  { id: 'recovery', name: 'Recovery', color: '#06B6D4', icon: 'Heart', file: '/media-kit/pillars/recovery.svg' },
-  { id: 'fueling', name: 'Fueling', color: '#10B981', icon: 'Leaf', file: '/media-kit/pillars/fueling.svg' },
-  { id: 'mental', name: 'Mental', color: '#EC4899', icon: 'Zap', file: '/media-kit/pillars/mental.svg' },
-  { id: 'physicality', name: 'Physicality', color: '#F59E0B', icon: 'Dumbbell', file: '/media-kit/pillars/physicality.svg' },
-  { id: 'finance', name: 'Finance', color: '#EAB308', icon: 'Wallet', file: '/media-kit/pillars/finance.svg' },
+  { id: 'work', name: 'Work', color: '#659DFB', icon: 'Briefcase', file: '/media-kit/pillars/work.svg' },
+  { id: 'sleep', name: 'Sleep', color: '#00CACB', icon: 'Moon', file: '/media-kit/pillars/sleep.svg' },
+  { id: 'nutrition', name: 'Nutrition', color: '#45CD55', icon: 'Leaf', file: '/media-kit/pillars/nutrition.svg' },
+  { id: 'mind', name: 'Mind', color: '#FF78BE', icon: 'Brain', file: '/media-kit/pillars/mind.svg' },
+  { id: 'exercise', name: 'Exercise', color: '#FF823F', icon: 'Dumbbell', file: '/media-kit/pillars/exercise.svg' },
+  { id: 'finance', name: 'Finance', color: '#E1A200', icon: 'Wallet', file: '/media-kit/pillars/finance.svg' },
 ]
 
 const STATIC_ASSETS = [
@@ -81,8 +84,8 @@ const ICON_SIZES = [
 
 const BOILERPLATE = {
   tagline: 'Master your biology. Unlock your potential.',
-  oneLiner: 'Liberture is the Biological Operating System — a unified platform for evidence-based human optimization across six pillars: Cognition, Recovery, Fueling, Mental, Physicality, and Finance.',
-  press: `Liberture is a free, open-access platform for human optimization. Built around six core pillars — Cognition, Recovery, Fueling, Mental, Physicality, and Finance — Liberture provides science-backed protocols, a curated directory of experts and organizations, and a growing knowledge base. Founded by Leon Acosta (CEO), Fabricio Acosta (CTO), and Robert Claw (AI Architect), Liberture is committed to radical self-ownership, evidence-first health optimization, and open access for all.`,
+  oneLiner: 'Liberture is the Biological Operating System — a unified platform for evidence-based human optimization across six pillars: Work, Sleep, Nutrition, Mind, Exercise, and Finance.',
+  press: `Liberture is a free, open-access platform for human optimization. Built around six core pillars — Work, Sleep, Nutrition, Mind, Exercise, and Finance — Liberture provides science-backed protocols, a curated directory of experts and organizations, and a growing knowledge base. Founded by Leon Acosta (CEO), Fabricio Acosta (CTO), and Robert Claw (AI Architect), Liberture is committed to radical self-ownership, evidence-first health optimization, and open access for all.`,
 }
 
 // ---------------------------------------------------------------------------
@@ -798,9 +801,9 @@ export default function MediaKitPage() {
                   >
                     <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: pillar.color }}>
                       {pillar.icon === 'Brain' && <Brain className="h-8 w-8 text-white" />}
-                      {pillar.icon === 'Heart' && <Heart className="h-8 w-8 text-white" />}
+                      {pillar.icon === 'Briefcase' && <Briefcase className="h-8 w-8 text-white" />}
                       {pillar.icon === 'Leaf' && <Leaf className="h-8 w-8 text-white" />}
-                      {pillar.icon === 'Zap' && <Zap className="h-8 w-8 text-white" />}
+                      {pillar.icon === 'Moon' && <Moon className="h-8 w-8 text-white" />}
                       {pillar.icon === 'Dumbbell' && <Dumbbell className="h-8 w-8 text-white" />}
                       {pillar.icon === 'Wallet' && <Wallet className="h-8 w-8 text-white" />}
                     </div>
