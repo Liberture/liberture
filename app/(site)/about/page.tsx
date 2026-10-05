@@ -5,10 +5,10 @@ import { motion } from "framer-motion"
 import { LandingSection } from "../(landing)/landing-section"
 import { Brain, Code, Zap, Target, Heart, Sparkles } from "lucide-react"
 import { stagger } from "@/lib/animations"
-import { useTrackerEntry } from "@/lib/tracker/use-entry"
 
 export default function AboutPage() {
-  const entry = useTrackerEntry("Get Started Free")
+  // /tracker opens sign-in for visitors who don't have an account yet.
+  const entry = { href: "/tracker", label: "Get Started Free" }
   const founders = [
     {
       name: "Leon Acosta",

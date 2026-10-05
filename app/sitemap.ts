@@ -3,6 +3,11 @@ import { prisma } from '@/lib/prisma';
 
 const baseUrl = 'https://liberture.com';
 
+// Built per request: a build-time render (e.g. in Docker, with no database
+// reachable) would freeze the sitemap without any article, person, book,
+// organization or protocol URL.
+export const dynamic = 'force-dynamic';
+
 // Valid pillar slugs (must match VALID_PILLARS in /app/(site)/pillars/[pillar]/page.tsx)
 const pillarSlugs = ['work', 'sleep', 'nutrition', 'mind', 'exercise', 'finance'];
 
@@ -43,7 +48,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/games/hydration`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${baseUrl}/games/sleep`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${baseUrl}/how-it-works`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${baseUrl}/get-started`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${baseUrl}/docs`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${baseUrl}/docs/chatgpt`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/docs/claude`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/docs/permissions`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/docs/api`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${baseUrl}/about`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${baseUrl}/contact`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${baseUrl}/media-kit`, lastModified: now, changeFrequency: 'monthly', priority: 0.4 },

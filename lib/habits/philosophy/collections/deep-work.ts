@@ -1,0 +1,93 @@
+import type { Collection } from "../types"
+
+/** Attention, concentration and the cost of switching. Newport-leaning. */
+export const deepWork: Collection = {
+  id: "deep-work",
+  name: "Attention & Deep Work",
+  description:
+    "Concentration is getting rarer at exactly the moment it's getting more valuable. Protect it deliberately.",
+  pillar: "work",
+  attributionNote: "Principles from Cal Newport's Deep Work, restated. Quoted lines are cited.",
+  quotes: [
+    {
+      id: "deep-rare-1",
+      kind: "quote",
+      collection: "deep-work",
+      text: "The ability to perform deep work is becoming increasingly rare at exactly the same time it is becoming increasingly valuable in our economy.",
+      author: "Cal Newport",
+      source: "Deep Work",
+      url: "https://calnewport.com/books/deep-work/",
+    },
+    {
+      id: "deep-residue-1",
+      kind: "mantra",
+      collection: "deep-work",
+      text: "Attention residue: after you glance at a message, part of your mind stays on it for minutes. The interruption costs far more than the seconds it took.",
+      author: "Deep Work (paraphrased)",
+      application: "Put the phone in a different room, not face-down on the desk.",
+    },
+    {
+      id: "deep-craft-1",
+      kind: "quote",
+      collection: "deep-work",
+      text: "Clarity about what matters provides clarity about what does not.",
+      author: "Cal Newport",
+      source: "Deep Work",
+      url: "https://calnewport.com/books/deep-work/",
+      application: "Name today's one thing. Everything else is negotiable.",
+    },
+    {
+      id: "deep-boredom-1",
+      kind: "mantra",
+      collection: "deep-work",
+      text: "If every idle second is filled, you train yourself to be unable to sit with a hard problem. Let yourself be bored on purpose.",
+      author: "Deep Work (paraphrased)",
+      pillars: ["mind"],
+    },
+    {
+      id: "deep-shutdown-1",
+      kind: "mantra",
+      collection: "deep-work",
+      text: "End the day on purpose. An explicit shutdown — review, plan tomorrow, say it's done — is what lets your evening actually be an evening.",
+      author: "Deep Work (paraphrased)",
+      pillars: ["work", "sleep"],
+    },
+    {
+      id: "deep-busy-1",
+      kind: "mantra",
+      collection: "deep-work",
+      text: "Busyness is the proxy people reach for when the real work is hard to measure. Visible activity is not the same as progress.",
+      author: "Deep Work (paraphrased)",
+    },
+    {
+      id: "deep-ritual-1",
+      kind: "mantra",
+      collection: "deep-work",
+      text: "Depth needs a ritual: same place, same time, same length. The point of the ritual is to stop spending willpower on starting.",
+      author: "Deep Work (paraphrased)",
+    },
+    {
+      id: "deep-two-hours-1",
+      kind: "mantra",
+      collection: "deep-work",
+      text: "Two undistracted hours routinely outproduce eight fragmented ones. The eight just feel more like work.",
+      author: "Deep Work (paraphrased)",
+    },
+    {
+      id: "deep-tool-1",
+      kind: "mantra",
+      collection: "deep-work",
+      text: "A tool earns its place if its benefits substantially outweigh its costs — not if it has any benefit at all. Almost everything passes the second test.",
+      author: "Digital Minimalism (paraphrased)",
+    },
+    {
+      id: "deep-attention-1",
+      kind: "quote",
+      collection: "deep-work",
+      text: "Your world is the outcome of what you pay attention to.",
+      author: "Cal Newport, paraphrasing Winifred Gallagher",
+      source: "Deep Work",
+      url: "https://calnewport.com/books/deep-work/",
+    },
+  ],
+}
