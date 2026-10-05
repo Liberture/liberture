@@ -530,13 +530,45 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
     document.addEventListener("visibilitychange", onWake)
     window.addEventListener("focus", onWake)
     window.addEventListener("online", onWake)
+    // iOS restores pages from the back/forward cache without a visibilitychange.
+    window.addEventListener("pageshow", onWake)
     return () => {
       clearInterval(interval)
       document.removeEventListener("visibilitychange", onWake)
       window.removeEventListener("focus", onWake)
       window.removeEventListener("online", onWake)
+      window.removeEventListener("pageshow", onWake)
     }
   }, [isLoading, refreshFromServer])
+
+  // Live updates: the server pushes an event the moment this user's data
+  // changes anywhere (ChatGPT/Claude through MCP, another device, the API),
+  // so changes show up without a reload. The poll above stays as a fallback.
+  // Mobile browsers drop the stream in the background; EventSource reconnects
+  // when the page comes back and "ready" triggers a check for anything missed.
+  useEffect(() => {
+    if (isLoading || typeof EventSource === "undefined") return
+    const url = apiKey ? `/api/storage/events?apiKey=${encodeURIComponent(apiKey)}` : "/api/storage/events"
+    const source = new EventSource(url)
+    const onChange = (event: MessageEvent<string>) => {
+      try {
+        const { lastUpdated } = JSON.parse(event.data) as { lastUpdated?: string | null }
+        // Our own save echoing back: nothing new to fetch.
+        if (lastUpdated && lastUpdated === lastUpdatedRef.current) return
+      } catch {
+        // Malformed payload: just check.
+      }
+      refreshFromServer()
+    }
+    const onReady = () => refreshFromServer()
+    source.addEventListener("change", onChange)
+    source.addEventListener("ready", onReady)
+    return () => {
+      source.removeEventListener("change", onChange)
+      source.removeEventListener("ready", onReady)
+      source.close()
+    }
+  }, [isLoading, apiKey, refreshFromServer])
 
   const saveData = useCallback(async () => {
     if (!isDirty) return
