@@ -2,7 +2,11 @@ import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Inter, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
-import { AuthProvider } from "@/lib/auth-context"
+import { LocaleProvider } from "@/components/i18n/locale-provider"
+import { ServiceWorkerRegister } from "@/components/habits/service-worker-register"
+import { HabitsSessionProvider } from "@/components/habits/session-provider"
+import { NostrAuthProvider } from "@/lib/habits/nostr/auth-context"
+import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { CookieConsent } from "@/components/legal/CookieConsent"
 import { OrganizationSchema, WebSiteSchema } from "@/components/seo/JsonLd"
 import "./globals.css"
@@ -78,7 +82,7 @@ export const metadata: Metadata = {
     icon: "/icon.png",
     apple: "/apple-icon.png",
   },
-  manifest: "/manifest.json",
+  manifest: "/manifest.webmanifest",
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
   },
@@ -88,17 +92,23 @@ export const viewport: Viewport = {
   themeColor: "#111827",
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const locale = await getRequestLocale()
   return (
-    <html lang="en" className="dark">
+    <html lang={locale} className="dark">
       <body className={`${inter.variable} ${geistMono.variable} font-sans antialiased`}>
         <OrganizationSchema />
         <WebSiteSchema />
-        <AuthProvider>{children}</AuthProvider>
+        <LocaleProvider locale={locale}>
+          <NostrAuthProvider>
+            <HabitsSessionProvider>{children}</HabitsSessionProvider>
+          </NostrAuthProvider>
+        </LocaleProvider>
+        <ServiceWorkerRegister />
         <CookieConsent />
         <Analytics />
       </body>

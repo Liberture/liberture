@@ -3,14 +3,14 @@
 import { AnimatePresence, motion } from "framer-motion"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { ArrowRight, Check, Search, SlidersHorizontal } from "lucide-react"
 
 import { IslandRidge, RippleBloom } from "@/components/patterns"
 import { ProtocolCard } from "@/components/tracker/protocol-card"
 import { ProtocolReader } from "@/components/tracker/protocol-reader"
 import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
-import { useTracker } from "@/lib/tracker/use-tracker"
+import { useHabitsSession } from "@/components/habits/session-provider"
 import type { CatalogProtocol } from "@/lib/tracker/types"
 import { translations, type PillarId } from "@/lib/translations"
 import { cn } from "@/lib/utils"
@@ -21,13 +21,52 @@ const PILLARS = translations.en.common.pillars
 
 export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }) {
   const router = useRouter()
-  const { state, hydrated, adoptProtocol, dropProtocol, togglePending } = useTracker()
+  const { isSignedIn, openSignIn } = useHabitsSession()
+  const [adopted, setAdopted] = useState<Set<string>>(new Set())
+  const [hydrated, setHydrated] = useState(false)
+  // A pick made while signed out, added once sign-in completes.
+  const [pendingSlug, setPendingSlug] = useState<string | null>(null)
   const [query, setQuery] = useState("")
   const [pillar, setPillar] = useState<Filter>("all")
   const [reading, setReading] = useState<string | null>(null)
 
-  // Before setup is finished, a pick is only held — the wizard commits it.
-  const selected = new Set(state.onboarded ? state.adoptedProtocols : state.pendingProtocols)
+  const selected = adopted
+
+  // What's already in the signed-in user's tracker (database, via the session cookie).
+  useEffect(() => {
+    if (!isSignedIn) {
+      setAdopted(new Set())
+      setHydrated(false)
+      return
+    }
+    let cancelled = false
+    fetch("/api/tracker/protocols")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (cancelled || !d) return
+        setAdopted(new Set<string>(d.adopted ?? []))
+        setHydrated(true)
+      })
+      .catch(() => undefined)
+    return () => {
+      cancelled = true
+    }
+  }, [isSignedIn])
+
+  const adopt = useCallback(async (slug: string) => {
+    const res = await fetch("/api/tracker/protocols", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug }),
+    })
+    if (res.ok) setAdopted((prev) => new Set(prev).add(slug))
+  }, [])
+
+  useEffect(() => {
+    if (!isSignedIn || !pendingSlug) return
+    setPendingSlug(null)
+    void adopt(pendingSlug)
+  }, [isSignedIn, pendingSlug, adopt])
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -50,21 +89,17 @@ export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }
   }, [protocols])
 
   const toggle = (slug: string) => {
-    // Setup already done: the tracker exists, so add or remove it directly.
-    if (state.onboarded) {
-      if (selected.has(slug)) dropProtocol(slug)
-      else adoptProtocol(slug)
+    // Already tracked: the tracker is where it lives now.
+    if (selected.has(slug)) {
+      router.push("/tracker")
       return
     }
-
-    // Setup not done: hold the pick and hand off to the wizard, which is what
-    // actually creates the habits. Abandon the wizard and nothing is added.
-    const removing = selected.has(slug)
-    togglePending(slug)
-    if (!removing) {
-      setReading(null)
-      router.push("/get-started")
+    if (!isSignedIn) {
+      setPendingSlug(slug)
+      openSignIn({ next: null })
+      return
     }
+    void adopt(slug)
   }
 
   return (
@@ -134,13 +169,11 @@ export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }
           </p>
           {hydrated && selected.size > 0 ? (
             <Link
-              href={state.onboarded ? "/tracker" : "/get-started"}
+              href="/tracker"
               className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
             >
               <Check className="h-4 w-4" aria-hidden />
-              {state.onboarded
-                ? `${selected.size} in your tracker`
-                : `${selected.size} waiting — finish setup`}
+              {`${selected.size} in your tracker`}
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           ) : null}
@@ -192,9 +225,9 @@ export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }
         onClose={() => setReading(null)}
         shareable
         addLabel={
-          state.onboarded
-            ? undefined
-            : { add: "Add & set up my tracker", added: "Selected — tap to remove" }
+          isSignedIn
+            ? { add: "Add to my tracker", added: "In your tracker — open it" }
+            : { add: "Sign in & add to my tracker", added: "In your tracker — open it" }
         }
       />
     </div>

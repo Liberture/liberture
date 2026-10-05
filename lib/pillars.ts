@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react"
-import { Brain, Dumbbell, Heart, Leaf, Wallet, Zap } from "lucide-react"
+import { Brain, Briefcase, Dumbbell, Leaf, Moon, Wallet } from "lucide-react"
 
 import { translations, type PillarId } from "./translations"
 
@@ -27,10 +27,10 @@ export function normalizePillarId(dbPillar: string): PillarId {
 }
 
 export const PILLAR_ICON_MAP: Record<PillarId, LucideIcon> = {
-  work: Brain,
-  sleep: Heart,
+  work: Briefcase,
+  sleep: Moon,
   nutrition: Leaf,
-  mind: Zap,
+  mind: Brain,
   exercise: Dumbbell,
   finance: Wallet,
 }

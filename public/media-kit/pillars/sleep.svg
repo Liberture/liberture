@@ -1,0 +1,12 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Moon icon - Sleep -->
+  <circle cx="128" cy="128" r="80" fill="none" stroke="#00CACB" stroke-width="4" opacity="0.2"/>
+  <circle cx="128" cy="128" r="58" fill="#00CACB" filter="url(#glow)"/>
+  <g transform="translate(94,94) scale(2.83333)" fill="none" stroke="#ffffff" stroke-width="1.05882" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></g>
+</svg>

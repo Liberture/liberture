@@ -1,0 +1,16 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="20.48" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="#0a0a0a"/>
+  <!-- Hexagon: 2 top, 1 right, 2 bottom, 1 left -->
+  <circle cx="179.20" cy="122.95" r="40.96" fill="#8B5CF6" filter="url(#glow)"/>
+  <circle cx="332.80" cy="122.95" r="40.96" fill="#06B6D4" filter="url(#glow)"/>
+  <circle cx="409.60" cy="256.00" r="40.96" fill="#10B981" filter="url(#glow)"/>
+  <circle cx="332.80" cy="389.05" r="40.96" fill="#EC4899" filter="url(#glow)"/>
+  <circle cx="179.20" cy="389.05" r="40.96" fill="#F59E0B" filter="url(#glow)"/>
+  <circle cx="102.40" cy="256.00" r="40.96" fill="#EAB308" filter="url(#glow)"/>
+</svg>
