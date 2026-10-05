@@ -192,7 +192,10 @@ export function HabitsSessionProvider({ children }: { children: ReactNode }) {
   return (
     <HabitsSessionContext.Provider value={value}>
       {children}
-      <SignInDialog open={dialogOpen} onClose={closeDialog} onAuthenticated={handleAuthenticated} />
+      {/* Mounted only while open: every opening starts blank. Kept mounted, the
+          dialog held on to a freshly generated key (nsec) after sign-in and
+          showed it again to whoever chose "create an account" next. */}
+      {dialogOpen && <SignInDialog open onClose={closeDialog} onAuthenticated={handleAuthenticated} />}
     </HabitsSessionContext.Provider>
   )
 }
