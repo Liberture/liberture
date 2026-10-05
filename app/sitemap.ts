@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
+import { GUIDES_UPDATED, guideImages, guidesFor, screenshotSrc } from '@/lib/guides';
 
 const baseUrl = 'https://liberture.com';
 
@@ -30,7 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static routes are built first and never depend on the database, so a DB
   // outage can't drop the homepage and core pages from the sitemap.
   const staticEntries: MetadataRoute.Sitemap = [
-    { url: baseUrl, lastModified: now, changeFrequency: 'daily', priority: 1.0 },
+    { url: baseUrl, lastModified: now, changeFrequency: 'daily', priority: 1.0, images: [`${baseUrl}${screenshotSrc('en', 'tracker-today')}`, `${baseUrl}${screenshotSrc('en', 'statistics')}`, `${baseUrl}${screenshotSrc('en', 'mobile-today')}`] },
     { url: `${baseUrl}/directory`, lastModified: now, changeFrequency: 'daily', priority: 1.0 },
     { url: `${baseUrl}/articles`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
     { url: `${baseUrl}/pillars`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
@@ -48,10 +49,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/games/hydration`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${baseUrl}/games/sleep`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${baseUrl}/how-it-works`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${baseUrl}/docs`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${baseUrl}/docs/chatgpt`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${baseUrl}/docs/claude`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${baseUrl}/docs/permissions`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/get-started`, lastModified: new Date(GUIDES_UPDATED), changeFrequency: 'monthly', priority: 0.9, images: [`${baseUrl}${screenshotSrc('en', 'tracker-today')}`] },
+    { url: `${baseUrl}/guides`, lastModified: new Date(GUIDES_UPDATED), changeFrequency: 'weekly', priority: 0.8 },
+    ...guidesFor('en').articles.map((guide) => ({
+      url: `${baseUrl}/guides/${guide.slug}`,
+      lastModified: new Date(GUIDES_UPDATED),
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+      images: guideImages(guide),
+    })),
+    { url: `${baseUrl}/docs`, lastModified: now, changeFrequency: 'monthly', priority: 0.8, images: [`${baseUrl}${screenshotSrc('en', 'tracker-today')}`] },
+    { url: `${baseUrl}/docs/chatgpt`, lastModified: now, changeFrequency: 'monthly', priority: 0.6, images: [`${baseUrl}${screenshotSrc('en', 'connect-assistant')}`] },
+    { url: `${baseUrl}/docs/claude`, lastModified: now, changeFrequency: 'monthly', priority: 0.6, images: [`${baseUrl}${screenshotSrc('en', 'connect-assistant')}`] },
+    { url: `${baseUrl}/docs/permissions`, lastModified: now, changeFrequency: 'monthly', priority: 0.5, images: [`${baseUrl}${screenshotSrc('en', 'assistant-permissions')}`] },
     { url: `${baseUrl}/docs/api`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${baseUrl}/about`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${baseUrl}/contact`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },

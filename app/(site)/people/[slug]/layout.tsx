@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     
     const person = await response.json();
     const url = `${baseUrl}/people/${slug}`;
-    const imageUrl = person.imageUrl || `${baseUrl}/og-image.png`;
+    const imageUrl = person.imageUrl || `${baseUrl}/og-image.jpg`;
     
     return {
       title: `${person.name} | ${person.title} | Liberture`,
