@@ -44,7 +44,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY}}
-          source: ".next,public,next.config.mjs,package.json,pnpm-lock.yaml,.env,prisma,data,scripts"
+          source: ".next,public,next.config.mjs,package.json,pnpm-lock.yaml,.env,prisma,data,scripts,lib,tsconfig.json"
           target: /var/www/liberture
           overwrite: true
 
