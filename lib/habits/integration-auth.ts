@@ -7,6 +7,13 @@ import { NextResponse } from "next/server"
 import { hasScope, scopeDeniedMessage, type ApiScope } from "@/lib/habits/api-scopes"
 import { checkRateLimit } from "@/lib/habits/rate-limit"
 import { ACCESS_PREFIX, lookupConnection } from "@/lib/habits/oauth/store"
+import { withCompletionStarts } from "@/lib/habits/habit-utils"
+
+/** Habits count from their earliest completion, so backfilled days show in stats. */
+function withHabitStarts(data: StorageData): StorageData {
+  if (!data || !Array.isArray(data.habits)) return data
+  return { ...data, habits: withCompletionStarts(data.habits, data.completions ?? []) }
+}
 
 export interface IntegrationAuthResult {
   userId: number
@@ -62,7 +69,7 @@ export async function verifyIntegrationTokenValue(token: string): Promise<Integr
       userId: result[0].id as number,
       apiKey: result[0].api_key as string | null,
       nostrPubkey: result[0].nostr_pubkey as string | null,
-      data: result[0].data as StorageData,
+      data: withHabitStarts(result[0].data as StorageData),
     }
   } catch {
     return null
@@ -135,7 +142,7 @@ export async function verifyApiKey(
         userId: result[0].id as number,
         apiKey: result[0].api_key as string,
         nostrPubkey: result[0].nostr_pubkey as string | null,
-        data: result[0].data as StorageData,
+        data: withHabitStarts(result[0].data as StorageData),
       }
     }
 
@@ -159,7 +166,7 @@ export async function verifyApiKey(
       userId: result[0].id as number,
       apiKey: result[0].api_key as string | null,
       nostrPubkey: result[0].nostr_pubkey as string,
-      data: result[0].data as StorageData,
+      data: withHabitStarts(result[0].data as StorageData),
     }
   } catch {
     return null

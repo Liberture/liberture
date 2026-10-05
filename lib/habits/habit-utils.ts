@@ -34,7 +34,9 @@ export function isHabitActiveOnDate(habit: Habit | undefined, date: Date, now: D
 
   const day = startOfLocalDay(date)
   const createdAt = habit.createdAt ? startOfLocalDay(habit.createdAt) : new Date(0)
-  if (day < createdAt) return false
+  const startDate = habit.startDate ? startOfLocalDay(habit.startDate) : null
+  const activeFrom = startDate && startDate < createdAt ? startDate : createdAt
+  if (day < activeFrom) return false
 
   const archiveRanges = habit.archiveHistory?.length
     ? habit.archiveHistory
@@ -49,6 +51,35 @@ export function isHabitActiveOnDate(habit: Habit | undefined, date: Date, now: D
       ? day >= archivedAt && day < unarchivedAt
       : day >= archivedAt && day <= unarchivedAt
   })
+}
+
+/**
+ * Lets completions logged before a habit was created count. The assistant can
+ * log past days ("I meditated yesterday") for a habit added today; without
+ * this every stat, streak and chart starts at createdAt and drops them.
+ * Sets `startDate` to the earliest completed day when that precedes
+ * createdAt. createdAt itself is left alone: habit-sync uses it to detect
+ * habits added since a tab's last sync. Returns the same objects when nothing
+ * changes, so React state and memo dependencies stay stable.
+ */
+export function withCompletionStarts<T extends Habit>(habits: T[], completions: HabitCompletion[]): T[] {
+  const earliest = new Map<string, string>()
+  for (const c of completions) {
+    if (!c.completed || !/^\d{4}-\d{2}-\d{2}$/.test(c.date)) continue
+    const current = earliest.get(c.habitId)
+    if (!current || c.date < current) earliest.set(c.habitId, c.date)
+  }
+  let changed = false
+  const result = habits.map((habit) => {
+    const first = earliest.get(habit.id)
+    if (!first) return habit
+    const createdDay = habit.createdAt ? dateKey(startOfLocalDay(habit.createdAt)) : null
+    if (createdDay && first >= createdDay) return habit
+    if (habit.startDate && habit.startDate <= first) return habit
+    changed = true
+    return { ...habit, startDate: first }
+  })
+  return changed ? result : habits
 }
 
 export function isHabitScheduledOnDate(habit: Habit | undefined, date: Date, now: Date = new Date()): boolean {

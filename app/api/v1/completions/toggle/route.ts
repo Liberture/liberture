@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { getDb } from "@/lib/habits/db"
 import { authorizeIntegration } from "@/lib/habits/integration-auth"
-import { calculateStreak } from "@/lib/habits/habit-utils"
+import { calculateStreak, withCompletionStarts } from "@/lib/habits/habit-utils"
 import { dateForRequest, isDateOnlyString, parseDateOnly } from "@/lib/habits/date-utils"
 import type { HabitCompletion } from "@/lib/habits/types"
 import { resolveByName, spokenList } from "@/lib/habits/api/resolve"
@@ -125,7 +125,9 @@ export async function POST(request: Request) {
 
     await refreshStorageJsonFromOptimizedTables(sql, user.userId, ["completions"], now)
     const updatedCompletions = await getCompletionRows(sql, user.userId)
-    const streakData = calculateStreak(habitId, updatedCompletions, undefined, habit, parseDateOnly(requestToday))
+    // A day logged before the habit existed must count toward the streak we report.
+    const [countedHabit] = withCompletionStarts([habit], updatedCompletions)
+    const streakData = calculateStreak(habitId, updatedCompletions, undefined, countedHabit, parseDateOnly(requestToday))
 
     return NextResponse.json({
       success: true,
