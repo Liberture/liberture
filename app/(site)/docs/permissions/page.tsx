@@ -2,16 +2,19 @@ import { DocsList, DocsSection, DocsTitle } from "@/components/habits/docs/docs-
 import { API_SCOPES } from "@/lib/habits/api-scopes"
 import { getDictionary } from "@/lib/habits/i18n"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { DocsScreenshot } from "@/components/habits/docs/docs-screenshot"
 
 export const metadata = { title: "Permissions · Liberture docs" }
 
 export default async function PermissionsDocsPage() {
-  const dict = getDictionary(await getRequestLocale())
+  const locale = await getRequestLocale()
+  const dict = getDictionary(locale)
   const t = dict.docs.permissions
 
   return (
     <>
       <DocsTitle title={t.title} lead={t.lead} />
+      <DocsScreenshot locale={locale} imageKey="assistant-permissions" alt={dict.guides.articles.find((a) => a.slug === "habit-tracker-privacy-and-permissions")?.heroAlt ?? ""} />
       <p className="-mt-6 mb-8 text-muted-foreground">{t.where}</p>
 
       <div className="mb-12 overflow-hidden rounded-xl border border-white/10">

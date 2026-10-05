@@ -51,10 +51,10 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Liberture - Biological Operating System",
+        alt: "Liberture: your habits, by voice. A habit tracker for ChatGPT and Claude",
       },
     ],
   },
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     title: "Liberture | Biological Operating System",
     description:
       "Master your biology with Liberture, the platform built for tracking, coaching, and optimizing your wellbeing.",
-    images: ["/og-image.png"],
+    images: ["/og-image.jpg"],
     site: "@liberture",
     creator: "@liberture",
   },

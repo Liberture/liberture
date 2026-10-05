@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://liberture.com';
     const url = `${baseUrl}/protocols/${slug}`;
-    const imageUrl = `${baseUrl}/og-image.png`;
+    const imageUrl = `${baseUrl}/og-image.jpg`;
     
     const metadata: Metadata = {
       title: `${protocol.name} | ${protocol.pillar} Protocol | Liberture`,

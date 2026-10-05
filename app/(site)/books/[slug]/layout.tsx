@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     
     const book = await response.json();
     const url = `${baseUrl}/books/${slug}`;
-    const imageUrl = book.imageUrl || `${baseUrl}/og-image.png`;
+    const imageUrl = book.imageUrl || `${baseUrl}/og-image.jpg`;
     
     return {
       title: `${book.title} by ${book.author} | Liberture`,

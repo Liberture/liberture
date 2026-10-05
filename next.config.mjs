@@ -22,8 +22,6 @@ const nextConfig = {
         permanent: true,
       },
       // The browser-only tracker and its setup wizard became the server-backed tracker.
-      // /get-started was indexed; send its ranking to the landing page (sign-up lives there).
-      { source: '/get-started', destination: '/', permanent: true },
       { source: '/dashboard', destination: '/tracker', permanent: false },
       { source: '/dashboard/:path*', destination: '/tracker', permanent: false },
       { source: '/admin-login', destination: '/login?redirect=/admin', permanent: false },
