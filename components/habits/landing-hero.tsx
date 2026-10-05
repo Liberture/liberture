@@ -10,6 +10,7 @@ import { FeaturesSection } from "@/components/habits/landing/features-section"
 import { HeroBackground, HeroPillarButtons } from "@/components/habits/landing/liberture-hero-art"
 import { PillarsShowcase } from "@/components/habits/pillars-showcase"
 import { HowItWorks } from "@/components/habits/landing/how-it-works"
+import { AppPreview } from "@/components/habits/landing/app-preview"
 import { FoldedDrift, IslandRidge, MicroterrainRidge, RippleBloom, TriadBasins, VortexShell } from "@/components/habits/patterns"
 import { AssistantsArt, ControlArt, ConversationArt, RecommendationsArt, SunriseArt } from "@/components/habits/landing/section-art"
 import { useHabitsSession } from "@/components/habits/session-provider"
@@ -104,6 +105,9 @@ export function LandingHero({ locale, origin }: { locale: Locale; origin: string
           </a>
           </div>
         </section>
+
+        {/* ---------- The app, populated ---------- */}
+        <AppPreview dict={dict} locale={locale} />
 
         {/* ---------- Features (Liberture's section, animated) ---------- */}
         <FeaturesSection heading={t.featuresHeading} description={t.featuresBody} items={t.features} />

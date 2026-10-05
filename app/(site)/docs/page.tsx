@@ -6,14 +6,17 @@ import { ChatGPTLogo, ClaudeLogo } from "@/components/habits/brand-logos"
 import { DocsList, DocsSection, DocsSteps, DocsTitle } from "@/components/habits/docs/docs-parts"
 import { getDictionary } from "@/lib/habits/i18n"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { DocsScreenshot } from "@/components/habits/docs/docs-screenshot"
 
 export default async function DocsOverviewPage() {
-  const dict = getDictionary(await getRequestLocale())
+  const locale = await getRequestLocale()
+  const dict = getDictionary(locale)
   const t = dict.docs.overview
 
   return (
     <>
       <DocsTitle title={t.title} lead={t.lead} />
+      <DocsScreenshot locale={locale} imageKey="tracker-today" alt={dict.preview.today} />
 
       <DocsSection title={t.whatTitle}>
         <DocsList items={t.what} />

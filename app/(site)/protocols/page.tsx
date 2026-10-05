@@ -23,14 +23,14 @@ export const metadata: Metadata = {
     locale: "en_US",
     type: "website",
     images: [
-      { url: "/og-image.png", width: 1200, height: 630, alt: "Liberture protocol library" },
+      { url: "/og-image.jpg", width: 1200, height: 630, alt: "Liberture protocol library" },
     ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Protocols | Liberture",
     description: "Evidence-backed routines you can explore, share, download and track.",
-    images: ["/og-image.png"],
+    images: ["/og-image.jpg"],
     site: "@liberture",
     creator: "@liberture",
   },

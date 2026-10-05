@@ -491,6 +491,508 @@ const liberture: Translations = {
 // ---------------------------------------------------------------------------
 
 const habitsEn = {
+  getStarted: {
+    metaTitle: "Get Started: Free Habit Tracker for ChatGPT and Claude",
+    metaDescription: "Create your free Liberture account in a minute, add your first habits from evidence-based protocols and connect ChatGPT or Claude to track them by voice.",
+    eyebrow: "Get started",
+    title: "Start tracking in a minute",
+    lead: "Free, no email, no password. Create your account, pick a habit or two, and connect ChatGPT or Claude if you want to track them by voice.",
+    create: "Create my account",
+    signIn: "I already have a key",
+    openTracker: "Open my tracker",
+    stepsTitle: "Three steps",
+    steps: [
+      {
+        title: "Create your account",
+        body: "Your account is a Nostr key, generated in your browser. Save it somewhere safe: it's how you sign in on any device, and nobody can recover it for you.",
+      },
+      {
+        title: "Add your first habits",
+        body: "Pick a protocol from the catalog (morning light, deep work, a daily walk) or add your own. Start with two or three.",
+      },
+      {
+        title: "Connect ChatGPT or Claude",
+        body: "Optional, and it takes a minute. Then say \"what's left today?\" or \"mark meditation done\", in chat or by voice.",
+      },
+    ],
+    startersTitle: "Good first protocols",
+    startersBody: "Simple, free and backed by evidence. Each one becomes one or two daily habits.",
+    browseAll: "Browse all 53 protocols",
+    guidesTitle: "Connect your assistant",
+    chatgptGuide: "Track habits with ChatGPT",
+    claudeGuide: "Connect Claude",
+    voiceGuide: "Log habits by voice",
+    shotAlt: "The Liberture habit tracker with today's habits, a 14-day best streak and a 67% weekly completion rate",
+    faqTitle: "Questions",
+    faq: [
+      {
+        q: "Is it free?",
+        a: "Yes. The tracker, the protocol catalog and the ChatGPT and Claude connections are free. Liberture is open source.",
+      },
+      {
+        q: "Why no email or password?",
+        a: "Your account is a Nostr key: a secret only you hold. It signs you in on any device that has it, and there's no password database to leak. Save it when it's shown, because it can't be recovered.",
+      },
+      {
+        q: "Do I need ChatGPT or Claude?",
+        a: "No. The tracker works on its own on the web and on your phone. Connecting an assistant adds logging and check-ins by chat or voice.",
+      },
+      {
+        q: "Can I use it on my phone?",
+        a: "Yes. It works in any mobile browser and can be installed on your home screen like an app.",
+      },
+      {
+        q: "What can the assistant see?",
+        a: "Only your habit data, within the permissions you choose. Deleting habits is off by default, and you can disconnect any assistant instantly.",
+      },
+    ],
+  },
+  guides: {
+    nav: "Guides",
+    eyebrow: "Guides",
+    title: "Guides",
+    heading: "Get more out of your habit tracker",
+    lead: "Step-by-step guides for tracking habits with ChatGPT and Claude, logging them by voice, building routines from evidence-based protocols and reading your progress.",
+    metaTitle: "Habit Tracker Guides: ChatGPT, Claude, Voice and Protocols",
+    metaDescription: "Step-by-step guides to track your habits with ChatGPT or Claude, log them by voice, build routines from evidence-based protocols and read your statistics.",
+    readGuide: "Read the guide",
+    minutes: "{n} min read",
+    updated: "Updated {date}",
+    onThisPage: "On this page",
+    related: "Related guides",
+    allGuides: "All guides",
+    ctaTitle: "Try it with your own habits",
+    ctaBody: "Free, no email, no password. Your Nostr key is your account.",
+    ctaButton: "Open the tracker",
+    docsLink: "Technical docs",
+    screenshotOf: "Screenshot",
+    articles: [
+      {
+        slug: "track-habits-with-chatgpt",
+        title: "How to track your habits with ChatGPT",
+        description: "Connect ChatGPT to a real habit tracker in a minute, then log habits, check streaks and add todos by chat or voice.",
+        excerpt: "Connect ChatGPT once and it can read your habits, mark them done and tell you how your week went.",
+        minutes: "4",
+        hero: "tracker-today",
+        heroAlt: "Liberture habit tracker showing today's habits, a 14-day best streak and a 67% 7-day completion rate",
+        howTo: true,
+        sections: [
+          {
+            heading: "Why track habits through ChatGPT",
+            paragraphs: [
+              "Most habit trackers fail on friction: opening the app, finding the habit, tapping the box. ChatGPT removes that step. You say \"mark meditation done\" in the chat you already have open, and the tracker records it with the date, the streak and the completion rate.",
+              "ChatGPT doesn't store your habits itself. It talks to Liberture through a connector (an MCP server), so your history stays in one place and works the same from ChatGPT, Claude or the web app.",
+            ],
+          },
+          {
+            heading: "Step 1: Create your tracker",
+            paragraphs: [
+              "Open the tracker and create an account. There's no email or password: your Nostr key is your account, so save it when it's shown. Add a habit or two, or a whole protocol from the catalog. Those are what ChatGPT will talk about.",
+            ],
+            image: {
+              key: "mobile-today",
+              alt: "Today's habits in the Liberture tracker, with streaks, pillars and times",
+              caption: "Your tracker: today's habits, streaks and completion rate.",
+            },
+          },
+          {
+            heading: "Step 2: Add Liberture to ChatGPT",
+            paragraphs: [
+              "In ChatGPT, open Settings → Apps → Advanced and turn on developer mode, then press Create. Name the app \"Liberture\", paste https://liberture.com/mcp as the URL and choose OAuth.",
+              "ChatGPT opens Liberture in a new window: sign in if asked and press Approve. You do this once. The same URL and steps are always in the tracker under Settings → Voice assistants.",
+            ],
+            image: {
+              key: "connect-assistant",
+              alt: "Liberture settings showing the connector URL and setup steps for Claude and ChatGPT",
+              caption: "Settings → Voice assistants shows the connector URL and the steps for each assistant.",
+            },
+          },
+          {
+            heading: "Step 3: Talk to it",
+            paragraphs: [
+              "Open a chat, enable Liberture from the tools menu and ask \"what's left today?\". When ChatGPT asks for permission to use a tool, choose Always allow so voice mode never stops to confirm.",
+            ],
+            bullets: [
+              "What's left today?",
+              "Mark meditation done.",
+              "I skipped the walk yesterday, undo it.",
+              "How did this week go compared to last?",
+              "Add running as a daily habit.",
+            ],
+          },
+          {
+            heading: "What it changes in your tracker",
+            paragraphs: [
+              "Every change shows up in the open tracker within a second, on desktop and on your phone, no reload needed. Days you log after the fact (\"I ran yesterday\") count in your streaks and statistics just like days you ticked on time.",
+            ],
+            image: {
+              key: "tracker-week",
+              alt: "Week view of the habit tracker with completed days ticked for each habit",
+              caption: "The week view: every completion logged from ChatGPT appears here.",
+            },
+          },
+          {
+            heading: "If something doesn't work",
+            paragraphs: [
+              "If ChatGPT asks you to sign in again, the connection was removed or you signed in with a different key: approve it again. If it says an action is switched off, that permission is disabled in Settings → Voice assistants.",
+            ],
+          },
+        ],
+        steps: [
+          "Create your tracker and add a habit",
+          "In ChatGPT: Settings → Apps → Advanced, turn on developer mode, press Create",
+          "Paste https://liberture.com/mcp, choose OAuth, sign in and approve",
+          "Ask \"what's left today?\" in chat or voice mode",
+        ],
+        related: [
+          "connect-claude-to-your-habit-tracker",
+          "log-habits-by-voice",
+          "habit-tracker-privacy-and-permissions",
+        ],
+      },
+      {
+        slug: "connect-claude-to-your-habit-tracker",
+        title: "How to connect Claude to your habit tracker",
+        description: "Add Liberture as a custom connector in Claude and track habits, streaks and todos from any chat, project or voice conversation.",
+        excerpt: "One custom connector and Claude can log your habits, read your stats and suggest protocols, in chat or by voice.",
+        minutes: "4",
+        hero: "connect-assistant",
+        heroAlt: "Liberture settings with the Claude connector URL and the steps to add it",
+        howTo: true,
+        sections: [
+          {
+            heading: "What Claude can do with your tracker",
+            paragraphs: [
+              "Once connected, Claude can tell you what's left today with your streaks, mark habits done (or undo them) by name, answer \"how was my week\", add and close todos, and suggest protocols from the catalog with a link to read first. It works in normal chats, in Projects and in voice mode on the Claude apps.",
+            ],
+          },
+          {
+            heading: "Step 1: Copy the connector URL",
+            paragraphs: [
+              "The URL is the same for everyone: https://liberture.com/mcp. Your sign-in is what links it to your habits. You'll also find it in the tracker under Settings → Voice assistants, with a copy button.",
+            ],
+            image: {
+              key: "connect-assistant",
+              alt: "Connector URL with a copy button in Liberture's voice assistant settings",
+              caption: "The connector URL and the Claude steps in Settings → Voice assistants.",
+            },
+          },
+          {
+            heading: "Step 2: Add it to Claude",
+            paragraphs: [
+              "On claude.ai or the Claude app, open Settings → Connectors → Add custom connector. Name it \"Liberture\", paste the URL and press Add. Then press Connect: Liberture opens, you sign in if asked and press Approve. Done.",
+            ],
+          },
+          {
+            heading: "Step 3 (optional): Install the skill",
+            paragraphs: [
+              "The Liberture skill teaches Claude a fast check-in routine, useful for voice. Download it from Settings → Voice assistants in the tracker and upload the zip in Claude → Settings → Capabilities → Skills.",
+            ],
+          },
+          {
+            heading: "Check that it's connected",
+            paragraphs: [
+              "Back in the tracker, Settings → Voice assistants lists every connected assistant with when it was last used. Each one has its own access, so you can disconnect Claude without affecting ChatGPT.",
+            ],
+            image: {
+              key: "assistant-permissions",
+              alt: "List of connected assistants, ChatGPT and Claude, with disconnect buttons and permission switches",
+              caption: "Connected assistants and what they're allowed to do.",
+            },
+          },
+          {
+            heading: "Use it by voice",
+            paragraphs: [
+              "Start voice mode in the Claude app with the connector enabled and ask \"what's left today?\". If your device doesn't offer tool calls in voice yet, send the same request as a text message.",
+            ],
+          },
+        ],
+        steps: [
+          "Copy https://liberture.com/mcp",
+          "In Claude: Settings → Connectors → Add custom connector, name it Liberture, paste the URL",
+          "Press Connect, sign in to Liberture and press Approve",
+          "Ask \"what's left today?\"",
+        ],
+        related: [
+          "track-habits-with-chatgpt",
+          "log-habits-by-voice",
+          "habit-tracker-privacy-and-permissions",
+        ],
+      },
+      {
+        slug: "log-habits-by-voice",
+        title: "Log habits by voice with ChatGPT or Claude",
+        description: "Use ChatGPT or Claude voice mode to log habits hands-free, hear your streaks and plan the day, with real examples of what to say.",
+        excerpt: "Hands-free habit tracking: say it out loud while you make coffee, and the tracker updates instantly.",
+        minutes: "3",
+        hero: "mobile-today",
+        heroAlt: "Liberture habit tracker on a phone showing today's habits and a 14-day best streak",
+        howTo: false,
+        sections: [
+          {
+            heading: "Why voice works for habits",
+            paragraphs: [
+              "The best time to log a habit is right after you do it, which is usually when your hands are busy. Voice mode in ChatGPT and Claude lets you say \"done with the walk\" and move on, while the tracker keeps the record.",
+            ],
+          },
+          {
+            heading: "Before you start",
+            paragraphs: [
+              "Connect your assistant once (see the guides for ChatGPT and Claude). In ChatGPT, choose Always allow the first time it asks to use Liberture, so voice never pauses to confirm.",
+            ],
+          },
+          {
+            heading: "Things to say",
+            paragraphs: [
+              "You don't need exact names or special phrasing. A few that work well:",
+            ],
+            bullets: [
+              "\"What's left today?\"",
+              "\"Mark meditation done.\"",
+              "\"I skipped the walk yesterday, undo it.\"",
+              "\"How's my sleep streak?\"",
+              "\"Remind me to call the bank on Friday.\"",
+              "\"Suggest a protocol for focus.\"",
+              "\"Add the morning light protocol.\"",
+            ],
+          },
+          {
+            heading: "See it update on your phone",
+            paragraphs: [
+              "If the tracker is open on your phone or computer, the change appears within a second. No refresh. Logging yesterday's walk updates yesterday's square and your streak.",
+            ],
+            image: {
+              key: "mobile-today",
+              alt: "Phone view of the habit tracker updating today's habits",
+              caption: "The tracker on a phone, updated live by the assistant.",
+            },
+          },
+          {
+            heading: "Plan the day out loud",
+            paragraphs: [
+              "Ask for a morning check-in: what's scheduled, what's overdue, which streak is at risk. Add todos as you think of them and they land in the same tracker, with due dates and priorities.",
+            ],
+            image: {
+              key: "mobile-todos",
+              alt: "Todo list on a phone with due dates and priorities",
+              caption: "Todos added by voice, with due dates and priorities.",
+            },
+          },
+        ],
+        steps: [] as string[],
+        related: [
+          "track-habits-with-chatgpt",
+          "connect-claude-to-your-habit-tracker",
+          "read-your-habit-statistics",
+        ],
+      },
+      {
+        slug: "build-a-morning-routine-with-protocols",
+        title: "Build a morning routine from evidence-based protocols",
+        description: "Turn protocols from Huberman, Attia, Walker and others into daily habits: morning light, protein-first breakfast, deep work and more.",
+        excerpt: "Pick protocols with the evidence attached and they become ordinary daily habits you can track and edit.",
+        minutes: "5",
+        hero: "protocol-catalog",
+        heroAlt: "Protocol catalog with evidence-backed routines filtered by pillar, cost and effort",
+        howTo: true,
+        sections: [
+          {
+            heading: "Start from protocols, not from scratch",
+            paragraphs: [
+              "A protocol is a routine with the research behind it: what to do, when, how much it costs and where the evidence comes from. Liberture's catalog has 53 of them across six pillars (work, sleep, nutrition, mind, exercise and finance), from researchers and practitioners like Andrew Huberman, Peter Attia, Matthew Walker and Cal Newport.",
+            ],
+            image: {
+              key: "protocol-catalog",
+              alt: "Catalog of 53 protocols with filters for pillar, cost, effort and author",
+              caption: "The catalog: filter by pillar, cost, effort or author, and read the evidence before adding.",
+            },
+          },
+          {
+            heading: "A simple morning routine",
+            paragraphs: [
+              "A routine that most people can keep, built entirely from catalog protocols:",
+            ],
+            bullets: [
+              "Morning sunlight exposure: 5 to 10 minutes outside soon after waking.",
+              "Hydration on waking: a glass of water before coffee.",
+              "Delay the first coffee by 90 minutes.",
+              "Protein-first breakfast: about 30 g of protein before anything else.",
+              "Deep work block: one 90-minute undistracted block on the hardest task.",
+            ],
+          },
+          {
+            heading: "Add them to your tracker",
+            paragraphs: [
+              "Open a protocol, read it, and press Add. Its habits land in your tracker with a sensible time and schedule: daily for morning light, weekdays for deep work. Change anything you like; adopted habits are ordinary habits.",
+            ],
+            image: {
+              key: "tracker-today",
+              alt: "Today's habits created from protocols, with times and schedules",
+              caption: "Protocols become ordinary habits with times and schedules.",
+            },
+          },
+          {
+            heading: "Or ask your assistant",
+            paragraphs: [
+              "If ChatGPT or Claude is connected, say \"suggest a protocol for focus\" or \"add the morning light protocol\". It searches the same catalog, sends you the link to read first and adds the habits when you ask.",
+            ],
+          },
+          {
+            heading: "Keep it small",
+            paragraphs: [
+              "Start with two or three habits. After two weeks, the week view shows which ones stuck. Add the next protocol only when the first ones feel automatic.",
+            ],
+            image: {
+              key: "tracker-week",
+              alt: "Week view showing which morning habits were completed each day",
+              caption: "Two weeks in: the week view shows what stuck.",
+            },
+          },
+        ],
+        steps: [
+          "Open the protocol catalog",
+          "Read a protocol and press Add",
+          "Adjust the habit times and days if needed",
+          "Track it for two weeks before adding more",
+        ],
+        related: [
+          "read-your-habit-statistics",
+          "track-habits-with-chatgpt",
+          "log-habits-by-voice",
+        ],
+      },
+      {
+        slug: "read-your-habit-statistics",
+        title: "How to read your habit statistics: streaks, rates and trends",
+        description: "Understand completion rates, streaks, the pillar tower and weekly consistency so you can see which habits are sticking and which need help.",
+        excerpt: "Completion rate, streaks, weekly consistency and pillar balance: what each one tells you and what to do about it.",
+        minutes: "5",
+        hero: "statistics",
+        heroAlt: "Habit statistics with completion rate per habit, total completions and average rate",
+        howTo: false,
+        sections: [
+          {
+            heading: "Pick a time range",
+            paragraphs: [
+              "Statistics cover the last 7, 30 or 90 days, this month, this year or a custom range. Seven days answers \"how's this week going\"; 90 days shows whether a habit has really stuck.",
+            ],
+          },
+          {
+            heading: "Completion rate per habit",
+            paragraphs: [
+              "The summary shows total completions, the average rate and how many habits are active. Below it, every habit gets a bar with its rate for the period: green is on track, orange needs attention, red is slipping. Only scheduled days count, so a weekday habit isn't penalised on weekends.",
+            ],
+            image: {
+              key: "statistics",
+              alt: "Habit performance bars from 29% to 100% for nine habits over seven days",
+              caption: "Habit performance: the weak habits stand out immediately.",
+            },
+          },
+          {
+            heading: "Streaks",
+            paragraphs: [
+              "A streak counts consecutive scheduled days. Missing a day you weren't scheduled for doesn't break it. Days you log afterwards, from the tracker or through ChatGPT or Claude, count too, even from before you created the habit.",
+            ],
+          },
+          {
+            heading: "Trends, heatmap and consistency",
+            paragraphs: [
+              "The completion trend shows daily totals; the year overview is a heatmap of every day; weekly consistency marks perfect weeks and the ones under 50%. Together they tell you whether a dip was one bad week or a slow slide.",
+            ],
+          },
+          {
+            heading: "On your phone",
+            paragraphs: [
+              "The same statistics work on mobile, one card per section.",
+            ],
+            image: {
+              key: "mobile-statistics",
+              alt: "Habit statistics on a phone with total completions and average rate",
+              caption: "Statistics on mobile.",
+            },
+          },
+          {
+            heading: "Ask instead of reading",
+            paragraphs: [
+              "With an assistant connected, ask \"how did this week go compared to last?\" or \"which habit am I struggling with?\". It reads the same numbers and answers in a sentence or two.",
+            ],
+          },
+        ],
+        steps: [] as string[],
+        related: [
+          "build-a-morning-routine-with-protocols",
+          "log-habits-by-voice",
+          "track-habits-with-chatgpt",
+        ],
+      },
+      {
+        slug: "habit-tracker-privacy-and-permissions",
+        title: "Control what your AI assistant can see and do",
+        description: "Choose exactly what ChatGPT or Claude may do in your habit tracker, from reading stats to deleting habits, and disconnect any assistant instantly.",
+        excerpt: "Eight switches decide what connected assistants may do. Deleting habits is off until you turn it on.",
+        minutes: "3",
+        hero: "assistant-permissions",
+        heroAlt: "Connected assistants ChatGPT and Claude with permission switches for reading, logging, todos, calendar and habits",
+        howTo: false,
+        sections: [
+          {
+            heading: "Every assistant gets its own access",
+            paragraphs: [
+              "Each assistant you connect gets its own access token. Settings → Voice assistants lists them with when they were last used, and Disconnect stops one immediately without affecting the others.",
+            ],
+            image: {
+              key: "assistant-permissions",
+              alt: "Settings showing ChatGPT and Claude connected, with Disconnect buttons and permission switches",
+              caption: "Connected assistants and the switches that apply to all of them.",
+            },
+          },
+          {
+            heading: "The permissions",
+            paragraphs: [
+              "Every permission is on by default except deleting habits. Changes apply to the very next request:",
+            ],
+            bullets: [
+              "Read: habits, streaks, stats, todos, calendar, catalog and recommendations.",
+              "Log completions: mark habits done or not done, for today or another day.",
+              "Todos and projects: create, edit, complete and delete.",
+              "Calendar: create, move and delete events.",
+              "Add habits: create habits and add protocols from the catalog.",
+              "Edit habits: rename and change description, days or time.",
+              "Delete habits: off until you turn it on.",
+              "Export: download a full JSON backup.",
+            ],
+          },
+          {
+            heading: "When a permission is off",
+            paragraphs: [
+              "The assistant gets a clear \"switched off\" answer it can read to you instead of failing silently. If adding habits is off, it gives you the protocol's link so you can add it yourself.",
+            ],
+          },
+          {
+            heading: "What an assistant can never do",
+            paragraphs: [
+              "No token can change its own permissions, read or change your login key or Nostr identity, or reach anyone else's data. Data goes to OpenAI or Anthropic only when you use the assistant, under their terms.",
+            ],
+          },
+        ],
+        steps: [] as string[],
+        related: [
+          "track-habits-with-chatgpt",
+          "connect-claude-to-your-habit-tracker",
+          "read-your-habit-statistics",
+        ],
+      },
+    ],
+  },
+  preview: {
+    eyebrow: "See it",
+    heading: "Your habits, tracked and talked to",
+    body: "A real tracker underneath: daily habits, streaks, statistics, todos and a calendar. Your assistant reads and writes the same data.",
+    today: "Today's habits with streaks and completion rate",
+    stats: "Statistics: completion rate per habit",
+    mobile: "The tracker on a phone",
+    guides: "Read the guides",
+  },
   app: {
     // E
     signInDialog: {
@@ -2296,6 +2798,7 @@ const habitsEn = {
     name: "Liberture",
     nav: {
       docs: "Docs",
+      guides: "Guides",
       signIn: "Sign in",
       openApp: "Open the app",
       liberture: "Liberture",
@@ -2324,6 +2827,7 @@ const habitsEn = {
       connect: "Connect",
       assistant: "Your assistant",
       howItWorks: "How it works",
+      guides: "Guides",
       chatgpt: "Connect ChatGPT",
       claude: "Connect Claude",
       tracker: "Habit tracker",
@@ -2648,6 +3152,508 @@ const habitsEn = {
 export type HabitsDictionary = typeof habitsEn
 
 const habitsEs: HabitsDictionary = {
+  getStarted: {
+    metaTitle: "Empezá: registro de hábitos gratis para ChatGPT y Claude",
+    metaDescription: "Creá tu cuenta gratis de Liberture en un minuto, agregá tus primeros hábitos con protocolos basados en evidencia y conectá ChatGPT o Claude para registrarlos por voz.",
+    eyebrow: "Empezá",
+    title: "Empezá a registrar en un minuto",
+    lead: "Gratis, sin email ni contraseña. Creá tu cuenta, elegí uno o dos hábitos y conectá ChatGPT o Claude si querés registrarlos por voz.",
+    create: "Crear mi cuenta",
+    signIn: "Ya tengo una clave",
+    openTracker: "Abrir mi tracker",
+    stepsTitle: "Tres pasos",
+    steps: [
+      {
+        title: "Creá tu cuenta",
+        body: "Tu cuenta es una clave Nostr que se genera en tu navegador. Guardala en un lugar seguro: con ella entrás desde cualquier dispositivo y nadie puede recuperarla por vos.",
+      },
+      {
+        title: "Agregá tus primeros hábitos",
+        body: "Elegí un protocolo del catálogo (luz de la mañana, trabajo profundo, una caminata diaria) o agregá los tuyos. Empezá con dos o tres.",
+      },
+      {
+        title: "Conectá ChatGPT o Claude",
+        body: "Es opcional y lleva un minuto. Después decí \"¿qué me falta hoy?\" o \"marcá la meditación\", por chat o por voz.",
+      },
+    ],
+    startersTitle: "Buenos primeros protocolos",
+    startersBody: "Simples, gratis y con evidencia detrás. Cada uno se convierte en uno o dos hábitos diarios.",
+    browseAll: "Ver los 53 protocolos",
+    guidesTitle: "Conectá tu asistente",
+    chatgptGuide: "Registrar hábitos con ChatGPT",
+    claudeGuide: "Conectar Claude",
+    voiceGuide: "Registrar hábitos por voz",
+    shotAlt: "El registro de hábitos de Liberture con los hábitos de hoy, una mejor racha de 14 días y 67% de cumplimiento semanal",
+    faqTitle: "Preguntas",
+    faq: [
+      {
+        q: "¿Es gratis?",
+        a: "Sí. El tracker, el catálogo de protocolos y las conexiones con ChatGPT y Claude son gratis. Liberture es de código abierto.",
+      },
+      {
+        q: "¿Por qué no hay email ni contraseña?",
+        a: "Tu cuenta es una clave Nostr: un secreto que solo vos tenés. Te deja entrar desde cualquier dispositivo que la tenga y no hay una base de contraseñas que se pueda filtrar. Guardala cuando aparezca, porque no se puede recuperar.",
+      },
+      {
+        q: "¿Necesito ChatGPT o Claude?",
+        a: "No. El tracker funciona solo, en la web y en el celular. Conectar un asistente suma el registro y los chequeos por chat o por voz.",
+      },
+      {
+        q: "¿Lo puedo usar en el celular?",
+        a: "Sí. Funciona en cualquier navegador del celular y se puede instalar en la pantalla de inicio como una app.",
+      },
+      {
+        q: "¿Qué puede ver el asistente?",
+        a: "Solo tus datos de hábitos, dentro de los permisos que elijas. Borrar hábitos está apagado por defecto y podés desconectar cualquier asistente al instante.",
+      },
+    ],
+  },
+  guides: {
+    nav: "Guías",
+    eyebrow: "Guías",
+    title: "Guías",
+    heading: "Sacale más provecho a tu registro de hábitos",
+    lead: "Guías paso a paso para registrar hábitos con ChatGPT y Claude, hacerlo por voz, armar rutinas con protocolos basados en evidencia y entender tu progreso.",
+    metaTitle: "Guías del registro de hábitos: ChatGPT, Claude, voz y protocolos",
+    metaDescription: "Guías paso a paso para registrar tus hábitos con ChatGPT o Claude, hacerlo por voz, armar rutinas con protocolos basados en evidencia y leer tus estadísticas.",
+    readGuide: "Leer la guía",
+    minutes: "{n} min de lectura",
+    updated: "Actualizada el {date}",
+    onThisPage: "En esta página",
+    related: "Guías relacionadas",
+    allGuides: "Todas las guías",
+    ctaTitle: "Probalo con tus propios hábitos",
+    ctaBody: "Gratis, sin email ni contraseña. Tu clave Nostr es tu cuenta.",
+    ctaButton: "Abrir el tracker",
+    docsLink: "Documentación técnica",
+    screenshotOf: "Captura",
+    articles: [
+      {
+        slug: "track-habits-with-chatgpt",
+        title: "Cómo registrar tus hábitos con ChatGPT",
+        description: "Conectá ChatGPT a un registro de hábitos real en un minuto y marcá hábitos, mirá tus rachas y agregá tareas por chat o por voz.",
+        excerpt: "Conectá ChatGPT una vez y va a poder leer tus hábitos, marcarlos como hechos y contarte cómo te fue en la semana.",
+        minutes: "4",
+        hero: "tracker-today",
+        heroAlt: "Registro de hábitos de Liberture con los hábitos de hoy, una mejor racha de 14 días y 67% de cumplimiento en 7 días",
+        howTo: true,
+        sections: [
+          {
+            heading: "Por qué registrar hábitos desde ChatGPT",
+            paragraphs: [
+              "La mayoría de los registros de hábitos fallan por la fricción: abrir la app, buscar el hábito, tocar la casilla. ChatGPT saca ese paso. Decís \"marcá la meditación\" en el chat que ya tenés abierto y el tracker lo guarda con la fecha, la racha y la tasa de cumplimiento.",
+              "ChatGPT no guarda tus hábitos. Habla con Liberture a través de un conector (un servidor MCP), así tu historial queda en un solo lugar y funciona igual desde ChatGPT, Claude o la web.",
+            ],
+          },
+          {
+            heading: "Paso 1: Creá tu tracker",
+            paragraphs: [
+              "Abrí el tracker y creá una cuenta. No hay email ni contraseña: tu clave Nostr es tu cuenta, así que guardala cuando aparezca. Agregá uno o dos hábitos, o un protocolo entero del catálogo. De eso te va a hablar ChatGPT.",
+            ],
+            image: {
+              key: "mobile-today",
+              alt: "Los hábitos de hoy en el tracker de Liberture, con rachas, pilares y horarios",
+              caption: "Tu tracker: los hábitos de hoy, las rachas y la tasa de cumplimiento.",
+            },
+          },
+          {
+            heading: "Paso 2: Agregá Liberture a ChatGPT",
+            paragraphs: [
+              "En ChatGPT, entrá a Settings → Apps → Advanced, activá el modo desarrollador y tocá Create. Ponele de nombre \"Liberture\", pegá https://liberture.com/mcp como URL y elegí OAuth.",
+              "ChatGPT abre Liberture en otra ventana: entrá si te lo pide y tocá Aprobar. Se hace una sola vez. La misma URL y los pasos están siempre en el tracker, en Ajustes → Asistentes de voz.",
+            ],
+            image: {
+              key: "connect-assistant",
+              alt: "Ajustes de Liberture con la URL del conector y los pasos para Claude y ChatGPT",
+              caption: "Ajustes → Asistentes de voz muestra la URL del conector y los pasos para cada asistente.",
+            },
+          },
+          {
+            heading: "Paso 3: Hablale",
+            paragraphs: [
+              "Abrí un chat, activá Liberture desde el menú de herramientas y preguntá \"¿qué me falta hoy?\". Cuando ChatGPT pida permiso para usar una herramienta, elegí Always allow para que el modo voz nunca se frene a confirmar.",
+            ],
+            bullets: [
+              "¿Qué me falta hoy?",
+              "Marcá la meditación como hecha.",
+              "Ayer no salí a caminar, deshacelo.",
+              "¿Cómo me fue esta semana comparada con la anterior?",
+              "Agregá correr como hábito diario.",
+            ],
+          },
+          {
+            heading: "Qué cambia en tu tracker",
+            paragraphs: [
+              "Cada cambio aparece en el tracker abierto en menos de un segundo, en la compu y en el celular, sin recargar. Los días que registrás después (\"ayer corrí\") cuentan en tus rachas y estadísticas igual que los que marcaste a tiempo.",
+            ],
+            image: {
+              key: "tracker-week",
+              alt: "Vista semanal del tracker con los días cumplidos marcados en cada hábito",
+              caption: "La vista semanal: cada cumplimiento que registra ChatGPT aparece acá.",
+            },
+          },
+          {
+            heading: "Si algo no funciona",
+            paragraphs: [
+              "Si ChatGPT te pide entrar de nuevo, la conexión se quitó o entraste con otra clave: volvé a aprobarla. Si dice que una acción está desactivada, ese permiso está apagado en Ajustes → Asistentes de voz.",
+            ],
+          },
+        ],
+        steps: [
+          "Creá tu tracker y agregá un hábito",
+          "En ChatGPT: Settings → Apps → Advanced, activá el modo desarrollador y tocá Create",
+          "Pegá https://liberture.com/mcp, elegí OAuth, entrá y aprobá",
+          "Preguntá \"¿qué me falta hoy?\" por chat o por voz",
+        ],
+        related: [
+          "connect-claude-to-your-habit-tracker",
+          "log-habits-by-voice",
+          "habit-tracker-privacy-and-permissions",
+        ],
+      },
+      {
+        slug: "connect-claude-to-your-habit-tracker",
+        title: "Cómo conectar Claude a tu registro de hábitos",
+        description: "Agregá Liberture como conector personalizado en Claude y registrá hábitos, rachas y tareas desde cualquier chat, proyecto o conversación por voz.",
+        excerpt: "Un conector personalizado y Claude puede registrar tus hábitos, leer tus estadísticas y sugerirte protocolos, por chat o por voz.",
+        minutes: "4",
+        hero: "connect-assistant",
+        heroAlt: "Ajustes de Liberture con la URL del conector de Claude y los pasos para agregarlo",
+        howTo: true,
+        sections: [
+          {
+            heading: "Qué puede hacer Claude con tu tracker",
+            paragraphs: [
+              "Una vez conectado, Claude puede decirte qué te falta hoy con tus rachas, marcar hábitos como hechos (o deshacerlos) por nombre, responder \"¿cómo me fue esta semana?\", agregar y cerrar tareas, y sugerirte protocolos del catálogo con el link para leerlos primero. Funciona en chats normales, en Proyectos y en modo voz en las apps de Claude.",
+            ],
+          },
+          {
+            heading: "Paso 1: Copiá la URL del conector",
+            paragraphs: [
+              "La URL es la misma para todos: https://liberture.com/mcp. Lo que la une a tus hábitos es tu inicio de sesión. También la tenés en el tracker, en Ajustes → Asistentes de voz, con un botón para copiarla.",
+            ],
+            image: {
+              key: "connect-assistant",
+              alt: "URL del conector con botón para copiar en los ajustes de asistentes de voz de Liberture",
+              caption: "La URL del conector y los pasos de Claude en Ajustes → Asistentes de voz.",
+            },
+          },
+          {
+            heading: "Paso 2: Agregala en Claude",
+            paragraphs: [
+              "En claude.ai o la app de Claude, abrí Settings → Connectors → Add custom connector. Ponele \"Liberture\", pegá la URL y tocá Add. Después tocá Connect: se abre Liberture, entrás si te lo pide y tocás Aprobar. Listo.",
+            ],
+          },
+          {
+            heading: "Paso 3 (opcional): Instalá la skill",
+            paragraphs: [
+              "La skill de Liberture le enseña a Claude una rutina de chequeo rápida, ideal para voz. Descargala desde Ajustes → Asistentes de voz en el tracker y subí el zip en Claude → Settings → Capabilities → Skills.",
+            ],
+          },
+          {
+            heading: "Comprobá que esté conectado",
+            paragraphs: [
+              "De vuelta en el tracker, Ajustes → Asistentes de voz muestra cada asistente conectado y cuándo se usó por última vez. Cada uno tiene su propio acceso, así que podés desconectar Claude sin afectar a ChatGPT.",
+            ],
+            image: {
+              key: "assistant-permissions",
+              alt: "Lista de asistentes conectados, ChatGPT y Claude, con botones para desconectar y permisos",
+              caption: "Los asistentes conectados y lo que pueden hacer.",
+            },
+          },
+          {
+            heading: "Usalo por voz",
+            paragraphs: [
+              "Empezá el modo voz en la app de Claude con el conector activado y preguntá \"¿qué me falta hoy?\". Si tu dispositivo todavía no ofrece herramientas en voz, mandá lo mismo como mensaje de texto.",
+            ],
+          },
+        ],
+        steps: [
+          "Copiá https://liberture.com/mcp",
+          "En Claude: Settings → Connectors → Add custom connector, ponele Liberture y pegá la URL",
+          "Tocá Connect, entrá a Liberture y tocá Aprobar",
+          "Preguntá \"¿qué me falta hoy?\"",
+        ],
+        related: [
+          "track-habits-with-chatgpt",
+          "log-habits-by-voice",
+          "habit-tracker-privacy-and-permissions",
+        ],
+      },
+      {
+        slug: "log-habits-by-voice",
+        title: "Registrá hábitos por voz con ChatGPT o Claude",
+        description: "Usá el modo voz de ChatGPT o Claude para registrar hábitos sin manos, escuchar tus rachas y planear el día, con ejemplos reales de qué decir.",
+        excerpt: "Registro de hábitos sin manos: decilo en voz alta mientras hacés el café y el tracker se actualiza al instante.",
+        minutes: "3",
+        hero: "mobile-today",
+        heroAlt: "Registro de hábitos de Liberture en un celular con los hábitos de hoy y una mejor racha de 14 días",
+        howTo: false,
+        sections: [
+          {
+            heading: "Por qué la voz funciona para los hábitos",
+            paragraphs: [
+              "El mejor momento para registrar un hábito es justo después de hacerlo, que suele ser cuando tenés las manos ocupadas. El modo voz de ChatGPT y Claude te deja decir \"terminé la caminata\" y seguir, mientras el tracker guarda el registro.",
+            ],
+          },
+          {
+            heading: "Antes de empezar",
+            paragraphs: [
+              "Conectá tu asistente una vez (mirá las guías de ChatGPT y Claude). En ChatGPT, elegí Always allow la primera vez que pida usar Liberture, así la voz nunca se frena a confirmar.",
+            ],
+          },
+          {
+            heading: "Qué decirle",
+            paragraphs: [
+              "No hacen falta nombres exactos ni frases especiales. Algunas que funcionan bien:",
+            ],
+            bullets: [
+              "\"¿Qué me falta hoy?\"",
+              "\"Marcá la meditación como hecha.\"",
+              "\"Ayer no salí a caminar, deshacelo.\"",
+              "\"¿Cómo va mi racha de sueño?\"",
+              "\"Recordame llamar al banco el viernes.\"",
+              "\"Sugerime un protocolo para concentrarme.\"",
+              "\"Agregá el protocolo de luz de la mañana.\"",
+            ],
+          },
+          {
+            heading: "Miralo actualizarse en el celular",
+            paragraphs: [
+              "Si tenés el tracker abierto en el celular o la compu, el cambio aparece en menos de un segundo. Sin recargar. Registrar la caminata de ayer actualiza la casilla de ayer y tu racha.",
+            ],
+            image: {
+              key: "mobile-today",
+              alt: "Vista del tracker en el celular actualizando los hábitos de hoy",
+              caption: "El tracker en el celular, actualizado en vivo por el asistente.",
+            },
+          },
+          {
+            heading: "Planeá el día en voz alta",
+            paragraphs: [
+              "Pedí un chequeo de la mañana: qué está programado, qué está vencido, qué racha está en riesgo. Agregá tareas a medida que se te ocurren y quedan en el mismo tracker, con fechas y prioridades.",
+            ],
+            image: {
+              key: "mobile-todos",
+              alt: "Lista de tareas en el celular con fechas límite y prioridades",
+              caption: "Tareas agregadas por voz, con fechas y prioridades.",
+            },
+          },
+        ],
+        steps: [] as string[],
+        related: [
+          "track-habits-with-chatgpt",
+          "connect-claude-to-your-habit-tracker",
+          "read-your-habit-statistics",
+        ],
+      },
+      {
+        slug: "build-a-morning-routine-with-protocols",
+        title: "Armá una rutina de mañana con protocolos basados en evidencia",
+        description: "Convertí protocolos de Huberman, Attia, Walker y otros en hábitos diarios: luz de la mañana, desayuno proteico, trabajo profundo y más.",
+        excerpt: "Elegí protocolos con la evidencia a la vista y se convierten en hábitos diarios comunes que podés registrar y editar.",
+        minutes: "5",
+        hero: "protocol-catalog",
+        heroAlt: "Catálogo de protocolos con rutinas basadas en evidencia filtradas por pilar, costo y esfuerzo",
+        howTo: true,
+        sections: [
+          {
+            heading: "Empezá por protocolos, no de cero",
+            paragraphs: [
+              "Un protocolo es una rutina con la investigación detrás: qué hacer, cuándo, cuánto cuesta y de dónde sale la evidencia. El catálogo de Liberture tiene 53, repartidos en seis pilares (trabajo, sueño, nutrición, mente, ejercicio y finanzas), de investigadores y referentes como Andrew Huberman, Peter Attia, Matthew Walker y Cal Newport.",
+            ],
+            image: {
+              key: "protocol-catalog",
+              alt: "Catálogo de 53 protocolos con filtros por pilar, costo, esfuerzo y autor",
+              caption: "El catálogo: filtrá por pilar, costo, esfuerzo o autor, y leé la evidencia antes de agregar.",
+            },
+          },
+          {
+            heading: "Una rutina de mañana simple",
+            paragraphs: [
+              "Una rutina que la mayoría puede sostener, armada solo con protocolos del catálogo:",
+            ],
+            bullets: [
+              "Luz solar a la mañana: 5 a 10 minutos afuera al rato de despertarte.",
+              "Hidratación al despertar: un vaso de agua antes del café.",
+              "Retrasá el primer café 90 minutos.",
+              "Desayuno con proteína primero: unos 30 g de proteína antes que nada.",
+              "Bloque de trabajo profundo: 90 minutos sin distracciones en la tarea más difícil.",
+            ],
+          },
+          {
+            heading: "Agregalos a tu tracker",
+            paragraphs: [
+              "Abrí un protocolo, leelo y tocá Agregar. Sus hábitos llegan al tracker con un horario y una frecuencia razonables: todos los días para la luz de la mañana, días de semana para el trabajo profundo. Cambiá lo que quieras: los hábitos adoptados son hábitos comunes.",
+            ],
+            image: {
+              key: "tracker-today",
+              alt: "Hábitos de hoy creados a partir de protocolos, con horarios y frecuencias",
+              caption: "Los protocolos se convierten en hábitos comunes con horarios y frecuencias.",
+            },
+          },
+          {
+            heading: "O pedíselo a tu asistente",
+            paragraphs: [
+              "Si tenés ChatGPT o Claude conectado, decí \"sugerime un protocolo para concentrarme\" o \"agregá el protocolo de luz de la mañana\". Busca en el mismo catálogo, te manda el link para leerlo primero y agrega los hábitos cuando se lo pedís.",
+            ],
+          },
+          {
+            heading: "Empezá de a poco",
+            paragraphs: [
+              "Arrancá con dos o tres hábitos. Después de dos semanas, la vista semanal te muestra cuáles quedaron. Sumá el siguiente protocolo recién cuando los primeros te salgan solos.",
+            ],
+            image: {
+              key: "tracker-week",
+              alt: "Vista semanal mostrando qué hábitos de la mañana se cumplieron cada día",
+              caption: "Dos semanas después: la vista semanal muestra qué quedó.",
+            },
+          },
+        ],
+        steps: [
+          "Abrí el catálogo de protocolos",
+          "Leé un protocolo y tocá Agregar",
+          "Ajustá los horarios y días si hace falta",
+          "Registralo dos semanas antes de sumar más",
+        ],
+        related: [
+          "read-your-habit-statistics",
+          "track-habits-with-chatgpt",
+          "log-habits-by-voice",
+        ],
+      },
+      {
+        slug: "read-your-habit-statistics",
+        title: "Cómo leer tus estadísticas de hábitos: rachas, tasas y tendencias",
+        description: "Entendé la tasa de cumplimiento, las rachas, la torre de pilares y la constancia semanal para ver qué hábitos quedan y cuáles necesitan ayuda.",
+        excerpt: "Tasa de cumplimiento, rachas, constancia semanal y equilibrio de pilares: qué te dice cada uno y qué hacer.",
+        minutes: "5",
+        hero: "statistics",
+        heroAlt: "Estadísticas de hábitos con la tasa de cumplimiento de cada hábito, cumplimientos totales y tasa promedio",
+        howTo: false,
+        sections: [
+          {
+            heading: "Elegí un período",
+            paragraphs: [
+              "Las estadísticas cubren los últimos 7, 30 o 90 días, este mes, este año o un rango a elección. Siete días responde \"¿cómo va esta semana?\"; 90 días muestra si un hábito realmente quedó.",
+            ],
+          },
+          {
+            heading: "Tasa de cumplimiento por hábito",
+            paragraphs: [
+              "El resumen muestra los cumplimientos totales, la tasa promedio y cuántos hábitos están activos. Abajo, cada hábito tiene una barra con su tasa del período: verde va bien, naranja pide atención, rojo se está cayendo. Solo cuentan los días programados, así que un hábito de días de semana no se penaliza el fin de semana.",
+            ],
+            image: {
+              key: "statistics",
+              alt: "Barras de rendimiento de nueve hábitos entre 29% y 100% en siete días",
+              caption: "Rendimiento por hábito: los flojos saltan a la vista.",
+            },
+          },
+          {
+            heading: "Rachas",
+            paragraphs: [
+              "Una racha cuenta días programados seguidos. Saltear un día que no te tocaba no la corta. Los días que registrás después, desde el tracker o con ChatGPT o Claude, también cuentan, incluso si son anteriores a cuando creaste el hábito.",
+            ],
+          },
+          {
+            heading: "Tendencias, mapa de calor y constancia",
+            paragraphs: [
+              "La tendencia muestra los totales por día; el resumen del año es un mapa de calor de cada día; la constancia semanal marca las semanas perfectas y las que quedaron debajo del 50%. Juntas te dicen si una caída fue una mala semana o un bajón lento.",
+            ],
+          },
+          {
+            heading: "En el celular",
+            paragraphs: [
+              "Las mismas estadísticas funcionan en el celular, una tarjeta por sección.",
+            ],
+            image: {
+              key: "mobile-statistics",
+              alt: "Estadísticas de hábitos en un celular con cumplimientos totales y tasa promedio",
+              caption: "Estadísticas en el celular.",
+            },
+          },
+          {
+            heading: "Preguntá en vez de leer",
+            paragraphs: [
+              "Con un asistente conectado, preguntá \"¿cómo me fue esta semana comparada con la anterior?\" o \"¿con qué hábito me está costando?\". Lee los mismos números y te responde en una o dos frases.",
+            ],
+          },
+        ],
+        steps: [] as string[],
+        related: [
+          "build-a-morning-routine-with-protocols",
+          "log-habits-by-voice",
+          "track-habits-with-chatgpt",
+        ],
+      },
+      {
+        slug: "habit-tracker-privacy-and-permissions",
+        title: "Controlá qué puede ver y hacer tu asistente de IA",
+        description: "Elegí exactamente qué puede hacer ChatGPT o Claude en tu registro de hábitos, desde leer estadísticas hasta borrar hábitos, y desconectá cualquier asistente al instante.",
+        excerpt: "Ocho interruptores deciden qué pueden hacer los asistentes conectados. Borrar hábitos está apagado hasta que lo actives.",
+        minutes: "3",
+        hero: "assistant-permissions",
+        heroAlt: "Asistentes conectados, ChatGPT y Claude, con permisos para leer, registrar, tareas, calendario y hábitos",
+        howTo: false,
+        sections: [
+          {
+            heading: "Cada asistente tiene su propio acceso",
+            paragraphs: [
+              "Cada asistente que conectás recibe su propio token de acceso. Ajustes → Asistentes de voz los muestra con la última vez que se usaron, y Desconectar corta uno al instante sin afectar a los demás.",
+            ],
+            image: {
+              key: "assistant-permissions",
+              alt: "Ajustes con ChatGPT y Claude conectados, botones para desconectar y permisos",
+              caption: "Los asistentes conectados y los permisos que se aplican a todos.",
+            },
+          },
+          {
+            heading: "Los permisos",
+            paragraphs: [
+              "Todos los permisos están activados por defecto, salvo borrar hábitos. Los cambios se aplican desde el siguiente pedido:",
+            ],
+            bullets: [
+              "Leer: hábitos, rachas, estadísticas, tareas, calendario, catálogo y recomendaciones.",
+              "Registrar cumplimientos: marcar hábitos como hechos o no, para hoy u otro día.",
+              "Tareas y proyectos: crear, editar, completar y borrar.",
+              "Calendario: crear, mover y borrar eventos.",
+              "Agregar hábitos: crear hábitos y sumar protocolos del catálogo.",
+              "Editar hábitos: renombrar y cambiar descripción, días u horario.",
+              "Borrar hábitos: apagado hasta que lo actives.",
+              "Exportar: descargar una copia completa en JSON.",
+            ],
+          },
+          {
+            heading: "Cuando un permiso está apagado",
+            paragraphs: [
+              "El asistente recibe una respuesta clara de \"desactivado\" que puede leerte, en vez de fallar en silencio. Si agregar hábitos está apagado, te da el link del protocolo para que lo agregues vos.",
+            ],
+          },
+          {
+            heading: "Lo que un asistente nunca puede hacer",
+            paragraphs: [
+              "Ningún token puede cambiar sus propios permisos, leer o cambiar tu clave de acceso o identidad Nostr, ni llegar a los datos de otra persona. Los datos van a OpenAI o Anthropic solo cuando usás el asistente, bajo sus términos.",
+            ],
+          },
+        ],
+        steps: [] as string[],
+        related: [
+          "track-habits-with-chatgpt",
+          "connect-claude-to-your-habit-tracker",
+          "read-your-habit-statistics",
+        ],
+      },
+    ],
+  },
+  preview: {
+    eyebrow: "Miralo",
+    heading: "Tus hábitos, registrados y a un mensaje de distancia",
+    body: "Un tracker de verdad por debajo: hábitos diarios, rachas, estadísticas, tareas y calendario. Tu asistente lee y escribe los mismos datos.",
+    today: "Los hábitos de hoy con rachas y tasa de cumplimiento",
+    stats: "Estadísticas: tasa de cumplimiento por hábito",
+    mobile: "El tracker en un celular",
+    guides: "Leer las guías",
+  },
   app: {
     // E
     signInDialog: {
@@ -4453,6 +5459,7 @@ const habitsEs: HabitsDictionary = {
     name: "Liberture",
     nav: {
       docs: "Guía",
+      guides: "Guías",
       signIn: "Entrar",
       openApp: "Abrir la app",
       liberture: "Liberture",
@@ -4481,6 +5488,7 @@ const habitsEs: HabitsDictionary = {
       connect: "Conectar",
       assistant: "Tu asistente",
       howItWorks: "Cómo funciona",
+      guides: "Guías",
       chatgpt: "Conectar ChatGPT",
       claude: "Conectar Claude",
       tracker: "Registro de hábitos",

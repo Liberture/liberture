@@ -46,7 +46,7 @@ export function LandingNav() {
     { href: "/directory", label: nav.directory },
     { href: "/protocols", label: nav.protocols },
     { href: "/#how-it-works", label: nav.howItWorks },
-    { href: "/docs", label: nav.docs },
+    { href: "/guides", label: nav.guides },
   ]
 
   return (

@@ -8,7 +8,7 @@ import { stagger } from "@/lib/animations"
 
 export default function AboutPage() {
   // /tracker opens sign-in for visitors who don't have an account yet.
-  const entry = { href: "/tracker", label: "Get Started Free" }
+  const entry = { href: "/get-started", label: "Get Started Free" }
   const founders = [
     {
       name: "Leon Acosta",

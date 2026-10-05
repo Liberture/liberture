@@ -1,182 +1,88 @@
-# Liberture - Biological Operating System Platform
+# Liberture
 
-A comprehensive biohacking directory and knowledge platform for human optimization across 6 pillars.
+**A habit tracker you can talk to.** Track habits, streaks and evidence-based protocols, then log them from ChatGPT or Claude, by chat or by voice. Plus a directory of the people, books, organizations and research behind human optimization across six pillars: work, sleep, nutrition, mind, exercise and finance.
 
-## 6 Pillars
+**[liberture.com](https://liberture.com)** · [Get started](https://liberture.com/get-started) · [Guides](https://liberture.com/guides) · [Protocols](https://liberture.com/protocols)
 
-1. **Cognition** - Mental performance, focus, learning
-2. **Recovery** - Sleep, rest, regeneration
-3. **Fueling** - Nutrition, supplementation, metabolism
-4. **Mental** - Emotional health, mindfulness, resilience
-5. **Physicality** - Strength, endurance, movement
-6. **Finance** - Wealth building, financial independence
+![Liberture habit tracker: today's habits, a 14-day best streak and a 67% weekly completion rate](public/screenshots/en/tracker-today.webp)
 
-## Features
+## What it does
 
-### Directory
-- **/people** - Biohackers, researchers, pioneers
-- **/organizations** - Labs, companies, communities
-- **/protocols** - Methods and systems for optimization
-- **/books** - Free, royalty-free resources
+- **Habit tracker:** daily, weekday or N-times-a-week habits with streaks, completion rates, a week grid, a year matrix, statistics, todos, projects and a calendar. Works on desktop and as an installable app on your phone.
+- **Talk to it from ChatGPT or Claude:** an MCP server with OAuth lets your assistant read your habits, mark them done (including past days), add habits and todos, and answer "how did this week go?". Changes appear live in the open tracker.
+- **Protocols:** 53 evidence-backed routines from researchers and practitioners. Each one turns into ordinary habits with one click, or when you ask your assistant.
+- **Directory and content:** people, organizations, books, articles and the six pillars.
+- **Your keys, your data:** sign-in is a Nostr key, with no email or password. Every assistant permission is switchable, and deleting habits is off by default.
+- **English and Spanish** for the landing page, guides, sign-in and the whole tracker.
 
-### Knowledge Base
-36+ curated articles across all 6 pillars:
-- Cold exposure science
-- Nootropics guides
-- Sleep optimization
-- Metabolic flexibility
-- HRV training
-- And more...
+## Screenshots
 
-### Marketplace
-Free protocols and resources (no monetization currently)
+| Statistics | Week view |
+|---|---|
+| ![Habit statistics with completion rate per habit](public/screenshots/en/statistics.webp) | ![Week view with completed days ticked per habit](public/screenshots/en/tracker-week.webp) |
+| **Protocol catalog** | **Connected assistants and permissions** |
+| ![Catalog of 53 evidence-backed protocols with filters](public/screenshots/en/protocol-catalog.webp) | ![ChatGPT and Claude connected, with permission switches](public/screenshots/en/assistant-permissions.webp) |
+| **Calendar** | **Todos** |
+| ![Calendar with habits, todos and events](public/screenshots/en/calendar.webp) | ![Todo list with due dates and priorities](public/screenshots/en/todos.webp) |
 
-### Admin Panel
-Full-featured admin system for managing:
-- Users (ban/unban, roles, impersonation)
-- Knowledge articles
-- Marketplace items
-- Content
-- Social posts
-- Platform comments
+<p align="center">
+  <img src="public/screenshots/en/mobile-today.webp" width="240" alt="The tracker on a phone">
+  <img src="public/screenshots/en/mobile-statistics.webp" width="240" alt="Statistics on a phone">
+  <img src="public/screenshots/en/mobile-todos.webp" width="240" alt="Todos on a phone">
+</p>
 
-## Tech Stack
+## Connect ChatGPT or Claude
 
-- **Framework:** Next.js 16 (App Router, Turbopack)
-- **Database:** Prisma 5 + SQLite
-- **Auth:** better-auth with Prisma adapter
-- **Animations:** Framer Motion
-- **Styling:** Tailwind CSS
-- **UI:** Radix UI components
-- **Deployment:** PM2 on Hetzner
+The connector URL is the same for everyone: `https://liberture.com/mcp`.
+
+- **Claude:** Settings → Connectors → Add custom connector, paste the URL, press Connect and approve. [Guide](https://liberture.com/guides/connect-claude-to-your-habit-tracker)
+- **ChatGPT:** Settings → Apps → Advanced, turn on developer mode, Create, paste the URL, choose OAuth and approve. [Guide](https://liberture.com/guides/track-habits-with-chatgpt)
+
+Then ask "what's left today?". Technical reference: [/docs](https://liberture.com/docs) (MCP tools, scopes, the `/api/v1` REST API and the OpenAPI schema).
+
+## Tech stack
+
+- **Next.js 16** (App Router), React 19, Tailwind CSS 4, Radix UI, Framer Motion
+- **PostgreSQL**, accessed through Prisma for the content and through the `postgres` client for the habit tracker
+- **Nostr** sign-in (NIP-07 extensions, NIP-46 remote signers, nsec)
+- **MCP and OAuth 2.1** (dynamic client registration, PKCE) for ChatGPT and Claude
+- **Live updates:** Postgres `LISTEN/NOTIFY` pushed to the browser over Server-Sent Events
 
 ## Development
 
 ```bash
 pnpm install
-pnpm dev              # Development server
-pnpm build           # Production build
-npx prisma db push   # Sync database schema
-npx prisma studio    # Database GUI
+cp .env.example .env          # set DATABASE_URL (PostgreSQL)
+pnpm exec prisma db push      # create/update tables
+pnpm exec tsx scripts/seed-marketplace-protocols.ts   # protocol library
+pnpm dev
 ```
 
-## Database
+| Variable | Purpose |
+|---|---|
+| `DATABASE_URL` | PostgreSQL connection string (shared by Prisma and the tracker) |
+| `ADMIN_NOSTR_PUBKEYS` | Optional. Comma-separated hex pubkeys allowed into `/admin` |
+| `ADMIN_SECRET` | Optional. Bearer secret for the tracker's admin endpoints |
+| `HABIT_TRACKER_TIME_ZONE` | Optional. Default time zone for "today" in the assistant API |
+| `RESEND_API_KEY` | Optional. Transactional email |
 
-Models:
-- KnowledgeArticle
-- MarketplaceItem
-- Content
-- SocialPost
-- PlatformComment
-- User
-- Session
-- Account
-- Verification
+## Project layout
 
-## Authentication
-
-Uses better-auth with admin plugin:
-- Email/password login
-- Session-based (7 day expiry)
-- Admin impersonation support
-- Role-based access (user/admin/moderator)
-- Ban system with reasons
-
-Admin login: https://liberture.com/admin-login
-
-## Scripts
-
-```bash
-# Add knowledge articles
-npx tsx scripts/add-knowledge-articles.ts
-npx tsx scripts/add-more-articles.ts
-
-# Add admin user
-npx tsx scripts/create-admin.ts
-
-# Sample data (when schema extended)
-npx tsx scripts/add-sample-people.ts
+```
+app/(site)/        public pages: landing, guides, docs, protocols, directory, pillars…
+app/tracker/       the habit tracker
+app/api/v1/        assistant REST API (also exposed as MCP tools at /mcp)
+app/oauth/         OAuth authorize/token/register for ChatGPT and Claude
+components/habits/ tracker, landing, docs and sign-in UI
+lib/habits/        tracker logic: storage, streaks, protocols, MCP, OAuth, Nostr
+lib/translations.ts  all UI copy, English and Spanish
+prisma/            schema (content and habit tables)
 ```
 
 ## Deployment
 
-Running on PM2 as `liberture`:
-- Port: 3033
-- Domain: https://liberture.com
-- SSL: Let's Encrypt
+Pushing to `master` deploys liberture.com through `.github/workflows/deploy.yml`. A Docker setup (`Dockerfile`, `compose.liberture-habits.yaml`) runs the same app with its own Postgres.
 
-```bash
-pm2 restart liberture
-pm2 logs liberture
-```
+## License
 
-## Project Structure
-
-```
-app/
-├── (site)/           # Public pages
-│   ├── (landing)/    # Homepage sections
-│   ├── directory/    # Directory landing
-│   ├── marketplace/  # Browse protocols
-│   ├── knowledge/    # Browse articles
-│   ├── people/       # Person profiles
-│   ├── organizations/# Org profiles
-│   ├── protocols/    # Protocol details
-│   └── books/        # Book library
-├── admin/            # Admin panel
-│   ├── users-admin.tsx
-│   ├── knowledge-admin.tsx
-│   ├── marketplace-admin.tsx
-│   └── ...
-├── dashboard/        # User dashboard
-└── api/              # API routes
-    ├── auth/[...all]
-    ├── admin/
-    └── ...
-
-components/
-├── animations/       # Framer Motion wrappers
-├── illustrations/    # SVG components
-│   ├── backgrounds/
-│   └── icons/
-└── ui/               # Reusable UI components
-
-lib/
-├── animations.ts     # Animation variants
-├── auth-better.ts    # Better-auth config
-└── prisma.ts         # Prisma client
-
-prisma/
-├── schema.prisma     # Database schema
-├── prisma/liberture.db
-└── migrations/       # SQL migrations
-
-scripts/
-├── add-knowledge-articles.ts
-├── add-more-articles.ts
-├── add-sample-people.ts
-└── create-admin.ts
-```
-
-## Content Focus
-
-All content is:
-- **Free** - No monetization, open access
-- **Evidence-based** - Science-backed information
-- **Royalty-free** - Public domain or properly licensed
-- **Quality-first** - Curated, not aggregated
-
-## Roadmap
-
-- [ ] Extend schema with Person, Organization, Protocol, Book models
-- [ ] Populate directory with real profiles
-- [ ] User accounts and progress tracking
-- [ ] Protocol templates and guides
-- [ ] Community features
-- [ ] Mobile app
-
-## Contributing
-
-Built and maintained by Robert Claw 🦞 for Leon Acosta
-
-Last updated: February 8, 2026
+Open source. See the repository for details.

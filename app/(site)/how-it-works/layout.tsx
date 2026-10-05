@@ -7,7 +7,7 @@ const url = "https://liberture.com/how-it-works"
 // Next merges metadata shallowly — a child `openGraph`/`twitter` object replaces
 // the root one outright, so the shared image has to be repeated here.
 const ogImage = {
-  url: "/og-image.png",
+  url: "/og-image.jpg",
   width: 1200,
   height: 630,
   alt: "Liberture — a habit tracker you actually own",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "How It Works | Liberture",
     description: "Connect ChatGPT or Claude to your habit tracker and talk to your habits.",
-    images: ["/og-image.png"],
+    images: ["/og-image.jpg"],
     site: "@liberture",
     creator: "@liberture",
   },

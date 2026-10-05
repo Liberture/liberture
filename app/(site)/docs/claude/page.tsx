@@ -5,6 +5,7 @@ import { DocsCallout, DocsSection, DocsSteps, DocsTitle } from "@/components/hab
 import { getDictionary } from "@/lib/habits/i18n"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { getServerOrigin } from "@/lib/habits/request-origin"
+import { DocsScreenshot } from "@/components/habits/docs/docs-screenshot"
 
 export const metadata = { title: "Claude · Liberture docs" }
 
@@ -17,6 +18,7 @@ export default async function ClaudeDocsPage() {
   return (
     <>
       <DocsTitle title={t.title} lead={t.lead} />
+      <DocsScreenshot locale={locale} imageKey="connect-assistant" alt={dict.guides.articles.find((a) => a.slug === "connect-claude-to-your-habit-tracker")?.heroAlt ?? ""} />
 
       <DocsSection title={dict.docs.overview.stepsTitle}>
         <DocsSteps

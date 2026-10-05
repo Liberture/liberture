@@ -28,6 +28,7 @@ export function LandingFooter({ locale }: { locale: Locale }) {
       links: [
         { href: "/tracker", label: f.tracker },
         { href: "/#how-it-works", label: f.howItWorks },
+        { href: "/guides", label: f.guides },
         { href: "/docs", label: f.docs },
         { href: "/docs/chatgpt", label: f.chatgpt },
         { href: "/docs/claude", label: f.claude },
