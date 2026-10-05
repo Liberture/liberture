@@ -93,3 +93,22 @@ CREATE INDEX IF NOT EXISTS idx_habit_completions_user_completed ON habit_complet
 
 -- Sample query to verify setup
 -- SELECT COUNT(*) FROM habit_users;
+
+-- Live updates: notify open trackers when a user's data changes
+-- (lib/habits/change-events.ts also installs this at runtime).
+CREATE OR REPLACE FUNCTION habit_users_notify_change() RETURNS trigger AS $$
+BEGIN
+  IF NEW.data->>'lastUpdated' IS DISTINCT FROM OLD.data->>'lastUpdated' THEN
+    PERFORM pg_notify(
+      'habit_changes',
+      json_build_object('userId', NEW.id, 'lastUpdated', NEW.data->>'lastUpdated')::text
+    );
+  END IF;
+  RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS habit_users_notify_change ON habit_users;
+CREATE TRIGGER habit_users_notify_change
+  AFTER UPDATE ON habit_users
+  FOR EACH ROW EXECUTE FUNCTION habit_users_notify_change();
