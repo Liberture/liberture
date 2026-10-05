@@ -6,13 +6,19 @@ import { createReadStream } from 'fs';
 
 const execAsync = promisify(exec);
 
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) throw new Error(`Set ${name}`);
+  return value;
+}
+
 // Hetzner S3 Configuration
 const s3Client = new S3Client({
   endpoint: 'https://nbg1.your-objectstorage.com',
   region: 'nbg1',
   credentials: {
-    accessKeyId: '***REMOVED_S3_ACCESS_KEY***',
-    secretAccessKey: '***REMOVED_S3_SECRET_KEY***',
+    accessKeyId: requireEnv('S3_ACCESS_KEY'),
+    secretAccessKey: requireEnv('S3_SECRET_KEY'),
   },
   forcePathStyle: true,
 });
@@ -25,7 +31,7 @@ async function backupDatabase() {
     console.log('🗄️  Starting PostgreSQL backup...');
 
     // Set password environment variable
-    process.env.PGPASSWORD = '***REMOVED_DB_PASSWORD***';
+    process.env.PGPASSWORD = requireEnv('DATABASE_PASSWORD');
 
     // Create backup
     await execAsync(`pg_dump -U liberture_user -h localhost liberture | gzip > ${backupFile}`);
