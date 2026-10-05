@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { BreadcrumbSchema, JsonLd } from "@/components/seo/JsonLd"
+import { translations } from "@/lib/translations"
 
 const url = "https://liberture.com/how-it-works"
 
@@ -13,14 +14,14 @@ const ogImage = {
 }
 
 export const metadata: Metadata = {
-  title: "How It Works | Self-Hostable Habit Tracker",
-  description: "Turn protocols into daily habits. Customize everything, track it yourself or let your AI assistant manage it through the API, and share what works. Run it on our servers or your own.",
+  title: "How It Works | Talk to Your Habits",
+  description: "Sign in, add one link to ChatGPT or Claude, and talk to your habit tracker by chat or voice: log habits, hear your streaks, get protocols worth trying.",
   alternates: {
     canonical: url,
   },
   openGraph: {
     title: "How It Works | Liberture",
-    description: "A habit tracker you actually own. Protocols become habits, tracked by you or your AI assistant — self-hostable, shareable, yours.",
+    description: "Connect ChatGPT or Claude to your Liberture habit tracker and talk to your habits, in chat or by voice.",
     url,
     siteName: "Liberture",
     locale: "en_US",
@@ -30,47 +31,27 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "How It Works | Liberture",
-    description: "A habit tracker you actually own. Manual or AI-managed, self-hostable, yours.",
+    description: "Connect ChatGPT or Claude to your habit tracker and talk to your habits.",
     images: ["/og-image.png"],
     site: "@liberture",
     creator: "@liberture",
   },
 }
 
-// Mirrors the four-step loop rendered on the page.
+// Mirrors the three setup steps rendered on the page (translations → habits.docs.overview.steps).
 const howToSchema = {
   "@context": "https://schema.org",
   "@type": "HowTo",
   name: "How Liberture works",
   description:
-    "Turn protocols into daily habits you can customize, track by hand or through an AI assistant, and self-host.",
+    "Connect ChatGPT or Claude to your Liberture habit tracker so it can read your habits and log them for you, in text or voice.",
   url,
-  step: [
-    {
-      "@type": "HowToStep",
-      position: 1,
-      name: "Protocols",
-      text: "Adopt a protocol from the library or write your own from scratch.",
-    },
-    {
-      "@type": "HowToStep",
-      position: 2,
-      name: "Customize",
-      text: "Edit the steps, schedule, and targets so the protocol fits your life.",
-    },
-    {
-      "@type": "HowToStep",
-      position: 3,
-      name: "Track",
-      text: "Check habits off daily and build streaks — manually or through the API.",
-    },
-    {
-      "@type": "HowToStep",
-      position: 4,
-      name: "Review",
-      text: "Review completion rates and progress to see what actually works for you.",
-    },
-  ],
+  step: translations.en.habits.docs.overview.steps.map((step, i) => ({
+    "@type": "HowToStep",
+    position: i + 1,
+    name: step.title,
+    text: step.body,
+  })),
 }
 
 export default function HowItWorksLayout({

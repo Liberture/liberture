@@ -6,10 +6,11 @@ const baseUrl = 'https://liberture.com';
 // stay consistent across every user-agent.
 const disallow = [
   '/admin',
-  '/admin-login',
   '/api/',
-  '/dashboard',
   '/login',
+  '/tracker',
+  '/oauth/',
+  '/mcp',
   '/coming-soon',
 ];
 

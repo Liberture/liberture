@@ -33,6 +33,15 @@
   --exercise: oklch(0.75 0.18 45);
   --finance: oklch(0.75 0.18 85);
 
+  /* Habit tracker: success shares the nutrition hue; charts walk the pillar hues. */
+  --success: oklch(0.75 0.2 145);
+  --success-foreground: oklch(0.15 0.02 145);
+  --chart-1: oklch(0.7 0.15 260);
+  --chart-2: oklch(0.75 0.15 195);
+  --chart-3: oklch(0.75 0.2 145);
+  --chart-4: oklch(0.75 0.18 350);
+  --chart-5: oklch(0.75 0.18 45);
+
   --radius: 0.75rem;
   --sidebar: oklch(0.16 0.015 250);
   --sidebar-foreground: oklch(0.93 0.01 250);
@@ -45,6 +54,13 @@
 }
 
 @theme inline {
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
   --font-sans: "Inter", "Geist", "Geist Fallback", sans-serif;
   --font-mono: "Geist Mono", "Geist Mono Fallback", monospace;
   --color-background: var(--background);
@@ -160,4 +176,360 @@
   background-image: url("/assets/patterns/topographic/folded-drift.svg");
   background-size: cover;
   opacity: 0.16;
+}
+
+/* ---------- Habit tracker (ported from Liberture Habits) ---------- */
+
+/* Same wash as the (site) layout, for fixed overlays above the app content. */
+.lb-wash {
+  background-color: var(--background);
+  background-image: linear-gradient(to bottom right, #020617 0%, #2b0a4d 45%, #0f172a 100%);
+}
+
+/* Tracker and docs shells sit on the layout's purple wash instead of a solid fill. */
+.topo-pattern.lb-see-through {
+  background-color: transparent;
+  overflow: visible;
+}
+
+/* Liberture's animated backdrop: drifting gradient orbs over a slow-rotating
+   ring and a faint grid. Framer Motion drives these upstream; CSS keyframes do
+   the same job here without pulling in the dependency. */
+@keyframes lb-float {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(0, -28px, 0) scale(1.06); }
+}
+
+.lb-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(64px);
+  animation: lb-float 14s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lb-orb {
+    animation: none;
+  }
+}
+
+
+/* react-big-calendar ships a light stylesheet; these overrides map it onto the
+   app's tokens. Scoped to .lb-calendar so nothing else is affected. */
+.lb-calendar .rbc-calendar {
+  color: var(--foreground);
+}
+
+.lb-calendar .rbc-toolbar {
+  margin-bottom: 0.75rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.lb-calendar .rbc-toolbar .rbc-toolbar-label {
+  font-weight: 600;
+}
+
+.lb-calendar .rbc-toolbar button {
+  color: var(--muted-foreground);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 0.25rem 0.75rem;
+  transition: background-color 150ms, color 150ms, border-color 150ms;
+}
+
+.lb-calendar .rbc-toolbar button:hover,
+.lb-calendar .rbc-toolbar button:focus-visible {
+  color: var(--foreground);
+  background: var(--accent);
+  border-color: var(--border);
+}
+
+.lb-calendar .rbc-toolbar button.rbc-active,
+.lb-calendar .rbc-toolbar button.rbc-active:hover {
+  color: var(--primary-foreground);
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.lb-calendar .rbc-btn-group > button + button {
+  margin-left: 0.25rem;
+}
+
+.lb-calendar .rbc-month-view,
+.lb-calendar .rbc-time-view,
+.lb-calendar .rbc-agenda-view table.rbc-agenda-table {
+  border-color: var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.lb-calendar .rbc-header,
+.lb-calendar .rbc-month-row + .rbc-month-row,
+.lb-calendar .rbc-day-bg + .rbc-day-bg,
+.lb-calendar .rbc-time-header-content,
+.lb-calendar .rbc-time-content,
+.lb-calendar .rbc-time-content > * + * > *,
+.lb-calendar .rbc-timeslot-group,
+.lb-calendar .rbc-agenda-view table.rbc-agenda-table tbody > tr > td,
+.lb-calendar .rbc-agenda-view table.rbc-agenda-table thead > tr > th {
+  border-color: var(--border);
+}
+
+.lb-calendar .rbc-header {
+  padding: 0.5rem 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: color-mix(in oklab, var(--muted-foreground) 90%, transparent);
+}
+
+.lb-calendar .rbc-off-range-bg {
+  background: color-mix(in oklab, var(--muted) 35%, transparent);
+}
+
+.lb-calendar .rbc-off-range {
+  color: color-mix(in oklab, var(--muted-foreground) 55%, transparent);
+}
+
+.lb-calendar .rbc-today {
+  background: color-mix(in oklab, var(--primary) 12%, transparent);
+}
+
+.lb-calendar .rbc-date-cell {
+  padding: 0.25rem 0.4rem;
+  font-size: 0.75rem;
+}
+
+.lb-calendar .rbc-current-time-indicator {
+  background-color: var(--primary);
+  height: 2px;
+}
+
+.lb-calendar .rbc-show-more {
+  background: transparent;
+  color: var(--primary);
+  font-size: 0.7rem;
+}
+
+.lb-calendar .rbc-overlay {
+  background: var(--popover);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 20px 40px rgb(0 0 0 / 0.45);
+}
+
+.lb-calendar .rbc-overlay-header {
+  border-color: var(--border);
+  color: var(--foreground);
+}
+
+.lb-calendar .rbc-agenda-empty {
+  padding: 2rem 0;
+  color: var(--muted-foreground);
+}
+
+.lb-calendar .rbc-slot-selection {
+  background: color-mix(in oklab, var(--primary) 30%, transparent);
+}
+
+/* The overrides above miss a lot: react-big-calendar hardcodes #ddd, #f6f6f6
+   and white across ~40 rules, and many of them use the `border` *shorthand*,
+   which re-sets the colour our `border-color` rules just fixed. Rather than
+   chase each selector, repaint every border under the calendar in one pass.
+   The doubled `.lb-calendar.lb-calendar` buys (0,3,0) specificity, which beats
+   RBC's most specific selector (`… tbody > tr > td + td`, (0,2,4)) without
+   resorting to !important. Inline event styles still win, as intended. */
+.lb-calendar.lb-calendar :is(.rbc-calendar, .rbc-calendar *) {
+  border-color: var(--border);
+}
+
+/* Half-hour rules are the worst of it — RBC paints them near-white, so on a
+   dark surface they were the brightest thing on screen and turned week/day
+   view into corduroy. Only the hour boundary gets a line now, and a faint one. */
+.lb-calendar.lb-calendar .rbc-day-slot .rbc-time-slot,
+.lb-calendar.lb-calendar .rbc-time-slot {
+  border-top-color: transparent;
+}
+
+.lb-calendar.lb-calendar .rbc-timeslot-group {
+  border-bottom-color: color-mix(in oklab, var(--border) 55%, transparent);
+}
+
+/* Day columns read as columns without a hard rule between them. */
+.lb-calendar.lb-calendar .rbc-time-content > * + * > * {
+  border-left-color: color-mix(in oklab, var(--border) 70%, transparent);
+}
+
+/* 2px in the default sheet; a hairline is enough to separate header from body. */
+.lb-calendar.lb-calendar .rbc-time-content {
+  border-top-width: 1px;
+}
+
+/* The resource gutter is `background-color: white` upstream. */
+.lb-calendar.lb-calendar .rbc-time-view-resources .rbc-time-gutter,
+.lb-calendar.lb-calendar .rbc-time-view-resources .rbc-time-header-gutter {
+  background: var(--card);
+}
+
+/* Hour labels and agenda metadata are body-coloured upstream and shout. */
+.lb-calendar .rbc-label,
+.lb-calendar .rbc-time-gutter .rbc-timeslot-group,
+.lb-calendar .rbc-agenda-time-cell,
+.lb-calendar .rbc-agenda-date-cell {
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+
+.lb-calendar .rbc-agenda-view table.rbc-agenda-table tbody > tr > td {
+  padding: 0.5rem 0.75rem;
+}
+
+/* Upstream focus ring is a 5px `auto` outline in Chrome blue. */
+.lb-calendar .rbc-event:focus-visible,
+.lb-calendar .rbc-day-bg:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+.lb-calendar .rbc-event {
+  box-shadow: none;
+}
+
+/* Month cells: give the day number room and let the hover target read. */
+.lb-calendar .rbc-day-bg:hover {
+  background: color-mix(in oklab, var(--accent) 45%, transparent);
+}
+
+.lb-calendar .rbc-date-cell.rbc-now .rbc-button-link {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.lb-calendar .rbc-button-link {
+  color: inherit;
+}
+
+@layer utilities {
+  /* Vertical scrollers. Deliberately no `touch-action`: setting pan-y here is
+     what broke horizontal paging, because it tells the browser the horizontal
+     gesture is not ours to handle. Containment and overscroll still apply.
+     Mirrors .native-scroll-y in /root/obelisk-dex. */
+  .lb-scroll {
+    overscroll-behavior-y: contain;
+    overscroll-behavior-x: none;
+    -webkit-overflow-scrolling: touch;
+    contain: paint;
+  }
+
+  /* Horizontal scrollers — the matrix, filter strips. `pan-x pan-y` and never a
+     bare `pan-x`, so vertical scrolling still passes through to the page. */
+  .lb-scroll-x {
+    overflow-x: auto;
+    touch-action: pan-x pan-y;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Panels parked off-screen on the view track: mounted, but not rendered
+     until they scroll back in. This is what makes keep-alive affordable. */
+  .lb-panel-idle {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 100dvh;
+  }
+
+  /* Offscreen cards skip layout and paint entirely. */
+  .lb-list-item {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 96px;
+  }
+
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--muted-foreground) 40%, transparent) transparent;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--muted-foreground) 35%, transparent);
+    border-radius: 999px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklab, var(--muted-foreground) 50%, transparent);
+  }
+
+  .mobile-view-transition {
+    animation: mobile-view-in 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    will-change: opacity, transform;
+  }
+
+  .mobile-view-forward {
+    --mobile-view-x: 18px;
+  }
+
+  .mobile-view-back {
+    --mobile-view-x: -18px;
+  }
+
+  @keyframes mobile-view-in {
+    from {
+      opacity: 0.72;
+      transform: translate3d(var(--mobile-view-x), 0, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-view-transition {
+      animation: none;
+      will-change: auto;
+    }
+  }
+
+  .horizontal-touch-scroll {
+    touch-action: pan-x pan-y;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Liberture surface idiom: faint translucent panel over the topo backdrop. */
+  .lb-surface {
+    background-color: color-mix(in oklab, var(--card) 70%, transparent);
+    backdrop-filter: blur(12px);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Liberture landing animations, ported from framer-motion to CSS:
+   the rotating hexagon logo. (The hero orbit and pillar cards use
+   framer-motion directly, as on liberture.com.)
+   ------------------------------------------------------------------------- */
+@keyframes lb-logo-spin {
+  to { transform: rotate(360deg); }
+}
+.lb-logo-spin {
+  animation: lb-logo-spin 6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lb-logo-spin {
+    animation: none;
+  }
 }

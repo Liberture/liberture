@@ -1,0 +1,115 @@
+import { NextResponse } from "next/server"
+import { requestOrigin } from "@/lib/habits/api/assistant"
+import { MCP_TOOLS, callMcpTool } from "@/lib/habits/api/mcp-tools"
+
+/**
+ * Model Context Protocol over Streamable HTTP: stateless, JSON responses (no
+ * SSE, no sessions). Shared by /mcp (OAuth bearer, the URL people paste into
+ * Claude or ChatGPT) and /api/mcp/<token> (token in the URL, older setups).
+ * Tools are the /api/v1 handlers (lib/api/mcp-tools.ts), so the user's
+ * permission scopes apply either way.
+ */
+
+const SUPPORTED_PROTOCOL_VERSIONS = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"]
+
+const INSTRUCTIONS =
+  "Liberture, the user's habit tracker, often used by voice. Be fast: call get_today once at the start, " +
+  "then act in one call — log_habit, create_habit and set_todo_status take names as the user said them, so never " +
+  "list habits or todos first. Don't ask follow-up questions when a default works (a new habit is daily with no " +
+  "reminder): do it, then read back the `say` sentence the tool returns and offer to adjust. Keep replies to one or " +
+  "two sentences. When recommending, share infoUrl. If a tool returns scope_disabled, relay its message; don't retry."
+
+interface JsonRpcRequest {
+  jsonrpc?: string
+  id?: string | number | null
+  method?: string
+  params?: Record<string, unknown>
+}
+
+function rpcResult(id: JsonRpcRequest["id"], result: unknown) {
+  return { jsonrpc: "2.0", id: id ?? null, result }
+}
+
+function rpcError(id: JsonRpcRequest["id"], code: number, message: string) {
+  return { jsonrpc: "2.0", id: id ?? null, error: { code, message } }
+}
+
+async function handleMessage(message: JsonRpcRequest, token: string, origin: string): Promise<object | null> {
+  // Notifications (no id) get no response.
+  const isNotification = message.id === undefined
+  switch (message.method) {
+    case "initialize": {
+      const requested = typeof message.params?.protocolVersion === "string" ? message.params.protocolVersion : ""
+      return rpcResult(message.id, {
+        protocolVersion: SUPPORTED_PROTOCOL_VERSIONS.includes(requested) ? requested : SUPPORTED_PROTOCOL_VERSIONS[0],
+        capabilities: { tools: { listChanged: false } },
+        // icons + websiteUrl (MCP 2025-11-25): clients that support them show
+        // our logo for the connector instead of a generic one.
+        serverInfo: {
+          name: "liberture-habits",
+          title: "Liberture",
+          version: "1.0.0",
+          websiteUrl: origin,
+          icons: [
+            { src: `${origin}/pwa-icon-512.png`, mimeType: "image/png", sizes: ["512x512"] },
+            { src: `${origin}/pwa-icon-192.png`, mimeType: "image/png", sizes: ["192x192"] },
+            { src: `${origin}/icon.svg`, mimeType: "image/svg+xml", sizes: ["any"] },
+          ],
+        },
+        instructions: INSTRUCTIONS,
+      })
+    }
+    case "ping":
+      return rpcResult(message.id, {})
+    case "tools/list":
+      return rpcResult(message.id, { tools: MCP_TOOLS })
+    case "tools/call": {
+      const name = message.params?.name
+      const args = message.params?.arguments
+      if (typeof name !== "string") return rpcError(message.id, -32602, "Missing tool name")
+      const result = await callMcpTool(
+        name,
+        args && typeof args === "object" && !Array.isArray(args) ? (args as Record<string, unknown>) : {},
+        token,
+        origin
+      )
+      if (!result) return rpcError(message.id, -32602, `Unknown tool: ${name}`)
+      return rpcResult(message.id, result)
+    }
+    default:
+      if (isNotification) return null
+      return rpcError(message.id, -32601, `Method not found: ${message.method}`)
+  }
+}
+
+/** Handle one POST once the caller's token is known to be valid. */
+export async function handleMcpPost(request: Request, token: string): Promise<NextResponse> {
+  let payload: unknown
+  try {
+    payload = await request.json()
+  } catch {
+    return NextResponse.json(rpcError(null, -32700, "Parse error"), { status: 400 })
+  }
+
+  const origin = requestOrigin(request)
+  const messages = Array.isArray(payload) ? payload : [payload]
+  const responses: object[] = []
+  for (const message of messages) {
+    if (!message || typeof message !== "object") {
+      responses.push(rpcError(null, -32600, "Invalid request"))
+      continue
+    }
+    const response = await handleMessage(message as JsonRpcRequest, token, origin)
+    if (response) responses.push(response)
+  }
+
+  if (responses.length === 0) return new NextResponse(null, { status: 202 })
+  return NextResponse.json(Array.isArray(payload) ? responses : responses[0], { headers: { "Cache-Control": "no-store" } })
+}
+
+/** No server-initiated stream: this server never sends anything unprompted. */
+export function mcpMethodNotAllowed(): NextResponse {
+  return new NextResponse(null, { status: 405, headers: { Allow: "POST" } })
+}
+
+export { rpcError }
