@@ -167,6 +167,12 @@ export interface Habit {
   archiveHistory?: Array<{ archivedAt: string; unarchivedAt?: string }>
   createdAt: string // ISO timestamp
   /**
+   * "YYYY-MM-DD" the habit counts as active from, when that is earlier than
+   * createdAt: days logged before it was created (an assistant backfilling
+   * "I did it yesterday"). Derived by withCompletionStarts, never edited.
+   */
+  startDate?: string
+  /**
    * Marketplace provenance. Both are optional and purely informational — a habit
    * adopted from the catalog is an ordinary habit in every other respect, so a
    * tracker instance without the marketplace reads and writes it unchanged.

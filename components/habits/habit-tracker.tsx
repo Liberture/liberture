@@ -9,7 +9,7 @@ import { ScheduleEditor } from "@/components/habits/schedule-editor"
 import { AddHabitDialog } from "@/components/habits/add-habit-dialog"
 import { EditHabitDialog } from "@/components/habits/edit-habit-dialog"
 import { AccountHeader } from "@/components/habits/account-header"
-import { inferTimeOfDay } from "@/lib/habits/habit-utils"
+import { inferTimeOfDay, withCompletionStarts } from "@/lib/habits/habit-utils"
 import { takePostLoginIntent } from "@/lib/habits/post-login-intent"
 import { TodoList } from "@/components/habits/todo-list"
 import { CalendarView } from "@/components/habits/calendar-view"
@@ -149,6 +149,13 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
   const t = useTranslations().habits.app.habitTracker
   const [habits, setHabits] = useState<Habit[]>([])
   const [completions, setCompletions] = useState<HabitCompletion[]>([])
+  // Days logged before a habit was created (the assistant backfilling "I did it
+  // yesterday") must count in stats, streaks and charts: derive each habit's
+  // startDate from its earliest completion. Same array back when nothing
+  // changed, so this settles after one pass and never marks the data dirty.
+  useEffect(() => {
+    setHabits((current) => withCompletionStarts(current, completions))
+  }, [completions])
   const [todos, setTodos] = useState<Todo[]>([])
   const [projects, setProjects] = useState<Project[]>([])
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([])
