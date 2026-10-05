@@ -1,0 +1,87 @@
+# Liberture with the habit tracker merged in, served at liberture-habits.fabriok.ar.
+#
+# Takes over the `liberture-habits` compose project that /root/habit-tracker
+# (compose.liberture.yaml) used to run: same project name, same database
+# service and volume, same loopback ports (app 3022, Postgres 5436). The
+# Cloudflare tunnel already points liberture-habits.fabriok.ar at :3022.
+#
+#   docker compose -f compose.liberture-habits.yaml --env-file .env.liberture-habits run --rm --no-deps migrate
+#   docker compose -f compose.liberture-habits.yaml --env-file .env.liberture-habits up -d --build --no-deps app
+name: liberture-habits
+
+x-app-env: &app-env
+  DATABASE_URL: postgresql://habit_tracker:${POSTGRES_PASSWORD}@database:5432/habit_tracker
+  DATABASE_POOL_SIZE: 5
+  ADMIN_SECRET: ${ADMIN_SECRET:?Set ADMIN_SECRET in .env.liberture-habits}
+  # Comma-separated hex pubkeys allowed into /admin, on top of the built-in ones.
+  ADMIN_NOSTR_PUBKEYS: ${ADMIN_NOSTR_PUBKEYS:-}
+  # Only gates the legacy API-key /api/auth/register route; Nostr sign-in still creates users.
+  DISABLE_REGISTRATION: "true"
+  HABIT_TRACKER_TIME_ZONE: America/Argentina/Buenos_Aires
+  NODE_ENV: production
+  # Coach chat sidecar (optional; the coach hides itself when unset).
+  HABIT_AGENT_SOCKET: ${HABIT_AGENT_SOCKET:-}
+  HABIT_AGENT_SECRET: ${HABIT_AGENT_SECRET:-}
+  HABIT_COACH_OWNER_USER_ID: ${HABIT_COACH_OWNER_USER_ID:-}
+  HABIT_INSTANCE_ID: liberture
+  RESEND_API_KEY: ${RESEND_API_KEY:-}
+  PERPLEXITY_API_KEY: ${PERPLEXITY_API_KEY:-}
+
+services:
+  database:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: habit_tracker
+      POSTGRES_USER: habit_tracker
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.liberture-habits}
+    volumes:
+      - liberture_habits_database:/var/lib/postgresql/data
+      - ./prisma/habits-setup.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+    ports:
+      - "127.0.0.1:5436:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U habit_tracker -d habit_tracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    mem_limit: 512m
+    cpus: 0.75
+
+  # Syncs prisma/schema.prisma into the database (content tables + habit tables).
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: migrate
+    profiles: ["tools"]
+    depends_on:
+      database:
+        condition: service_healthy
+    environment: *app-env
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+    environment: *app-env
+    volumes:
+      - /run/habit-agent:/run/habit-agent
+    ports:
+      - "127.0.0.1:3022:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    mem_limit: 768m
+    cpus: 1.0
+
+volumes:
+  liberture_habits_database:

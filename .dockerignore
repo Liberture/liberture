@@ -1,0 +1,10 @@
+.git
+.next
+.env*
+node_modules
+npm-debug.log*
+pnpm-debug.log*
+backups
+prisma/dev.db
+prisma/liberture.db.backup
+tsconfig.tsbuildinfo
