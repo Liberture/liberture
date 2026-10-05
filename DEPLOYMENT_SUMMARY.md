@@ -89,11 +89,11 @@ pm2 restart liberture
 - Host: localhost:5432
 - Database: liberture
 - User: liberture_user
-- Password: ***REMOVED_DB_PASSWORD***
+- Password: stored in the server's `.env.local` (never commit it)
 
 **Connection String:**
 ```
-postgresql://liberture_user:***REMOVED_DB_PASSWORD***@localhost:5432/liberture?schema=public
+postgresql://liberture_user:<password>@localhost:5432/liberture?schema=public
 ```
 
 ## 💾 Backups

@@ -6,7 +6,8 @@ import path from "path";
 
 const LINKS_DIR = "book_links";    // input dir from previous step
 const OUTPUT_DIR = "book_meta";    // output dir for enriched json
-const GOOGLE_API_KEY = process.env.GOOGLE_BOOKS_API_KEY || "***REMOVED_GOOGLE_API_KEY***";
+const GOOGLE_API_KEY = process.env.GOOGLE_BOOKS_API_KEY;
+if (!GOOGLE_API_KEY) throw new Error("Set GOOGLE_BOOKS_API_KEY (Google Books API key)");
 
 interface ProviderLink {
     name: string;

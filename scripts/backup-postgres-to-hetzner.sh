@@ -12,12 +12,12 @@ BACKUP_DIR="/tmp/liberture-backups"
 DATE=$(date +%Y-%m-%d_%H-%M-%S)
 BACKUP_FILE="liberture_backup_$DATE.sql.gz"
 
-# Hetzner S3 Configuration (from .env.local)
+# Hetzner S3 Configuration. Credentials come from the environment (.env.local), never this file.
 S3_ENDPOINT="https://nbg1.your-objectstorage.com"
 S3_BUCKET="robert-claw"
 S3_REGION="nbg1"
-S3_ACCESS_KEY="***REMOVED_S3_ACCESS_KEY***"
-S3_SECRET_KEY="***REMOVED_S3_SECRET_KEY***"
+S3_ACCESS_KEY="${S3_ACCESS_KEY:?Set S3_ACCESS_KEY}"
+S3_SECRET_KEY="${S3_SECRET_KEY:?Set S3_SECRET_KEY}"
 
 # Create backup directory if it doesn't exist
 mkdir -p "$BACKUP_DIR"
@@ -25,7 +25,7 @@ mkdir -p "$BACKUP_DIR"
 echo "🗄️  Starting PostgreSQL backup for $DB_NAME..."
 
 # Export password for pg_dump (avoid password prompt)
-export PGPASSWORD="***REMOVED_DB_PASSWORD***"
+export PGPASSWORD="${DATABASE_PASSWORD:?Set DATABASE_PASSWORD}"
 
 # Create backup
 pg_dump -U "$DB_USER" -h localhost "$DB_NAME" | gzip > "$BACKUP_DIR/$BACKUP_FILE"
