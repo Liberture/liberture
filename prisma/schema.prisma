@@ -1,5 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // native for local dev; musl targets for the node:22-alpine image (arm64 and x64 hosts).
+  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -7,49 +9,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Account {
-  id           String    @id
-  userId       String
-  accountId    String
-  providerId   String
-  accessToken  String?
-  refreshToken String?
-  idToken      String?
-  expiresAt    DateTime?
-  password     String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime
-  User         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([providerId, accountId])
-  @@index([userId])
-}
-
 model Book {
-  id              String   @id
-  slug            String   @unique
-  title           String
-  author          String
-  description     String
-  pillars         String
-  year            Int?
-  pages           Int?
-  isbn            String?
-  amazonUrl       String?
-  rating          Float?
-  keyTakeaways    String?
-  forWho          String?
-  featured        Boolean  @default(false)
-  imageUrl        String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime
-  publications    String?
-  wikipedia       String?
-  authorId        String?
-  goodreadsUrl    String?
-  influenceScore  Int?
-  libertureRank   Int?
-  Person          Person?  @relation(fields: [authorId], references: [id])
+  id             String   @id
+  slug           String   @unique
+  title          String
+  author         String
+  description    String
+  pillars        String
+  year           Int?
+  pages          Int?
+  isbn           String?
+  amazonUrl      String?
+  rating         Float?
+  keyTakeaways   String?
+  forWho         String?
+  featured       Boolean  @default(false)
+  imageUrl       String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime
+  publications   String?
+  wikipedia      String?
+  authorId       String?
+  goodreadsUrl   String?
+  influenceScore Int?
+  libertureRank  Int?
+  Person         Person?  @relation(fields: [authorId], references: [id])
 
   @@index([authorId])
 }
@@ -106,35 +90,35 @@ model EnrichmentLog {
 }
 
 model Article {
-  id            String        @id
-  title         String
-  description   String
-  pillar        String
-  tags          String
-  author        String
-  readTime      Int
-  url           String
-  publishedAt   DateTime
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime
-  slug          String        @unique
-  viewCount     Int           @default(0)
-  content       String?       @db.Text
-  type          String        @default("article")
-  rating        Float?
-  external      Boolean       @default(false)
-  views         ArticleView[]
+  id          String        @id
+  title       String
+  description String
+  pillar      String
+  tags        String
+  author      String
+  readTime    Int
+  url         String
+  publishedAt DateTime
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  slug        String        @unique
+  viewCount   Int           @default(0)
+  content     String?       @db.Text
+  type        String        @default("article")
+  rating      Float?
+  external    Boolean       @default(false)
+  views       ArticleView[]
 
   @@map("KnowledgeArticle")
 }
 
 model ArticleView {
-  id        String            @id
+  id        String   @id
   articleId String
-  viewedAt  DateTime          @default(now())
+  viewedAt  DateTime @default(now())
   userAgent String?
   referrer  String?
-  article   Article           @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
 
   @@index([articleId])
   @@index([viewedAt])
@@ -168,50 +152,50 @@ model Newsletter {
 }
 
 model Organization {
-  id            String   @id
-  slug          String   @unique
-  name          String
-  description   String
-  pillars       String
-  type          String
-  founded       String?
-  website       String
-  resources     String?
-  keyPeople     String?
-  featured      Boolean  @default(false)
-  imageUrl      String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime
-  publications  String?
-  wikipedia     String?
+  id           String   @id
+  slug         String   @unique
+  name         String
+  description  String
+  pillars      String
+  type         String
+  founded      String?
+  website      String
+  resources    String?
+  keyPeople    String?
+  featured     Boolean  @default(false)
+  imageUrl     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+  publications String?
+  wikipedia    String?
 }
 
 model Person {
-  id              String   @id
-  slug            String   @unique
-  name            String
-  title           String
-  bio             String
-  pillars         String
-  expertise       String
-  followers       String?
-  website         String?
-  twitter         String?
-  instagram       String?
-  youtube         String?
-  podcast         String?
-  imageUrl        String?
-  achievements    String?
-  publications    String?
-  protocols       String?
-  featured        Boolean  @default(false)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime
-  speakingEvents  String?
-  wikipedia       String?
-  category        String   @default("practitioner")
-  influencerRank  Int?
-  Book            Book[]
+  id             String   @id
+  slug           String   @unique
+  name           String
+  title          String
+  bio            String
+  pillars        String
+  expertise      String
+  followers      String?
+  website        String?
+  twitter        String?
+  instagram      String?
+  youtube        String?
+  podcast        String?
+  imageUrl       String?
+  achievements   String?
+  publications   String?
+  protocols      String?
+  featured       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime
+  speakingEvents String?
+  wikipedia      String?
+  category       String   @default("practitioner")
+  influencerRank Int?
+  Book           Book[]
 }
 
 model PlatformComment {
@@ -228,8 +212,8 @@ model PlatformComment {
 }
 
 model Protocol {
-  id            String   @id @default(uuid())
-  slug          String   @unique
+  id            String             @id @default(uuid())
+  slug          String             @unique
   name          String
   description   String
   why           String?
@@ -242,10 +226,10 @@ model Protocol {
   risks         String?
   equipment     String?
   references    String?
-  featured      Boolean  @default(false)
-  published     Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  featured      Boolean            @default(false)
+  published     Boolean            @default(false)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
   relationsFrom ProtocolRelation[] @relation("ProtocolRelationFrom")
   relationsTo   ProtocolRelation[] @relation("ProtocolRelationTo")
 }
@@ -254,26 +238,13 @@ model ProtocolRelation {
   id        String   @id @default(cuid())
   fromSlug  String
   toSlug    String
-  kind      String   // "synergy" (work well together) | "alternative" (same goal, different route)
+  kind      String // "synergy" (work well together) | "alternative" (same goal, different route)
   note      String
   createdAt DateTime @default(now())
   from      Protocol @relation("ProtocolRelationFrom", fields: [fromSlug], references: [slug], onDelete: Cascade)
   to        Protocol @relation("ProtocolRelationTo", fields: [toSlug], references: [slug], onDelete: Cascade)
 
   @@unique([fromSlug, toSlug, kind])
-}
-
-model Session {
-  id        String   @id
-  userId    String
-  expiresAt DateTime
-  ipAddress String?
-  userAgent String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime
-  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
 }
 
 model SocialPost {
@@ -288,72 +259,24 @@ model SocialPost {
   updatedAt DateTime
 }
 
-model User {
+model ScrapedContent {
   id                 String    @id
-  email              String    @unique
-  emailVerified      Boolean   @default(false)
-  name               String
-  image              String?
-  password           String?
-  nostrPubkey        String?   @unique
-  bosLevel           Int       @default(1)
-  role               String    @default("user")
-  banned             Boolean   @default(false)
-  banReason          String?
-  banExpires         DateTime?
+  source             String
+  sourceUrl          String
+  rawContent         String
+  contentType        String
+  targetEntity       String?
+  extractedData      Json?
+  needsParaphrasing  Boolean   @default(true)
+  paraphrasedContent String?
+  enrichmentStatus   String    @default("pending")
+  enrichedBy         String?
+  enrichedAt         DateTime?
+  publishedToDb      Boolean   @default(false)
+  publishedEntityId  String?
+  scrapedAt          DateTime  @default(now())
   createdAt          DateTime  @default(now())
   updatedAt          DateTime
-  emailNotifications Boolean   @default(true)
-  marketingEmails    Boolean   @default(true)
-  newContentAlerts   Boolean   @default(false)
-  weeklyDigest       Boolean   @default(true)
-  Account            Account[]
-  Session            Session[]
-  Bookmark           Bookmark[]
-}
-
-model Bookmark {
-  id         String   @id @default(cuid())
-  userId     String
-  entityType String
-  entityId   String
-  createdAt  DateTime @default(now())
-  User       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, entityType, entityId])
-  @@index([userId])
-  @@index([entityType, entityId])
-}
-
-model Verification {
-  id         String   @id
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime
-
-  @@unique([identifier, value])
-}
-
-model ScrapedContent {
-  id                  String    @id
-  source              String
-  sourceUrl           String
-  rawContent          String
-  contentType         String
-  targetEntity        String?
-  extractedData       Json?
-  needsParaphrasing   Boolean   @default(true)
-  paraphrasedContent  String?
-  enrichmentStatus    String    @default("pending")
-  enrichedBy          String?
-  enrichedAt          DateTime?
-  publishedToDb       Boolean   @default(false)
-  publishedEntityId   String?
-  scrapedAt           DateTime  @default(now())
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime
 
   @@index([source])
   @@index([enrichmentStatus])
@@ -361,3 +284,165 @@ model ScrapedContent {
   @@index([contentType])
 }
 
+// ---------------------------------------------------------------------------
+// Habit tracker (lib/habits). Queried with the `postgres` client, not Prisma;
+// modelled here so `prisma db push` keeps these tables instead of dropping them.
+// ---------------------------------------------------------------------------
+
+model HabitUser {
+  id                     Int                 @id @default(autoincrement())
+  apiKey                 String              @unique(map: "habit_users_api_key_key") @map("api_key")
+  integrationTokenHash   String?             @map("integration_token_hash")
+  integrationTokenPrefix String?             @map("integration_token_prefix")
+  nostrPubkey            String?             @map("nostr_pubkey")
+  data                   Json?               @default("{}")
+  createdAt              DateTime?           @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt              DateTime?           @default(now()) @map("updated_at") @db.Timestamp(6)
+  coachMessages          HabitCoachMessage[]
+  completions            HabitCompletion[]
+  projects               HabitProject[]
+  todos                  HabitTodo[]
+
+  @@index([apiKey], map: "idx_habit_users_api_key")
+  @@index([updatedAt], map: "idx_habit_users_updated_at")
+  @@map("habit_users")
+}
+
+model HabitCompletion {
+  userId      Int       @map("user_id")
+  habitId     String    @map("habit_id")
+  date        DateTime  @db.Date
+  completed   Boolean   @default(false)
+  completedAt String?   @map("completed_at")
+  entryData   Json      @default("{}") @map("entry_data")
+  body        Json
+  user        HabitUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "habit_completions_user_id_fkey")
+
+  @@id([userId, habitId, date])
+  @@index([userId, completed], map: "idx_habit_completions_user_completed")
+  @@index([userId, date(sort: Desc)], map: "idx_habit_completions_user_date")
+  @@index([userId, habitId], map: "idx_habit_completions_user_habit")
+  @@map("habit_completions")
+}
+
+model HabitProject {
+  userId    Int       @map("user_id")
+  id        String
+  name      String
+  color     String?
+  createdAt String    @map("created_at")
+  body      Json
+  user      HabitUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "habit_projects_user_id_fkey")
+
+  @@id([userId, id])
+  @@index([userId, name], map: "idx_habit_projects_user_name")
+  @@map("habit_projects")
+}
+
+model HabitTodo {
+  userId           Int       @map("user_id")
+  id               String
+  title            String
+  description      String?
+  dueDate          DateTime? @map("due_date") @db.Date
+  dueTime          String?   @map("due_time")
+  priority         Int       @default(3) @db.SmallInt
+  status           String    @default("incomplete")
+  completedAt      String?   @map("completed_at")
+  createdAt        String    @map("created_at")
+  updatedAt        String?   @map("updated_at")
+  projectId        String?   @map("project_id")
+  estimatedMinutes Int?      @map("estimated_minutes")
+  energyLevel      String?   @map("energy_level")
+  canTopolinoHelp  Boolean   @default(false) @map("can_topolino_help")
+  notes            String?
+  body             Json
+  user             HabitUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "habit_todos_user_id_fkey")
+
+  @@id([userId, id])
+  @@index([userId, createdAt(sort: Desc)], map: "idx_habit_todos_user_created")
+  @@index([userId, dueDate], map: "idx_habit_todos_user_due_date")
+  @@index([userId, projectId], map: "idx_habit_todos_user_project")
+  @@index([userId, status], map: "idx_habit_todos_user_status")
+  @@map("habit_todos")
+}
+
+model HabitCoachMessage {
+  userId          Int       @map("user_id")
+  messageId       String    @map("message_id")
+  role            String
+  text            String
+  recommendations Json      @default("[]")
+  conversationId  String?   @map("conversation_id")
+  createdAt       BigInt    @map("created_at")
+  updatedAt       BigInt    @map("updated_at")
+  user            HabitUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "habit_coach_messages_user_id_fkey")
+
+  @@id([userId, messageId])
+  @@map("habit_coach_messages")
+}
+
+model HabitOauthClient {
+  clientId         String   @id @map("client_id")
+  secretHash       String?  @map("secret_hash")
+  name             String
+  redirectUris     Json     @default("[]") @map("redirect_uris")
+  redirectPrefixes Json     @default("[]") @map("redirect_prefixes")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("habit_oauth_clients")
+}
+
+model HabitOauthCode {
+  codeHash      String   @id @map("code_hash")
+  clientId      String   @map("client_id")
+  userId        Int      @map("user_id")
+  redirectUri   String   @map("redirect_uri")
+  codeChallenge String   @map("code_challenge")
+  scope         String?
+  expiresAt     DateTime @map("expires_at") @db.Timestamptz(6)
+
+  @@map("habit_oauth_codes")
+}
+
+model HabitApiConnection {
+  id          String    @id @db.Uuid
+  userId      Int       @map("user_id")
+  name        String
+  kind        String
+  clientId    String?   @map("client_id")
+  accessHash  String    @unique(map: "habit_api_connections_access_hash_key") @map("access_hash")
+  refreshHash String?   @unique(map: "habit_api_connections_refresh_hash_key") @map("refresh_hash")
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  lastUsedAt  DateTime? @map("last_used_at") @db.Timestamptz(6)
+  revokedAt   DateTime? @map("revoked_at") @db.Timestamptz(6)
+
+  @@index([userId], map: "idx_habit_api_connections_user")
+  @@map("habit_api_connections")
+}
+
+model HabitSiteSetting {
+  key   String @id
+  value String
+
+  @@map("habit_site_settings")
+}
+
+model NostrChallenge {
+  pubkey    String   @id
+  nonce     String
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+
+  @@map("nostr_challenges")
+}
+
+model NostrSession {
+  token     String   @id
+  pubkey    String
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([expiresAt], map: "idx_nostr_sessions_expires")
+  @@index([pubkey], map: "idx_nostr_sessions_pubkey")
+  @@map("nostr_sessions")
+}

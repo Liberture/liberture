@@ -1,34 +1,12 @@
-import { MotionSection } from "@/components/animations"
-import { LandingCTA } from "./landing-cta"
-import { LandingFeatures } from "./landing-features"
-import { LandingHero } from "./landing-hero"
-import { LandingKnowledge } from "./landing-knowledge"
-import { LandingMarketplace } from "./landing-marketplace"
-import { LandingNewsletter } from "./landing-newsletter"
-import { LandingPillars } from "./landing-pillars"
+import { LandingHero } from "@/components/habits/landing-hero"
+import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { getServerOrigin } from "@/lib/habits/request-origin"
 
-export default function Home() {
+export default async function Home() {
+  const [locale, origin] = await Promise.all([getRequestLocale(), getServerOrigin()])
   return (
-    <main className="min-h-screen">
-      <LandingHero />
-      <MotionSection delay={0.1}>
-        <LandingFeatures />
-      </MotionSection>
-      <MotionSection delay={0.2}>
-        <LandingPillars />
-      </MotionSection>
-      <MotionSection delay={0.1}>
-        <LandingMarketplace />
-      </MotionSection>
-      <MotionSection delay={0.1}>
-        <LandingKnowledge />
-      </MotionSection>
-      <MotionSection delay={0.1}>
-        <LandingNewsletter />
-      </MotionSection>
-      <MotionSection delay={0.1}>
-        <LandingCTA />
-      </MotionSection>
-    </main>
+    <div className="min-h-screen">
+      <LandingHero locale={locale} origin={origin} />
+    </div>
   )
 }

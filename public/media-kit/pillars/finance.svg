@@ -6,9 +6,7 @@
     </filter>
   </defs>
   <!-- Wallet icon - Finance -->
-  <circle cx="128" cy="128" r="80" fill="none" stroke="#EAB308" stroke-width="4" opacity="0.2"/>
-  <circle cx="128" cy="128" r="32" fill="#EAB308" filter="url(#glow)"/>
-  <rect x="100" y="112" width="56" height="36" rx="4" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M100 120h56" fill="none" stroke="#ffffff" stroke-width="3"/>
-  <circle cx="144" cy="132" r="3" fill="#ffffff"/>
+  <circle cx="128" cy="128" r="80" fill="none" stroke="#E1A200" stroke-width="4" opacity="0.2"/>
+  <circle cx="128" cy="128" r="58" fill="#E1A200" filter="url(#glow)"/>
+  <g transform="translate(94,94) scale(2.83333)" fill="none" stroke="#ffffff" stroke-width="1.05882" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></g>
 </svg>

@@ -22,7 +22,7 @@ Before creating any assets, define these core elements:
 
 A ready-to-copy paragraph for journalists, partners, and directory listings:
 
-> Liberture is a free, open-access platform for human optimization. Built around six core pillars — Cognition, Recovery, Fueling, Mental, Physicality, and Finance — Liberture provides science-backed protocols, a curated directory of experts and organizations, and a growing knowledge base. Founded by Leon Acosta (CEO), Fabricio Acosta (CTO), and Robert Claw (AI Architect), Liberture is committed to radical self-ownership, evidence-first health optimization, and open access for all.
+> Liberture is a free, open-access platform for human optimization. Built around six core pillars — Work, Sleep, Nutrition, Mind, Exercise, and Finance — Liberture provides science-backed protocols, a curated directory of experts and organizations, and a growing knowledge base. Founded by Leon Acosta (CEO), Fabricio Acosta (CTO), and Robert Claw (AI Architect), Liberture is committed to radical self-ownership, evidence-first health optimization, and open access for all.
 
 ---
 
@@ -80,16 +80,27 @@ The animated version is a **React component** (`<LibertureLogo animate={true} />
 
 ### Pillar Colors (Primary Accent Colors)
 
-Each pillar has a signature color. These are the most important brand colors:
+Each pillar has a signature color. These are the most important brand colors. The hex
+values are the sRGB rendering of the `--work` … `--finance` oklch tokens in
+`app/globals.css`, which is what the site actually paints.
 
-| Pillar | Hex | RGB | Tailwind-style Name |
-|--------|-----|-----|---------------------|
-| Cognition | `#8B5CF6` | 139, 92, 246 | Purple/Violet |
-| Recovery | `#06B6D4` | 6, 182, 212 | Cyan |
-| Fueling | `#10B981` | 16, 185, 129 | Emerald/Green |
-| Mental | `#EC4899` | 236, 72, 153 | Pink |
-| Physicality | `#F59E0B` | 245, 158, 11 | Amber/Orange |
-| Finance | `#EAB308` | 234, 179, 8 | Yellow |
+| Pillar | Hex | oklch token | Tailwind-style Name |
+|--------|-----|-------------|---------------------|
+| Work | `#659DFB` | `oklch(0.7 0.15 260)` | Blue |
+| Sleep | `#00CACB` | `oklch(0.75 0.15 195)` | Cyan/Teal |
+| Nutrition | `#45CD55` | `oklch(0.75 0.2 145)` | Green |
+| Mind | `#FF78BE` | `oklch(0.75 0.18 350)` | Pink |
+| Exercise | `#FF823F` | `oklch(0.75 0.18 45)` | Orange |
+| Finance | `#E1A200` | `oklch(0.75 0.18 85)` | Amber/Yellow |
+
+> **Pillar names.** The six pillars are **Work, Sleep, Nutrition, Mind, Exercise and
+> Finance** (`PillarId` in `types/pillar.ts`). The spellings *cognition, recovery,
+> fueling, mental, physicality* are legacy **database** values that get translated by
+> `DB_PILLAR_TO_FRONTEND` in `lib/pillars.ts` — never use them in brand material.
+
+> **Note.** The six dots in the logo mark keep their own fixed palette (`#8B5CF6`
+> `#06B6D4` `#10B981` `#EC4899` `#F59E0B` `#EAB308`) and are intentionally *not*
+> repainted when the pillar tokens change — the mark is shipped as-is everywhere.
 
 ### Brand Colors (UI/Surface Colors)
 
@@ -159,11 +170,14 @@ All colors, typography, and brand data exported as a JSON design tokens file fol
 
 Individual 256x256 SVG icons for each pillar category. Each icon has:
 - An outer circle (stroke only, `opacity="0.2"`, `r=80`)
-- An inner filled circle (`r=32`) with glow filter
-- A white icon path drawn on top (brain, heart, leaf, zap, dumbbell, wallet)
+- An inner filled circle (`r=58`) with glow filter, sized to fully contain the glyph
+- A white icon path drawn on top (briefcase, moon, leaf, brain, dumbbell, wallet)
 - All in the pillar's signature color
 
-**Files:** `pillars/{pillar-name}.svg` (cognition, recovery, fueling, mental, physicality, finance)
+**Files:** `pillars/{pillar-id}.svg` (work, sleep, nutrition, mind, exercise, finance)
+
+The glyph on each icon is the pillar's `lucide-react` icon:
+Work→Briefcase, Sleep→Moon, Nutrition→Leaf, Mind→Brain, Exercise→Dumbbell, Finance→Wallet.
 
 **Also:** `pillars/liberture-pillars-overview.svg` — A 1200x320 banner showing all 6 pillars side by side with a purple gradient background.
 
@@ -245,11 +259,11 @@ public/
     icons/
       liberture-icon-512.svg             # App icon (no glow, dark bg)
     pillars/
-      cognition.svg                      # Individual pillar icons (256x256)
-      recovery.svg
-      fueling.svg
-      mental.svg
-      physicality.svg
+      work.svg                           # Individual pillar icons (256x256)
+      sleep.svg
+      nutrition.svg
+      mind.svg
+      exercise.svg
       finance.svg
       liberture-pillars-overview.svg     # All 6 pillars banner (1200x320)
     liberture-design-tokens.json         # Design tokens (colors, typography, brand)

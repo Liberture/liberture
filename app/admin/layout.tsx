@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getAuthUser, isAdmin } from '@/lib/auth'
+import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { LandingFooter } from "@/components/layout/landing-footer"
 import { LandingNav } from "@/components/layout/landing-nav"
 import { AnimatedBackground } from "@/components/illustrations/AnimatedBackground"
@@ -12,7 +13,7 @@ export default async function AdminLayout({
   const authUser = await getAuthUser()
 
   if (!authUser) {
-    redirect('/admin-login?redirect=/admin')
+    redirect('/login?redirect=/admin')
   }
 
   const admin = await isAdmin(authUser.userId)
@@ -27,7 +28,7 @@ export default async function AdminLayout({
       <main className="flex-1 pt-16">
         {children}
       </main>
-      <LandingFooter />
+      <LandingFooter locale={await getRequestLocale()} />
     </div>
   )
 }

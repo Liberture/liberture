@@ -65,7 +65,7 @@ Added to `User` model in Prisma schema:
 - Option to re-subscribe
 
 ### 5. Resend Integration (`lib/resend.ts`)
-- Initialized with API key: `***REMOVED_RESEND_API_KEY***`
+- Initialized with the API key from `RESEND_API_KEY`
 - Helper functions:
   - `sendWelcomeEmail(to, name)`
   - `sendWeeklyDigest(to, name, data)`
@@ -76,7 +76,7 @@ Added to `User` model in Prisma schema:
 
 Added to `.env.local`:
 ```
-RESEND_API_KEY=***REMOVED_RESEND_API_KEY***
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxx
 ```
 
 ## Design Highlights

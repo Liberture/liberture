@@ -1,32 +1,35 @@
 /**
- * Seed the protocol library with a cross-linked, evidence-referenced starter set.
- * 2 protocols per pillar (canonical frontend pillar ids), each with a "why",
- * real reference sources, and relations (synergy / alternative) to other protocols.
+ * Seed the protocol library from the habit tracker's catalog
+ * (lib/habits/protocols/library), plus the cross-links in lib/protocols/library.ts.
  * Idempotent: upserts by slug; relations are skipped unless both ends exist.
  *
  * Run: pnpm exec tsx scripts/seed-marketplace-protocols.ts
  */
 import { PrismaClient } from "@prisma/client"
-import { protocols, relations } from "../lib/protocols/library"
+import { CATALOG_PROTOCOLS } from "../lib/habits/protocols/catalog"
+import { relations } from "../lib/protocols/library"
+import { sourceLabel } from "../lib/tracker/catalog"
+
+const SEED_DIFFICULTY = { easy: "beginner", moderate: "intermediate", hard: "advanced" } as const
 
 const prisma = new PrismaClient()
 async function main() {
   let created = 0
   let updated = 0
-  for (const p of protocols) {
+  for (const p of CATALOG_PROTOCOLS) {
     const data = {
       name: p.name,
       description: p.description,
       why: p.why,
       pillar: p.pillar,
-      creator: p.creator,
+      creator: p.author?.name ?? p.creator,
       duration: p.duration,
-      difficulty: p.difficulty,
+      difficulty: SEED_DIFFICULTY[p.difficulty],
       steps: JSON.stringify(p.steps),
       benefits: JSON.stringify(p.benefits),
       risks: p.risks?.length ? JSON.stringify(p.risks) : null,
       equipment: p.equipment?.length ? JSON.stringify(p.equipment) : null,
-      references: JSON.stringify(p.references),
+      references: JSON.stringify(p.evidence.map(sourceLabel)),
       featured: p.featured ?? false,
       published: true,
     }

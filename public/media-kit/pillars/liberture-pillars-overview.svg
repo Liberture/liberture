@@ -22,27 +22,28 @@
   <!-- Subtle border rectangle -->
   <rect x="30" y="28" width="1140" height="264" rx="12" fill="none" stroke="rgba(139,92,246,0.25)" stroke-width="1.5"/>
 
-  <!-- Work - Purple -->
-  <circle cx="100" cy="130" r="52" fill="#A78BFA" filter="url(#pillar-glow)"/>
+  <!-- Work -->
+  <circle cx="100" cy="130" r="52" fill="#659DFB" filter="url(#pillar-glow)"/>
+  <g transform="translate(76.6,106.6) scale(1.95)" fill="none" stroke="#ffffff" stroke-width="1.53846" stroke-linecap="round" stroke-linejoin="round"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></g>
   <text x="100" y="228" fill="white" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="26" font-weight="500" text-anchor="middle">Work</text>
-
-  <!-- Sleep - Cyan -->
-  <circle cx="300" cy="130" r="52" fill="#67E8F9" filter="url(#pillar-glow)"/>
+  <!-- Sleep -->
+  <circle cx="300" cy="130" r="52" fill="#00CACB" filter="url(#pillar-glow)"/>
+  <g transform="translate(276.6,106.6) scale(1.95)" fill="none" stroke="#ffffff" stroke-width="1.53846" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></g>
   <text x="300" y="228" fill="white" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="26" font-weight="500" text-anchor="middle">Sleep</text>
-
-  <!-- Nutrition - Green -->
-  <circle cx="500" cy="130" r="52" fill="#4ADE80" filter="url(#pillar-glow)"/>
+  <!-- Nutrition -->
+  <circle cx="500" cy="130" r="52" fill="#45CD55" filter="url(#pillar-glow)"/>
+  <g transform="translate(476.6,106.6) scale(1.95)" fill="none" stroke="#ffffff" stroke-width="1.53846" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></g>
   <text x="500" y="228" fill="white" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="26" font-weight="500" text-anchor="middle">Nutrition</text>
-
-  <!-- Mind - Pink -->
-  <circle cx="700" cy="130" r="52" fill="#F472B6" filter="url(#pillar-glow)"/>
+  <!-- Mind -->
+  <circle cx="700" cy="130" r="52" fill="#FF78BE" filter="url(#pillar-glow)"/>
+  <g transform="translate(676.6,106.6) scale(1.95)" fill="none" stroke="#ffffff" stroke-width="1.53846" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/></g>
   <text x="700" y="228" fill="white" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="26" font-weight="500" text-anchor="middle">Mind</text>
-
-  <!-- Exercise - Orange -->
-  <circle cx="900" cy="130" r="52" fill="#FB923C" filter="url(#pillar-glow)"/>
+  <!-- Exercise -->
+  <circle cx="900" cy="130" r="52" fill="#FF823F" filter="url(#pillar-glow)"/>
+  <g transform="translate(876.6,106.6) scale(1.95)" fill="none" stroke="#ffffff" stroke-width="1.53846" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 14.4 9.6 9.6"/><path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"/><path d="m21.5 21.5-1.4-1.4"/><path d="M3.9 3.9 2.5 2.5"/><path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z"/></g>
   <text x="900" y="228" fill="white" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="26" font-weight="500" text-anchor="middle">Exercise</text>
-
-  <!-- Finance - Yellow -->
-  <circle cx="1100" cy="130" r="52" fill="#FACC15" filter="url(#pillar-glow)"/>
+  <!-- Finance -->
+  <circle cx="1100" cy="130" r="52" fill="#E1A200" filter="url(#pillar-glow)"/>
+  <g transform="translate(1076.6,106.6) scale(1.95)" fill="none" stroke="#ffffff" stroke-width="1.53846" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></g>
   <text x="1100" y="228" fill="white" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="26" font-weight="500" text-anchor="middle">Finance</text>
 </svg>

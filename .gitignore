@@ -59,3 +59,10 @@ pids
 # sqlite
 prisma/dev.db
 prisma/dev.db-journal
+
+# deploy secrets
+.env.liberture-habits
+
+# local security incident notes (never commit)
+SECURITY-LEAKED-KEYS.md
+image.png
