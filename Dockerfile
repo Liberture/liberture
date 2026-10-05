@@ -1,7 +1,9 @@
 FROM node:22-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN apk add --no-cache openssl && corepack enable
+# Pinned: package.json has no packageManager field (it clashes with the CI
+# action's pnpm pin), and corepack's default pnpm is newer than the lockfile.
+RUN apk add --no-cache openssl && corepack enable && corepack prepare pnpm@10.30.3 --activate
 
 FROM base AS dependencies
 WORKDIR /app
