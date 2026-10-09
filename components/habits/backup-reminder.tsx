@@ -39,13 +39,17 @@ export function BackupReminder({ habits, lastBackupAt, onExport }: BackupReminde
 
   useEffect(() => {
     setMounted(true)
-    const stored = Number(localStorage.getItem(SNOOZE_KEY))
-    setSnoozedUntil(Number.isFinite(stored) && stored > 0 ? stored : null)
+    try {
+      const stored = Number(localStorage.getItem(SNOOZE_KEY))
+      setSnoozedUntil(Number.isFinite(stored) && stored > 0 ? stored : null)
+    } catch {}
   }, [])
 
   const snooze = useCallback(() => {
     const until = Date.now() + SNOOZE_DAYS * 24 * 60 * 60 * 1000
-    localStorage.setItem(SNOOZE_KEY, String(until))
+    try {
+      localStorage.setItem(SNOOZE_KEY, String(until))
+    } catch {}
     setSnoozedUntil(until)
   }, [])
 
@@ -53,7 +57,9 @@ export function BackupReminder({ habits, lastBackupAt, onExport }: BackupReminde
     onExport()
     // Clear the snooze: the reason for it is gone, and leaving it set would
     // suppress a genuine reminder three days from now.
-    localStorage.removeItem(SNOOZE_KEY)
+    try {
+      localStorage.removeItem(SNOOZE_KEY)
+    } catch {}
     setSnoozedUntil(null)
   }, [onExport])
 
@@ -68,8 +74,8 @@ export function BackupReminder({ habits, lastBackupAt, onExport }: BackupReminde
     : plural(t.daysSinceBackup, status.daysSince ?? 0)
 
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3">
-      <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden />
+    <div className="flex items-start gap-3 rounded-xl border border-exercise/30 bg-exercise/10 p-3">
+      <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-exercise" aria-hidden />
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium text-foreground">{headline}</p>
         <p className="mt-0.5 text-xs text-muted-foreground">
@@ -89,7 +95,7 @@ export function BackupReminder({ habits, lastBackupAt, onExport }: BackupReminde
         onClick={snooze}
         aria-label={formatMessage(t.remindLater, { count: SNOOZE_DAYS })}
         title={formatMessage(t.remindLater, { count: SNOOZE_DAYS })}
-        className="shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:bg-black/5 hover:text-foreground dark:hover:bg-white/10"
+        className="shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       >
         <X className="h-4 w-4" aria-hidden />
       </button>

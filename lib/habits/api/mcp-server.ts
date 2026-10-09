@@ -1,23 +1,35 @@
 import { NextResponse } from "next/server"
 import { requestOrigin } from "@/lib/habits/api/assistant"
 import { MCP_TOOLS, callMcpTool } from "@/lib/habits/api/mcp-tools"
+import { MCP_RESOURCES, MCP_RESOURCE_TEMPLATES, readResource } from "@/lib/habits/api/mcp-resources"
+import { MCP_PROMPTS, getPrompt } from "@/lib/habits/api/mcp-prompts"
+import { completeArgument } from "@/lib/habits/api/mcp-completion"
 
 /**
- * Model Context Protocol over Streamable HTTP: stateless, JSON responses (no
- * SSE, no sessions). Shared by /mcp (OAuth bearer, the URL people paste into
- * Claude or ChatGPT) and /api/mcp/<token> (token in the URL, older setups).
- * Tools are the /api/v1 handlers (lib/api/mcp-tools.ts), so the user's
- * permission scopes apply either way.
+ * Model Context Protocol over Streamable HTTP: stateless, JSON responses.
+ * Shared by /mcp (OAuth bearer, the URL people paste into Claude or ChatGPT)
+ * and /api/mcp/<token> (token in the URL, older setups). Tools and resources
+ * are the /api/v1 handlers (mcp-tools.ts, mcp-resources.ts), so the user's
+ * permission scopes apply either way; prompts and completion are thin.
+ *
+ * Deliberately no SSE stream and no Mcp-Session-Id: nothing here is pushed
+ * unprompted, and the one candidate (tools/list_changed when the user flips
+ * a permission) isn't worth sessions — a switched-off tool still answers with
+ * scope_disabled and a message to relay. So GET stays 405 and every list
+ * advertises listChanged: false.
  */
 
 const SUPPORTED_PROTOCOL_VERSIONS = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"]
 
 const INSTRUCTIONS =
   "Liberture, the user's habit tracker, often used by voice. Be fast: call get_today once at the start, " +
-  "then act in one call — log_habit, create_habit and set_todo_status take names as the user said them, so never " +
-  "list habits or todos first. Don't ask follow-up questions when a default works (a new habit is daily with no " +
-  "reminder): do it, then read back the `say` sentence the tool returns and offer to adjust. Keep replies to one or " +
-  "two sentences. When recommending, share infoUrl. If a tool returns scope_disabled, relay its message; don't retry."
+  "then act in one call — every write tool (log_habit, log_habit_value, update_habit, archive_habit, update_todo, " +
+  "set_todo_status, update_event, schedule_todo…) takes names as the user said them, so never list first. Amounts " +
+  "(\"20 pushups\") go to log_habit_value; calendar times without an offset are the user's local time. Don't ask " +
+  "follow-up questions when a default works (a new habit is daily with no reminder): do it, then read back the `say` " +
+  "sentence the tool returns and offer to adjust. On 409 ask which of `options`. To stop a habit, archive it. Keep " +
+  "replies to one or two sentences. When recommending, share infoUrl. If a tool returns scope_disabled, relay its " +
+  "message; don't retry."
 
 interface JsonRpcRequest {
   jsonrpc?: string
@@ -42,7 +54,13 @@ async function handleMessage(message: JsonRpcRequest, token: string, origin: str
       const requested = typeof message.params?.protocolVersion === "string" ? message.params.protocolVersion : ""
       return rpcResult(message.id, {
         protocolVersion: SUPPORTED_PROTOCOL_VERSIONS.includes(requested) ? requested : SUPPORTED_PROTOCOL_VERSIONS[0],
-        capabilities: { tools: { listChanged: false } },
+        capabilities: {
+          tools: { listChanged: false },
+          resources: { subscribe: false, listChanged: false },
+          prompts: { listChanged: false },
+          completions: {},
+          logging: {},
+        },
         // icons + websiteUrl (MCP 2025-11-25): clients that support them show
         // our logo for the connector instead of a generic one.
         serverInfo: {
@@ -62,7 +80,38 @@ async function handleMessage(message: JsonRpcRequest, token: string, origin: str
     case "ping":
       return rpcResult(message.id, {})
     case "tools/list":
+      // Everything fits in one page; no nextCursor.
       return rpcResult(message.id, { tools: MCP_TOOLS })
+    case "resources/list":
+      return rpcResult(message.id, { resources: MCP_RESOURCES })
+    case "resources/templates/list":
+      return rpcResult(message.id, { resourceTemplates: MCP_RESOURCE_TEMPLATES })
+    case "resources/read": {
+      const uri = message.params?.uri
+      if (typeof uri !== "string") return rpcError(message.id, -32602, "Missing resource uri")
+      const result = await readResource(uri, token, origin)
+      return "error" in result ? rpcError(message.id, result.error.code, result.error.message) : rpcResult(message.id, result)
+    }
+    case "prompts/list":
+      return rpcResult(message.id, { prompts: MCP_PROMPTS })
+    case "prompts/get": {
+      const name = message.params?.name
+      const args = message.params?.arguments
+      if (typeof name !== "string") return rpcError(message.id, -32602, "Missing prompt name")
+      const prompt = getPrompt(name, args && typeof args === "object" && !Array.isArray(args) ? (args as Record<string, unknown>) : {})
+      return prompt ? rpcResult(message.id, prompt) : rpcError(message.id, -32602, `Unknown prompt: ${name}`)
+    }
+    case "completion/complete": {
+      const ref = message.params?.ref
+      const argument = message.params?.argument
+      if (!ref || typeof ref !== "object" || !argument || typeof argument !== "object") {
+        return rpcError(message.id, -32602, "completion/complete needs ref and argument")
+      }
+      return rpcResult(message.id, await completeArgument(ref as Record<string, unknown>, argument as Record<string, unknown>, token))
+    }
+    case "logging/setLevel":
+      // Accepted so clients that set a level don't error; this server sends no log notifications.
+      return rpcResult(message.id, {})
     case "tools/call": {
       const name = message.params?.name
       const args = message.params?.arguments

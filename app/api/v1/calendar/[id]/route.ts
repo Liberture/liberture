@@ -3,6 +3,7 @@ import { getDb } from "@/lib/habits/db"
 import { authorizeIntegration } from "@/lib/habits/integration-auth"
 import type { CalendarEvent } from "@/lib/habits/types"
 import { buildCalendarEventPatch } from "@/lib/habits/calendar-utils"
+import { userTimeZone, withZonedTimes } from "@/lib/habits/api/time-zone"
 
 /** GET /api/v1/calendar/:id */
 export async function GET(
@@ -43,7 +44,7 @@ export async function PUT(
   }
 
   const now = new Date().toISOString()
-  const patchResult = buildCalendarEventPatch(existing, body, now)
+  const patchResult = buildCalendarEventPatch(existing, withZonedTimes(body, userTimeZone(request, user.data)), now)
   if ("error" in patchResult) {
     return NextResponse.json({ error: patchResult.error }, { status: 400 })
   }
@@ -89,12 +90,12 @@ export async function PUT(
   }
 }
 
-/** DELETE /api/v1/calendar/:id */
+/** DELETE /api/v1/calendar/:id — scope delete_items (off by default). */
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const user = await authorizeIntegration(request, "calendar")
+  const user = await authorizeIntegration(request, "delete_items")
   if (user instanceof NextResponse) return user
 
   const { id } = await params

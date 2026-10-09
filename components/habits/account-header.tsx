@@ -1,8 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { BadgeCheck, LogOut, Settings } from "lucide-react"
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
+import { BadgeCheck, ChevronDown, Download, LogOut, Mic, Settings, UserRound } from "lucide-react"
 
+import type { SettingsTab } from "@/components/habits/settings/settings-tabs"
+import { AppDialog } from "@/components/habits/ui/app-dialog"
+import { settingsButtonClass } from "@/components/habits/settings/settings-ui"
 import { displayNip05, useNostrProfile } from "@/lib/habits/nostr/use-nostr-profile"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "@/components/i18n/locale-provider"
@@ -13,9 +17,12 @@ interface AccountHeaderProps {
   pubkey: string | null
   /** The tracker's own profile name, used when the Nostr profile has none. */
   fallbackName?: string | null
-  onSettings: () => void
+  /** Opens Settings, on the given tab when there is one. */
+  onOpenSettings: (tab?: SettingsTab) => void
+  /** Downloads a full backup; the menu item is hidden without it. */
+  onExport?: () => void
   onLogout: () => void
-  /** Compact = phone header: avatar and buttons, name truncated harder. */
+  /** Compact = phone header: smaller avatar, name truncated harder. */
   compact?: boolean
 }
 
@@ -53,57 +60,114 @@ export function Avatar({ src, name, size }: { src: string | null; name: string; 
 }
 
 /**
- * Who is signed in (Nostr picture, name, NIP-05 address) plus the Settings and
- * Log out buttons, filled so they read as buttons on the dark background.
+ * Who is signed in (Nostr picture, name, NIP-05 address). One button that
+ * opens the account menu: profile, settings, assistants, export, sign out.
  */
-export function AccountHeader({ pubkey, fallbackName, onSettings, onLogout, compact = false }: AccountHeaderProps) {
+export function AccountHeader({ pubkey, fallbackName, onOpenSettings, onExport, onLogout, compact = false }: AccountHeaderProps) {
   const t = useTranslations().habits.app.accountHeader
+  const common = useTranslations().habits.app.common
   const profile = useNostrProfile(pubkey)
+  const [confirmingSignOut, setConfirmingSignOut] = useState(false)
   const name = profile?.name ?? fallbackName ?? t.yourAccount
   const address = profile?.nip05 ? displayNip05(profile.nip05) : null
 
-  const buttonClass = cn(
-    "flex items-center justify-center gap-2 rounded-xl border border-border bg-secondary text-sm font-medium text-secondary-foreground transition-colors",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-    compact ? "size-11" : "h-10 min-w-10 px-2.5 2xl:px-3.5"
+  // Act once the menu has closed and handed focus back to its button, so a
+  // dialog opened from it restores focus there when it closes.
+  const afterClose = (action: () => void) => () => window.setTimeout(action, 0)
+
+  const itemClass = cn(
+    "flex cursor-pointer select-none items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-foreground outline-none transition-colors",
+    "data-[highlighted]:bg-secondary data-[highlighted]:text-foreground"
   )
 
   return (
-    <div className={cn("flex min-w-0 items-center gap-2 sm:gap-3", compact && "w-full justify-between")}>
-      <button
-        type="button"
-        onClick={onSettings}
-        className="flex min-w-0 items-center gap-2.5 rounded-xl px-1.5 py-1 text-left transition-colors hover:bg-secondary/60"
-        aria-label={formatMessage(t.accountLabel, { name })}
-      >
-        <Avatar src={profile?.picture ?? null} name={name} size={compact ? 36 : 40} />
-        <span className="min-w-0">
-          <span className={cn("block truncate font-semibold text-foreground", compact ? "max-w-[11rem] text-sm" : "max-w-[10rem] text-sm")}>{name}</span>
-          {address ? (
-            <span className={cn("flex items-center gap-1 truncate text-xs text-muted-foreground", compact ? "max-w-[11rem]" : "max-w-[10rem]")}>
-              <span className="truncate">{address}</span>
-              {profile?.nip05Verified ? <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-primary" aria-label={t.verified} /> : null}
+    <div className={cn("flex min-w-0 items-center", compact && "w-full")}>
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger asChild>
+          <button
+            type="button"
+            className={cn(
+              "flex min-w-0 items-center gap-2.5 rounded-xl px-1.5 py-1 text-left transition-colors hover:bg-secondary/60",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:bg-secondary/60"
+            )}
+            aria-label={formatMessage(t.accountLabel, { name })}
+          >
+            <Avatar src={profile?.picture ?? null} name={name} size={compact ? 36 : 40} />
+            <span className="min-w-0">
+              <span className={cn("block truncate font-semibold text-foreground", compact ? "max-w-[11rem] text-sm" : "max-w-[10rem] text-sm")}>{name}</span>
+              {address ? (
+                <span className={cn("flex items-center gap-1 truncate text-xs text-muted-foreground", compact ? "max-w-[11rem]" : "max-w-[10rem]")}>
+                  <span className="truncate">{address}</span>
+                  {profile?.nip05Verified ? <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-primary" aria-label={t.verified} /> : null}
+                </span>
+              ) : null}
             </span>
-          ) : null}
-        </span>
-      </button>
+            <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+          </button>
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Portal>
+          <DropdownMenu.Content
+            align="start"
+            sideOffset={6}
+            collisionPadding={12}
+            className="z-50 min-w-52 rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-lg animate-in fade-in zoom-in-95"
+          >
+            <DropdownMenu.Item className={itemClass} onSelect={afterClose(() => onOpenSettings("profile"))}>
+              <UserRound className="h-4 w-4 text-muted-foreground" aria-hidden />
+              {t.profile}
+            </DropdownMenu.Item>
+            <DropdownMenu.Item className={itemClass} onSelect={afterClose(() => onOpenSettings("preferences"))}>
+              <Settings className="h-4 w-4 text-muted-foreground" aria-hidden />
+              {t.settings}
+            </DropdownMenu.Item>
+            <DropdownMenu.Item className={itemClass} onSelect={afterClose(() => onOpenSettings("assistants"))}>
+              <Mic className="h-4 w-4 text-muted-foreground" aria-hidden />
+              {t.assistants}
+            </DropdownMenu.Item>
+            {onExport ? (
+              <DropdownMenu.Item className={itemClass} onSelect={onExport}>
+                <Download className="h-4 w-4 text-muted-foreground" aria-hidden />
+                {t.exportBackup}
+              </DropdownMenu.Item>
+            ) : null}
+            <DropdownMenu.Separator className="my-1 h-px bg-border" />
+            <DropdownMenu.Item
+              className={cn(itemClass, "text-destructive data-[highlighted]:bg-destructive/15 data-[highlighted]:text-destructive")}
+              onSelect={afterClose(() => setConfirmingSignOut(true))}
+            >
+              <LogOut className="h-4 w-4" aria-hidden />
+              {t.signOut}
+            </DropdownMenu.Item>
+          </DropdownMenu.Content>
+        </DropdownMenu.Portal>
+      </DropdownMenu.Root>
 
-      <div className="flex shrink-0 items-center gap-2">
-        <button type="button" onClick={onSettings} aria-label={t.settings} title={t.settings} className={cn(buttonClass, "hover:bg-secondary/70")}>
-          <Settings className={compact ? "size-5" : "h-4 w-4"} />
-          {compact ? null : <span className="hidden 2xl:inline">{t.settings}</span>}
-        </button>
-        <button
-          type="button"
-          onClick={onLogout}
-          aria-label={t.logOut}
-          title={t.logOut}
-          className={cn(buttonClass, "hover:border-destructive/50 hover:bg-destructive/15 hover:text-destructive")}
-        >
-          <LogOut className={compact ? "size-5" : "h-4 w-4"} />
-          {compact ? null : <span className="hidden 2xl:inline">{t.logOut}</span>}
-        </button>
-      </div>
+      <AppDialog
+        open={confirmingSignOut}
+        onClose={() => setConfirmingSignOut(false)}
+        title={t.signOutTitle}
+        size="sm"
+        footer={
+          <>
+            <button type="button" onClick={() => setConfirmingSignOut(false)} className={settingsButtonClass()}>
+              {common.cancel}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setConfirmingSignOut(false)
+                onLogout()
+              }}
+              className={settingsButtonClass("danger")}
+            >
+              <LogOut className="h-4 w-4" />
+              {t.signOut}
+            </button>
+          </>
+        }
+      >
+        <p className="text-sm text-muted-foreground">{common.signOutConfirm}</p>
+      </AppDialog>
     </div>
   )
 }

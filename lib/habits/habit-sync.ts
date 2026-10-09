@@ -51,3 +51,27 @@ export function mergeHabitTombstones(
   }
   return result
 }
+
+/**
+ * Profile and preferences are single objects stamped with updatedAt. The
+ * server's copy wins only when it changed after everything the client knew:
+ * later than the client's own stamp and later than its last sync. That keeps
+ * an assistant's update_profile from being reverted by a tab that loaded
+ * before it, while edits made in the tab (newer, or simply unstamped but
+ * after its sync) still win.
+ */
+export function mergeStamped<T extends { updatedAt?: string }>(
+  client: T | undefined,
+  server: T | undefined,
+  clientLastUpdated: string | undefined
+): T | undefined {
+  if (!server?.updatedAt) return client ?? server
+  if (!client) return server
+  const serverAt = Date.parse(server.updatedAt)
+  if (Number.isNaN(serverAt)) return client
+  const clientAt = Math.max(
+    client.updatedAt ? Date.parse(client.updatedAt) || 0 : 0,
+    clientLastUpdated ? Date.parse(clientLastUpdated) || 0 : 0
+  )
+  return serverAt > clientAt ? server : client
+}

@@ -27,9 +27,9 @@
       "icons": [{ "src": "/pwa-icon-192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
-      "name": "Marketplace",
-      "short_name": "Market",
-      "url": "/tracker?view=market",
+      "name": "Discover habits",
+      "short_name": "Discover",
+      "url": "/tracker?view=discover",
       "icons": [{ "src": "/pwa-icon-192.png", "sizes": "192x192", "type": "image/png" }]
     }
   ],

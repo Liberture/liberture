@@ -11,14 +11,22 @@ import { formatMessage } from "@/lib/i18n-format"
 interface NotificationManagerProps {
   habits: Habit[]
   completions: HabitCompletion[]
+  /** Reminders on (preferences.notifications, and the app has loaded). Off also hides the permission prompt. */
   enabled?: boolean
+  /** preferences.notificationPromptDismissedAt: when the user last said "Not now". */
+  dismissedAt?: string
+  /** "Not now": the parent saves preferences.notificationPromptDismissedAt = now. */
+  onDismiss: () => void
 }
 
-export function NotificationManager({ habits, completions, enabled = true }: NotificationManagerProps) {
+/** "Not now" keeps the permission prompt away for this long. */
+const PROMPT_SNOOZE_MS = 30 * 24 * 60 * 60 * 1000
+
+export function NotificationManager({ habits, completions, enabled = true, dismissedAt, onDismiss }: NotificationManagerProps) {
   const t = useTranslations().habits.app.notificationManager
   const notifiedHabitsRef = useRef<Set<string>>(new Set())
-  const [permission, setPermission] = useState<NotificationPermission>("default")
-  const [dismissed, setDismissed] = useState(false)
+  // "unsupported" until mounted: there is no Notification API during SSR.
+  const [permission, setPermission] = useState<NotificationPermission | "unsupported">("unsupported")
   const checkIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const requestPermission = useCallback(async () => {
@@ -192,16 +200,20 @@ export function NotificationManager({ habits, completions, enabled = true }: Not
     return () => clearTimeout(midnightTimer)
   }, [])
 
-  if (!("Notification" in window)) {
-    return null
-  }
-
   // A blocked permission can only be undone in browser settings, so nagging
-  // about it forever just covers the UI. Settings shows the status instead.
-  if (permission !== "default" || dismissed) return null
+  // about it forever just covers the UI. Settings → Reminders shows the status
+  // and has its own "Allow" button, so "Not now" can stay quiet for a month.
+  const dismissedRecently = dismissedAt ? Date.now() - Date.parse(dismissedAt) < PROMPT_SNOOZE_MS : false
+  if (!enabled || permission !== "default" || dismissedRecently) return null
 
+  // Bottom-right, high enough on phones to clear the bottom nav and the toast
+  // stack above it (toasts sit 88px up, see ui/toast.tsx).
   return (
-    <div className="fixed bottom-[calc(7.5rem+env(safe-area-inset-bottom))] right-4 z-40 max-w-xs rounded-xl border border-border bg-card/95 p-4 shadow-lg backdrop-blur-sm lg:bottom-6">
+    <div
+      role="region"
+      aria-label={t.promptTitle}
+      className="fixed bottom-[calc(10.5rem+env(safe-area-inset-bottom))] left-4 right-4 z-40 rounded-xl border border-border bg-card/95 p-4 shadow-lg backdrop-blur-sm sm:left-auto sm:max-w-xs lg:bottom-6"
+    >
       <div className="flex items-start gap-3">
         <Bell className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" aria-hidden />
         <div className="flex-1">
@@ -213,7 +225,7 @@ export function NotificationManager({ habits, completions, enabled = true }: Not
             <Button onClick={requestPermission} size="sm" className="flex-1">
               {t.enable}
             </Button>
-            <Button onClick={() => setDismissed(true)} size="sm" variant="ghost">
+            <Button onClick={onDismiss} size="sm" variant="ghost">
               {t.notNow}
             </Button>
           </div>

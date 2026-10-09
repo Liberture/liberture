@@ -2,7 +2,9 @@ import { NextResponse } from "next/server"
 import { getDb } from "@/lib/habits/db"
 import { authorizeIntegration } from "@/lib/habits/integration-auth"
 import { calculateStreak, withCompletionStarts } from "@/lib/habits/habit-utils"
-import { dateForRequest, isDateOnlyString, parseDateOnly } from "@/lib/habits/date-utils"
+import { isDateOnlyString, parseDateOnly } from "@/lib/habits/date-utils"
+import { userToday } from "@/lib/habits/api/time-zone"
+import { valuesForHabit } from "@/lib/habits/api/completion-values"
 import type { HabitCompletion } from "@/lib/habits/types"
 import { resolveByName, spokenList } from "@/lib/habits/api/resolve"
 import {
@@ -29,7 +31,11 @@ function streakPhrase(streak: number): string {
 /**
  * POST /api/v1/completions/toggle
  * Toggle a habit completion on/off for a given date.
- * Body: { habitId?: string, habit?: string, date?: string, completed?: boolean }
+ * Body: { habitId?: string, habit?: string, date?: string, completed?: boolean, note?: string, value?: number }
+ *
+ * `note` and `value` ride along with marking it done ("did my run, felt
+ * great"): the note is the day's completion note, the value goes to the
+ * habit's tracked number. On a day already done they're added to it.
  *
  * `habit` is what the user called it ("the walk", "meditación"); it is matched
  * to one active habit so an assistant can log in a single call. Every answer
@@ -39,7 +45,7 @@ export async function POST(request: Request) {
   const user = await authorizeIntegration(request, "log_completions")
   if (user instanceof NextResponse) return user
 
-  let body: { habitId?: string; habit?: string; date?: string; completed?: boolean; timeZone?: string }
+  let body: { habitId?: string; habit?: string; date?: string; completed?: boolean; timeZone?: string; note?: string; value?: number }
   try {
     body = await request.json()
   } catch {
@@ -83,7 +89,15 @@ export async function POST(request: Request) {
   }
   const habitId = habit.id
 
-  const requestToday = dateForRequest(request, undefined, body.timeZone)
+  const requestToday = userToday(request, user.data, undefined, body.timeZone)
+  const note = typeof body.note === "string" ? body.note.trim().slice(0, 1000) : ""
+  const mapped = valuesForHabit(habit, { value: body.value })
+  if ("error" in mapped) return NextResponse.json({ error: mapped.error }, { status: 400 })
+  const extras: Pick<HabitCompletion, "context" | "data"> = {
+    ...(note ? { context: note } : {}),
+    ...(Object.keys(mapped.data).length ? { data: mapped.data } : {}),
+  }
+  const hasExtras = Object.keys(extras).length > 0
   const completionDate = isDateOnlyString(date) ? date : requestToday
   const now = new Date().toISOString()
 
@@ -93,6 +107,23 @@ export async function POST(request: Request) {
     const existingCompletion = await getCompletionRow(sql, user.userId, habitId, completionDate)
     const isCurrentlyCompleted = !!existingCompletion?.completed
     const targetCompleted = requestedState ?? !isCurrentlyCompleted
+
+    if (targetCompleted && isCurrentlyCompleted && hasExtras && existingCompletion) {
+      await upsertCompletionRow(sql, user.userId, {
+        ...existingCompletion,
+        ...extras,
+        data: extras.data ? { ...(existingCompletion.data ?? {}), ...extras.data } : existingCompletion.data,
+      })
+      await refreshStorageJsonFromOptimizedTables(sql, user.userId, ["completions"], now)
+      return NextResponse.json({
+        success: true,
+        habit: habit.name,
+        date: completionDate,
+        completed: true,
+        noChange: true,
+        say: `${habit.name} was already done${dayPhrase(completionDate, requestToday)}; I added ${note ? "your note" : "the value"}.`,
+      })
+    }
 
     if (targetCompleted === isCurrentlyCompleted) {
       const completions = await getCompletionRows(sql, user.userId)
@@ -117,6 +148,7 @@ export async function POST(request: Request) {
         date: completionDate,
         completed: true,
         completedAt: now,
+        ...extras,
       }
       await upsertCompletionRow(sql, user.userId, newCompletion)
     } else {

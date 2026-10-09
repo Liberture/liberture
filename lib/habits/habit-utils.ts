@@ -1,5 +1,6 @@
 import { Habit, HabitCompletion, StreakData } from './types'
 import { formatDateOnly, parseDateOnly } from './date-utils'
+import { formatMessage } from '../i18n-format'
 
 /**
  * Parse a "YYYY-MM-DD" string as a local-midnight Date.
@@ -84,6 +85,35 @@ export function withCompletionStarts<T extends Habit>(habits: T[], completions: 
 
 export function isHabitScheduledOnDate(habit: Habit | undefined, date: Date, now: Date = new Date()): boolean {
   return isHabitActiveOnDate(habit, date, now) && isScheduledForDate(habit, date)
+}
+
+/**
+ * Localised strings a schedule label needs. Each caller passes its own
+ * translation entries, so the wording can differ per surface while the rules
+ * (which day sets collapse to "Every day", "Weekdays", ...) live in one place.
+ */
+export interface ScheduleLabelStrings {
+  everyDay: string
+  /** Template with {count}. */
+  timesPerWeek: string
+  noDays: string
+  weekdays: string
+  /** Optional: without it Sat+Sun prints as two day names. */
+  weekends?: string
+  /** Short day names, Sunday first. */
+  daysShort: readonly string[]
+}
+
+/** "Every day", "3× a week", "Weekdays", "Mon, Wed, Fri"… */
+export function formatScheduleLabel(schedule: Habit["schedule"] | undefined, t: ScheduleLabelStrings): string {
+  if (!schedule || schedule.type === "daily") return t.everyDay
+  if (schedule.type === "times_per_week") return formatMessage(t.timesPerWeek, { count: schedule.timesPerWeek ?? 1 })
+  const days = [...(schedule.days ?? [])].sort((a, b) => a - b)
+  if (days.length === 0) return t.noDays
+  if (days.length === 7) return t.everyDay
+  if (days.join() === "1,2,3,4,5") return t.weekdays
+  if (t.weekends && days.join() === "0,6") return t.weekends
+  return days.map((d) => t.daysShort[d]).join(", ")
 }
 
 function previousScheduledDate(habit: Habit | undefined, date: Date): Date {

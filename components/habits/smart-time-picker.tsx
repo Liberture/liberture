@@ -14,6 +14,12 @@ interface SmartTimePickerProps {
   onChange: (value: string) => void
   placeholder?: string
   className?: string
+  /** Lets a <label htmlFor> point at the trigger button. */
+  id?: string
+  disabled?: boolean
+  "aria-describedby"?: string
+  /** Display only; the value is always "HH:MM" (24h). */
+  timeFormat?: "24h" | "12h"
 }
 
 /** Quick picks; `key` looks up the visible label in translations (`smartTimePicker.quick`). */
@@ -30,6 +36,10 @@ export function SmartTimePicker({
   onChange,
   placeholder,
   className,
+  id,
+  disabled,
+  "aria-describedby": ariaDescribedBy,
+  timeFormat = "12h",
 }: SmartTimePickerProps) {
   const t = useTranslations().habits.app.smartTimePicker
   const [open, setOpen] = React.useState(false)
@@ -38,6 +48,7 @@ export function SmartTimePicker({
   const formatDisplayTime = (time: string) => {
     if (!time) return ""
     const [h, m] = time.split(":").map(Number)
+    if (timeFormat === "24h") return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`
     const hour = h % 12 || 12
     const period = h >= 12 ? t.pm : t.am
     return `${hour}:${String(m).padStart(2, "0")} ${period}`
@@ -45,6 +56,10 @@ export function SmartTimePicker({
 
   const trigger = (
     <Button
+      type="button"
+      id={id}
+      disabled={disabled}
+      aria-describedby={ariaDescribedBy}
       variant="outline"
       role="combobox"
       aria-expanded={open}
@@ -77,7 +92,7 @@ export function SmartTimePicker({
             <div className="mx-auto mt-4 h-1.5 w-12 rounded-full bg-muted" />
             <div className="p-4">
               {content}
-              <Button className="w-full mt-4" onClick={() => setOpen(false)}>
+              <Button type="button" className="w-full mt-4" onClick={() => setOpen(false)}>
                 {t.done}
               </Button>
             </div>
@@ -138,7 +153,7 @@ function TimePickerContent({
         <h4 className="font-medium text-sm">
           {view === "quick" ? t.suggested : t.customTime}
         </h4>
-        <Button 
+        <Button type="button"
           variant="ghost" 
           size="sm" 
           className="h-7 text-xs"
@@ -152,6 +167,7 @@ function TimePickerContent({
         <div className="grid grid-cols-1 gap-2">
           {QUICK_TIMES.map((qt) => (
             <button
+              type="button"
               key={qt.time}
               onClick={() => {
                 onChange(qt.time)
@@ -184,6 +200,7 @@ function TimePickerContent({
               <div className="grid grid-cols-4 gap-1">
                 {[12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((hVal) => (
                   <button
+                    type="button"
                     key={hVal}
                     onClick={() => {
                       setHour(hVal)
@@ -208,6 +225,7 @@ function TimePickerContent({
             <div className="grid grid-cols-6 gap-1">
               {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map((mVal) => (
                 <button
+                  type="button"
                   key={mVal}
                   onClick={() => {
                     setMinute(mVal)
@@ -229,6 +247,7 @@ function TimePickerContent({
           <div className="flex gap-2">
             {(["AM", "PM"] as const).map((p) => (
               <Button
+                type="button"
                 key={p}
                 variant={period === p ? "default" : "secondary"}
                 className="flex-1 h-9"

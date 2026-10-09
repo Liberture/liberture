@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useEffect, useId, useMemo, useRef } from "react"
 import { format } from "date-fns"
 import { ArrowRight, Check, Sunrise } from "lucide-react"
 
@@ -17,6 +17,7 @@ import {
   pillarForHabit,
   type PillarId,
 } from "@/lib/habits/pillars"
+import { isHabitScheduledOnDate } from "@/lib/habits/habit-utils"
 import { cn } from "@/lib/utils"
 import { useDateLocale, useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage } from "@/lib/i18n-format"
@@ -33,7 +34,10 @@ interface MorningDashboardProps {
   completions: HabitCompletion[]
   profile?: UserProfile
   onStartDay: () => void
+  /** Hides it for the rest of today (persisted by the parent). Escape does the same. */
   onDismiss: () => void
+  /** Ticks a habit for today from the dashboard. */
+  onToggleHabit?: (habitId: string) => void
 }
 
 export function MorningDashboard({
@@ -42,6 +46,7 @@ export function MorningDashboard({
   profile,
   onStartDay,
   onDismiss,
+  onToggleHabit,
 }: MorningDashboardProps) {
   const t = useTranslations().habits.app.morningDashboard
   const dateLocale = useDateLocale()
@@ -54,12 +59,39 @@ export function MorningDashboard({
     completions.filter((c) => c.date === today && c.completed).map((c) => c.habitId)
   )
 
-  const activeHabits = habits.filter((h) => !h.archived)
+  // Only what is due today counts: a Mon/Wed/Fri habit on a Tuesday is not
+  // "left to do", and counting it made the bar impossible to finish.
+  const activeHabits = useMemo(
+    () => habits.filter((h) => !h.archived && isHabitScheduledOnDate(h, now)),
+    // `today` stands in for `now`; the list only changes with the day.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [habits, today]
+  )
 
-  const morningHabits = activeHabits
-    .filter((h) => h.timeOfDay === "morning")
-    .sort((a, b) => (b.priority || 3) - (a.priority || 3))
-    .slice(0, 3)
+  const titleId = useId()
+  const panelRef = useRef<HTMLDivElement>(null)
+  const onDismissRef = useRef(onDismiss)
+  onDismissRef.current = onDismiss
+  useEffect(() => {
+    const previouslyFocused = document.activeElement as HTMLElement | null
+    panelRef.current?.focus()
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onDismissRef.current()
+    }
+    window.addEventListener("keydown", onKeyDown)
+    return () => {
+      window.removeEventListener("keydown", onKeyDown)
+      previouslyFocused?.focus?.()
+    }
+  }, [])
+
+  // Morning habits first; with none tagged morning, the earliest of today's
+  // so the list is never empty while something is still due.
+  const morningTagged = activeHabits.filter((h) => h.timeOfDay === "morning")
+  const morningHabits = (morningTagged.length > 0
+    ? [...morningTagged].sort((a, b) => (b.priority || 3) - (a.priority || 3))
+    : [...activeHabits].sort((a, b) => (a.time || "").localeCompare(b.time || ""))
+  ).slice(0, 3)
 
   const total = activeHabits.length
   const completed = activeHabits.filter((h) => doneIds.has(h.id)).length
@@ -78,7 +110,14 @@ export function MorningDashboard({
   const greeting = profile?.name ? formatMessage(t.greetingWithName, { name: profile.name }) : t.greeting
 
   return (
-    <div className="topo-pattern lb-see-through lb-wash fixed inset-0 z-50 overflow-auto">
+    <div
+      ref={panelRef}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+      tabIndex={-1}
+      className="topo-pattern lb-see-through lb-wash fixed inset-0 z-50 overflow-auto outline-none"
+    >
       <TopographicBackground />
 
       <div className="flex min-h-screen items-center justify-center p-4">
@@ -89,7 +128,7 @@ export function MorningDashboard({
               <Sunrise className="h-3.5 w-3.5 text-exercise" aria-hidden />
               {format(now, "EEEE, d MMMM", { locale: dateLocale })}
             </div>
-            <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground">{greeting}</h1>
+            <h1 id={titleId} className="mt-2 text-3xl font-bold tracking-tight text-foreground">{greeting}</h1>
 
             {profile?.missionStatement && (
               <p className="mt-3 border-l-2 border-primary/50 pl-3 text-sm italic leading-relaxed text-muted-foreground">
@@ -149,7 +188,7 @@ export function MorningDashboard({
 
                 <ul className="space-y-2">
                   {morningHabits.map((habit) => (
-                    <MorningHabit key={habit.id} habit={habit} done={doneIds.has(habit.id)} />
+                    <MorningHabit key={habit.id} habit={habit} done={doneIds.has(habit.id)} onToggle={onToggleHabit} />
                   ))}
                 </ul>
               </section>
@@ -205,7 +244,7 @@ export function MorningDashboard({
   )
 }
 
-function MorningHabit({ habit, done }: { habit: Habit; done: boolean }) {
+function MorningHabit({ habit, done, onToggle }: { habit: Habit; done: boolean; onToggle?: (habitId: string) => void }) {
   const t = useTranslations().habits.app.morningDashboard
   const pillar: PillarId = pillarForHabit(habit)
   const styles = PILLAR_STYLES[pillar]
@@ -234,15 +273,30 @@ function MorningHabit({ habit, done }: { habit: Habit; done: boolean }) {
         className={cn("absolute inset-y-0 left-0 w-1", styles.solid, done ? "opacity-100" : "opacity-60")}
       />
 
-      <span
-        className={cn(
-          "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2",
-          done ? cn(styles.border, styles.background, styles.text) : "border-white/15 text-transparent"
-        )}
-        aria-hidden
-      >
-        <Check className="h-4.5 w-4.5" />
-      </span>
+      {onToggle ? (
+        <button
+          type="button"
+          onClick={() => onToggle(habit.id)}
+          aria-pressed={done}
+          aria-label={formatMessage(done ? t.markNotDone : t.markDone, { name: habit.name })}
+          className={cn(
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 transition-all active:scale-90",
+            done ? cn(styles.border, styles.background, styles.text) : "border-white/15 text-transparent hover:border-primary/60"
+          )}
+        >
+          <Check className="h-4.5 w-4.5" aria-hidden />
+        </button>
+      ) : (
+        <span
+          className={cn(
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2",
+            done ? cn(styles.border, styles.background, styles.text) : "border-white/15 text-transparent"
+          )}
+          aria-hidden
+        >
+          <Check className="h-4.5 w-4.5" />
+        </span>
+      )}
 
       <div className="min-w-0 flex-1">
         <p className={cn("font-medium", done ? "text-muted-foreground line-through" : "text-foreground")}>

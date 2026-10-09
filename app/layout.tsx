@@ -6,6 +6,7 @@ import { LocaleProvider } from "@/components/i18n/locale-provider"
 import { ServiceWorkerRegister } from "@/components/habits/service-worker-register"
 import { HabitsSessionProvider } from "@/components/habits/session-provider"
 import { NostrAuthProvider } from "@/lib/habits/nostr/auth-context"
+import { ThemeProvider } from "@/components/providers/theme-provider"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { CookieConsent } from "@/components/legal/CookieConsent"
 import { OrganizationSchema, WebSiteSchema } from "@/components/seo/JsonLd"
@@ -99,15 +100,20 @@ export default async function RootLayout({
 }>) {
   const locale = await getRequestLocale()
   return (
-    <html lang={locale} className="dark">
+    // next-themes owns the class from here; "dark" is also rendered on the
+    // server so the first paint is right. Only the dark palette exists in
+    // globals.css, so it is the only theme offered (see settings/preferences-tab).
+    <html lang={locale} className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} ${geistMono.variable} font-sans antialiased`}>
         <OrganizationSchema />
         <WebSiteSchema />
-        <LocaleProvider locale={locale}>
-          <NostrAuthProvider>
-            <HabitsSessionProvider>{children}</HabitsSessionProvider>
-          </NostrAuthProvider>
-        </LocaleProvider>
+        <ThemeProvider attribute="class" defaultTheme="dark" themes={["dark"]} enableSystem={false} disableTransitionOnChange>
+          <LocaleProvider locale={locale}>
+            <NostrAuthProvider>
+              <HabitsSessionProvider>{children}</HabitsSessionProvider>
+            </NostrAuthProvider>
+          </LocaleProvider>
+        </ThemeProvider>
         <ServiceWorkerRegister />
         <CookieConsent />
         <Analytics />

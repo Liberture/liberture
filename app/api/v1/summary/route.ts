@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { authorizeIntegration } from "@/lib/habits/integration-auth"
 import { buildSpokenSummary, habitsForDay } from "@/lib/habits/api/assistant"
-import { dateForRequest } from "@/lib/habits/date-utils"
+import { userToday } from "@/lib/habits/api/time-zone"
 import { effectivePermissions } from "@/lib/habits/api-scopes"
 
 /**
@@ -11,14 +11,15 @@ import { effectivePermissions } from "@/lib/habits/api-scopes"
  * switched-off permissions, and today at a glance: what's left, what's done, streaks,
  * open todos. Markdown by default so it can be read out as-is; format=json for
  * the same data structured. The day comes from `tz`, then the usual
- * X-Local-Date / X-Time-Zone headers, then the server's configured zone.
+ * X-Local-Date / X-Time-Zone headers, then the zone saved in the user's
+ * preferences, then the server's configured zone.
  */
 export async function GET(request: Request) {
   const user = await authorizeIntegration(request, "read")
   if (user instanceof NextResponse) return user
 
   const url = new URL(request.url)
-  const today = dateForRequest(request, url.searchParams.get("date"), url.searchParams.get("tz"))
+  const today = userToday(request, user.data, url.searchParams.get("date"), url.searchParams.get("tz"))
 
   if (url.searchParams.get("format") === "json") {
     const habits = habitsForDay(user.data, today)

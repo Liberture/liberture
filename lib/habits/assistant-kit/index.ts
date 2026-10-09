@@ -55,6 +55,13 @@ Use whichever is available, in this order:
 | Add a catalog protocol / habit | \`adopt_habit\` | \`adopt <slug>\` / \`adopt <slug> --habit\` |
 | Coach's last suggestions | \`get_recommendations\` | \`recommendations\` |
 
+The connector also has tools the script doesn't: \`log_habit_value\` (log an
+amount or a note), \`get_habit\` / \`get_habit_history\`, \`archive_habit\` /
+\`unarchive_habit\`, \`update_todo\` / \`delete_todo\` / \`schedule_todo\`,
+projects (\`list_projects\`, \`create_project\`, …), calendar (\`get_agenda\`,
+\`list_events\`, \`create_event\`, \`update_event\`, \`delete_event\`) and
+\`get_profile\` / \`update_profile\`. They all take names, like the rest.
+
 ## Be fast — this is usually voice
 
 - **One call to start:** \`get_today\`. It already has the date, the user's
