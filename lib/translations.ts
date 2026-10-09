@@ -994,6 +994,23 @@ const habitsEn = {
     guides: "Read the guides",
   },
   app: {
+    common: {
+      close: "Close",
+      cancel: "Cancel",
+      save: "Save",
+      delete: "Delete",
+      undo: "Undo",
+      confirm: "Confirm",
+      discardChanges: "Discard your unsaved changes?",
+      somethingWentWrong: "Something went wrong. Please try again.",
+      habitDeleted: "Deleted “{name}”",
+      habitArchived: "Archived “{name}”",
+      habitRestored: "Restored “{name}”",
+      habitCreated: "Added “{name}”",
+      dataImported: "Backup imported",
+      dataCleared: "All data cleared",
+      signOutConfirm: "Sign out of Liberture on this device?",
+    },
     // E
     signInDialog: {
       dialogAriaLabel: "Sign in",
@@ -3655,6 +3672,23 @@ const habitsEs: HabitsDictionary = {
     guides: "Leer las guías",
   },
   app: {
+    common: {
+      close: "Cerrar",
+      cancel: "Cancelar",
+      save: "Guardar",
+      delete: "Eliminar",
+      undo: "Deshacer",
+      confirm: "Confirmar",
+      discardChanges: "¿Descartar los cambios sin guardar?",
+      somethingWentWrong: "Algo salió mal. Probá de nuevo.",
+      habitDeleted: "Eliminaste “{name}”",
+      habitArchived: "Archivaste “{name}”",
+      habitRestored: "Restauraste “{name}”",
+      habitCreated: "Agregaste “{name}”",
+      dataImported: "Copia de seguridad importada",
+      dataCleared: "Borraste todos los datos",
+      signOutConfirm: "¿Cerrar sesión de Liberture en este dispositivo?",
+    },
     // E
     signInDialog: {
       dialogAriaLabel: "Entrar",
