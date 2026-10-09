@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
 
+import { CoachSection } from "@/components/habits/settings/coach-section"
 import { SettingRow, SettingsCard, SettingsDivider, SettingsSegmented, settingsButtonClass, settingsInputClass } from "@/components/habits/settings/settings-ui"
 import { Switch } from "@/components/habits/ui/switch"
 import { useLocale, useTranslations } from "@/components/i18n/locale-provider"
@@ -65,6 +66,8 @@ export function PreferencesTab({ preferences, onPreferencesChange }: Preferences
   const chooseLanguage = (next: Locale) => {
     if (next === locale) return
     document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`
+    // Saved with the account too, so server-sent check-ins use the same language.
+    onPreferencesChange({ language: next })
     startTransition(() => router.refresh())
   }
 
@@ -215,6 +218,8 @@ export function PreferencesTab({ preferences, onPreferencesChange }: Preferences
           }
         />
       </SettingsCard>
+
+      <CoachSection preferences={preferences} onPreferencesChange={onPreferencesChange} />
     </>
   )
 }

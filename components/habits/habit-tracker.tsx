@@ -377,6 +377,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
               onBrowse={openDiscover}
               timeOfDayFilter={timeOfDayFilter}
               onTimeOfDayFilterChange={setTimeOfDayFilter}
+              weekStartsOn={preferences.weekStartsOn}
             />
           ) : effectiveLayout === "matrix" ? (
             <HabitMatrix
@@ -385,6 +386,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
               // Not the plain toggle: a habit with data fields or a reading
               // passage has to open its modal here too, the same as the day view.
               onToggleCompletion={toggleOrLogForDay}
+              weekStartsOn={preferences.weekStartsOn}
             />
           ) : (
             <HabitGrid
@@ -395,6 +397,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
               onAddHabit={openAddDialog}
               onEditHabit={openHabitEditor}
               onUnarchiveHabit={actions.unarchiveHabit}
+              weekStartsOn={preferences.weekStartsOn}
             />
           )}
 
@@ -426,6 +429,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
           onToggleCompletion={toggleOrLogForDay}
           range={statsRange}
           onRangeChange={setStatsRange}
+          weekStartsOn={preferences.weekStartsOn}
         />
       )
     }
@@ -480,6 +484,8 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
         onAdoptHabit={actions.adoptCatalogHabit}
         onAdoptCustom={actions.adoptCustomHabit}
         onRecommendations={actions.recordCoachRecommendations}
+        storedRecommendations={storageData?.coachRecommendations}
+        onRespondToSuggestion={actions.respondToSuggestion}
       />
     )
   }
@@ -592,6 +598,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
           onStartDay={dismissMorningDashboard}
           onDismiss={dismissMorningDashboard}
           onToggleHabit={toggleToday}
+          weekStartsOn={preferences.weekStartsOn}
         />
       )}
 
@@ -601,6 +608,8 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
         enabled={!isLoading && preferences.notifications}
         dismissedAt={preferences.notificationPromptDismissedAt}
         onDismiss={() => updatePreferences({ notificationPromptDismissedAt: new Date().toISOString() })}
+        preferences={preferences}
+        authHeaders={authHeaders}
       />
 
       <AppToaster />

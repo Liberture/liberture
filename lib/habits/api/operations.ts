@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto"
 import type { ApiScope } from "@/lib/habits/api-scopes"
 
 /**
@@ -687,6 +688,95 @@ export const API_OPERATIONS: readonly ApiOperation[] = [
     output: SAY_OUTPUT,
   },
 
+  // ------------------------------------------------------------- coach (MCP only)
+  {
+    id: "get_coach_state",
+    method: "GET",
+    path: "/coach/state",
+    scope: "read",
+    summary: "Coach settings, nudges left today and habits needing a word",
+    description:
+      "Call before any proactive message (a scheduled check-in or automation). Returns the check-in settings, quiet hours, the daily limit with nudges sent and remaining today, the last nudge per kind, pending and snoozed suggestions, and per habit lastLoggedOn, unloggedDueDays and weeklyProgress. Then call record_coach_nudge and message the user only if it says allowed.",
+    mcpOnly: true,
+    params: [TZ_PARAM],
+    output: {
+      type: "object",
+      properties: {
+        settings: { type: "object", additionalProperties: true },
+        nudges: { type: "object", additionalProperties: true },
+        suggestions: { type: "object", additionalProperties: true },
+        habits: { type: "array", items: { type: "object", additionalProperties: true } },
+      },
+      additionalProperties: true,
+    },
+  },
+  {
+    id: "record_coach_nudge",
+    method: "POST",
+    path: "/coach/nudge",
+    scope: "settings",
+    summary: "Ask to send one coach message; records it if allowed",
+    description:
+      "Call right before you message the user unprompted. Applies quiet hours, the daily limit and one-per-kind-per-day (weekly: per week), shared with Liberture's own push check-ins, and records the nudge when allowed. Only message the user if `allowed` is true; otherwise stay silent (reason: quiet_hours, daily_limit or duplicate). Not needed when the user started the conversation.",
+    mcpOnly: true,
+    annotations: { idempotent: false },
+    body: {
+      type: "object",
+      required: ["kind"],
+      properties: {
+        kind: {
+          type: "string",
+          enum: ["morning", "afternoon", "evening", "weekly", "missed_logging", "other"],
+          description: "Which check-in this is.",
+        },
+        message: { type: "string", description: "What you plan to say, for the record." },
+        timeZone: { type: "string", description: "IANA time zone; defaults to the saved one." },
+      },
+    },
+    output: {
+      type: "object",
+      properties: {
+        allowed: { type: "boolean" },
+        reason: { type: ["string", "null"], description: "Why not: quiet_hours, daily_limit or duplicate. null when allowed." },
+        remainingToday: { type: "integer" },
+      },
+      required: ["allowed"],
+      additionalProperties: true,
+    },
+  },
+  {
+    id: "respond_to_suggestion",
+    method: "POST",
+    path: "/coach/respond",
+    scope: "settings",
+    summary: "Accept, dismiss or snooze a coach suggestion, by name",
+    description:
+      "Records what the user said about one of the coach's suggestions (get_recommendations or get_coach_state): accept, dismiss, or snooze for `days` (default 7). Pass the suggestion's name or slug. Accepting doesn't add the habit; use adopt_habit for that. Read back `say`.",
+    mcpOnly: true,
+    annotations: { idempotent: true },
+    body: {
+      type: "object",
+      required: ["suggestion", "response"],
+      properties: {
+        suggestion: { type: "string", description: "The suggestion's name as the user said it, or its slug." },
+        response: { type: "string", enum: ["accept", "dismiss", "snooze"], description: "What the user decided." },
+        days: { type: "integer", minimum: 1, maximum: 90, description: "Snooze length in days, default 7." },
+      },
+    },
+    output: SAY_OUTPUT,
+  },
+  {
+    id: "get_reminder_status",
+    method: "GET",
+    path: "/reminders/status",
+    scope: "read",
+    summary: "Whether reminders and check-ins can reach the user",
+    description:
+      "Whether push reminders are set up (devices subscribed, server push on) and what was sent recently. For \"why didn't I get a reminder\".",
+    mcpOnly: true,
+    output: { type: "object", additionalProperties: true },
+  },
+
   // ------------------------------------------------------------- profile and account
   {
     id: "get_profile",
@@ -714,7 +804,7 @@ export const API_OPERATIONS: readonly ApiOperation[] = [
     scope: "settings",
     summary: "Change the user's profile or preferences",
     description:
-      "Sets any of: name, missionStatement, focusHabits (up to 3 habit names), checkInTimes, theme, weekStartsOn (monday/sunday), timeFormat, timeZone (IANA), morningDashboard, habitsLayout, defaultReminderTime, notifications (reminders on/off). Send only what changes. Read back `say`.",
+      "Sets any of: name, missionStatement, focusHabits (up to 3 habit names), checkInTimes, theme, weekStartsOn (monday/sunday), timeFormat, timeZone (IANA), morningDashboard, habitsLayout, defaultReminderTime, notifications (reminders on/off), language, coach (check-in times, quiet hours, daily nudge limit). Send only what changes. Read back `say`.",
     annotations: { idempotent: true },
     body: {
       type: "object",
@@ -735,6 +825,33 @@ export const API_OPERATIONS: readonly ApiOperation[] = [
         habitsLayout: { type: "string", enum: ["day", "week", "matrix"], description: "Default habits view." },
         defaultReminderTime: { type: "string", description: "HH:MM pre-filled for new habits, or \"\" for none." },
         notifications: { type: "boolean", description: "Habit reminders on or off." },
+        language: { type: "string", enum: ["en", "es"], description: "Language of the messages Liberture sends (check-ins)." },
+        coach: {
+          type: "object",
+          description:
+            "Proactive coach settings; send only what changes. Check-ins are off until given a time; \"\" or null turns one off.",
+          properties: {
+            checkIns: {
+              type: "object",
+              properties: {
+                morning: { type: ["string", "null"], description: "HH:MM: two priorities and a first action." },
+                afternoon: { type: ["string", "null"], description: "HH:MM: the next thing still worth doing." },
+                weekly: {
+                  type: ["object", "null"],
+                  description: "Weekly review: { day: 0 Sunday … 6 Saturday, time: HH:MM }.",
+                  properties: { day: { type: "integer", minimum: 0, maximum: 6 }, time: { type: "string" } },
+                },
+              },
+            },
+            missedLogging: { type: "boolean", description: "Ask about habits left unlogged for 3+ due days." },
+            quietHours: {
+              type: "object",
+              description: "No nudges between start and end (HH:MM; may wrap midnight).",
+              properties: { start: { type: "string" }, end: { type: "string" } },
+            },
+            maxNudgesPerDay: { type: "integer", minimum: 1, maximum: 10, description: "Coach messages per day, all coaches combined." },
+          },
+        },
       },
     },
     output: SAY_OUTPUT,
@@ -786,6 +903,32 @@ export const API_OPERATIONS: readonly ApiOperation[] = [
   },
 ]
 
+/** The MCP input schema of an operation: its body properties plus its query/path params. */
+export function inputSchemaFor(op: ApiOperation): JsonSchema {
+  const properties: Record<string, JsonSchema> = { ...(op.body?.properties ?? {}) }
+  const required = [...(op.body?.required ?? [])]
+  for (const p of op.params ?? []) {
+    properties[p.name] = { ...p.schema, description: p.description }
+    if (p.required) required.push(p.name)
+  }
+  return { type: "object", properties, ...(required.length ? { required } : {}) }
+}
+
+/**
+ * A short hash of every tool's name and input schema. Changes whenever a tool
+ * is added, removed or takes different arguments, so a client (and the user,
+ * in Settings and get_permissions) can tell its cached tool list is stale.
+ */
+export function computeToolsVersion(ops: readonly ApiOperation[]): string {
+  const shape = ops.map((op) => ({ name: op.id, inputSchema: inputSchemaFor(op) }))
+  return createHash("sha256").update(JSON.stringify(shape)).digest("hex").slice(0, 8)
+}
+
+export const TOOLS_VERSION = computeToolsVersion(API_OPERATIONS)
+export const TOOL_COUNT = API_OPERATIONS.length
+/** serverInfo.version (MCP) and info.version (OpenAPI). */
+export const SERVER_VERSION = `1.2.0+${TOOLS_VERSION}`
+
 /** The operations a Custom GPT gets (the OpenAPI document): everything not marked mcpOnly. */
 export const OPENAPI_OPERATIONS: readonly ApiOperation[] = API_OPERATIONS.filter((op) => !op.mcpOnly)
 
@@ -829,7 +972,7 @@ export function buildOpenApiDocument(origin: string): Record<string, unknown> {
     openapi: "3.1.0",
     info: {
       title: "Liberture",
-      version: "1.1.0",
+      version: SERVER_VERSION,
       description:
         "Read and update the user's habit tracker: today's habits, streaks, todos, calendar, profile and the Liberture protocol catalog. Start with get_today; write tools take names.",
     },

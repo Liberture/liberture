@@ -8,7 +8,7 @@ import { CoachPanel } from "@/components/habits/coach/coach-panel"
 import type { DiscoverTab } from "@/components/habits/tracker/use-tracker-view"
 import type { CatalogHabit, CatalogProtocol } from "@/lib/habits/protocols/catalog"
 import type { CustomHabitSpec } from "@/lib/habits/agent/recommendation"
-import type { CoachRecommendationSet, Habit } from "@/lib/habits/types"
+import type { CoachRecommendationEntry, CoachRecommendationSet, Habit } from "@/lib/habits/types"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { cn } from "@/lib/utils"
 
@@ -23,6 +23,8 @@ interface DiscoverViewProps {
   onAdoptHabit: (habit: CatalogHabit) => void
   onAdoptCustom: (spec: CustomHabitSpec) => void
   onRecommendations: (set: CoachRecommendationSet) => void
+  storedRecommendations?: CoachRecommendationSet
+  onRespondToSuggestion?: (entry: CoachRecommendationEntry, response: "dismiss" | "snooze") => void
 }
 
 const TABS: Array<{ id: DiscoverTab; icon: typeof Store }> = [
@@ -45,6 +47,8 @@ export function DiscoverView({
   onAdoptHabit,
   onAdoptCustom,
   onRecommendations,
+  storedRecommendations,
+  onRespondToSuggestion,
 }: DiscoverViewProps) {
   const t = useTranslations().habits.app.discoverView
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([])
@@ -114,6 +118,8 @@ export function DiscoverView({
             onAdoptHabit={onAdoptHabit}
             onAdoptCustom={onAdoptCustom}
             onRecommendations={onRecommendations}
+            storedRecommendations={storedRecommendations}
+            onRespondToSuggestion={onRespondToSuggestion}
           />
         )}
       </div>
