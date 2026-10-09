@@ -224,15 +224,38 @@ export async function callMcpTool(
 
   // Lead with the sentence to speak, when there is one, so a voice client can
   // answer without parsing the JSON below it.
-  let say: string | null = null
-  try {
-    const parsed = JSON.parse(result.text) as { say?: unknown; message?: unknown }
-    say = typeof parsed.say === "string" ? parsed.say : typeof parsed.message === "string" ? parsed.message : null
-  } catch {
-    // Markdown (get_today) or empty: send as-is.
-  }
+  type Body = { say?: unknown; message?: unknown; code?: unknown; options?: unknown; error?: unknown }
+  const parsed = ((): Body | null => {
+    try {
+      const value: unknown = JSON.parse(result.text)
+      return value && typeof value === "object" && !Array.isArray(value) ? (value as Body) : null
+    } catch {
+      return null // Markdown (get_today) or empty: send as-is.
+    }
+  })()
+  const say = typeof parsed?.say === "string" ? parsed.say : typeof parsed?.message === "string" ? parsed.message : null
   const content: McpToolResult["content"] = say ? [{ type: "text", text: say }] : []
   content.push({ type: "text", text: result.text || `HTTP ${result.status}` })
+
+  // "Which one?" and "not found" are answers, not failures: the model needs
+  // `options` and `say` to ask the user. ChatGPT reduces an isError result to
+  // a bare INVALID_ARGUMENT and drops them, so send these as ordinary results
+  // whenever the tool's output schema allows it.
+  const soft = (result.status === 404 || result.status === 409) && (parsed?.code === "not_found" || parsed?.code === "ambiguous")
+  if (soft && !op.output?.required?.length) {
+    return {
+      content,
+      structuredContent: {
+        ok: false,
+        code: parsed?.code,
+        ...(Array.isArray(parsed?.options) ? { options: parsed.options } : {}),
+        ...(say ? { say } : {}),
+        ...(typeof parsed?.error === "string" ? { error: parsed.error } : {}),
+      },
+      isError: false,
+    }
+  }
+
   const structuredContent = structuredFor(op, result)
   return { content, ...(structuredContent ? { structuredContent } : {}), isError: result.status >= 400 }
 }

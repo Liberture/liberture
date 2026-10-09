@@ -165,12 +165,13 @@ describe("tools/call", () => {
 
   it("asks which one on an ambiguous name (409) and says what exists on none (404)", async () => {
     const ambiguous = await callMcpTool("log_habit", { habit: "walk" }, "hta_test", ORIGIN)
-    expect(ambiguous?.isError).toBe(true)
+    // Ordinary results, not isError: the model needs options/say to ask the user.
+    expect(ambiguous?.isError).toBe(false)
     expect(ambiguous?.content[0].text).toBe("Which one: Morning walk or Evening walk?")
-    expect(ambiguous?.structuredContent).toBeUndefined()
+    expect(ambiguous?.structuredContent).toMatchObject({ ok: false, code: "ambiguous" })
 
     const none = await callMcpTool("archive_habit", { habit: "swimming" }, "hta_test", ORIGIN)
-    expect(none?.isError).toBe(true)
+    expect(none?.isError).toBe(false)
     expect(JSON.parse(none!.content[1].text)).toMatchObject({ code: "not_found", options: ["Morning walk", "Evening walk", "Pushups"] })
   })
 
@@ -265,5 +266,46 @@ describe("completion, logging and errors", () => {
     expect(json.error.code).toBe(-32601)
     const notification = await rpc("notifications/initialized", undefined, null)
     expect(notification.status).toBe(202)
+  })
+})
+
+describe("answers that need the user (ChatGPT drops isError content)", () => {
+  it("sends not_found as an ordinary result with options and say", async () => {
+    const result = await callMcpTool("log_habit", { habit: "PRUEBA_INEXISTENTE_990044", completed: false }, "hta_test", ORIGIN)
+    expect(result?.isError).toBe(false)
+    expect(result?.structuredContent).toMatchObject({ ok: false, code: "not_found", options: ["Morning walk", "Evening walk", "Pushups"] })
+    expect(result?.content[0].text).toContain("can't find that habit")
+  })
+
+  it("sends ambiguous as an ordinary result", async () => {
+    const result = await callMcpTool("log_habit", { habit: "walk" }, "hta_test", ORIGIN)
+    expect(result?.isError).toBe(false)
+    expect(result?.structuredContent).toMatchObject({ ok: false, code: "ambiguous", options: ["Morning walk", "Evening walk"] })
+  })
+
+  it("keeps real failures as errors", async () => {
+    state.permissions = { log_completions: false }
+    const result = await callMcpTool("log_habit", { habit: "Pushups" }, "hta_test", ORIGIN)
+    expect(result?.isError).toBe(true)
+  })
+})
+
+describe("set_todo_status", () => {
+  beforeEach(() => {
+    state.data.todos = [
+      { id: "t-open", title: "Prueba actualización", priority: 1, status: "incomplete", createdAt: "2026-10-09T00:00:00.000Z" },
+      { id: "t-done", title: "Old test", priority: 1, status: "completed", createdAt: "2026-10-01T00:00:00.000Z" },
+    ]
+  })
+
+  it("finds an open todo by id when asked to reopen it, and reports no change", async () => {
+    const result = await callMcpTool("set_todo_status", { todo: "t-open", status: "incomplete" }, "hta_test", ORIGIN)
+    expect(result?.isError).toBe(false)
+    expect(result?.structuredContent).toMatchObject({ id: "t-open", noChange: true })
+  })
+
+  it("finds a finished todo by id when asked to complete it again", async () => {
+    const result = await callMcpTool("set_todo_status", { todo: "t-done", status: "completed" }, "hta_test", ORIGIN)
+    expect(result?.structuredContent).toMatchObject({ id: "t-done", noChange: true, say: "Old test was already done." })
   })
 })
