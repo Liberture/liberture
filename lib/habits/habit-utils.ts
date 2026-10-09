@@ -87,6 +87,86 @@ export function isHabitScheduledOnDate(habit: Habit | undefined, date: Date, now
   return isHabitActiveOnDate(habit, date, now) && isScheduledForDate(habit, date)
 }
 
+// ---------------------------------------------------------------- weekly targets
+
+export type WeekStart = 0 | 1
+
+/** First and last local day (midnight) of the week holding `date`. */
+export function weekBounds(date: Date, weekStartsOn: WeekStart = 1): { start: Date; end: Date } {
+  const start = startOfLocalDay(date)
+  const offset = (start.getDay() - weekStartsOn + 7) % 7
+  start.setDate(start.getDate() - offset)
+  const end = new Date(start)
+  end.setDate(start.getDate() + 6)
+  return { start, end }
+}
+
+export interface WeeklyProgress {
+  /** Days marked done this week (up to and including `date`'s week end). */
+  done: number
+  target: number
+  met: boolean
+  /** Completions still needed, never negative. */
+  remaining: number
+  /** Days of the week after `date` (0 on its last day). */
+  daysLeft: number
+}
+
+/** The weekly target of a habit: timesPerWeek, the number of fixed days, or 7. */
+export function weeklyTarget(habit: Habit): number {
+  const schedule = habit.schedule
+  if (!schedule || schedule.type === "daily") return 7
+  if (schedule.type === "times_per_week") return Math.min(7, Math.max(1, schedule.timesPerWeek ?? 1))
+  return schedule.days?.length ?? 7
+}
+
+/** How the week holding `date` is going for one habit. Counts the whole week's completions. */
+export function weeklyProgress(
+  habit: Habit,
+  completions: HabitCompletion[],
+  date: Date,
+  weekStartsOn: WeekStart = 1
+): WeeklyProgress {
+  const { start, end } = weekBounds(date, weekStartsOn)
+  const from = dateKey(start)
+  const to = dateKey(end)
+  const days = new Set<string>()
+  for (const c of completions) {
+    if (c.habitId === habit.id && c.completed && c.date >= from && c.date <= to) days.add(c.date)
+  }
+  const target = weeklyTarget(habit)
+  const done = days.size
+  const day = startOfLocalDay(date)
+  const daysLeft = Math.round((end.getTime() - day.getTime()) / 86_400_000)
+  return { done, target, met: done >= target, remaining: Math.max(0, target - done), daysLeft }
+}
+
+/**
+ * Whether a habit should be asked for on `date`. Same as isHabitScheduledOnDate,
+ * except a times-per-week habit stops being due once that week's target was
+ * met on earlier days — rest days are not misses. A habit done on `date`
+ * itself stays listed so it can be shown (and undone) as done.
+ */
+export function isHabitDueOnDate(
+  habit: Habit | undefined,
+  date: Date,
+  completions: HabitCompletion[],
+  weekStartsOn: WeekStart = 1,
+  now: Date = new Date()
+): boolean {
+  if (!habit || !isHabitScheduledOnDate(habit, date, now)) return false
+  if (habit.schedule?.type !== "times_per_week") return true
+  const today = dateKey(startOfLocalDay(date))
+  const doneToday = completions.some((c) => c.habitId === habit.id && c.date === today && c.completed)
+  if (doneToday) return true
+  const { start } = weekBounds(date, weekStartsOn)
+  const from = dateKey(start)
+  const before = new Set(
+    completions.filter((c) => c.habitId === habit.id && c.completed && c.date >= from && c.date < today).map((c) => c.date)
+  )
+  return before.size < weeklyTarget(habit)
+}
+
 /**
  * Localised strings a schedule label needs. Each caller passes its own
  * translation entries, so the wording can differ per surface while the rules
