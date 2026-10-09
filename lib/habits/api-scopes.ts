@@ -9,14 +9,25 @@
  * undone and so wait for the user to switch them on.
  */
 
-export const API_SCOPES = ["read", "log_completions", "todos", "calendar", "add_habits", "edit_habits", "delete_habits", "export"] as const
+export const API_SCOPES = [
+  "read",
+  "log_completions",
+  "todos",
+  "calendar",
+  "add_habits",
+  "edit_habits",
+  "delete_habits",
+  "delete_items",
+  "settings",
+  "export",
+] as const
 
 export type ApiScope = (typeof API_SCOPES)[number]
 
 export type ApiPermissions = Partial<Record<ApiScope, boolean>>
 
 /** Destructive scopes the user has to turn on themselves. */
-export const DEFAULT_OFF: ReadonlySet<ApiScope> = new Set<ApiScope>(["delete_habits"])
+export const DEFAULT_OFF: ReadonlySet<ApiScope> = new Set<ApiScope>(["delete_habits", "delete_items"])
 
 export function isApiScope(value: unknown): value is ApiScope {
   return typeof value === "string" && (API_SCOPES as readonly string[]).includes(value)
@@ -65,6 +76,10 @@ export function scopeDeniedMessage(scope: ApiScope): string {
       return "The user has turned off editing habits for assistants. They can rename or change it in the app, or enable \"Edit habits\" in Settings → Voice assistants."
     case "delete_habits":
       return "Deleting habits is off unless the user enables it. Suggest archiving it in the app instead, or ask them to turn on \"Delete habits\" in Settings → Voice assistants."
+    case "delete_items":
+      return "Deleting todos, projects and calendar events is off unless the user enables it. Offer to mark the todo done or move the event instead, or ask them to turn on \"Delete todos, projects and events\" in Settings → Voice assistants."
+    case "settings":
+      return "The user has turned off changing their profile and preferences for assistants. They can change it in Settings, or enable \"Profile and preferences\" in Settings → Voice assistants."
     case "export":
       return "The user has turned off full data export for assistants. They can enable \"Export\" in Settings → Voice assistants."
   }

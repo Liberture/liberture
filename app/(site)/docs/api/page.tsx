@@ -47,6 +47,7 @@ export default async function ApiDocsPage() {
                   <dd><code className="text-foreground">{op.scope}</code></dd>
                 </div>
               </dl>
+              {op.mcpOnly ? <p className="mt-2 text-xs text-muted-foreground">{t.mcpOnly}</p> : null}
             </article>
           ))}
         </div>

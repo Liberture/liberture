@@ -115,12 +115,13 @@ export async function PUT(
 
 /**
  * DELETE /api/v1/todos/:id
+ * Scope delete_items (off by default), like every delete an assistant can make.
  */
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await authorizeIntegration(request, "todos")
+  const user = await authorizeIntegration(request, "delete_items")
   if (user instanceof NextResponse) return user
 
   const { id } = await params

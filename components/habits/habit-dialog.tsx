@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, type ReactNode } from "react"
+import { useRef, useState, type ReactNode } from "react"
 import {
   Archive,
   ArchiveRestore,
@@ -15,9 +15,11 @@ import {
   Trash2,
   X,
 } from "lucide-react"
+import { AppDialog } from "@/components/habits/ui/app-dialog"
+import { notify } from "@/components/habits/ui/toast"
 import type { DataEntryField, Habit, HabitTag, ImplementationIntention } from "@/lib/habits/types"
 import { HABIT_TAGS } from "@/lib/habits/motivational-messages"
-import { inferTimeOfDay } from "@/lib/habits/habit-utils"
+import { formatScheduleLabel, inferTimeOfDay } from "@/lib/habits/habit-utils"
 import {
   PILLAR_HEX,
   PILLAR_ICON_MAP,
@@ -27,7 +29,6 @@ import {
 } from "@/lib/habits/pillars"
 import { Button } from "@/components/habits/ui/button"
 import { Input } from "@/components/habits/ui/input"
-import { ModalPortal } from "@/components/habits/ui/modal-portal"
 import { SmartTimePicker } from "@/components/habits/smart-time-picker"
 import { Switch } from "@/components/habits/ui/switch"
 import { Textarea } from "@/components/habits/ui/textarea"
@@ -48,6 +49,8 @@ interface HabitDialogProps {
   onArchive?: (habitId: string) => void
   onUnarchive?: (habitId: string) => void
   onClose: () => void
+  /** HH:MM pre-filled for a new habit (preferences.defaultReminderTime). */
+  defaultTime?: string
 }
 
 /** Day indexes (0 = Sunday); short names come from translations (`daysShort`). */
@@ -78,13 +81,15 @@ function newDataField(type: DataEntryField["type"], t: HabitDialogStrings): Data
   }
 }
 
-function scheduleSummary(type: Habit["schedule"]["type"], days: number[], perWeek: number, t: HabitDialogStrings): string {
-  if (type === "daily") return t.summary.daily
-  if (type === "times_per_week") return formatMessage(t.timesPerWeekValue, { count: perWeek })
-  if (days.length === 0) return t.summary.noDays
-  if (days.join() === "1,2,3,4,5") return t.summary.weekdays
-  if (days.join() === "0,6") return t.summary.weekends
-  return DAYS.filter((d) => days.includes(d.value)).map((d) => t.daysShort[d.value]).join(", ")
+function scheduleSummary(schedule: Habit["schedule"], t: HabitDialogStrings): string {
+  return formatScheduleLabel(schedule, {
+    everyDay: t.summary.daily,
+    timesPerWeek: t.timesPerWeekValue,
+    noDays: t.summary.noDays,
+    weekdays: t.summary.weekdays,
+    weekends: t.summary.weekends,
+    daysShort: t.daysShort,
+  })
 }
 
 /** A titled group with a one-line explanation, so each block says what it is for. */
@@ -154,23 +159,28 @@ function Choice<T extends string | number>({
   )
 }
 
-export function HabitDialog({ mode, habit, onCreate, onUpdate, onDelete, onArchive, onUnarchive, onClose }: HabitDialogProps) {
-  const t = useTranslations().habits.app.habitDialog
+export function HabitDialog({ mode, habit, onCreate, onUpdate, onDelete, onArchive, onUnarchive, onClose, defaultTime }: HabitDialogProps) {
+  const translations = useTranslations().habits.app
+  const t = translations.habitDialog
+  const common = translations.common
   const COMMON_TRIGGERS = t.triggers
   const frequencyOptions = FREQUENCIES.map((value) => ({ value, label: t.frequencies[value] }))
   const partOfDayOptions = PARTS_OF_DAY.map((value) => ({ value, label: t.partsOfDay[value] }))
   const priorityOptions = PRIORITIES.map((value) => ({ value, label: t.priorities[value - 1] }))
   const [name, setName] = useState(habit?.name ?? "")
   const [description, setDescription] = useState(habit?.description ?? "")
-  const [time, setTime] = useState(habit?.time ?? "08:00")
+  const initialTime = habit?.time ?? (defaultTime || "08:00")
+  const [time, setTime] = useState(initialTime)
   const [color, setColor] = useState(habit?.color ?? DEFAULT_COLOR)
+  // Colour follows the area unless the user picked their own.
+  const [customColor, setCustomColor] = useState(Boolean(habit?.color && !AUTO_COLORS.has(habit.color.toLowerCase())))
   const [priority, setPriority] = useState(habit?.priority ?? 3)
   // The area *is* the category: pillar ids map onto themselves in
   // CATEGORY_TO_PILLAR, so storing the id makes the grid/matrix colouring exact
   // instead of leaning on keyword inference. Editing an existing habit starts
   // from whatever that inference already decided, which makes it stick on save.
   const [area, setArea] = useState<PillarId | null>(habit ? pillarForHabit(habit) : null)
-  const [timeOfDay, setTimeOfDay] = useState<NonNullable<Habit["timeOfDay"]>>(habit?.timeOfDay ?? inferTimeOfDay(habit?.time ?? "08:00"))
+  const [timeOfDay, setTimeOfDay] = useState<NonNullable<Habit["timeOfDay"]>>(habit?.timeOfDay ?? inferTimeOfDay(initialTime))
   // Follow the time until the user picks a part of the day themselves.
   const [timeOfDayTouched, setTimeOfDayTouched] = useState(Boolean(habit?.timeOfDay))
   const [scheduleType, setScheduleType] = useState<Habit["schedule"]["type"]>(habit?.schedule?.type ?? "daily")
@@ -197,6 +207,15 @@ export function HabitDialog({ mode, habit, onCreate, onUpdate, onDelete, onArchi
     Boolean(habit && (habit.dataEntry?.enabled || habit.implementationIntention || (habit.tags?.length ?? 0) > 0))
   )
 
+  // Anything changed since the dialog opened? Drives the discard guard.
+  const snapshot = JSON.stringify([
+    name, description, time, color, priority, area, timeOfDay, scheduleType, selectedDays, timesPerWeek,
+    selectedTags, randomRemindersEnabled, dataEntryEnabled, dataFields, showIntention, intentionTrigger,
+    intentionCustomTrigger, intentionBehavior, intentionObstacles,
+  ])
+  const initialSnapshot = useRef(snapshot)
+  const dirty = snapshot !== initialSnapshot.current
+
   const toggleDay = (day: number) => {
     setSelectedDays((current) => current.includes(day) ? current.filter((d) => d !== day) : [...current, day].sort())
   }
@@ -204,7 +223,12 @@ export function HabitDialog({ mode, habit, onCreate, onUpdate, onDelete, onArchi
   const selectArea = (next: PillarId) => {
     setArea(next)
     // Only repaint a colour the user never picked themselves.
-    setColor((current) => (AUTO_COLORS.has(current.toLowerCase()) ? PILLAR_HEX[next] : current))
+    if (!customColor) setColor(PILLAR_HEX[next])
+  }
+
+  const resetColor = () => {
+    setCustomColor(false)
+    setColor(area ? PILLAR_HEX[area] : DEFAULT_COLOR)
   }
 
   const changeTime = (next: string) => {
@@ -283,7 +307,15 @@ export function HabitDialog({ mode, habit, onCreate, onUpdate, onDelete, onArchi
     }
 
     if (mode === "edit" && habit) onUpdate?.(habit.id, updates)
-    else onCreate?.(updates)
+    else {
+      onCreate?.(updates)
+      notify.success(formatMessage(common.habitCreated, { name: trimmedName }))
+    }
+    onClose()
+  }
+
+  const closeWithGuard = () => {
+    if (dirty && !window.confirm(common.discardChanges)) return
     onClose()
   }
 
@@ -302,60 +334,77 @@ export function HabitDialog({ mode, habit, onCreate, onUpdate, onDelete, onArchi
     onClose()
   }
 
-  const summary = [scheduleSummary(scheduleType, selectedDays, timesPerWeek, t), time || null, area ? t.pillars[area] : null]
+  const summary = [scheduleSummary(buildSchedule(), t), time || null, area ? t.pillars[area] : null]
     .filter(Boolean)
     .join(" · ")
 
   return (
-    <ModalPortal>
-      <div
-        className="fixed inset-0 z-50 flex items-end justify-center bg-background/80 backdrop-blur-sm animate-in fade-in sm:items-center sm:p-4"
-        onClick={(event) => {
-          if (event.target === event.currentTarget) onClose()
-        }}
-      >
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="habit-dialog-title"
-          className="flex max-h-[96dvh] w-full max-w-2xl flex-col overflow-hidden rounded-t-2xl border border-border bg-card shadow-2xl duration-200 animate-in slide-in-from-bottom-4 sm:max-h-[92dvh] sm:rounded-2xl"
-        >
-          {/* ---------- Header ---------- */}
-          <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 sm:px-6">
-            <div className="flex min-w-0 items-center gap-3">
-              <span className="h-9 w-2 shrink-0 rounded-full" style={{ backgroundColor: color }} aria-hidden />
-              <div className="min-w-0">
-                <h2 id="habit-dialog-title" className="truncate text-lg font-bold text-foreground">
-                  {mode === "edit" ? t.titleEdit : t.titleCreate}
-                </h2>
-                <p className="truncate text-xs text-muted-foreground">{summary}</p>
-              </div>
+    <AppDialog
+      open
+      onClose={onClose}
+      dirty={dirty}
+      title={mode === "edit" ? t.titleEdit : t.titleCreate}
+      header={
+        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="h-9 w-2 shrink-0 rounded-full" style={{ backgroundColor: color }} aria-hidden />
+            <div className="min-w-0">
+              <h2 className="truncate text-lg font-bold text-foreground" aria-hidden>
+                {mode === "edit" ? t.titleEdit : t.titleCreate}
+              </h2>
+              <p className="truncate text-xs text-muted-foreground">{summary}</p>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label={t.close}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-secondary text-secondary-foreground transition-colors hover:bg-secondary/70"
-            >
-              <X className="h-4 w-4" />
-            </button>
           </div>
-
-          {/* ---------- Body ---------- */}
-          <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5">
+          <button
+            type="button"
+            onClick={closeWithGuard}
+            aria-label={t.close}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-secondary text-secondary-foreground transition-colors hover:bg-secondary/70"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      }
+      footer={(
+        <div className="flex w-full flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+          {mode === "edit" && habit ? (
+            <div className="flex gap-2">
+              <Button variant="ghost" size="sm" onClick={handleDelete} className="gap-2 text-destructive hover:text-destructive">
+                <Trash2 className="h-4 w-4" aria-hidden />
+                {t.delete}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={handleArchive} className="gap-2">
+                {habit.archived ? <ArchiveRestore className="h-4 w-4" aria-hidden /> : <Archive className="h-4 w-4" aria-hidden />}
+                {habit.archived ? t.unarchive : t.archive}
+              </Button>
+            </div>
+          ) : (
+            <span className="hidden sm:block" />
+          )}
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:justify-end">
+            <Button variant="secondary" onClick={closeWithGuard} className="border border-border">
+              {t.cancel}
+            </Button>
+            <Button onClick={handleSave} disabled={!canSave}>
+              {mode === "edit" ? t.saveChanges : t.create}
+            </Button>
+          </div>
+        </div>
+      )}
+    >
+      <div className="space-y-4">
             <Section icon={<NotebookPen className="h-4 w-4 text-primary" />} title={t.sections.habit} hint={t.sections.habitHint}>
               <div>
                 <FieldLabel htmlFor="habit-name">{t.name}</FieldLabel>
                 <Input
                   id="habit-name"
                   value={name}
-                  onChange={(event) => {
-                    setName(event.target.value)
-                    if (!intentionBehavior) setIntentionBehavior(event.target.value)
-                  }}
+                  onChange={(event) => setName(event.target.value)}
                   placeholder={t.namePlaceholder}
                   className="h-11 text-base"
-                  autoFocus
+                  required
+                  aria-required="true"
+                  data-autofocus=""
                 />
               </div>
               <div>
@@ -394,6 +443,26 @@ export function HabitDialog({ mode, habit, onCreate, onUpdate, onDelete, onArchi
                       </button>
                     )
                   })}
+                </div>
+                {/* Colour follows the area; this is only the escape hatch. */}
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <label className="relative inline-flex h-8 cursor-pointer items-center gap-2 rounded-full border border-border bg-card px-3 text-xs text-muted-foreground hover:text-foreground">
+                    <input
+                      type="color"
+                      value={color}
+                      onChange={(event) => {
+                        setColor(event.target.value)
+                        setCustomColor(true)
+                      }}
+                      className="h-5 w-5 cursor-pointer rounded-full border-0 bg-transparent p-0"
+                    />
+                    {t.customColor}
+                  </label>
+                  {customColor ? (
+                    <button type="button" onClick={resetColor} className="text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline">
+                      {t.useAreaColor}
+                    </button>
+                  ) : null}
                 </div>
               </div>
             </Section>
@@ -501,28 +570,6 @@ export function HabitDialog({ mode, habit, onCreate, onUpdate, onDelete, onArchi
                     <Choice label={t.priority} options={priorityOptions} value={priority} onChange={setPriority} columns="grid-cols-3 sm:grid-cols-5" />
                   </div>
                   <div>
-                    <FieldLabel hint={t.colorHint}>{t.color}</FieldLabel>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {PILLAR_IDS.map((pillar) => (
-                        <button
-                          key={pillar}
-                          type="button"
-                          aria-label={formatMessage(t.pillarColor, { pillar: t.pillars[pillar] })}
-                          onClick={() => setColor(PILLAR_HEX[pillar])}
-                          className={cn(
-                            "h-8 w-8 rounded-full border-2 transition-transform hover:scale-110",
-                            color.toLowerCase() === PILLAR_HEX[pillar].toLowerCase() ? "border-foreground" : "border-transparent"
-                          )}
-                          style={{ backgroundColor: PILLAR_HEX[pillar] }}
-                        />
-                      ))}
-                      <label className="relative flex h-8 items-center gap-2 rounded-full border border-border bg-card px-3 text-xs text-muted-foreground">
-                        <input type="color" value={color} onChange={(event) => setColor(event.target.value)} className="h-5 w-5 cursor-pointer rounded-full border-0 bg-transparent p-0" />
-                        {t.customColor}
-                      </label>
-                    </div>
-                  </div>
-                  <div>
                     <FieldLabel hint={t.tagsHint}>{t.tags}</FieldLabel>
                     <div className="flex flex-wrap gap-2">
                       {HABIT_TAGS.map((tag) => (
@@ -569,18 +616,18 @@ export function HabitDialog({ mode, habit, onCreate, onUpdate, onDelete, onArchi
                           </div>
                           <div className={cn("grid gap-2", field.type === "number" ? "grid-cols-[minmax(0,1fr)_80px_80px]" : "grid-cols-1")}>
                             <div>
-                              <span className="mb-1 block text-xs text-muted-foreground">{t.fieldLabel}</span>
-                              <Input value={field.label} onChange={(event) => updateDataField(field.id, { label: event.target.value })} placeholder={t.fieldLabelPlaceholder} />
+                              <label htmlFor={`${field.id}-label`} className="mb-1 block text-xs text-muted-foreground">{t.fieldLabel}</label>
+                              <Input id={`${field.id}-label`} value={field.label} onChange={(event) => updateDataField(field.id, { label: event.target.value })} placeholder={t.fieldLabelPlaceholder} />
                             </div>
                             {field.type === "number" && (
                               <>
                                 <div>
-                                  <span className="mb-1 block text-xs text-muted-foreground">{t.fieldUnit}</span>
-                                  <Input value={field.unit ?? ""} onChange={(event) => updateDataField(field.id, { unit: event.target.value })} placeholder={t.fieldUnitPlaceholder} />
+                                  <label htmlFor={`${field.id}-unit`} className="mb-1 block text-xs text-muted-foreground">{t.fieldUnit}</label>
+                                  <Input id={`${field.id}-unit`} value={field.unit ?? ""} onChange={(event) => updateDataField(field.id, { unit: event.target.value })} placeholder={t.fieldUnitPlaceholder} />
                                 </div>
                                 <div>
-                                  <span className="mb-1 block text-xs text-muted-foreground">{t.fieldGoal}</span>
-                                  <Input type="number" value={field.goalValue ?? ""} onChange={(event) => updateDataField(field.id, { goalValue: event.target.value ? Number(event.target.value) : undefined })} placeholder="5" />
+                                  <label htmlFor={`${field.id}-goal`} className="mb-1 block text-xs text-muted-foreground">{t.fieldGoal}</label>
+                                  <Input id={`${field.id}-goal`} type="number" value={field.goalValue ?? ""} onChange={(event) => updateDataField(field.id, { goalValue: event.target.value ? Number(event.target.value) : undefined })} placeholder="5" />
                                 </div>
                               </>
                             )}
@@ -603,19 +650,31 @@ export function HabitDialog({ mode, habit, onCreate, onUpdate, onDelete, onArchi
                   {showIntention && (
                     <div className="space-y-3">
                       <div>
-                        <FieldLabel htmlFor="habit-trigger">{t.when}</FieldLabel>
-                        <select
-                          id="habit-trigger"
-                          value={intentionTrigger}
-                          onChange={(event) => setIntentionTrigger(event.target.value)}
-                          className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-                        >
-                          <option value="">{t.pickMoment}</option>
-                          {COMMON_TRIGGERS.map((trigger) => <option key={trigger} value={trigger}>{trigger}</option>)}
-                          <option value="custom">{t.somethingElse}</option>
-                        </select>
+                        <FieldLabel>{t.when}</FieldLabel>
+                        <div role="radiogroup" aria-label={t.when} className="flex flex-wrap gap-2">
+                          {[...COMMON_TRIGGERS.map((trigger) => ({ value: trigger, label: trigger })), { value: "custom", label: t.somethingElse }].map((option) => {
+                            const selected = intentionTrigger === option.value
+                            return (
+                              <button
+                                key={option.value}
+                                type="button"
+                                role="radio"
+                                aria-checked={selected}
+                                onClick={() => setIntentionTrigger(selected ? "" : option.value)}
+                                className={cn(
+                                  "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                                  selected
+                                    ? "border-primary bg-primary text-primary-foreground"
+                                    : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                                )}
+                              >
+                                {option.label}
+                              </button>
+                            )
+                          })}
+                        </div>
                         {intentionTrigger === "custom" && (
-                          <Input className="mt-2" value={intentionCustomTrigger} onChange={(event) => setIntentionCustomTrigger(event.target.value)} placeholder={t.customTriggerPlaceholder} />
+                          <Input className="mt-2" aria-label={t.customTriggerPlaceholder} value={intentionCustomTrigger} onChange={(event) => setIntentionCustomTrigger(event.target.value)} placeholder={t.customTriggerPlaceholder} />
                         )}
                       </div>
                       <div>
@@ -645,35 +704,7 @@ export function HabitDialog({ mode, habit, onCreate, onUpdate, onDelete, onArchi
                 </Section>
               </>
             )}
-          </div>
-
-          {/* ---------- Footer ---------- */}
-          <div className="flex flex-col-reverse gap-3 border-t border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-            {mode === "edit" && habit ? (
-              <div className="flex gap-2">
-                <Button variant="ghost" size="sm" onClick={handleDelete} className="gap-2 text-destructive hover:text-destructive">
-                  <Trash2 className="h-4 w-4" />
-                  {t.delete}
-                </Button>
-                <Button variant="ghost" size="sm" onClick={handleArchive} className="gap-2">
-                  {habit.archived ? <ArchiveRestore className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
-                  {habit.archived ? t.unarchive : t.archive}
-                </Button>
-              </div>
-            ) : (
-              <span className="hidden sm:block" />
-            )}
-            <div className="grid grid-cols-2 gap-2 sm:flex sm:justify-end">
-              <Button variant="secondary" onClick={onClose} className="border border-border">
-                {t.cancel}
-              </Button>
-              <Button onClick={handleSave} disabled={!canSave}>
-                {mode === "edit" ? t.saveChanges : t.create}
-              </Button>
-            </div>
-          </div>
-        </div>
       </div>
-    </ModalPortal>
+    </AppDialog>
   )
 }

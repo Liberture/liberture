@@ -68,16 +68,6 @@ interface HabitMatrixProps {
   onToggleCompletion: (habitId: string, date: Date) => void
 }
 
-/**
- * Delegates to the shared check so a day before the habit existed — or inside a
- * past archived stretch — counts as "not scheduled" rather than "missed". A
- * local schedule-only test made every day since the epoch look like a miss and
- * quietly deflated the percentages here.
- */
-function isScheduledForDay(habit: Habit, date: Date): boolean {
-  return isHabitScheduledOnDate(habit, date)
-}
-
 export function HabitMatrix({ habits, completions, onToggleCompletion }: HabitMatrixProps) {
   const t = useTranslations().habits.app.habitMatrix
   const dateLocale = useDateLocale()
@@ -153,7 +143,7 @@ export function HabitMatrix({ habits, completions, onToggleCompletion }: HabitMa
       let scheduled = 0
       let hit = 0
       for (let i = 0; i < days.length; i++) {
-        if (!isScheduledForDay(habit, days[i])) continue
+        if (!isHabitScheduledOnDate(habit, days[i])) continue
         scheduled++
         if (done?.has(dayStrings[i])) hit++
       }
@@ -389,7 +379,7 @@ const MatrixRow = memo(function MatrixRow({
       {days.map((day, i) => {
         const dateStr = dayStrings[i]
         const isDone = completed?.has(dateStr) ?? false
-        const scheduled = isScheduledForDay(habit, day)
+        const scheduled = isHabitScheduledOnDate(habit, day)
         const isToday = i === 0
         const status = isDone ? t.statusDone : scheduled ? t.statusMissed : t.statusNotScheduled
         const hover = (): void => onHover({ day, habitName: habit.name, status })

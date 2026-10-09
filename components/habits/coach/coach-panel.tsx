@@ -1,12 +1,12 @@
 "use client"
 
-import Link from "next/link"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { AlertCircle, Loader2, Send, Sparkles, Square } from "lucide-react"
+import { AlertCircle, Loader2, MessageSquarePlus, Send, Settings2, Sparkles, Square } from "lucide-react"
 
 import { ProtocolReader } from "@/components/habits/marketplace/protocol-reader"
 import { CoachAdmin } from "@/components/habits/coach/coach-admin"
 import { RecommendationCards } from "@/components/habits/coach/recommendation-cards"
+import { AppDialog } from "@/components/habits/ui/app-dialog"
 import { parseAgentReply, toStoredEntries, type CustomHabitSpec, type Recommendation } from "@/lib/habits/agent/recommendation"
 import { adoptedProtocolSlugs, adoptedSlugs } from "@/lib/habits/protocols/adopt"
 import { CATALOG_PROTOCOLS, type CatalogHabit, type CatalogProtocol } from "@/lib/habits/protocols/catalog"
@@ -36,6 +36,22 @@ interface Message {
 const SUGGESTIONS = ["addNext", "slipping", "sleepBetter", "tooMuch"] as const
 
 /**
+ * "New conversation" start time on this device. The server keeps every message
+ * (there is no endpoint to delete history), so a fresh thread hides what came
+ * before it rather than erasing it.
+ */
+const THREAD_START_KEY = "habit-coach-thread-started-at"
+
+function readThreadStart(): number {
+  try {
+    const value = Number(localStorage.getItem(THREAD_START_KEY))
+    return Number.isFinite(value) && value > 0 ? value : 0
+  } catch {
+    return 0
+  }
+}
+
+/**
  * The starter prompts.
  *
  * Kept on screen for the whole conversation, not just the empty state: the
@@ -56,6 +72,10 @@ function SuggestionCards({
   const t = useTranslations().habits.app.coachPanel
   return (
     <div
+      role="group"
+      aria-label={t.suggestionsLabel}
+      // A horizontal scroller: swiping it must not switch tracker views.
+      data-no-swipe={layout === "row" ? true : undefined}
       className={cn(
         layout === "grid"
           ? "mx-auto grid max-w-lg gap-2 sm:grid-cols-2"
@@ -114,6 +134,7 @@ export function CoachPanel({
   /** False when codex is running without an enforced sandbox — see below. */
   const [sandboxOk, setSandboxOk] = useState(true)
   const [readingSlug, setReadingSlug] = useState<string | null>(null)
+  const [managing, setManaging] = useState(false)
 
   const conversationRef = useRef<string | null>(null)
   const runRef = useRef<string | null>(null)
@@ -144,8 +165,10 @@ export function CoachPanel({
       })
       .then((history: { conversationId: string | null; messages: Message[] }) => {
         if (cancelled) return
-        conversationRef.current = history.conversationId
-        setMessages(history.messages.map((message) => ({
+        const since = readThreadStart()
+        const current = history.messages.filter((message) => message.createdAt >= since)
+        conversationRef.current = current.length > 0 ? history.conversationId : null
+        setMessages(current.map((message) => ({
           ...message,
           recommendations: parseAgentReply(JSON.stringify({ answer: message.text, recommendations: message.recommendations })).recommendations,
         })))
@@ -336,6 +359,18 @@ export function CoachPanel({
     [authHeaders, running, watch, historyReady, available, saveHistory]
   )
 
+  const newConversation = useCallback(() => {
+    if (running) return
+    try {
+      localStorage.setItem(THREAD_START_KEY, String(Date.now()))
+    } catch {}
+    conversationRef.current = null
+    pendingRef.current = null
+    setMessages([])
+    setError(null)
+    setDraft("")
+  }, [running])
+
   const stop = useCallback(() => {
     const runId = runRef.current
     if (!runId) return
@@ -346,36 +381,40 @@ export function CoachPanel({
   return (
     <div className="flex h-full flex-col">
       {available === false && (
-        canManageConnection ? <CoachAdmin apiKey={apiKey} embedded /> : (
-          <div className="mb-4 rounded-lg border p-4 text-sm">
-            <p>{unavailableReason ?? t.notConnected}</p>
-            <Link href="/admin/coach" className="font-medium text-purple-700 underline dark:text-purple-300">{t.connectionSettings}</Link>
+        <div role="status" className="mb-4 flex items-start gap-3 rounded-xl border border-border bg-muted/40 p-4">
+          <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden />
+          <div className="min-w-0 space-y-1">
+            <p className="text-sm font-semibold text-foreground">{t.unavailableTitle}</p>
+            <p className="text-sm text-muted-foreground">{t.unavailableBody}</p>
+            {canManageConnection ? (
+              <>
+                {unavailableReason ? <p className="text-xs text-muted-foreground">{unavailableReason}</p> : null}
+                <button
+                  type="button"
+                  onClick={() => setManaging(true)}
+                  className="mt-1 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                >
+                  <Settings2 className="h-4 w-4" aria-hidden />
+                  {t.manageConnection}
+                </button>
+              </>
+            ) : null}
           </div>
-        )
-      )}
-      {historyError && <p role="alert" className="mb-3 text-sm text-red-600">{historyError}</p>}
-      {!historyReady && !historyError && <p className="text-sm text-muted-foreground">{t.loadingHistory}</p>}
-      {/*
-        Without a working sandbox the agent's file reads fail intermittently and
-        it answers with something vague about an "environment error", which
-        looks like a bug in the coach rather than a misconfigured host. Say what
-        it actually is. The sidecar refuses to start in this state unless
-        someone passed HABIT_AGENT_ALLOW_UNSANDBOXED=1, so seeing this means
-        that override is on.
-      */}
-      {!sandboxOk ? (
-        <div className="mb-3 flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs">
-          <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden />
-          <span className="text-muted-foreground">
-            <span className="font-medium text-foreground">{t.sandboxTitle}</span>{" "}
-            {t.sandboxBody}{" "}
-            <code className="rounded bg-black/10 px-1 py-0.5 dark:bg-white/10">
-              kernel.apparmor_restrict_unprivileged_userns=0
-            </code>{" "}
-            {t.sandboxRestart} <code className="rounded bg-black/10 px-1 py-0.5 dark:bg-white/10">habit-agent</code>.
-          </span>
         </div>
+      )}
+      {/* Operators only: a degraded host is theirs to fix; the details live in CoachAdmin. */}
+      {available && !sandboxOk && canManageConnection ? (
+        <button
+          type="button"
+          onClick={() => setManaging(true)}
+          className="mb-3 flex w-full items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2 text-left text-xs text-muted-foreground hover:text-foreground"
+        >
+          <AlertCircle className="h-3.5 w-3.5 shrink-0 text-destructive" aria-hidden />
+          {t.setupNeedsAttention}
+        </button>
       ) : null}
+      {historyError && <p role="alert" className="mb-3 text-sm text-destructive">{historyError}</p>}
+      {!historyReady && !historyError && <p className="text-sm text-muted-foreground">{t.loadingHistory}</p>}
 
       <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto pb-4">
         {messages.length === 0 ? (
@@ -431,7 +470,18 @@ export function CoachPanel({
 
       {/* Only once the thread has started — before that the grid above is showing. */}
       {messages.length > 0 ? (
-        <div className="border-t border-border pt-3">
+        <div className="space-y-2 border-t border-border pt-3">
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={newConversation}
+              disabled={running}
+              className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:opacity-50"
+            >
+              <MessageSquarePlus className="h-3.5 w-3.5" aria-hidden />
+              {t.newConversation}
+            </button>
+          </div>
           <SuggestionCards layout="row" disabled={running || !available || !historyReady} onPick={(s) => void send(s)} />
         </div>
       ) : null}
@@ -447,7 +497,11 @@ export function CoachPanel({
           messages.length === 0 && "border-t border-border"
         )}
       >
+        <label htmlFor="coach-input" className="sr-only">
+          {t.inputLabel}
+        </label>
         <textarea
+          id="coach-input"
           value={draft}
           onChange={(event) => setDraft(event.target.value)}
           onKeyDown={(event) => {
@@ -483,6 +537,12 @@ export function CoachPanel({
           </button>
         )}
       </form>
+
+      {canManageConnection ? (
+        <AppDialog open={managing} onClose={() => setManaging(false)} title={t.manageConnection} size="md">
+          <CoachAdmin apiKey={apiKey} embedded />
+        </AppDialog>
+      ) : null}
 
       {reading ? (
         <ProtocolReader
