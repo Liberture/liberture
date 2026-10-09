@@ -8,7 +8,7 @@ import type { Habit } from "@/lib/habits/types"
 import { formatScheduleLabel } from "@/lib/habits/habit-utils"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "@/components/i18n/locale-provider"
-import { formatMessage } from "@/lib/i18n-format"
+import { formatMessage, plural } from "@/lib/i18n-format"
 
 type RowStrings = ReturnType<typeof useTranslations>["habits"]["app"]["habitRow"]
 
@@ -31,7 +31,10 @@ export function scheduleLabel(schedule: Habit["schedule"], t: RowStrings): strin
 interface HabitRowProps {
   habit: Habit
   completed: boolean
-  streak: { current: number }
+  /** `unit: "weeks"` for a times-per-week habit: weeks in a row that met the target. */
+  streak: { current: number; unit?: "days" | "weeks" }
+  /** Times-per-week habits: this week's progress, shown as a "2/3 this week" chip. */
+  week?: { done: number; target: number }
   /** Handlers take the id so the parent can pass stable references — inline
    *  closures here would make the memo above useless. */
   onToggle: (habitId: string) => void
@@ -44,6 +47,7 @@ export const HabitRow = memo(function HabitRow({
   habit,
   completed,
   streak,
+  week,
   onToggle,
   onLogData,
   onEdit,
@@ -125,14 +129,34 @@ export const HabitRow = memo(function HabitRow({
           <span className="font-mono">{habit.time}</span>
           <span aria-hidden>·</span>
           <span>{scheduleLabel(habit.schedule, t)}</span>
+          {week ? (
+            <span
+              className={cn(
+                "rounded-full border px-2 py-0.5 font-mono tabular-nums",
+                week.done >= week.target
+                  ? "border-nutrition/40 bg-nutrition/10 text-nutrition"
+                  : "border-white/15 bg-white/[0.03]"
+              )}
+            >
+              {formatMessage(t.weekProgress, { done: week.done, target: week.target })}
+            </span>
+          ) : null}
         </div>
       </div>
 
       <div className="relative z-10 flex shrink-0 flex-col items-end gap-2">
         {streak.current > 0 ? (
-          <span className="inline-flex items-center gap-1 rounded-full border border-exercise/30 bg-exercise/10 px-2.5 py-1 text-xs font-semibold text-exercise">
+          <span
+            title={plural(streak.unit === "weeks" ? t.streakWeeks : t.streakDays, streak.current)}
+            className="inline-flex items-center gap-1 rounded-full border border-exercise/30 bg-exercise/10 px-2.5 py-1 text-xs font-semibold text-exercise"
+          >
             <Flame className="h-3.5 w-3.5" aria-hidden />
-            {streak.current}
+            <span aria-hidden>
+              {streak.unit === "weeks" ? formatMessage(t.streakWeeksShort, { count: streak.current }) : streak.current}
+            </span>
+            <span className="sr-only">
+              {plural(streak.unit === "weeks" ? t.streakWeeks : t.streakDays, streak.current)}
+            </span>
           </span>
         ) : null}
 

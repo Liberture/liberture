@@ -15,7 +15,7 @@ export function ServiceWorkerRegister() {
 
     const register = async () => {
       try {
-        const registration = await navigator.serviceWorker.register("/sw.js", { scope: "/" })
+        const registration = await navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" })
         if (!cancelled && registration && typeof registration.update === "function") {
           registration.update().catch(() => undefined)
         }

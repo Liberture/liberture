@@ -17,6 +17,8 @@ interface StreakDisplayProps {
 export function StreakDisplay({ streakData, showFreezesCompact = false }: StreakDisplayProps) {
   const t = useTranslations().habits.app.streakDisplay
   const { current, longest, freezesAvailable } = streakData
+  // Times-per-week habits count weeks that met the target; milestones count days.
+  const weeks = streakData.unit === "weeks"
   const nextMilestone = getNextMilestone(current)
   const daysToMilestone = nextMilestone - current
   const compactNumberClass = (value: number) =>
@@ -41,7 +43,7 @@ export function StreakDisplay({ streakData, showFreezesCompact = false }: Streak
             {current}
           </div>
           <div className="text-[11px] leading-tight text-muted-foreground">
-            {t.current}
+            {weeks ? t.currentWeeks : t.current}
           </div>
         </div>
       </div>
@@ -57,7 +59,7 @@ export function StreakDisplay({ streakData, showFreezesCompact = false }: Streak
             {longest}
           </div>
           <div className="text-[11px] leading-tight text-muted-foreground">
-            {t.best}
+            {weeks ? t.bestWeeks : t.best}
           </div>
         </div>
       </div>
@@ -81,7 +83,7 @@ export function StreakDisplay({ streakData, showFreezesCompact = false }: Streak
       )}
 
       {/* Next Milestone */}
-      {current < 100 && daysToMilestone > 0 && (
+      {!weeks && current < 100 && daysToMilestone > 0 && (
         <>
           <div className="h-10 w-px bg-secondary" />
           <div className="flex items-center space-x-2">

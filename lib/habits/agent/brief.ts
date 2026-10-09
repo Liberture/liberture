@@ -1,4 +1,4 @@
-import { calculateStreak, calculateSuccessRate } from "@/lib/habits/habit-utils"
+import { calculateStreak, calculateSuccessRate, weeklyProgress, type WeekStart } from "@/lib/habits/habit-utils"
 import { PILLAR_IDS, PILLAR_LABELS, pillarForHabit, type PillarId } from "@/lib/habits/pillars"
 import { scheduleLabel } from "@/lib/habits/protocols/catalog"
 import { adoptedProtocolSlugs, adoptedSlugs } from "@/lib/habits/protocols/adopt"
@@ -37,17 +37,21 @@ function pct(value: number): string {
   return `${Math.round(value * 100)}%`
 }
 
-function describeHabit(habit: Habit, completions: HabitCompletion[]): string {
-  const streak = calculateStreak(habit.id, completions, habit.streakData, habit)
-  const rate7 = calculateSuccessRate(habit, completions, 7)
-  const rate30 = calculateSuccessRate(habit, completions, 30)
+function describeHabit(habit: Habit, completions: HabitCompletion[], weekStartsOn: WeekStart): string {
+  const now = new Date()
+  const streak = calculateStreak(habit.id, completions, habit.streakData, habit, now, weekStartsOn)
+  const rate7 = calculateSuccessRate(habit, completions, 7, now, weekStartsOn, now)
+  const rate30 = calculateSuccessRate(habit, completions, 30, now, weekStartsOn, now)
+  const unit = streak.unit === "weeks" ? "week" : "day"
+  const week = habit.schedule?.type === "times_per_week" ? weeklyProgress(habit, completions, now, weekStartsOn) : null
   const pillar = pillarForHabit(habit)
 
   const lines = [
     `### ${habit.name}`,
     ...(habit.description ? [`- description: ${habit.description.replace(/\s+/g, " ")}`] : []),
     `- pillar: ${pillar} · time: ${habit.time || "unset"} · ${scheduleLabel(habit.schedule).toLowerCase()}`,
-    `- streak: ${streak.current} day${streak.current === 1 ? "" : "s"} (longest ${streak.longest})`,
+    `- streak: ${streak.current} ${unit}${streak.current === 1 ? "" : "s"} (longest ${streak.longest})${streak.unit === "weeks" ? " — weeks in a row that met the target" : ""}`,
+    ...(week ? [`- this week: ${week.done}/${week.target} done${week.met ? " (target met)" : `, ${week.daysLeft} day${week.daysLeft === 1 ? "" : "s"} left after today`}`] : []),
     `- completion: ${pct(rate7)} last 7 days, ${pct(rate30)} last 30 days`,
     `- created: ${habit.createdAt ? habit.createdAt.slice(0, 10) : "unknown"}`,
   ]
@@ -116,7 +120,7 @@ function buildHabitsMarkdown(data: StorageData, adopted: Set<string>): string {
       .filter(Boolean)
       .sort()
     sections.push("", `Times already in use: ${byTime.length > 0 ? byTime.join(", ") : "none set"}.`)
-    sections.push("", ...active.map((h) => describeHabit(h, completions)))
+    sections.push("", ...active.map((h) => describeHabit(h, completions, data.preferences?.weekStartsOn ?? 1)))
   }
 
   const counts = new Map<PillarId, number>()

@@ -6,6 +6,8 @@ import { catalogLinks, protocolSlugForHabit, requestOrigin } from "@/lib/habits/
 import { adoptedSlugs, catalogHabitToHabit } from "@/lib/habits/protocols/adopt"
 import { findCatalogHabit, findProtocol } from "@/lib/habits/protocols/catalog"
 import type { Habit } from "@/lib/habits/types"
+import { markAccepted } from "@/lib/habits/coach/suggestions"
+import { mutateCoachRecommendations } from "@/lib/habits/coach/suggestions-store"
 
 /**
  * POST /api/v1/habits/adopt
@@ -59,6 +61,14 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Failed to adopt habits:", error)
     return NextResponse.json({ error: "Failed to add habits" }, { status: 500 })
+  }
+
+  // Adopting something the coach suggested answers that suggestion.
+  const adoptedSlug = typeof body.protocolSlug === "string" ? body.protocolSlug : (body.habitSlug as string)
+  if (markAccepted(user.data.coachRecommendations, { slugs: [adoptedSlug] }) !== user.data.coachRecommendations) {
+    await mutateCoachRecommendations(user.userId, (current) => markAccepted(current, { slugs: [adoptedSlug] }) ?? { error: null }).catch(
+      (error) => console.warn("Failed to mark the suggestion accepted:", error)
+    )
   }
 
   return NextResponse.json({

@@ -1,15 +1,26 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Bell, BellRing, ChevronDown } from "lucide-react"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { Bell, BellRing, ChevronDown, Send } from "lucide-react"
 
 import { SettingRow, SettingsCard, SettingsDivider, settingsButtonClass } from "@/components/habits/settings/settings-ui"
 import { Switch } from "@/components/habits/ui/switch"
-import { useTranslations } from "@/components/i18n/locale-provider"
-import { formatMessage } from "@/lib/i18n-format"
+import { useHabitsSession } from "@/components/habits/session-provider"
+import { useLocale, useTranslations } from "@/components/i18n/locale-provider"
+import { formatMessage, plural } from "@/lib/i18n-format"
+import {
+  fetchPublicKey,
+  getActivePushSubscription,
+  pushSupported,
+  subscribeThisDevice,
+  unsubscribeThisDevice,
+} from "@/lib/habits/reminders/client"
+import type { ReminderStatus } from "@/lib/habits/push"
 import { cn } from "@/lib/utils"
 
 type Permission = NotificationPermission | "unsupported"
+/** Whether this device can get server push: checked on mount. */
+type PushState = "checking" | "unsupported" | "not_configured" | "ready"
 
 interface RemindersTabProps {
   enabled: boolean
@@ -23,6 +34,89 @@ export function RemindersTab({ enabled, onToggle }: RemindersTabProps) {
   const [swRegistered, setSwRegistered] = useState<boolean | null>(null)
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null)
   const [showDiagnostics, setShowDiagnostics] = useState(false)
+  const locale = useLocale()
+  const { auth } = useHabitsSession()
+  const authHeaders = useMemo<Record<string, string>>(
+    (): Record<string, string> => (auth.apiKey ? { Authorization: `Bearer ${auth.apiKey}` } : {}),
+    [auth.apiKey]
+  )
+  const [pushState, setPushState] = useState<PushState>("checking")
+  const [subscribed, setSubscribed] = useState(false)
+  const [pushBusy, setPushBusy] = useState(false)
+  const [pushError, setPushError] = useState<string | null>(null)
+  const [status, setStatus] = useState<ReminderStatus | null>(null)
+  const [serverTest, setServerTest] = useState<{ ok: boolean; message: string } | null>(null)
+
+  const loadStatus = useCallback(async () => {
+    try {
+      const response = await fetch("/api/habits/push/status", { headers: authHeaders, cache: "no-store" })
+      if (response.ok) setStatus((await response.json()) as ReminderStatus)
+    } catch {
+      // Status is informative only.
+    }
+  }, [authHeaders])
+
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      if (!pushSupported()) return setPushState("unsupported")
+      const [publicKey, subscription] = await Promise.all([fetchPublicKey(), getActivePushSubscription()])
+      if (cancelled) return
+      setSubscribed(Boolean(subscription))
+      setPushState(publicKey ? "ready" : "not_configured")
+      if (publicKey) void loadStatus()
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [loadStatus])
+
+  const togglePush = async (next: boolean) => {
+    setPushError(null)
+    setPushBusy(true)
+    try {
+      if (next) {
+        const result = permission === "granted" ? permission : await requestPermission()
+        if (result !== "granted") {
+          setPushError(t.closedAppNeedsPermission)
+          return
+        }
+        await subscribeThisDevice(authHeaders)
+        setSubscribed(true)
+      } else {
+        await unsubscribeThisDevice(authHeaders)
+        setSubscribed(false)
+      }
+      await loadStatus()
+    } catch {
+      setPushError(t.closedAppFailed)
+    } finally {
+      setPushBusy(false)
+    }
+  }
+
+  const sendServerTest = async () => {
+    setServerTest(null)
+    try {
+      const response = await fetch("/api/habits/push/test", { method: "POST", headers: authHeaders })
+      const body = (await response.json().catch(() => ({}))) as { sent?: number; devices?: number }
+      if (!response.ok) return setServerTest({ ok: false, message: t.serverTestFailed })
+      if (!body.devices) return setServerTest({ ok: false, message: t.serverTestNoDevices })
+      if (!body.sent) return setServerTest({ ok: false, message: t.serverTestFailed })
+      setServerTest({ ok: true, message: plural(t.serverTestSent, body.sent) })
+    } catch {
+      setServerTest({ ok: false, message: t.serverTestFailed })
+    } finally {
+      void loadStatus()
+    }
+  }
+
+  const formatWhen = (iso: string) => {
+    const date = new Date(iso)
+    return Number.isNaN(date.getTime())
+      ? iso
+      : date.toLocaleString(locale === "es" ? "es-AR" : "en-US", { dateStyle: "medium", timeStyle: "short" })
+  }
 
   useEffect(() => {
     setPermission("Notification" in window ? Notification.permission : "unsupported")
@@ -136,6 +230,76 @@ export function RemindersTab({ enabled, onToggle }: RemindersTabProps) {
           >
             {testResult.message}
           </p>
+        )}
+      </SettingsCard>
+
+      <SettingsCard title={t.closedAppTitle} description={t.closedAppDescription}>
+        <SettingRow
+          htmlFor="closed-app-switch"
+          title={t.closedAppTitle}
+          description={
+            <span aria-live="polite">
+              {pushState === "unsupported"
+                ? t.closedAppUnsupported
+                : pushState === "not_configured"
+                  ? t.closedAppNotConfigured
+                  : !enabled
+                    ? t.closedAppRemindersOff
+                    : subscribed
+                      ? t.closedAppOn
+                      : t.closedAppOff}
+            </span>
+          }
+          action={
+            <Switch
+              id="closed-app-switch"
+              checked={subscribed && pushState === "ready"}
+              disabled={pushState !== "ready" || pushBusy || !enabled || permission === "denied"}
+              onCheckedChange={(next) => void togglePush(next)}
+            />
+          }
+        />
+        {pushError && (
+          <p role="status" className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+            {pushError}
+          </p>
+        )}
+        {pushState === "ready" && (
+          <>
+            <SettingsDivider />
+            <SettingRow
+              title={t.devicesTitle}
+              description={
+                <>
+                  {status && status.devices > 0 ? plural(t.devicesCount, status.devices) : t.devicesNone}{" "}
+                  {status?.lastDeliveredAt ? formatMessage(t.lastDelivered, { time: formatWhen(status.lastDeliveredAt) }) : t.neverDelivered}
+                  {status?.lastFailureAt ? ` ${formatMessage(t.lastFailure, { time: formatWhen(status.lastFailureAt) })}` : null}
+                </>
+              }
+            />
+            <SettingsDivider />
+            <SettingRow
+              title={t.serverTest}
+              description={t.serverTestDescription}
+              action={
+                <button type="button" onClick={() => void sendServerTest()} className={settingsButtonClass()}>
+                  <Send className="h-4 w-4" />
+                  {t.serverTestButton}
+                </button>
+              }
+            />
+            {serverTest && (
+              <p
+                role="status"
+                className={cn(
+                  "rounded-lg border p-3 text-xs",
+                  serverTest.ok ? "border-nutrition/30 bg-nutrition/10 text-nutrition" : "border-destructive/30 bg-destructive/10 text-destructive"
+                )}
+              >
+                {serverTest.message}
+              </p>
+            )}
+          </>
         )}
       </SettingsCard>
 

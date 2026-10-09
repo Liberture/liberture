@@ -1,4 +1,4 @@
-import { API_OPERATIONS, type ApiOperation, type JsonSchema } from "@/lib/habits/api/operations"
+import { API_OPERATIONS, inputSchemaFor, type ApiOperation, type JsonSchema } from "@/lib/habits/api/operations"
 import { OAUTH_SCOPE } from "@/lib/habits/oauth/metadata"
 import { GET as getSummary } from "@/app/api/v1/summary/route"
 import { GET as getHabits, POST as createHabit } from "@/app/api/v1/habits/route"
@@ -30,6 +30,10 @@ import { GET as getProfile, POST as updateProfile } from "@/app/api/v1/profile/r
 import { GET as getAssistant } from "@/app/api/v1/assistant/route"
 import { GET as getAudit } from "@/app/api/v1/audit/route"
 import { GET as getExport } from "@/app/api/v1/export/route"
+import { GET as getCoachState } from "@/app/api/v1/coach/state/route"
+import { POST as recordCoachNudge } from "@/app/api/v1/coach/nudge/route"
+import { POST as respondToSuggestion } from "@/app/api/v1/coach/respond/route"
+import { GET as getReminderStatus } from "@/app/api/v1/reminders/status/route"
 
 /**
  * MCP tools are the /api/v1 handlers, called in-process with the token as an
@@ -75,6 +79,10 @@ export const HANDLERS: Record<string, Handler> = {
   get_permissions: getAssistant as Handler,
   get_audit: getAudit as Handler,
   export_data: getExport as Handler,
+  get_coach_state: getCoachState as Handler,
+  record_coach_nudge: recordCoachNudge as Handler,
+  respond_to_suggestion: respondToSuggestion as Handler,
+  get_reminder_status: getReminderStatus as Handler,
 }
 
 export interface McpAnnotations {
@@ -98,16 +106,6 @@ export interface McpTool {
    * needs, which the server checks on every call (lib/habits/api-scopes.ts).
    */
   securitySchemes: { type: "oauth2"; scopes: string[] }[]
-}
-
-function inputSchemaFor(op: ApiOperation): JsonSchema {
-  const properties: Record<string, JsonSchema> = { ...(op.body?.properties ?? {}) }
-  const required = [...(op.body?.required ?? [])]
-  for (const p of op.params ?? []) {
-    properties[p.name] = { ...p.schema, description: p.description }
-    if (p.required) required.push(p.name)
-  }
-  return { type: "object", properties, ...(required.length ? { required } : {}) }
 }
 
 const DEFAULT_OUTPUT: JsonSchema = { type: "object", additionalProperties: true }

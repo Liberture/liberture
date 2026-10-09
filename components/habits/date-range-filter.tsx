@@ -71,9 +71,11 @@ interface DateRangeFilterProps {
   /** Extra content rendered on the left of the bar, e.g. a title. */
   label?: React.ReactNode
   className?: string
+  /** First day of the week in the picker (preferences.weekStartsOn). */
+  weekStartsOn?: 0 | 1
 }
 
-export function DateRangeFilter({ value, onChange, label, className }: DateRangeFilterProps) {
+export function DateRangeFilter({ value, onChange, label, className, weekStartsOn = 1 }: DateRangeFilterProps) {
   const t = useTranslations().habits.app.dateRangeFilter
   const dateLocale = useDateLocale()
   const [open, setOpen] = useState(false)
@@ -155,7 +157,7 @@ export function DateRangeFilter({ value, onChange, label, className }: DateRange
             numberOfMonths={1}
             navLayout="around"
             showOutsideDays
-            weekStartsOn={1}
+            weekStartsOn={weekStartsOn}
             locale={dateLocale}
             classNames={{
               root: "w-[260px]",

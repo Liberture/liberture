@@ -10,7 +10,7 @@ import {
   pillarForHabit,
   type PillarId,
 } from "@/lib/habits/pillars"
-import { calculateStreak, formatScheduleLabel, isHabitScheduledOnDate } from "@/lib/habits/habit-utils"
+import { calculateStreak, formatScheduleLabel, isHabitScheduledOnDate, type WeekStart } from "@/lib/habits/habit-utils"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/habits/ui/button"
 import { useMobile } from "@/hooks/use-mobile"
@@ -37,6 +37,8 @@ interface HabitGridProps {
   /** Opens the habit dialog (schedule, data fields, archive, delete). */
   onEditHabit?: (habitId: string) => void
   onUnarchiveHabit?: (habitId: string) => void
+  /** First day of the week, for times-per-week streaks. */
+  weekStartsOn?: WeekStart
 }
 
 interface DateInfo {
@@ -90,7 +92,8 @@ interface RowProps {
   pillar: PillarId
   dateInfos: DateInfo[]
   completionsForHabit: Map<string, HabitCompletion> | undefined
-  streak: { current: number; longest: number }
+  /** `unit: "weeks"` for times-per-week habits. */
+  streak: { current: number; longest: number; unit?: "days" | "weeks" }
   onCellClick: (habit: Habit, date: Date) => void
   onEditHabit?: (habitId: string) => void
   onUnarchiveHabit?: (habitId: string) => void
@@ -178,7 +181,7 @@ const MobileHabitCard = memo(function MobileHabitCard({
   onUnarchiveHabit,
 }: RowProps) {
   const t = useTranslations().habits.app.habitGrid
-  const { current, longest } = streak
+  const { current, longest, unit } = streak
   const scheduleText = getScheduleText(habit, t)
 
   return (
@@ -260,7 +263,9 @@ const MobileHabitCard = memo(function MobileHabitCard({
         <StreakDisplay
           streakData={{
             current,
-            longest: Math.max(longest, habit.streakData?.longest ?? 0),
+            // calculateStreak already folds in the stored longest when its unit matches.
+            longest,
+            unit,
             freezesAvailable: habit.streakData?.freezesAvailable ?? 0,
             freezesUsed: habit.streakData?.freezesUsed ?? 0,
             milestones: habit.streakData?.milestones ?? [],
@@ -353,7 +358,7 @@ const DesktopHabitRow = memo(function DesktopHabitRow({
 }: RowProps) {
   const t = useTranslations().habits.app.habitGrid
   const scheduleText = getScheduleText(habit, t)
-  const { current, longest } = streak
+  const { current, longest, unit } = streak
 
   return (
     <tr className={cn("border-b border-border/50 transition-colors hover:bg-accent/30", habit.archived && "opacity-60")}>
@@ -434,7 +439,9 @@ const DesktopHabitRow = memo(function DesktopHabitRow({
           <StreakDisplay
             streakData={{
               current,
-              longest: Math.max(longest, habit.streakData?.longest ?? 0),
+              // calculateStreak already folds in the stored longest when its unit matches.
+              longest,
+              unit,
               freezesAvailable: habit.streakData?.freezesAvailable ?? 0,
               freezesUsed: habit.streakData?.freezesUsed ?? 0,
               milestones: habit.streakData?.milestones ?? [],
@@ -528,6 +535,7 @@ export function HabitGrid({
   onAddHabit,
   onEditHabit,
   onUnarchiveHabit,
+  weekStartsOn = 1,
 }: HabitGridProps) {
   const isMobile = useMobile()
   const t = useTranslations().habits.app.habitGrid
@@ -600,15 +608,15 @@ export function HabitGrid({
   // Memoized streaks: use the shared calculator so the grid follows the same
   // grace-period, schedule, and timezone guards as API streaks.
   const streaksByHabit = useMemo(() => {
-    const result = new Map<string, { current: number; longest: number }>()
+    const result = new Map<string, { current: number; longest: number; unit?: "days" | "weeks" }>()
     const today = new Date()
 
     for (const habit of habits) {
-      const streakData = calculateStreak(habit.id, completions, habit.streakData, habit, today)
-      result.set(habit.id, { current: streakData.current, longest: streakData.longest })
+      const streakData = calculateStreak(habit.id, completions, habit.streakData, habit, today, weekStartsOn)
+      result.set(habit.id, { current: streakData.current, longest: streakData.longest, unit: streakData.unit })
     }
     return result
-  }, [habits, completions])
+  }, [habits, completions, weekStartsOn])
 
 
   const handleCellClick = useCallback((habit: Habit, date: Date) => {
