@@ -1,12 +1,16 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import { AlertCircle } from "lucide-react"
 
 import { Button } from "@/components/habits/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/habits/ui/card"
 import { Input } from "@/components/habits/ui/input"
 import { Label } from "@/components/habits/ui/label"
+import { useLocale, useTranslations } from "@/components/i18n/locale-provider"
+import { formatMessage } from "@/lib/i18n-format"
 import type { CodexAccountStatus, DeviceAuthStatus } from "@/lib/habits/agent/sidecar"
+import { cn } from "@/lib/utils"
 
 /**
  * The site operator's page for the coach's codex login, after obelisk-agents'
@@ -31,6 +35,11 @@ async function api<T>(secret: string, path: string, method: "GET" | "POST" | "DE
 }
 
 export function CoachAdmin({ apiKey = "", embedded = false }: { apiKey?: string; embedded?: boolean }) {
+  const t = useTranslations().habits.app.coachAdmin
+  const locale = useLocale()
+  const dateLocale = locale === "es" ? "es-AR" : "en-US"
+  /** False when the sidecar runs codex without an enforced sandbox. */
+  const [sandboxOk, setSandboxOk] = useState(true)
   const [checking, setChecking] = useState(true)
   const [secretInput, setSecretInput] = useState("")
   const [secret, setSecret] = useState<string | null>(null)
@@ -38,6 +47,19 @@ export function CoachAdmin({ apiKey = "", embedded = false }: { apiKey?: string;
   const [device, setDevice] = useState<DeviceAuthStatus | null>(null)
   const [error, setError] = useState("")
   const [busy, setBusy] = useState(false)
+
+  // The sandbox state comes from the user-facing status endpoint; only the
+  // operator needs to hear about it, so it is shown here and not in the chat.
+  useEffect(() => {
+    let cancelled = false
+    fetch("/api/agent/status", { headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : {}, cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((body: { sandboxOk?: boolean } | null) => {
+        if (!cancelled && body) setSandboxOk(body.sandboxOk !== false)
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [apiKey])
 
   const refresh = useCallback(async (key: string): Promise<void> => {
     const status = await api<CodexAccountStatus>(key, "")
@@ -109,41 +131,58 @@ export function CoachAdmin({ apiKey = "", embedded = false }: { apiKey?: string;
     })
   const disconnect = (): Promise<void> =>
     act(async () => {
-      if (!window.confirm("Sign the coach out? Nobody can use it until it is connected again.")) return
+      if (!window.confirm(t.disconnectConfirm)) return
       await api(secret!, "/logout", "POST")
       await refresh(secret!)
     })
 
+  const Wrapper = embedded ? "div" : "main"
+
   return (
-    <main className={embedded ? "bg-background px-4 py-6" : "min-h-screen bg-background px-4 py-10 sm:px-6"}>
+    <Wrapper className={embedded ? "" : "min-h-screen bg-background px-4 py-10 sm:px-6"}>
       <div className="mx-auto max-w-xl space-y-6">
         <header>
-          <h1 className="bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-2xl font-bold text-transparent">
-            Coach connection
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Connect ChatGPT to start chatting with your habit coach.
-          </p>
+          {embedded ? null : <h1 className="text-2xl font-bold text-foreground">{t.title}</h1>}
+          <p className="mt-1 text-sm text-muted-foreground">{t.subtitle}</p>
         </header>
 
         {error && (
-          <p role="alert" className="rounded-md border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+          <p role="alert" className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}
           </p>
         )}
 
+        {/*
+          Without a working sandbox the agent's file reads fail intermittently and
+          it answers with something vague about an "environment error", which
+          looks like a bug in the coach rather than a misconfigured host. The
+          sidecar refuses to start in this state unless someone passed
+          HABIT_AGENT_ALLOW_UNSANDBOXED=1, so seeing this means that override is on.
+        */}
+        {!sandboxOk ? (
+          <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs">
+            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" aria-hidden />
+            <span className="text-muted-foreground">
+              <span className="font-medium text-foreground">{t.sandboxTitle}</span>{" "}
+              {t.sandboxBody}{" "}
+              <code className="rounded bg-muted px-1 py-0.5 text-foreground">kernel.apparmor_restrict_unprivileged_userns=0</code>{" "}
+              {t.sandboxRestart} <code className="rounded bg-muted px-1 py-0.5 text-foreground">habit-agent</code>.
+            </span>
+          </div>
+        ) : null}
+
         {checking ? (
-          <p className="text-sm text-muted-foreground">Checking connection…</p>
+          <p className="text-sm text-muted-foreground">{t.checking}</p>
         ) : secret === null ? (
           <Card>
             <CardHeader>
-              <CardTitle>Sign in to manage the coach</CardTitle>
-              <CardDescription>Open Coach from your signed-in tracker account. Site operators can also use their admin secret here.</CardDescription>
+              <CardTitle>{t.signInTitle}</CardTitle>
+              <CardDescription>{t.signInDescription}</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={unlock} className="flex flex-col gap-3 sm:flex-row sm:items-end">
                 <div className="flex-1 space-y-1.5">
-                  <Label htmlFor="admin-secret">Admin secret</Label>
+                  <Label htmlFor="admin-secret">{t.adminSecret}</Label>
                   <Input
                     id="admin-secret"
                     type="password"
@@ -153,7 +192,7 @@ export function CoachAdmin({ apiKey = "", embedded = false }: { apiKey?: string;
                   />
                 </div>
                 <Button type="submit" disabled={busy || !secretInput}>
-                  Continue
+                  {t.continue}
                 </Button>
               </form>
             </CardContent>
@@ -163,31 +202,29 @@ export function CoachAdmin({ apiKey = "", embedded = false }: { apiKey?: string;
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between gap-3">
-                  <CardTitle>ChatGPT connection</CardTitle>
+                  <CardTitle>{t.chatGptConnection}</CardTitle>
                   <StatusChip account={account} />
                 </div>
                 {account.loggedIn && (
                   <CardDescription>
-                    {account.email ?? "signed in"}
+                    {account.email ?? t.signedIn}
                     {account.plan ? ` · ${account.plan}` : ""}
-                    {account.lastRefresh ? ` · token refreshed ${new Date(account.lastRefresh).toLocaleString()}` : ""}
+                    {account.lastRefresh
+                      ? ` · ${formatMessage(t.tokenRefreshed, { time: new Date(account.lastRefresh).toLocaleString(dateLocale) })}`
+                      : ""}
                   </CardDescription>
                 )}
               </CardHeader>
               <CardContent className="space-y-4">
-                {account.authProblem && (
-                  <p className="text-sm text-orange-600 dark:text-orange-400">
-                    Questions have been failing because this login stopped working. Reconnect it.
-                  </p>
-                )}
+                {account.authProblem && <p className="text-sm text-destructive">{t.authProblem}</p>}
 
                 <div className="flex flex-wrap gap-2">
                   <Button onClick={connect} disabled={busy || Boolean(device?.active)}>
-                    {account.loggedIn ? "Reconnect" : "Connect ChatGPT account"}
+                    {account.loggedIn ? t.reconnect : t.connect}
                   </Button>
                   {account.loggedIn && (
                     <Button variant="outline" onClick={disconnect} disabled={busy}>
-                      Disconnect
+                      {t.disconnect}
                     </Button>
                   )}
                 </div>
@@ -198,7 +235,7 @@ export function CoachAdmin({ apiKey = "", embedded = false }: { apiKey?: string;
           )
         )}
       </div>
-    </main>
+    </Wrapper>
   )
 }
 
@@ -207,12 +244,13 @@ interface StatusChipProps {
 }
 
 function StatusChip({ account }: StatusChipProps) {
+  const t = useTranslations().habits.app.coachAdmin
   const [label, tone] = !account.loggedIn
-    ? ["not connected", "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"]
+    ? [t.statusNotConnected, "bg-destructive/15 text-destructive"]
     : account.authProblem
-      ? ["login expired", "bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300"]
-      : [account.mode === "apikey" ? "API key" : "connected", "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"]
-  return <span className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold ${tone}`}>{label}</span>
+      ? [t.statusExpired, "bg-exercise/15 text-exercise"]
+      : [account.mode === "apikey" ? t.statusApiKey : t.statusConnected, "bg-success/15 text-success"]
+  return <span className={cn("whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold", tone)}>{label}</span>
 }
 
 interface DevicePanelProps {
@@ -221,14 +259,16 @@ interface DevicePanelProps {
 }
 
 function DevicePanel({ device, onCancel }: DevicePanelProps) {
+  const t = useTranslations().habits.app.coachAdmin
+  const locale = useLocale()
   const [copied, setCopied] = useState(false)
   const [copyError, setCopyError] = useState(false)
   if (!device.active) {
     return device.ok ? (
-      <p className="text-sm text-emerald-700 dark:text-emerald-400">Connected. The coach is ready.</p>
+      <p className="text-sm text-success">{t.deviceConnected}</p>
     ) : (
       <div className="space-y-2">
-        <p className="text-sm text-red-700 dark:text-red-300">The sign-in did not complete.</p>
+        <p className="text-sm text-destructive">{t.deviceFailed}</p>
         {device.output && (
           <pre className="max-h-40 overflow-auto whitespace-pre-wrap rounded-md bg-muted p-3 text-xs">{device.output}</pre>
         )}
@@ -237,19 +277,19 @@ function DevicePanel({ device, onCancel }: DevicePanelProps) {
   }
 
   return (
-    <div className="space-y-3 rounded-lg border border-purple-200 bg-purple-50/50 p-4 dark:border-purple-900 dark:bg-purple-950/30">
+    <div className="space-y-3 rounded-lg border border-primary/30 bg-primary/5 p-4">
       {!device.url || !device.code ? (
-        <p className="text-sm text-muted-foreground">Starting sign-in…</p>
+        <p className="text-sm text-muted-foreground">{t.deviceStarting}</p>
       ) : (
         <>
           <p className="text-sm">
-            1. Open this link on any device and sign in to ChatGPT:
+            {t.deviceStep1}
             <br />
-            <a href={device.url} target="_blank" rel="noopener noreferrer" className="break-all font-medium text-purple-700 underline dark:text-purple-300">
+            <a href={device.url} target="_blank" rel="noopener noreferrer" className="break-all font-medium text-primary underline">
               {device.url}
             </a>
           </p>
-          <p className="text-sm">2. Enter this one-time code:</p>
+          <p className="text-sm">{t.deviceStep2}</p>
           <p className="select-all text-center font-mono text-2xl font-bold tracking-widest">{device.code}</p>
           <div className="flex flex-wrap justify-center gap-2">
             <Button variant="outline" onClick={async () => {
@@ -258,19 +298,19 @@ function DevicePanel({ device, onCancel }: DevicePanelProps) {
                 setCopied(true)
                 setCopyError(false)
               } catch { setCopyError(true) }
-            }}>{copied ? "Code copied" : "Copy code"}</Button>
-            <Button asChild><a href={device.url} target="_blank" rel="noopener noreferrer">Open ChatGPT sign-in</a></Button>
+            }}>{copied ? t.codeCopied : t.copyCode}</Button>
+            <Button asChild><a href={device.url} target="_blank" rel="noopener noreferrer">{t.openSignIn}</a></Button>
           </div>
-          {copyError && <p role="status" className="text-xs">Select the code above to copy it manually.</p>}
+          {copyError && <p role="status" className="text-xs">{t.copyManually}</p>}
           <p className="text-xs text-muted-foreground">
-            Only use a code you started here. It expires
-            {device.expiresAt ? ` at ${new Date(device.expiresAt).toLocaleTimeString()}` : " in 15 minutes"}; this page
-            updates by itself once you are done.
+            {device.expiresAt
+              ? formatMessage(t.expiresAt, { time: new Date(device.expiresAt).toLocaleTimeString(locale === "es" ? "es-AR" : "en-US") })
+              : t.expiresSoon}
           </p>
         </>
       )}
       <Button variant="ghost" size="sm" onClick={onCancel}>
-        Cancel
+        {t.cancel}
       </Button>
     </div>
   )

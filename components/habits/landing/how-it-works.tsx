@@ -26,6 +26,7 @@ import { FoldedDrift, IslandRidge, TriadBasins } from "@/components/habits/patte
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Dictionary } from "@/lib/habits/i18n"
 import { cn } from "@/lib/utils"
+import { API_SCOPES, DEFAULT_OFF } from "@/lib/habits/api-scopes"
 
 /**
  * "How it works" on the landing page. Every word comes from the docs copy
@@ -35,7 +36,6 @@ import { cn } from "@/lib/utils"
 const STEP_ICONS = [UserRound, Link2, MessageCircle]
 const CAPABILITY_ICONS = [ListChecks, CheckCircle2, BarChart3, ListTodo, Compass, PlusCircle]
 const STEP_ACCENTS = ["text-primary border-primary/40 bg-primary/10", "text-sleep border-sleep/40 bg-sleep/10", "text-nutrition border-nutrition/40 bg-nutrition/10"]
-const SCOPE_ORDER = ["read", "log_completions", "todos", "calendar", "add_habits", "edit_habits", "delete_habits", "export"] as const
 
 interface HowItWorksProps {
   dict: Dictionary
@@ -213,8 +213,8 @@ export function HowItWorks({ dict, origin }: HowItWorksProps) {
             <h3 className="text-lg font-semibold text-foreground">{how.permissionsTitle}</h3>
           </div>
           <ul className="flex flex-wrap gap-2">
-            {SCOPE_ORDER.map((key) => {
-              const off = key === "delete_habits"
+            {API_SCOPES.map((key) => {
+              const off = DEFAULT_OFF.has(key)
               return (
                 <li
                   key={key}

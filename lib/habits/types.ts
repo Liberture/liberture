@@ -276,6 +276,45 @@ export interface UserProfile {
     midday?: string // HH:MM
     evening?: string // HH:MM
   }
+  /** ISO time of the last change; the storage POST keeps the newer copy. */
+  updatedAt?: string
+}
+
+/**
+ * App preferences, saved in the blob so they follow the account across
+ * devices and so assistants can read them (MCP get_profile). Every field is
+ * optional: absent means the default in DEFAULT_PREFERENCES.
+ */
+export interface UserPreferences {
+  /** Reminders on/off for this account. Browser permission is separate. */
+  notifications?: boolean
+  /** The user said "not now" to the browser-permission prompt (ISO time). */
+  notificationPromptDismissedAt?: string
+  theme?: "system" | "light" | "dark"
+  /** 0 = Sunday, 1 = Monday. */
+  weekStartsOn?: 0 | 1
+  timeFormat?: "24h" | "12h"
+  /** IANA zone, e.g. America/Argentina/Buenos_Aires. Lets the server know what "today" is. */
+  timeZone?: string
+  /** Show the morning dashboard between 05:00 and 11:00. */
+  morningDashboard?: boolean
+  /** YYYY-MM-DD the morning dashboard was last dismissed. */
+  morningDashboardDismissedOn?: string
+  habitsLayout?: "day" | "week" | "matrix"
+  /** HH:MM pre-filled for new habits; empty = no reminder. */
+  defaultReminderTime?: string
+  /** ISO time of the last change; the storage POST keeps the newer copy. */
+  updatedAt?: string
+}
+
+export const DEFAULT_PREFERENCES: Required<Omit<UserPreferences, "notificationPromptDismissedAt" | "morningDashboardDismissedOn" | "timeZone" | "updatedAt">> = {
+  notifications: true,
+  theme: "system",
+  weekStartsOn: 1,
+  timeFormat: "24h",
+  morningDashboard: true,
+  habitsLayout: "day",
+  defaultReminderTime: "",
 }
 
 // Accessibility and user preferences
@@ -390,6 +429,7 @@ export interface StorageData {
   schemaVersion?: number // Data version for migrations
   onboarding?: OnboardingState
   profile?: UserProfile
+  preferences?: UserPreferences
   habitStacks?: HabitStack[]
   thoughtRecords?: ThoughtRecord[]
   aiInsights?: AIInsight[]

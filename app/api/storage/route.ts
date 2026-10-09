@@ -5,7 +5,7 @@ import { migrateStorageData, validateStorageData, createBackup } from "@/lib/hab
 import { getLocalUser, updateLocalUser, isLocalStorageMode } from "@/lib/habits/local-storage"
 import { mergeProjects } from "@/lib/habits/project-sync"
 import { mergeTodos } from "@/lib/habits/todo-sync"
-import { mergeHabits, mergeHabitTombstones } from "@/lib/habits/habit-sync"
+import { mergeHabits, mergeHabitTombstones, mergeStamped } from "@/lib/habits/habit-sync"
 import { mergeCalendarEvents } from "@/lib/habits/calendar-utils"
 import { syncOptimizedStorageTables } from "@/lib/habits/optimized-storage"
 import { getAuthFromRequest, type AuthInfo } from "@/lib/habits/app-auth"
@@ -302,6 +302,17 @@ function carryIntegrationPermissions(data: StorageData, currentData: StorageData
   }
 }
 
+/**
+ * update_profile (MCP) writes profile and preferences server-side with
+ * updatedAt; keep the newer copy so a tab that loaded earlier can't revert it.
+ */
+function mergeProfileAndPreferences(data: StorageData, currentData: StorageData, clientLastUpdated: string | undefined) {
+  const profile = mergeStamped(data.profile, currentData.profile, clientLastUpdated)
+  if (profile) data.profile = profile
+  const preferences = mergeStamped(data.preferences, currentData.preferences, clientLastUpdated)
+  if (preferences) data.preferences = preferences
+}
+
 // POST - Write storage data
 export async function POST(request: Request) {
   try {
@@ -391,6 +402,7 @@ export async function POST(request: Request) {
         })
         data.calendarEvents = mergedCalendar.calendarEvents
         data.calendarEventTombstones = mergedCalendar.calendarEventTombstones
+        mergeProfileAndPreferences(data, currentData, clientLastUpdated)
       }
       
       const success = await updateLocalUser(auth.apiKey!, data)
@@ -460,6 +472,7 @@ export async function POST(request: Request) {
         })
         data.calendarEvents = mergedCalendar.calendarEvents
         data.calendarEventTombstones = mergedCalendar.calendarEventTombstones
+        mergeProfileAndPreferences(data, currentData, clientLastUpdated)
       }
     }
     

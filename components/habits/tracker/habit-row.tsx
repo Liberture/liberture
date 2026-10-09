@@ -1,10 +1,11 @@
 "use client"
 
 import { memo } from "react"
-import { Check, FileText, Flame, Pencil, Trash2 } from "lucide-react"
+import { Check, FileText, Flame, Pencil } from "lucide-react"
 
 import { PILLAR_ICON_MAP, PILLAR_STYLES, pillarForHabit } from "@/lib/habits/pillars"
 import type { Habit } from "@/lib/habits/types"
+import { formatScheduleLabel } from "@/lib/habits/habit-utils"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage } from "@/lib/i18n-format"
@@ -18,13 +19,13 @@ type RowStrings = ReturnType<typeof useTranslations>["habits"]["app"]["habitRow"
  */
 
 export function scheduleLabel(schedule: Habit["schedule"], t: RowStrings): string {
-  if (!schedule || schedule.type === "daily") return t.everyDay
-  if (schedule.type === "times_per_week") return formatMessage(t.timesPerWeek, { count: schedule.timesPerWeek ?? 1 })
-  const days = schedule.days ?? []
-  if (days.length === 0) return t.noDaysSet
-  if (days.length === 7) return t.everyDay
-  if (days.length === 5 && days.every((d) => d >= 1 && d <= 5)) return t.weekdays
-  return days.map((d) => t.weekdaysShort[d]).join(", ")
+  return formatScheduleLabel(schedule, {
+    everyDay: t.everyDay,
+    timesPerWeek: t.timesPerWeek,
+    noDays: t.noDaysSet,
+    weekdays: t.weekdays,
+    daysShort: t.weekdaysShort,
+  })
 }
 
 interface HabitRowProps {
@@ -35,8 +36,8 @@ interface HabitRowProps {
    *  closures here would make the memo above useless. */
   onToggle: (habitId: string) => void
   onLogData?: (habitId: string) => void
+  /** Opens the habit dialog, which is also where delete lives (with a confirm). */
   onEdit?: (habitId: string) => void
-  onRemove?: (habitId: string) => void
 }
 
 export const HabitRow = memo(function HabitRow({
@@ -46,7 +47,6 @@ export const HabitRow = memo(function HabitRow({
   onToggle,
   onLogData,
   onEdit,
-  onRemove,
 }: HabitRowProps) {
   const t = useTranslations().habits.app.habitRow
   const pillar = pillarForHabit(habit)
@@ -73,13 +73,16 @@ export const HabitRow = memo(function HabitRow({
       />
 
       {/* Whole-card tap target for habit settings. Sits behind every control,
-          so it never swallows a toggle or an action tap. */}
+          so it never swallows a toggle or an action tap. It duplicates the
+          pencil button, so it is hidden from assistive tech and the tab order:
+          keyboard and screen-reader users get one "Edit" target per card. */}
       {onEdit ? (
         <button
           type="button"
           onClick={() => onEdit(habit.id)}
-          aria-label={formatMessage(t.editNamed, { name: habit.name })}
-          className="absolute inset-0 z-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-hidden="true"
+          tabIndex={-1}
+          className="absolute inset-0 z-0 rounded-xl focus-visible:outline-none"
         />
       ) : null}
 
@@ -154,16 +157,6 @@ export const HabitRow = memo(function HabitRow({
               className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-muted-foreground transition-colors hover:bg-white/10 hover:text-foreground active:scale-95"
             >
               <Pencil className="h-[18px] w-[18px]" aria-hidden />
-            </button>
-          ) : null}
-          {onRemove ? (
-            <button
-              type="button"
-              onClick={() => onRemove(habit.id)}
-              aria-label={formatMessage(t.removeNamed, { name: habit.name })}
-              className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive active:scale-95"
-            >
-              <Trash2 className="h-[18px] w-[18px]" aria-hidden />
             </button>
           ) : null}
         </div>

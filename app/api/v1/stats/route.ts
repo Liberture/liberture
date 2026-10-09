@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
 import { authorizeIntegration } from "@/lib/habits/integration-auth"
 import { calculateStreak, isHabitActiveOnDate, isHabitScheduledOnDate } from "@/lib/habits/habit-utils"
-import { dateForRequest, parseDateOnly } from "@/lib/habits/date-utils"
+import { parseDateOnly } from "@/lib/habits/date-utils"
+import { userToday } from "@/lib/habits/api/time-zone"
 import { format, subDays } from "date-fns"
 
 /**
@@ -13,7 +14,7 @@ export async function GET(request: Request) {
   if (user instanceof NextResponse) return user
 
   const { data } = user
-  const today = dateForRequest(request)
+  const today = userToday(request, data, undefined, new URL(request.url).searchParams.get("tz"))
   const todayDate = parseDateOnly(today)
   const allHabits = data.habits ?? []
   const habits = allHabits.filter((h) => !h.archived)

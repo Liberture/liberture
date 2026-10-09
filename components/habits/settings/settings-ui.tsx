@@ -54,7 +54,7 @@ export function SettingRow({ title, description, action, htmlFor }: SettingRowPr
     </>
   )
   return (
-    <div className="flex items-center justify-between gap-4">
+    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
       {htmlFor ? (
         <label htmlFor={htmlFor} className="min-w-0 cursor-pointer">
           {text}
@@ -79,5 +79,45 @@ export function settingsButtonClass(tone: "default" | "primary" | "danger" = "de
     tone === "primary" && "bg-primary text-primary-foreground hover:bg-primary/90",
     tone === "default" && "border border-border bg-secondary text-secondary-foreground hover:bg-secondary/70",
     tone === "danger" && "border border-destructive/40 bg-destructive/10 text-destructive hover:bg-destructive/20"
+  )
+}
+
+/** Text/time/select fields inside Settings. */
+export const settingsInputClass = cn(
+  "h-10 w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground placeholder:text-muted-foreground",
+  "focus-visible:border-primary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+)
+
+interface SettingsSegmentedProps<T extends string> {
+  /** Accessible name for the group. */
+  label: string
+  value: T
+  options: readonly { value: T; label: string }[]
+  onChange: (value: T) => void
+  disabled?: boolean
+}
+
+/** A small radio group drawn as joined pills, for 2–4 mutually exclusive choices. */
+export function SettingsSegmented<T extends string>({ label, value, options, onChange, disabled }: SettingsSegmentedProps<T>) {
+  return (
+    <div role="radiogroup" aria-label={label} className="inline-flex rounded-lg border border-border bg-secondary p-0.5">
+      {options.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          role="radio"
+          aria-checked={option.value === value}
+          disabled={disabled}
+          onClick={() => onChange(option.value)}
+          className={cn(
+            "rounded-md px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            option.value === value ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
   )
 }

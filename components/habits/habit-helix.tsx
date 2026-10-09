@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { format, startOfDay, subDays } from "date-fns"
+import { differenceInCalendarDays, format, isSameDay, startOfDay, subDays } from "date-fns"
 import { Orbit, Pause, Play, RotateCcw } from "lucide-react"
 
 import type { Habit, HabitCompletion } from "@/lib/habits/types"
@@ -63,6 +63,11 @@ const AXIS_HEIGHT = 1.95
 interface HabitHelixProps {
   habits: Habit[]
   completions: HabitCompletion[]
+  /**
+   * The Stats period. When given the tower spans exactly it (future days are
+   * clipped to today) and the helix's own 90d/180d/1y picker is hidden.
+   */
+  range?: { start: Date; end: Date }
 }
 
 interface Ring {
@@ -82,16 +87,6 @@ interface Projected {
   y: number
   depth: number
   scale: number
-}
-
-/**
- * Delegates to the shared check so a day before the habit existed — or inside a
- * past archived stretch — counts as "not scheduled" rather than "missed". A
- * local schedule-only test made every day since the epoch look like a miss and
- * quietly deflated the percentages here.
- */
-function isScheduledForDay(habit: Habit, date: Date): boolean {
-  return isHabitScheduledOnDate(habit, date)
 }
 
 function hexToRgb(hex: string): [number, number, number] {
@@ -117,7 +112,7 @@ function bearing(pillarIndex: number): number {
   return (pillarIndex / PILLAR_IDS.length) * Math.PI * 2
 }
 
-export function HabitHelix({ habits, completions }: HabitHelixProps) {
+export function HabitHelix({ habits, completions, range: externalRange }: HabitHelixProps) {
   const t = useTranslations().habits.app.habitHelix
   const dateLocale = useDateLocale()
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -157,12 +152,23 @@ export function HabitHelix({ habits, completions }: HabitHelixProps) {
     return set
   }, [completions])
 
-  const dayCount = RANGES.find((r) => r.key === range)?.days ?? 180
+  const todayKey = format(new Date(), "yyyy-MM-dd")
+  const { anchorDay, dayCount } = useMemo(() => {
+    const today = startOfDay(new Date())
+    if (!externalRange) {
+      return { anchorDay: today, dayCount: RANGES.find((r) => r.key === range)?.days ?? 180 }
+    }
+    const end = startOfDay(externalRange.end) > today ? today : startOfDay(externalRange.end)
+    const days = differenceInCalendarDays(end, startOfDay(externalRange.start)) + 1
+    return { anchorDay: end, dayCount: Math.max(1, days) }
+    // todayKey re-anchors after midnight.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalRange?.start.getTime(), externalRange?.end.getTime(), range, todayKey])
 
   const rings = useMemo<Ring[]>(() => {
     if (activeHabits.length === 0) return []
 
-    const today = startOfDay(new Date())
+    const today = anchorDay
     const bucketSize = Math.max(1, Math.ceil(dayCount / MAX_RINGS))
     const ringCount = Math.ceil(dayCount / bucketSize)
     const result: Ring[] = []
@@ -182,7 +188,7 @@ export function HabitHelix({ habits, completions }: HabitHelixProps) {
         const dateStr = format(day, "yyyy-MM-dd")
 
         for (const habit of activeHabits) {
-          if (!isScheduledForDay(habit, day)) continue
+          if (!isHabitScheduledOnDate(habit, day)) continue
           const index = PILLAR_IDS.indexOf(pillarOf.get(habit.id) ?? "work")
           scheduled[index]++
           if (completedKeys.has(`${dateStr}:${habit.id}`)) done[index]++
@@ -203,7 +209,7 @@ export function HabitHelix({ habits, completions }: HabitHelixProps) {
     }
 
     return result
-  }, [activeHabits, completedKeys, pillarOf, dayCount, dateLocale])
+  }, [activeHabits, completedKeys, pillarOf, dayCount, anchorDay, dateLocale])
 
   const summary = useMemo(() => {
     if (rings.length === 0) return null
@@ -560,6 +566,7 @@ export function HabitHelix({ habits, completions }: HabitHelixProps) {
         </div>
 
         <div className="flex items-center gap-2">
+          {!externalRange && (
           <div className="flex items-center gap-1 rounded-xl bg-muted/50 p-1">
             {RANGES.map(({ key }) => (
               <button
@@ -578,6 +585,7 @@ export function HabitHelix({ habits, completions }: HabitHelixProps) {
               </button>
             ))}
           </div>
+          )}
           <button
             type="button"
             onClick={() => setSpinning((v) => !v)}
@@ -689,7 +697,9 @@ export function HabitHelix({ habits, completions }: HabitHelixProps) {
           )}
 
           <span className="pointer-events-none absolute bottom-3 left-4 text-[10px] uppercase tracking-widest text-muted-foreground/70">
-            {formatMessage(t.rangeToToday, { date: rings[0]?.label ?? "" })}
+            {isSameDay(anchorDay, new Date())
+              ? formatMessage(t.rangeToToday, { date: rings[0]?.label ?? "" })
+              : formatMessage(t.rangeSpan, { start: rings[0]?.label ?? "", end: rings[rings.length - 1]?.label ?? "" })}
           </span>
         </div>
 

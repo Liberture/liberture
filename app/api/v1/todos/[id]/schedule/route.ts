@@ -4,6 +4,7 @@ import { getDb } from "@/lib/habits/db"
 import { authorizeIntegration } from "@/lib/habits/integration-auth"
 import type { CalendarEvent } from "@/lib/habits/types"
 import { buildCalendarEventDraft } from "@/lib/habits/calendar-utils"
+import { userTimeZone, withZonedTimes } from "@/lib/habits/api/time-zone"
 
 /** POST /api/v1/todos/:id/schedule */
 export async function POST(
@@ -26,7 +27,7 @@ export async function POST(
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
   }
 
-  const draft = buildCalendarEventDraft(body, {
+  const draft = buildCalendarEventDraft(withZonedTimes(body, userTimeZone(request, user.data)), {
     fallbackTitle: todo.title,
     fallbackDurationMinutes: todo.estimatedMinutes || 60,
     fallbackNotes: todo.notes || todo.description,

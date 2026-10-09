@@ -1,8 +1,8 @@
 "use client"
 
 import { memo, useCallback, useMemo, useState } from "react"
-import { addDays, format, isSameDay, startOfDay, subDays } from "date-fns"
-import { BarChart3, CalendarDays, ChevronLeft, ChevronRight, Flame, MessageCircleHeart, Plus, Sparkles, Store, TrendingUp } from "lucide-react"
+import { addDays, differenceInCalendarDays, format, isSameDay, isValid, parseISO, startOfDay, subDays } from "date-fns"
+import { CalendarDays, ChevronLeft, ChevronRight, Compass, Flame, Plus, Sparkles, Store, TrendingUp } from "lucide-react"
 
 import { HabitRow } from "@/components/habits/tracker/habit-row"
 import { calculateStreak, getNextMilestone, isHabitScheduledOnDate } from "@/lib/habits/habit-utils"
@@ -25,13 +25,11 @@ interface DailyTrackerProps {
   motivationalMessage?: string
   onToggleCompletion: (habitId: string, date: Date) => void
   onLogData: (habitId: string, date: Date) => void
+  /** Opens the habit dialog — the only place a habit can be deleted (with a confirm). */
   onEditHabit: (habitId: string) => void
-  onDeleteHabit: (habitId: string) => void
   onAddHabit: () => void
-  onBrowseMarket: () => void
-  /** Omitted when the coach is not deployed, which hides the button. */
-  onOpenCoach?: () => void
-  onOpenStats: () => void
+  /** Opens Discover (catalog + coach). */
+  onBrowse: () => void
   timeOfDayFilter: string | null
   onTimeOfDayFilterChange: (value: string | null) => void
 }
@@ -71,11 +69,8 @@ export const DailyTracker = memo(function DailyTracker({
   onToggleCompletion,
   onLogData,
   onEditHabit,
-  onDeleteHabit,
   onAddHabit,
-  onBrowseMarket,
-  onOpenCoach,
-  onOpenStats,
+  onBrowse,
   timeOfDayFilter,
   onTimeOfDayFilterChange,
 }: DailyTrackerProps) {
@@ -195,6 +190,7 @@ export const DailyTracker = memo(function DailyTracker({
   const progress = todays.length === 0 ? 0 : Math.round((doneToday / todays.length) * 100)
 
   const isToday = isSameDay(viewDate, new Date())
+  const todayStr = format(new Date(), "yyyy-MM-dd")
   const label = isToday
     ? t.today
     : viewDate.toLocaleDateString(locale, { weekday: "long", month: "short", day: "numeric" })
@@ -220,32 +216,12 @@ export const DailyTracker = memo(function DailyTracker({
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={onOpenStats}
+                onClick={onBrowse}
                 className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-white/25 hover:text-foreground"
               >
-                <BarChart3 className="h-4 w-4" aria-hidden />
-                {t.stats}
-              </button>
-              <button
-                type="button"
-                onClick={onBrowseMarket}
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-white/25 hover:text-foreground"
-              >
-                <Store className="h-4 w-4" aria-hidden />
+                <Compass className="h-4 w-4" aria-hidden />
                 {t.browse}
               </button>
-              {/* Coach is not in the four-slot mobile bar, so this is how it is
-                  reached on a phone — same as Market. */}
-              {onOpenCoach ? (
-              <button
-                type="button"
-                onClick={onOpenCoach}
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-white/25 hover:text-foreground"
-              >
-                <MessageCircleHeart className="h-4 w-4" aria-hidden />
-                {t.coach}
-              </button>
-              ) : null}
               <button
                 type="button"
                 onClick={onAddHabit}
@@ -276,7 +252,7 @@ export const DailyTracker = memo(function DailyTracker({
               >
                 <ChevronLeft className="h-4 w-4" aria-hidden />
               </button>
-              <h2 className="min-w-[7rem] text-center font-semibold text-foreground">{label}</h2>
+              <h2 className="min-w-[7rem] text-center font-semibold text-foreground" aria-live="polite">{label}</h2>
               <button
                 type="button"
                 onClick={() => setOffset((o) => Math.min(0, o + 1))}
@@ -286,6 +262,32 @@ export const DailyTracker = memo(function DailyTracker({
               >
                 <ChevronRight className="h-4 w-4" aria-hidden />
               </button>
+              {/* Jump to any past day. The native picker is the accessible,
+                  touch-friendly one on every platform. */}
+              <label className="relative flex cursor-pointer items-center rounded-lg border border-white/10 p-2 text-muted-foreground transition-colors focus-within:ring-2 focus-within:ring-ring hover:border-white/25 hover:text-foreground">
+                <CalendarDays className="h-4 w-4" aria-hidden />
+                <span className="sr-only">{t.pickDate}</span>
+                <input
+                  type="date"
+                  value={viewDateStr}
+                  max={todayStr}
+                  onChange={(event) => {
+                    const picked = parseISO(event.target.value)
+                    if (!isValid(picked)) return
+                    setOffset(Math.min(0, differenceInCalendarDays(picked, startOfDay(new Date()))))
+                  }}
+                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                />
+              </label>
+              {!isToday ? (
+                <button
+                  type="button"
+                  onClick={() => setOffset(0)}
+                  className="rounded-lg border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
+                >
+                  {t.jumpToToday}
+                </button>
+              ) : null}
             </div>
 
             <p className="text-sm text-muted-foreground">
@@ -328,22 +330,24 @@ export const DailyTracker = memo(function DailyTracker({
                   ? t.noHabits
                   : t.nothingScheduled}
               </p>
-              <button
-                type="button"
-                onClick={onOpenStats}
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-white/25 hover:text-foreground"
-              >
-                <BarChart3 className="h-4 w-4" aria-hidden />
-                {t.stats}
-              </button>
-              <button
-                type="button"
-                onClick={onBrowseMarket}
-                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
-              >
-                <Plus className="h-4 w-4" aria-hidden />
-                {t.addProtocol}
-              </button>
+              <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={onAddHabit}
+                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+                >
+                  <Plus className="h-4 w-4" aria-hidden />
+                  {t.addHabit}
+                </button>
+                <button
+                  type="button"
+                  onClick={onBrowse}
+                  className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-white/25 hover:text-foreground"
+                >
+                  <Store className="h-4 w-4" aria-hidden />
+                  {t.addProtocol}
+                </button>
+              </div>
             </div>
           ) : (
             <>
@@ -357,7 +361,6 @@ export const DailyTracker = memo(function DailyTracker({
                     onToggle={toggleForDay}
                     onLogData={logForDay}
                     onEdit={onEditHabit}
-                    onRemove={onDeleteHabit}
                   />
                 ))}
               </ul>
@@ -383,7 +386,6 @@ export const DailyTracker = memo(function DailyTracker({
                         onToggle={toggleForDay}
                         onLogData={logForDay}
                         onEdit={onEditHabit}
-                        onRemove={onDeleteHabit}
                       />
                     ))}
                   </ul>

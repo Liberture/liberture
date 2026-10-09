@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server"
 import { authorizeIntegration } from "@/lib/habits/integration-auth"
 import { calculateStreak, isHabitScheduledOnDate } from "@/lib/habits/habit-utils"
-import { dateForRequest, parseDateOnly } from "@/lib/habits/date-utils"
+import { parseDateOnly } from "@/lib/habits/date-utils"
+import { userToday } from "@/lib/habits/api/time-zone"
 import { format, subDays } from "date-fns"
 import { appendHabits, buildCustomHabit, type CustomHabitInput } from "@/lib/habits/api/habit-writes"
 import { normalizeName } from "@/lib/habits/api/resolve"
-
-function todayStr(request: Request): string {
-  return dateForRequest(request)
-}
 
 function completionRateForDays(
   habitId: string,
@@ -24,19 +21,22 @@ function completionRateForDays(
 }
 
 /**
- * GET /api/v1/habits
- * Returns all habits with computed streak and completion stats.
+ * GET /api/v1/habits?tz=&includeArchived=true
+ * Returns all habits with computed streak and completion stats. Archived
+ * habits only with includeArchived.
  */
 export async function GET(request: Request) {
   const user = await authorizeIntegration(request, "read")
   if (user instanceof NextResponse) return user
 
   const { data } = user
-  const today = todayStr(request)
+  const url = new URL(request.url)
+  const today = userToday(request, data, undefined, url.searchParams.get("tz"))
+  const includeArchived = url.searchParams.get("includeArchived") === "true"
   const currentDate = parseDateOnly(today)
 
   const habits = (data.habits ?? [])
-    .filter((h) => !h.archived)
+    .filter((h) => includeArchived || !h.archived)
     .map((habit) => {
       const streakData = calculateStreak(habit.id, data.completions ?? [], undefined, habit, currentDate)
       const completedToday = (data.completions ?? []).some(
@@ -52,9 +52,14 @@ export async function GET(request: Request) {
         description: habit.description ?? null,
         color: habit.color,
         schedule: habit.schedule,
+        time: habit.time || null,
         timeOfDay: habit.timeOfDay ?? null,
         category: habit.category ?? null,
         tags: habit.tags ?? [],
+        priority: habit.priority ?? null,
+        archived: Boolean(habit.archived),
+        protocolSlug: habit.protocolSlug ?? null,
+        startDate: habit.startDate ?? habit.createdAt?.slice(0, 10) ?? null,
         currentStreak: streakData.current,
         longestStreak: streakData.longest,
         completionRate7d: completionRateForDays(habit.id, data.completions ?? [], 7, currentDate),

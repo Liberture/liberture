@@ -15,7 +15,10 @@ type PersistedStorageData = StorageData & {
 
 /**
  * GET /api/v1/export
- * Returns a full JSON backup for server-side automation.
+ * Returns a full JSON backup for server-side automation: everything the app's
+ * own export has, including tombstones, profile, preferences, onboarding and
+ * the coach's last suggestions, so a restore loses nothing. Secrets (the
+ * script token) and dead pomodoro/settings keys are stripped.
  * Auth: Authorization: Bearer hti_...
  */
 export async function GET(request: Request) {
@@ -26,12 +29,23 @@ export async function GET(request: Request) {
     const migratedData = migrateStorageData(user.data) as PersistedStorageData
     migratedData.projects = Array.isArray(migratedData.projects) ? migratedData.projects : []
 
-    if (!validateStorageData(migratedData)) {
+    // Habits created without a reminder have time "", which the validator
+    // (written when time was required) rejects; that is valid data, not corruption.
+    const forValidation = { ...migratedData, habits: (migratedData.habits ?? []).map((h) => ({ ...h, time: h.time || "anytime" })) }
+    if (!validateStorageData(forValidation)) {
       return NextResponse.json({ error: "Stored data failed validation" }, { status: 500 })
     }
 
     const exportData: PersistedStorageData = {
       ...migratedData,
+      todoTombstones: migratedData.todoTombstones ?? {},
+      habitTombstones: migratedData.habitTombstones ?? {},
+      projectTombstones: migratedData.projectTombstones ?? {},
+      calendarEventTombstones: migratedData.calendarEventTombstones ?? {},
+      profile: migratedData.profile,
+      preferences: migratedData.preferences,
+      onboarding: migratedData.onboarding,
+      coachRecommendations: migratedData.coachRecommendations,
       exportedAt: new Date().toISOString(),
     }
 
