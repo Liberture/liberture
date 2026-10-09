@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { authorizeIntegration } from "@/lib/habits/integration-auth"
-import { resolveByName, spokenList } from "@/lib/habits/api/resolve"
+import { findItemByName } from "@/lib/habits/api/find-item"
 import { PATCH as patchTodoStatus } from "@/app/api/v1/todos/[id]/status/route"
 
 const STATUSES = ["incomplete", "in_progress", "completed"] as const
@@ -26,24 +26,22 @@ export async function POST(request: Request) {
   }
 
   const status: Status = STATUSES.includes(body.status as Status) ? (body.status as Status) : "completed"
-  if (typeof body.todo !== "string" || !body.todo.trim()) {
-    return NextResponse.json({ error: "todo (its title or id) is required" }, { status: 400 })
-  }
 
+  // Completing looks among open todos first, reopening among finished ones;
+  // anything else (an exact id, a todo already in that state) falls back to
+  // all todos instead of answering "not found".
   const todos = user.data.todos ?? []
-  const pool = todos.filter((t) => (status === "incomplete" ? t.status === "completed" : t.status !== "completed"))
-  const resolved = resolveByName(pool.length ? pool : todos, body.todo, (t) => t.title)
-  if (resolved.kind !== "match") {
-    const names = resolved.options.slice(0, 5).map((t) => t.title)
-    return NextResponse.json(
-      resolved.kind === "ambiguous"
-        ? { error: "More than one todo matches", code: "ambiguous", options: names, say: `Which one: ${spokenList(names)}?` }
-        : { error: "No todo matches", code: "not_found", options: names, say: "I can't find that todo." },
-      { status: resolved.kind === "ambiguous" ? 409 : 404 }
-    )
+  const preferred = todos.filter((t) => (status === "incomplete" ? t.status === "completed" : t.status !== "completed"))
+  const found = findItemByName(todos, body.todo, (t) => t.title, "todo", preferred)
+  if (found instanceof NextResponse) return found
+  const todo = found
+
+  if (todo.status === status) {
+    const say =
+      status === "completed" ? `${todo.title} was already done.` : status === "in_progress" ? `${todo.title} is already in progress.` : `${todo.title} is already open.`
+    return NextResponse.json({ ...todo, noChange: true, say })
   }
 
-  const todo = resolved.item
   const forwarded = new Request(new URL(`/api/v1/todos/${todo.id}/status`, request.url), {
     method: "PATCH",
     headers: { Authorization: request.headers.get("Authorization") ?? "", "Content-Type": "application/json" },
