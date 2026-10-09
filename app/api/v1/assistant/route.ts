@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { authorizeIntegration } from "@/lib/habits/integration-auth"
 import { effectivePermissions } from "@/lib/habits/api-scopes"
 import { requestOrigin } from "@/lib/habits/api/assistant"
-import { dateForRequest } from "@/lib/habits/date-utils"
+import { userToday } from "@/lib/habits/api/time-zone"
 
 /**
  * GET /api/v1/assistant
@@ -19,7 +19,8 @@ export async function GET(request: Request) {
   return NextResponse.json(
     {
       name: user.data.profile?.name ?? null,
-      today: dateForRequest(request, undefined, url.searchParams.get("tz")),
+      today: userToday(request, user.data, undefined, url.searchParams.get("tz")),
+      timeZone: user.data.preferences?.timeZone ?? null,
       permissions: effectivePermissions((user.data as unknown as Record<string, unknown>).integrationPermissions),
       docsUrl: `${requestOrigin(request)}/docs`,
       activeHabits: (user.data.habits ?? []).filter((h) => !h.archived).length,

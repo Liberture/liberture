@@ -10,13 +10,10 @@ import {
   pillarForHabit,
   type PillarId,
 } from "@/lib/habits/pillars"
-import { calculateStreak, isHabitScheduledOnDate } from "@/lib/habits/habit-utils"
+import { calculateStreak, formatScheduleLabel, isHabitScheduledOnDate } from "@/lib/habits/habit-utils"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/habits/ui/button"
 import { useMobile } from "@/hooks/use-mobile"
-import { HabitDataEntryModal } from "@/components/habits/habit-data-entry-modal"
-import { HabitReadingModal } from "@/components/habits/habit-reading-modal"
-import { completedCountFor, isReadingHabit, selectPassage } from "@/lib/habits/reading-passages"
 import { HabitDataTooltip } from "@/components/habits/habit-data-tooltip"
 import { StreakDisplay } from "@/components/habits/streak-display"
 import { HABIT_TAGS } from "@/lib/habits/motivational-messages"
@@ -30,18 +27,14 @@ interface HabitGridProps {
   habits: Habit[]
   dates: Date[]
   completions: HabitCompletion[]
-  onToggleCompletion: (habitId: string, date: Date, data?: Record<string, number | string>) => void
-  onSaveHabitData: (
-    habitId: string,
-    date: Date,
-    data: Record<string, number | string> | undefined,
-    markComplete: boolean,
-    /** Reading habits pass a reflection through to `HabitCompletion.context`. */
-    context?: string
-  ) => void
-  onEditSchedule?: (habitId: string) => void
+  /**
+   * A tap on a scheduled cell. The parent decides what that means (reading
+   * modal, data-entry modal, or a plain toggle) and owns those modals, so the
+   * grid, day view and matrix all share one copy of them.
+   */
+  onCellClick: (habitId: string, date: Date) => void
   onAddHabit?: () => void
-  onDeleteHabit?: (habitId: string) => void
+  /** Opens the habit dialog (schedule, data fields, archive, delete). */
   onEditHabit?: (habitId: string) => void
   onUnarchiveHabit?: (habitId: string) => void
 }
@@ -55,16 +48,6 @@ interface DateInfo {
   isTodayFlag: boolean
   dayOfWeek: number
   iso: string
-}
-
-/**
- * Delegates to the shared check so a day before the habit existed — or inside a
- * past archived stretch — counts as "not scheduled" rather than "missed". A
- * local schedule-only test made every day since the epoch look like a miss and
- * quietly deflated the percentages here.
- */
-function isScheduledForDay(habit: Habit, date: Date): boolean {
-  return isHabitScheduledOnDate(habit, date)
 }
 
 function getDailyProgress(
@@ -88,14 +71,13 @@ function getDailyProgress(
 }
 
 function getScheduleText(habit: Habit, t: GridStrings): string {
-  if (habit.schedule?.type === "specific_days" && habit.schedule.days) {
-    const dayNames = t.weekdaysShort
-    return habit.schedule.days.map((d) => dayNames[d]).join(", ")
-  }
-  if (habit.schedule?.type === "times_per_week" && habit.schedule.timesPerWeek) {
-    return formatMessage(t.timesPerWeek, { count: habit.schedule.timesPerWeek })
-  }
-  return t.daily
+  return formatScheduleLabel(habit.schedule, {
+    everyDay: t.daily,
+    timesPerWeek: t.timesPerWeek,
+    noDays: t.noDays,
+    weekdays: t.weekdays,
+    daysShort: t.weekdaysShort,
+  })
 }
 
 /** Tag labels come from lib/ in English; translate by value, falling back to the lib label. */
@@ -109,7 +91,7 @@ interface RowProps {
   dateInfos: DateInfo[]
   completionsForHabit: Map<string, HabitCompletion> | undefined
   streak: { current: number; longest: number }
-  onCellClick: (habit: Habit, date: Date, dateStr: string) => void
+  onCellClick: (habit: Habit, date: Date) => void
   onEditHabit?: (habitId: string) => void
   onUnarchiveHabit?: (habitId: string) => void
 }
@@ -291,7 +273,7 @@ const MobileHabitCard = memo(function MobileHabitCard({
         {dateInfos.map((di) => {
           const completion = completionsForHabit?.get(di.dateStr)
           const completed = completion?.completed === true
-          const scheduled = isScheduledForDay(habit, di.date)
+          const scheduled = isHabitScheduledOnDate(habit, di.date)
           const hasData = !!(completion?.data && Object.keys(completion.data).length > 0)
           const dailyProgress = getDailyProgress(habit, completion)
           const hasPartialProgress = !!(dailyProgress && dailyProgress.current > 0 && !completed)
@@ -299,7 +281,7 @@ const MobileHabitCard = memo(function MobileHabitCard({
           return (
             <button
               key={di.iso}
-              onClick={() => scheduled && onCellClick(habit, di.date, di.dateStr)}
+              onClick={() => scheduled && onCellClick(habit, di.date)}
               disabled={!scheduled}
               className={cn(
                 "flex min-h-[76px] min-w-[64px] snap-start flex-col items-center justify-center gap-1 rounded-lg border-2 p-2.5 transition-all flex-shrink-0 relative overflow-hidden",
@@ -464,14 +446,14 @@ const DesktopHabitRow = memo(function DesktopHabitRow({
       {dateInfos.map((di) => {
         const completion = completionsForHabit?.get(di.dateStr)
         const completed = completion?.completed === true
-        const scheduled = isScheduledForDay(habit, di.date)
+        const scheduled = isHabitScheduledOnDate(habit, di.date)
         const hasData = !!(completion?.data && Object.keys(completion.data).length > 0)
         const dailyProgress = getDailyProgress(habit, completion)
         const hasPartialProgress = !!(dailyProgress && dailyProgress.current > 0 && !completed)
 
         const cellButton = (
           <button
-            onClick={() => scheduled && onCellClick(habit, di.date, di.dateStr)}
+            onClick={() => scheduled && onCellClick(habit, di.date)}
             disabled={!scheduled}
             className={cn(
               "mx-auto flex h-10 w-10 items-center justify-center rounded-lg border-2 transition-all duration-200 relative overflow-hidden",
@@ -542,8 +524,7 @@ export function HabitGrid({
   habits,
   dates,
   completions,
-  onToggleCompletion,
-  onSaveHabitData,
+  onCellClick,
   onAddHabit,
   onEditHabit,
   onUnarchiveHabit,
@@ -554,24 +535,11 @@ export function HabitGrid({
   const [sortMode, setSortMode] = useState<SortMode>("time")
   const [colWidths, setColWidths] = useState<ColWidths>(DEFAULT_WIDTHS)
   const [hydratedWidths, setHydratedWidths] = useState(false)
-  const [dataEntryModal, setDataEntryModal] = useState<{
-    habit: Habit
-    date: Date
-    existingCompletion?: HabitCompletion
-  } | null>(null)
-  const [readingModal, setReadingModal] = useState<{
-    habit: Habit
-    date: Date
-    dateStr: string
-    existingCompletion?: HabitCompletion
-  } | null>(null)
 
   // Stabilize parent callbacks via refs so memoized rows skip re-render
   // when the parent recreates callback identities on each render.
-  const onToggleCompletionRef = useRef(onToggleCompletion)
-  onToggleCompletionRef.current = onToggleCompletion
-  const onSaveHabitDataRef = useRef(onSaveHabitData)
-  onSaveHabitDataRef.current = onSaveHabitData
+  const onCellClickRef = useRef(onCellClick)
+  onCellClickRef.current = onCellClick
   const onEditHabitRef = useRef(onEditHabit)
   onEditHabitRef.current = onEditHabit
   const onUnarchiveHabitRef = useRef(onUnarchiveHabit)
@@ -642,58 +610,10 @@ export function HabitGrid({
     return result
   }, [habits, completions])
 
-  /** Reading first, then data entry, then a plain toggle — same order as the day view. */
-  const handleCellClick = useCallback((habit: Habit, date: Date, dateStr: string) => {
-    const existingCompletion = completionsByHabitCacheRef.current.get(habit.id)?.map.get(dateStr)
-    if (isReadingHabit(habit.readingContent)) {
-      setReadingModal({ habit, date, dateStr, existingCompletion })
-    } else if (habit.dataEntry?.enabled) {
-      setDataEntryModal({ habit, date, existingCompletion })
-    } else {
-      onToggleCompletionRef.current(habit.id, date)
-    }
+
+  const handleCellClick = useCallback((habit: Habit, date: Date) => {
+    onCellClickRef.current(habit.id, date)
   }, [])
-
-  const handleDataEntrySave = useCallback(
-    (result: { data?: Record<string, number | string>; markComplete: boolean }) => {
-      setDataEntryModal((prev) => {
-        if (!prev) return null
-        onSaveHabitDataRef.current(prev.habit.id, prev.date, result.data, result.markComplete)
-        return null
-      })
-    },
-    []
-  )
-
-  const handleReadingSave = useCallback(
-    (result: { markComplete: boolean; context?: string; passageId: string }) => {
-      setReadingModal((prev) => {
-        if (!prev) return null
-        onSaveHabitDataRef.current(
-          prev.habit.id,
-          prev.date,
-          { passageId: result.passageId },
-          result.markComplete,
-          result.context
-        )
-        return null
-      })
-    },
-    []
-  )
-
-  const closeDataEntryModal = useCallback(() => setDataEntryModal(null), [])
-  const closeReadingModal = useCallback(() => setReadingModal(null), [])
-
-  /** Same date-derived selection the day view uses, so both views show one passage. */
-  const readingPassage = useMemo(() => {
-    if (!readingModal?.habit.readingContent) return undefined
-    return selectPassage(
-      readingModal.habit.readingContent,
-      readingModal.dateStr,
-      completedCountFor(readingModal.habit.id, completions)
-    )
-  }, [readingModal, completions])
 
   const pillarByHabit = useMemo(() => {
     const map = new Map<string, PillarId>()
@@ -864,26 +784,6 @@ export function HabitGrid({
           </div>
         )}
 
-        {dataEntryModal && (
-          <HabitDataEntryModal
-            habit={dataEntryModal.habit}
-            date={dataEntryModal.date}
-            existingCompletion={dataEntryModal.existingCompletion}
-            onSave={handleDataEntrySave}
-            onClose={closeDataEntryModal}
-          />
-        )}
-
-          {readingModal && readingPassage && (
-            <HabitReadingModal
-              habit={readingModal.habit}
-              date={readingModal.date}
-              passage={readingPassage}
-              existingCompletion={readingModal.existingCompletion}
-              onSave={handleReadingSave}
-              onClose={closeReadingModal}
-            />
-          )}
       </div>
     )
   }
@@ -1004,26 +904,6 @@ export function HabitGrid({
         </div>
       )}
 
-      {dataEntryModal && (
-        <HabitDataEntryModal
-          habit={dataEntryModal.habit}
-          date={dataEntryModal.date}
-          existingCompletion={dataEntryModal.existingCompletion}
-          onSave={handleDataEntrySave}
-          onClose={closeDataEntryModal}
-        />
-      )}
-
-        {readingModal && readingPassage && (
-          <HabitReadingModal
-            habit={readingModal.habit}
-            date={readingModal.date}
-            passage={readingPassage}
-            existingCompletion={readingModal.existingCompletion}
-            onSave={handleReadingSave}
-            onClose={closeReadingModal}
-          />
-        )}
     </div>
   )
 }

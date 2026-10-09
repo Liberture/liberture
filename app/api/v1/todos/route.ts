@@ -9,6 +9,9 @@ import {
   upsertTodoRow,
 } from "@/lib/habits/optimized-storage"
 import crypto from "crypto"
+import { paginate, wantsPage } from "@/lib/habits/api/paginate"
+import { userToday } from "@/lib/habits/api/time-zone"
+import { normalizeSubtasks, normalizeTags, projectIdFromName } from "@/lib/habits/api/todo-fields"
 
 type Urgency = "overdue" | "today" | "tomorrow" | "this_week" | "later" | "no_date"
 
@@ -41,6 +44,9 @@ function spokenDate(date: string): string {
  *   - sort: "deadline", "priority", "created" (default: created DESC)
  *   - overdue: "true" to return only past-due items
  *   - projectId: a project id, or "uncategorized"
+ *   - project: a project's name, as the user said it
+ *   - limit / cursor: page through the list; the response is then
+ *     { todos, nextCursor, total } instead of a bare array
  */
 export async function GET(request: Request) {
   const user = await authorizeIntegration(request, "read")
@@ -50,7 +56,14 @@ export async function GET(request: Request) {
   const statusFilter = searchParams.get("status") ?? "all"
   const sortBy = searchParams.get("sort") ?? "created"
   const overdueOnly = searchParams.get("overdue") === "true"
-  const projectId = searchParams.get("projectId")
+  let projectId = searchParams.get("projectId")
+  const today = userToday(request, user.data)
+
+  if (!projectId && searchParams.get("project")) {
+    const project = await projectIdFromName(user.userId, user.data, searchParams.get("project"), { create: false })
+    if (project instanceof NextResponse) return project
+    projectId = project.id
+  }
 
   try {
     const sql = getDb()
@@ -62,7 +75,7 @@ export async function GET(request: Request) {
       WHERE todo.user_id = ${user.userId}
         AND (${statusFilter} != 'pending' OR todo.status IN ('incomplete', 'in_progress'))
         AND (${statusFilter} != 'completed' OR todo.status = 'completed')
-        AND (${overdueOnly} = false OR (todo.due_date IS NOT NULL AND todo.due_date < CURRENT_DATE))
+        AND (${overdueOnly} = false OR (todo.due_date IS NOT NULL AND todo.due_date < ${today}::date))
         AND (
           ${projectId}::text IS NULL
           OR (${projectId} = 'uncategorized' AND (
@@ -81,10 +94,14 @@ export async function GET(request: Request) {
         todo.id ASC
     `
 
-    return NextResponse.json(rows.map((row) => {
+    const todos = rows.map((row) => {
       const todo = row.body as Todo
       return { ...todo, urgency: calculateUrgency(todo.dueDate) }
-    }))
+    })
+    if (!wantsPage(searchParams)) return NextResponse.json(todos)
+    const page = paginate(todos, searchParams.get("limit") ?? undefined, searchParams.get("cursor") ?? undefined)
+    if ("error" in page) return NextResponse.json({ error: page.error }, { status: 400 })
+    return NextResponse.json({ todos: page.items, nextCursor: page.nextCursor, total: page.total })
   } catch (error) {
     console.error("Failed to list todos:", error)
     return NextResponse.json({ error: "Failed to list todos" }, { status: 500 })
@@ -93,7 +110,8 @@ export async function GET(request: Request) {
 
 /**
  * POST /api/v1/todos
- * Body: { title, description?, dueDate?, dueTime?, priority?, status?, canTopolinoHelp?, projectId? }
+ * Body: { title, description?, dueDate?, dueTime?, priority?, status?, canTopolinoHelp?, projectId?,
+ *   project? (a name; created if new), estimatedMinutes?, energyLevel?, tags?, subtasks? (strings ok), notes? }
  */
 export async function POST(request: Request) {
   const user = await authorizeIntegration(request, "todos")
@@ -108,10 +126,11 @@ export async function POST(request: Request) {
     status?: string
     canTopolinoHelp?: boolean
     projectId?: string
+    project?: string
     estimatedMinutes?: number
     energyLevel?: "low" | "medium" | "high"
     tags?: string[]
-    subtasks?: Array<{ id: string; title: string; completed: boolean }>
+    subtasks?: unknown
     notes?: string
   }
   try {
@@ -127,6 +146,22 @@ export async function POST(request: Request) {
 
   if (!title || typeof title !== "string" || !title.trim()) {
     return NextResponse.json({ error: "title is required" }, { status: 400 })
+  }
+
+  let resolvedProjectId = projectId
+  let projectSay = ""
+  if (!projectId && body.project) {
+    const project = await projectIdFromName(user.userId, user.data, body.project, { create: true })
+    if (project instanceof NextResponse) return project
+    resolvedProjectId = project.id
+    projectSay = project.created ? ` in a new project, ${project.name}` : ` in ${project.name}`
+  }
+  const cleanSubtasks = normalizeSubtasks(subtasks)
+  if (cleanSubtasks === null) {
+    return NextResponse.json({ error: "subtasks must be a list of strings or { title } objects" }, { status: 400 })
+  }
+  if (energyLevel !== undefined && !["low", "medium", "high"].includes(energyLevel)) {
+    return NextResponse.json({ error: "energyLevel must be low, medium or high" }, { status: 400 })
   }
 
   const validPriority = priority !== undefined ? Math.min(5, Math.max(1, Math.floor(priority))) as Todo["priority"] : 3
@@ -148,11 +183,11 @@ export async function POST(request: Request) {
     updatedAt: now,
     completedAt: validStatus === "completed" ? now : undefined,
     canTopolinoHelp: canTopolinoHelp ?? false,
-    projectId,
-    estimatedMinutes,
+    projectId: resolvedProjectId,
+    estimatedMinutes: typeof estimatedMinutes === "number" && estimatedMinutes > 0 ? Math.round(estimatedMinutes) : undefined,
     energyLevel,
-    tags,
-    subtasks,
+    tags: normalizeTags(tags),
+    subtasks: cleanSubtasks,
     notes: notes?.trim() || undefined,
   }
 
@@ -165,7 +200,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       ...newTodo,
       urgency: calculateUrgency(newTodo.dueDate),
-      say: `Added: ${newTodo.title}${newTodo.dueDate ? `, due ${spokenDate(newTodo.dueDate)}` : ""}.`,
+      say: `Added: ${newTodo.title}${projectSay}${newTodo.dueDate ? `, due ${spokenDate(newTodo.dueDate)}` : ""}.`,
     }, { status: 201 })
   } catch (error) {
     console.error("Failed to create todo:", error)

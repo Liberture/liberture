@@ -15,6 +15,10 @@ interface SmartDatePickerProps {
   onChange: (value: string) => void
   placeholder?: string
   className?: string
+  /** Lets a <label htmlFor> point at the trigger button. */
+  id?: string
+  disabled?: boolean
+  "aria-describedby"?: string
 }
 
 /** Quick picks; `key` looks up the visible label in translations (`smartDatePicker.quick`). */
@@ -40,6 +44,9 @@ export function SmartDatePicker({
   onChange,
   placeholder,
   className,
+  id,
+  disabled,
+  "aria-describedby": ariaDescribedBy,
 }: SmartDatePickerProps) {
   const t = useTranslations().habits.app.smartDatePicker
   const dateLocale = useDateLocale()
@@ -61,6 +68,10 @@ export function SmartDatePicker({
 
   const trigger = (
     <Button
+      type="button"
+      id={id}
+      disabled={disabled}
+      aria-describedby={ariaDescribedBy}
       variant="outline"
       role="combobox"
       aria-expanded={open}
@@ -97,7 +108,7 @@ export function SmartDatePicker({
             <div className="mx-auto mt-4 h-1.5 w-12 rounded-full bg-muted" />
             <div className="p-4 max-h-[80vh] overflow-y-auto">
               {content}
-              <Button className="w-full mt-4" onClick={() => setOpen(false)}>
+              <Button type="button" className="w-full mt-4" onClick={() => setOpen(false)}>
                 {t.done}
               </Button>
             </div>
@@ -153,7 +164,7 @@ function DatePickerContent({
         <h4 className="font-medium text-sm">
           {view === "quick" ? t.suggested : isValid(currentMonth) ? format(currentMonth, "MMMM yyyy", { locale: dateLocale }) : t.calendar}
         </h4>
-        <Button 
+        <Button type="button"
           variant="ghost" 
           size="sm" 
           className="h-7 text-xs"
@@ -170,6 +181,7 @@ function DatePickerContent({
             const dateObj = parseISO(dateStr)
             return (
               <button
+                type="button"
                 key={qd.key}
                 onClick={() => {
                   onChange(dateStr)
@@ -193,6 +205,7 @@ function DatePickerContent({
             )
           })}
           <button
+              type="button"
               onClick={() => {
                 onChange("")
                 onClose()
@@ -208,11 +221,11 @@ function DatePickerContent({
       ) : (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <Button variant="outline" size="icon" className="h-7 w-7" onClick={prevMonth} aria-label={t.prevMonth}>
+            <Button type="button" variant="outline" size="icon" className="h-7 w-7" onClick={prevMonth} aria-label={t.prevMonth}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <span className="text-xs font-medium">{isValid(currentMonth) ? format(currentMonth, "MMM yyyy", { locale: dateLocale }) : ""}</span>
-            <Button variant="outline" size="icon" className="h-7 w-7" onClick={nextMonth} aria-label={t.nextMonth}>
+            <Button type="button" variant="outline" size="icon" className="h-7 w-7" onClick={nextMonth} aria-label={t.nextMonth}>
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
@@ -232,6 +245,7 @@ function DatePickerContent({
               const isSelected = value === dateStr
               return (
                 <button
+                  type="button"
                   key={dateStr}
                   onClick={() => {
                     onChange(dateStr)

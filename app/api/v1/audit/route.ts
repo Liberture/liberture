@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server"
 import { authorizeIntegration } from "@/lib/habits/integration-auth"
-import { calculateStreak } from "@/lib/habits/habit-utils"
-import { dateForRequest, parseDateOnly } from "@/lib/habits/date-utils"
+import { calculateStreak, isHabitScheduledOnDate } from "@/lib/habits/habit-utils"
+import { parseDateOnly } from "@/lib/habits/date-utils"
+import { userToday } from "@/lib/habits/api/time-zone"
 import { subHours, parseISO } from "date-fns"
 
 /**
  * GET /api/v1/audit
- * Returns a technical audit of the user's habit discipline.
+ * Returns a technical audit of the user's habit discipline: missed critical
+ * habits, streaks, drift and what to do next. "Critical" is the user's own
+ * call: their focus habits (profile.focusHabits) and anything at priority 4-5.
  */
 export async function GET(request: Request) {
   const user = await authorizeIntegration(request, "read")
@@ -15,20 +18,18 @@ export async function GET(request: Request) {
   const { data } = user
   const habits = (data.habits ?? []).filter((h) => !h.archived)
   const completions = data.completions ?? []
-  const today = dateForRequest(request)
+  const today = userToday(request, data, undefined, new URL(request.url).searchParams.get("tz"))
   const todayDate = parseDateOnly(today)
 
   // 1. Identify Critical Habits
-  const criticalHabitNames = ["Eating Ritual", "Pull Ups", "Meditation"]
-  const criticalHabits = habits.filter(h => 
-    criticalHabitNames.some(name => h.name.toLowerCase().includes(name.toLowerCase()))
-  )
+  const focus = new Set(data.profile?.focusHabits ?? [])
+  const criticalHabits = habits.filter((h) => focus.has(h.id) || (h.priority ?? 0) >= 4)
 
   // 2. Check for Missed Critical Habits (last 24h)
   const missedCritical: string[] = []
   const twentyFourHoursAgo = subHours(new Date(), 24)
 
-  for (const h of criticalHabits) {
+  for (const h of criticalHabits.filter((c) => isHabitScheduledOnDate(c, todayDate, todayDate))) {
     const isCompletedRecently = completions.some(c => 
       c.habitId === h.id && 
       c.completed && 
@@ -73,6 +74,7 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json({
+    critical: criticalHabits.map((h) => h.name),
     drift,
     missedCritical,
     streaks,

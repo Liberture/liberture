@@ -58,8 +58,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   return updateProject(request, id)
 }
 
+/** Scope delete_items (off by default). The project's todos are kept, without a project. */
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const user = await authorizeIntegration(request, "todos")
+  const user = await authorizeIntegration(request, "delete_items")
   if (user instanceof NextResponse) return user
 
   const { id } = await params

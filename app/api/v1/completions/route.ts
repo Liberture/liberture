@@ -2,7 +2,8 @@ import { NextResponse } from "next/server"
 import { getDb } from "@/lib/habits/db"
 import { authorizeIntegration } from "@/lib/habits/integration-auth"
 import { calculateStreak } from "@/lib/habits/habit-utils"
-import { dateForRequest, isDateOnlyString, parseDateOnly } from "@/lib/habits/date-utils"
+import { isDateOnlyString, parseDateOnly } from "@/lib/habits/date-utils"
+import { userToday } from "@/lib/habits/api/time-zone"
 import { format, subDays } from "date-fns"
 import type { HabitCompletion } from "@/lib/habits/types"
 import {
@@ -35,7 +36,7 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "habitId is required" }, { status: 400 })
   }
 
-  const requestToday = dateForRequest(request, undefined, body.timeZone)
+  const requestToday = userToday(request, user.data, undefined, body.timeZone)
   const completionDate = isDateOnlyString(date) ? date : requestToday
   const now = new Date().toISOString()
   const habit = (user.data.habits ?? []).find((h) => h.id === habitId)
@@ -69,7 +70,7 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url)
   const days = Math.min(parseInt(searchParams.get("days") ?? "30", 10), 365)
-  const requestToday = parseDateOnly(dateForRequest(request))
+  const requestToday = parseDateOnly(userToday(request, user.data))
   const cutoff = format(subDays(requestToday, days - 1), "yyyy-MM-dd")
 
   try {
@@ -95,13 +96,15 @@ export async function GET(request: Request) {
 /**
  * POST /api/v1/completions
  * Log a habit completion.
- * Body: { habitId: string, date?: string, data?: Record<string, any>, completed?: boolean, completedAt?: string }
+ * Body: { habitId: string, date?: string, data?: Record<string, any>, completed?: boolean, completedAt?: string, context?: string }
+ * `context` is the completion note (a reflection, "felt strong"); a new note
+ * replaces the old one for that day.
  */
 export async function POST(request: Request) {
   const user = await authorizeIntegration(request, "log_completions")
   if (user instanceof NextResponse) return user
 
-  let body: { habitId?: string; date?: string; data?: Record<string, any>; completed?: boolean; completedAt?: string; timeZone?: string }
+  let body: { habitId?: string; date?: string; data?: Record<string, any>; completed?: boolean; completedAt?: string; timeZone?: string; context?: string }
   try {
     body = await request.json()
   } catch {
@@ -119,7 +122,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Habit not found" }, { status: 404 })
   }
 
-  const requestToday = dateForRequest(request, undefined, body.timeZone)
+  const requestToday = userToday(request, user.data, undefined, body.timeZone)
   const completionDate = isDateOnlyString(date) ? date : requestToday
   const now = new Date().toISOString()
   const completedAt = typeof body.completedAt === "string" && !Number.isNaN(Date.parse(body.completedAt))
@@ -149,17 +152,21 @@ export async function POST(request: Request) {
     } else if (habit.dataEntry?.enabled && habit.dataEntry.fields.length > 0) {
       isGoalMet = habit.dataEntry.fields.every(field => {
         if (!field.goalValue) return true
-        const value = finalData ? finalData[field.id] : null
+        const checkData = finalData ?? existingCompletion?.data
+        const value = checkData ? checkData[field.id] : null
         return typeof value === "number" && value >= field.goalValue
       })
     }
 
+    const note = typeof body.context === "string" ? body.context.trim().slice(0, 1000) : ""
     const newCompletion: HabitCompletion = {
+      ...existingCompletion,
       habitId,
       date: completionDate,
       completed: isGoalMet,
       completedAt,
-      data: finalData,
+      data: finalData ?? existingCompletion?.data,
+      ...(note ? { context: note } : {}),
     }
 
     await upsertCompletionRow(sql, user.userId, newCompletion)
@@ -172,7 +179,8 @@ export async function POST(request: Request) {
       success: true,
       goalReached: isGoalMet,
       currentStreak: streakData.current,
-      totalData: finalData
+      totalData: finalData ?? existingCompletion?.data ?? null,
+      date: completionDate,
     })
   } catch (error) {
     console.error("Failed to save completion:", error)

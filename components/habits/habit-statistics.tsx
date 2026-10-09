@@ -68,7 +68,6 @@ export const HabitStatistics = memo(function HabitStatistics({
   const dateLocale = useDateLocale()
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null)
   const [chartRange, setChartRange] = useState<"7d" | "30d" | "90d">("30d")
-  const [hoveredHeatmapCell, setHoveredHeatmapCell] = useState<{ date: Date; count: number } | null>(null)
 
   const today = new Date()
   const currentStart = range.start
@@ -365,16 +364,6 @@ export const HabitStatistics = memo(function HabitStatistics({
     })
   }, [selectedHabitId, habits, completions, daysInPeriod, t, dateLocale])
 
-  // ── 365-Day Heatmap Data ──
-  const yearHeatmapData = useMemo(() => {
-    const days = Array.from({ length: 365 }, (_, i) => subDays(today, 364 - i))
-    return days.map(day => {
-      const dateStr = format(day, "yyyy-MM-dd")
-      const count = completions.filter(c => c.date === dateStr && c.completed).length
-      return { date: day, dateStr, count, dayOfWeek: getDay(day) }
-    })
-  }, [completions, today])
-
   const streakLeaderboard = useMemo(() => {
     const todayDate = new Date()
     return periodHabits.map(habit => {
@@ -464,14 +453,6 @@ export const HabitStatistics = memo(function HabitStatistics({
   }, [habits, completions, today, t, dateLocale])
 
   // Heatmap color helper
-  const getHeatmapColor = (count: number): string => {
-    if (count === 0) return "bg-muted-foreground/10"
-    if (count <= 1) return "bg-success/25"
-    if (count <= 2) return "bg-success/40"
-    if (count <= 4) return "bg-success/65"
-    return "bg-success"
-  }
-
   // Custom tooltip for recharts. The heading is the datum's full date, not the
   // axis tick — ticks are abbreviated ("14", "Mon") to fit, which reads as no
   // date at all once you hover.
@@ -665,51 +646,6 @@ export const HabitStatistics = memo(function HabitStatistics({
             </div>
           </div>
         )}
-
-        {/* ─── Section 5: 365-Day Heatmap ─── */}
-        <div className="space-y-2">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t.yearOverview}</h3>
-          <div data-no-swipe className="rounded-lg bg-muted/20 border border-border/50 p-3 overflow-x-auto custom-scrollbar horizontal-touch-scroll sm:p-4">
-            <div className="flex gap-[3px]" style={{ minWidth: 700 }}>
-              {Array.from({ length: 53 }, (_, weekIdx) => {
-                const weekCells = yearHeatmapData.slice(weekIdx * 7, weekIdx * 7 + 7)
-                return (
-                  <div key={weekIdx} className="flex flex-col gap-[3px]">
-                    {weekCells.map((cell, dayIdx) => (
-                      <div
-                        key={`${weekIdx}-${dayIdx}`}
-                        className={cn("h-[11px] w-[11px] rounded-[2px] transition-colors", getHeatmapColor(cell.count))}
-                        title={`${format(cell.date, t.monthDayYearFormat, { locale: dateLocale })}: ${plural(t.completionsCount, cell.count)}`}
-                        onPointerEnter={() => setHoveredHeatmapCell(cell)}
-                        onClick={() => setHoveredHeatmapCell(cell)}
-                      />
-                    ))}
-                  </div>
-                )
-              })}
-            </div>
-            <div className="flex items-center gap-1.5 mt-3 justify-end">
-              {/* Native titles are slow on desktop and never show on touch. */}
-              <span className="mr-auto text-[11px] text-muted-foreground" aria-live="polite">
-                {hoveredHeatmapCell ? (
-                  <>
-                    <span className="font-medium text-foreground">{format(hoveredHeatmapCell.date, t.fullDateFormat, { locale: dateLocale })}</span>
-                    {` · ${plural(t.completionsCount, hoveredHeatmapCell.count)}`}
-                  </>
-                ) : (
-                  t.hoverDay
-                )}
-              </span>
-              <span className="text-[10px] text-muted-foreground">{t.less}</span>
-              <div className="h-[11px] w-[11px] rounded-[2px] bg-muted-foreground/10" />
-              <div className="h-[11px] w-[11px] rounded-[2px] bg-success/25" />
-              <div className="h-[11px] w-[11px] rounded-[2px] bg-success/40" />
-              <div className="h-[11px] w-[11px] rounded-[2px] bg-success/65" />
-              <div className="h-[11px] w-[11px] rounded-[2px] bg-success" />
-              <span className="text-[10px] text-muted-foreground">{t.more}</span>
-            </div>
-          </div>
-        </div>
 
         {/* ─── Section 7: Weekly Consistency ─── */}
         <div className="space-y-2">

@@ -4,6 +4,7 @@ import { PILLAR_ICON_MAP, PILLAR_STYLES, type PillarId } from "@/lib/habits/pill
 import type { Difficulty } from "@/lib/habits/protocols/catalog"
 import type { CostTier, ProtocolCost } from "@/lib/habits/protocols/cost"
 import type { Habit } from "@/lib/habits/types"
+import { formatScheduleLabel } from "@/lib/habits/habit-utils"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage } from "@/lib/i18n-format"
@@ -32,17 +33,14 @@ export function useCatalogLabels() {
     return parts.join(" + ")
   }
 
-  const schedule = (value: Habit["schedule"]): string => {
-    if (value.type === "daily") return t.scheduleEveryDay
-    if (value.type === "times_per_week") {
-      return formatMessage(t.scheduleTimesPerWeek, { count: value.timesPerWeek ?? 1 })
-    }
-    const days = value.days ?? []
-    if (days.length === 0) return t.scheduleNoDays
-    if (days.length === 7) return t.scheduleEveryDay
-    if (days.length === 5 && days.every((d) => d >= 1 && d <= 5)) return t.scheduleWeekdays
-    return days.map((d) => t.dayNamesShort[d]).join(", ")
-  }
+  const schedule = (value: Habit["schedule"]): string =>
+    formatScheduleLabel(value, {
+      everyDay: t.scheduleEveryDay,
+      timesPerWeek: t.scheduleTimesPerWeek,
+      noDays: t.scheduleNoDays,
+      weekdays: t.scheduleWeekdays,
+      daysShort: t.dayNamesShort,
+    })
 
   return {
     pillar: t.pillars,

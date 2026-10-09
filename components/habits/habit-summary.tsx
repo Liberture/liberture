@@ -2,7 +2,7 @@
 
 import { memo } from "react"
 
-import { format, eachDayOfInterval, parseISO } from "date-fns"
+import { format, eachDayOfInterval } from "date-fns"
 import type { Habit, HabitCompletion } from "@/lib/habits/types"
 import { calculateSuccessRate, isHabitActiveOnDate } from "@/lib/habits/habit-utils"
 import { cn } from "@/lib/utils"
@@ -48,18 +48,6 @@ export const HabitSummary = memo(function HabitSummary({
     return Math.round(calculateSuccessRate(habit, completions, days, currentEnd) * 100)
   }
 
-  const totalCompletions = completions.filter((c) => {
-    if (!c.completed) return false
-    const compDate = parseISO(c.date)
-    const habit = habitById.get(c.habitId)
-    return Boolean(habit) && compDate >= currentStart && compDate <= currentEnd && isHabitActiveOnDate(habit, compDate, currentEnd)
-  }).length
-
-  const averageRate =
-    periodHabits.length > 0
-      ? Math.round(periodHabits.reduce((sum, habit) => sum + calculateCompletionRate(habit.id), 0) / periodHabits.length)
-      : 0
-
   return (
     <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-border bg-muted/20 sm:px-6">
@@ -73,37 +61,6 @@ export const HabitSummary = memo(function HabitSummary({
       </div>
 
       <div className="p-4 space-y-6 sm:p-6">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
-          <div className="text-center p-3 rounded-lg bg-muted/30 border border-border/50">
-            <div className="text-2xl font-bold text-foreground">{totalCompletions}</div>
-            <div className="text-xs text-muted-foreground mt-1">{t.totalCompletions}</div>
-          </div>
-          <div className="flex flex-col items-center p-3 rounded-lg bg-muted/30 border border-border/50">
-            <div className="relative">
-              <svg width="52" height="52" className="transform -rotate-90">
-                <circle cx="26" cy="26" r="22" stroke="currentColor" strokeWidth="4" fill="none" className="text-muted/30" />
-                <circle
-                  cx="26" cy="26" r="22"
-                  stroke={averageRate >= 80 ? "#10B981" : averageRate >= 50 ? "#F59E0B" : "#EF4444"}
-                  strokeWidth="4" fill="none"
-                  strokeDasharray={`${2 * Math.PI * 22}`}
-                  strokeDashoffset={`${2 * Math.PI * 22 * (1 - averageRate / 100)}`}
-                  strokeLinecap="round"
-                  className="transition-all duration-700"
-                />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-sm font-bold text-foreground">{averageRate}%</span>
-              </div>
-            </div>
-            <div className="text-xs text-muted-foreground mt-1">{t.averageRate}</div>
-          </div>
-          <div className="text-center p-3 rounded-lg bg-muted/30 border border-border/50">
-            <div className="text-2xl font-bold text-foreground">{periodHabits.length}</div>
-            <div className="text-xs text-muted-foreground mt-1">{t.activeHabits}</div>
-          </div>
-        </div>
-
         <div className="space-y-3">
           <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t.habitPerformance}</h3>
           {periodHabits.length === 0 ? (

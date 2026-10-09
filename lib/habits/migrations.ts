@@ -389,7 +389,8 @@ export function validateStorageData(data: StorageData): boolean {
 
     // Check each habit has required fields
     for (const habit of data.habits) {
-      if (!habit.id || !habit.name || !habit.time || !habit.color) return false
+      // time may be "" (no reminder), which assistant-created habits use.
+      if (!habit.id || !habit.name || typeof habit.time !== "string" || !habit.color) return false
       if (!habit.schedule || !habit.schedule.type) return false
     }
 
