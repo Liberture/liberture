@@ -65,6 +65,8 @@ pnpm dev
 | `ADMIN_SECRET` | Optional. Bearer secret for the tracker's admin endpoints |
 | `HABIT_TRACKER_TIME_ZONE` | Optional. Default time zone for "today" in the assistant API |
 | `RESEND_API_KEY` | Optional. Transactional email |
+| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | Optional. Web Push for reminders and coach check-ins with the app closed (`node scripts/generate-vapid-keys.mjs`). See [docs/REMINDERS.md](docs/REMINDERS.md) |
+| `REMINDER_SCHEDULER` | Optional. `off` disables the server reminder scheduler |
 
 ## Project layout
 
@@ -82,6 +84,8 @@ prisma/            schema (content and habit tables)
 ## Deployment
 
 Pushing to `master` deploys liberture.com through `.github/workflows/deploy.yml`. A Docker setup (`Dockerfile`, `compose.liberture-habits.yaml`) runs the same app with its own Postgres.
+
+Reminders that arrive with the app closed need VAPID keys in the server environment; setup, behaviour and testing are in [docs/REMINDERS.md](docs/REMINDERS.md).
 
 ## License
 
