@@ -79,8 +79,16 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  // Google takes the site icon from these links (48px multiples work best), so
+  // every entry is the hexagon logo — never the tracker's old bolt.
   icons: {
-    icon: "/icon.png",
+    icon: [
+      { url: "/favicon.ico", sizes: "32x32" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/pwa-icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon.png", sizes: "512x512", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
     apple: "/apple-icon.png",
   },
   manifest: "/manifest.webmanifest",

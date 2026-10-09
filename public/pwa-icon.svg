@@ -1,18 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#151b2b"/>
-      <stop offset="1" stop-color="#0b0f17"/>
-    </linearGradient>
-    <linearGradient id="bolt" x1="0.15" y1="0" x2="0.85" y2="1">
-      <stop offset="0" stop-color="#3b82f6"/>
-      <stop offset="0.55" stop-color="#22d3ee"/>
-      <stop offset="1" stop-color="#34d399"/>
-    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="20.48" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
   </defs>
-  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-  <rect x="6" y="6" width="500" height="500" rx="106" fill="none" stroke="#3b82f6" stroke-opacity="0.28" stroke-width="12"/>
-  <g transform="translate(256 256) scale(13) translate(-12 -12)">
-    <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" fill="url(#bolt)"/>
-  </g>
+  <rect width="512" height="512" rx="96" fill="#0a0a0a"/>
+  <!-- Hexagon: 2 top, 1 right, 2 bottom, 1 left -->
+  <circle cx="179.20" cy="122.95" r="40.96" fill="#8B5CF6" filter="url(#glow)"/>
+  <circle cx="332.80" cy="122.95" r="40.96" fill="#06B6D4" filter="url(#glow)"/>
+  <circle cx="409.60" cy="256.00" r="40.96" fill="#10B981" filter="url(#glow)"/>
+  <circle cx="332.80" cy="389.05" r="40.96" fill="#EC4899" filter="url(#glow)"/>
+  <circle cx="179.20" cy="389.05" r="40.96" fill="#F59E0B" filter="url(#glow)"/>
+  <circle cx="102.40" cy="256.00" r="40.96" fill="#EAB308" filter="url(#glow)"/>
 </svg>
