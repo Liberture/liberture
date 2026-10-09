@@ -302,6 +302,8 @@ model HabitUser {
   completions            HabitCompletion[]
   projects               HabitProject[]
   todos                  HabitTodo[]
+  pushSubscriptions      HabitPushSubscription[]
+  notificationsSent      HabitNotificationSent[]
 
   @@index([apiKey], map: "idx_habit_users_api_key")
   @@index([updatedAt], map: "idx_habit_users_updated_at")
@@ -380,6 +382,38 @@ model HabitCoachMessage {
 
   @@id([userId, messageId])
   @@map("habit_coach_messages")
+}
+
+/// Web Push endpoints, one per browser/device that opted into reminders with the app closed.
+model HabitPushSubscription {
+  id            Int       @id @default(autoincrement())
+  userId        Int       @map("user_id")
+  endpoint      String    @unique(map: "habit_push_subscriptions_endpoint_key")
+  p256dh        String
+  auth          String
+  userAgent     String?   @map("user_agent")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  lastSuccessAt DateTime? @map("last_success_at") @db.Timestamptz(6)
+  lastFailureAt DateTime? @map("last_failure_at") @db.Timestamptz(6)
+  failures      Int       @default(0)
+  user          HabitUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "habit_push_subscriptions_user_id_fkey")
+
+  @@index([userId], map: "idx_habit_push_subscriptions_user")
+  @@map("habit_push_subscriptions")
+}
+
+/// One row per notification ever claimed: the primary key is the dedupe guarantee across tabs, devices and the server.
+model HabitNotificationSent {
+  userId    Int       @map("user_id")
+  dedupeKey String    @map("dedupe_key")
+  kind      String
+  channel   String
+  sentAt    DateTime  @default(now()) @map("sent_at") @db.Timestamptz(6)
+  user      HabitUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "habit_notifications_sent_user_id_fkey")
+
+  @@id([userId, dedupeKey])
+  @@index([userId, sentAt], map: "idx_habit_notifications_sent_user_sent")
+  @@map("habit_notifications_sent")
 }
 
 model HabitOauthClient {

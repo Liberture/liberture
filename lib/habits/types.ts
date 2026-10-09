@@ -65,8 +65,10 @@ export interface IdentityConfig {
 }
 
 export interface StreakData {
-  current: number // Current consecutive days
+  current: number // Current consecutive days (weeks for times-per-week habits)
   longest: number // All-time longest streak
+  /** What current/longest count. Missing on older stored data, which counted days. */
+  unit?: "days" | "weeks"
   freezesAvailable: number // Streak freezes earned
   freezesUsed: number // Total freezes used
   lastCompletedDate?: string // YYYY-MM-DD

@@ -234,6 +234,49 @@ export async function backfillOptimizedStorageTables(): Promise<void> {
 }
 
 /**
+ * Web Push subscriptions and the notification dedupe ledger (reminders that
+ * arrive with the app closed). Mirrors the HabitPushSubscription and
+ * HabitNotificationSent models in prisma/schema.prisma for deployments that
+ * don't run `prisma db push`. Safe to run multiple times (IF NOT EXISTS).
+ */
+export async function createPushTables(): Promise<void> {
+  const sql = getDb()
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS habit_push_subscriptions (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      endpoint TEXT NOT NULL,
+      p256dh TEXT NOT NULL,
+      auth TEXT NOT NULL,
+      user_agent TEXT,
+      created_at TIMESTAMPTZ(6) NOT NULL DEFAULT NOW(),
+      last_success_at TIMESTAMPTZ(6),
+      last_failure_at TIMESTAMPTZ(6),
+      failures INTEGER NOT NULL DEFAULT 0,
+      CONSTRAINT habit_push_subscriptions_user_id_fkey
+        FOREIGN KEY (user_id) REFERENCES habit_users(id) ON DELETE CASCADE ON UPDATE NO ACTION
+    )
+  `
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS habit_push_subscriptions_endpoint_key ON habit_push_subscriptions(endpoint)`
+  await sql`CREATE INDEX IF NOT EXISTS idx_habit_push_subscriptions_user ON habit_push_subscriptions(user_id)`
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS habit_notifications_sent (
+      user_id INTEGER NOT NULL,
+      dedupe_key TEXT NOT NULL,
+      kind TEXT NOT NULL,
+      channel TEXT NOT NULL,
+      sent_at TIMESTAMPTZ(6) NOT NULL DEFAULT NOW(),
+      CONSTRAINT habit_notifications_sent_pkey PRIMARY KEY (user_id, dedupe_key),
+      CONSTRAINT habit_notifications_sent_user_id_fkey
+        FOREIGN KEY (user_id) REFERENCES habit_users(id) ON DELETE CASCADE ON UPDATE NO ACTION
+    )
+  `
+  await sql`CREATE INDEX IF NOT EXISTS idx_habit_notifications_sent_user_sent ON habit_notifications_sent(user_id, sent_at)`
+}
+
+/**
  * Run all migrations.
  * Safe to run multiple times.
  */
@@ -243,4 +286,5 @@ export async function runAllMigrations(): Promise<void> {
   await createNostrChallengesTable()
   await createNostrSessionsTable()
   await backfillOptimizedStorageTables()
+  await createPushTables()
 }

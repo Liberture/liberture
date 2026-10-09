@@ -8,7 +8,15 @@ import { PILLAR_HEX, PILLAR_IDS, pillarForHabit, type PillarId } from "@/lib/hab
 import { useDateLocale, useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage, plural } from "@/lib/i18n-format"
 import { cn } from "@/lib/utils"
-import { calculateStreak, calculateSuccessRate, isHabitActiveOnDate, isHabitScheduledOnDate } from "@/lib/habits/habit-utils"
+import {
+  calculateStreak,
+  calculateSuccessCounts,
+  calculateSuccessRate,
+  isHabitActiveOnDate,
+  isHabitDueOnDate,
+  isHabitScheduledOnDate,
+  type WeekStart,
+} from "@/lib/habits/habit-utils"
 import { Button } from "@/components/habits/ui/button"
 import {
   BarChart3, Calendar, ChevronLeft, ChevronRight, RotateCcw,
@@ -26,6 +34,8 @@ interface HabitStatisticsProps {
   completions: HabitCompletion[]
   /** Explicit period, owned by the stats view's DateRangeFilter. */
   range: DateRange
+  /** First day of the week, for times-per-week targets and the weekly view. */
+  weekStartsOn?: WeekStart
 }
 
 interface NumericFieldStats {
@@ -63,6 +73,7 @@ export const HabitStatistics = memo(function HabitStatistics({
   habits,
   completions,
   range,
+  weekStartsOn = 1,
 }: HabitStatisticsProps) {
   const t = useTranslations().habits.app.habitStatistics
   const dateLocale = useDateLocale()
@@ -99,28 +110,19 @@ export const HabitStatistics = memo(function HabitStatistics({
     }
   }, [periodHabits, selectedHabitId])
 
+  // Per-day breakdowns ask "was it due that day": a times-per-week habit stops
+  // being due once that week's target is met.
   const isScheduledForDay = (habit: Habit, date: Date): boolean => {
-    return isHabitScheduledOnDate(habit, date, currentEnd)
+    return isHabitDueOnDate(habit, date, completions, weekStartsOn, currentEnd)
   }
 
+  /** The shared rate (weekly targets for times-per-week habits) over a run of consecutive days. */
   const calculateCompletionRate = (habitId: string, days?: Date[]) => {
     const habit = habitById.get(habitId)
     if (!habit) return 0
     const period = days || daysInPeriod
     const endDate = period[period.length - 1] || currentEnd
-    if (period.length === daysInPeriod.length && period[0]?.getTime() === daysInPeriod[0]?.getTime()) {
-      return Math.round(calculateSuccessRate(habit, completions, period.length, endDate) * 100)
-    }
-
-    let scheduledDays = 0
-    let completedDays = 0
-    period.forEach((day) => {
-      if (!isHabitScheduledOnDate(habit, day, endDate)) return
-      scheduledDays++
-      const dateStr = format(day, "yyyy-MM-dd")
-      if (completions.some((c) => c.habitId === habitId && c.date === dateStr && c.completed)) completedDays++
-    })
-    return scheduledDays > 0 ? Math.round((completedDays / scheduledDays) * 100) : 0
+    return Math.round(calculateSuccessRate(habit, completions, period.length, endDate, weekStartsOn) * 100)
   }
 
   const calculatePrevRate = (habitId: string): number => calculateCompletionRate(habitId, prevDaysInPeriod)
@@ -280,11 +282,11 @@ export const HabitStatistics = memo(function HabitStatistics({
 
     return days.map(day => {
       const dateStr = format(day, "yyyy-MM-dd")
-      const totalScheduled = habits.reduce((sum, h) => sum + (isHabitScheduledOnDate(h, day, today) ? 1 : 0), 0)
-      const totalCompleted = completions.filter(c => {
-        const habit = habitById.get(c.habitId)
-        return Boolean(habit) && c.date === dateStr && c.completed && isHabitScheduledOnDate(habit, day, today)
-      }).length
+      const dueHabits = habits.filter((h) => isHabitDueOnDate(h, day, completions, weekStartsOn, today))
+      const totalScheduled = dueHabits.length
+      const totalCompleted = completions.filter(c =>
+        c.date === dateStr && c.completed && dueHabits.some((h) => h.id === c.habitId)
+      ).length
       const rate = totalScheduled > 0 ? Math.round((totalCompleted / totalScheduled) * 100) : 0
 
       return {
@@ -296,7 +298,7 @@ export const HabitStatistics = memo(function HabitStatistics({
         scheduled: totalScheduled
       }
     })
-  }, [habits, completions, chartRange, today, t, dateLocale])
+  }, [habits, completions, chartRange, today, t, dateLocale, weekStartsOn])
 
   // ── Pillar Balance ──
   // The whole app is keyed to six pillars, so the most useful single read is
@@ -367,10 +369,11 @@ export const HabitStatistics = memo(function HabitStatistics({
   const streakLeaderboard = useMemo(() => {
     const todayDate = new Date()
     return periodHabits.map(habit => {
-      const streak = calculateStreak(habit.id, completions, habit.streakData, habit, todayDate)
-      return { habit, currentStreak: streak.current, longestStreak: streak.longest, color: habit.color }
+      const streak = calculateStreak(habit.id, completions, habit.streakData, habit, todayDate, weekStartsOn)
+      return { habit, currentStreak: streak.current, longestStreak: streak.longest, unit: streak.unit ?? "days", color: habit.color }
     }).sort((a, b) => b.currentStreak - a.currentStreak)
-  }, [periodHabits, completions])
+  }, [periodHabits, completions, weekStartsOn])
+  const topStreak = streakLeaderboard[0]
 
   // ── Time of Day Patterns ──
   const timeOfDayData = useMemo(() => {
@@ -425,21 +428,23 @@ export const HabitStatistics = memo(function HabitStatistics({
   }, [habits, completions, daysInPeriod, selectedHabitId, t])
 
   // ── Weekly Consistency ──
+  // Weeks follow the user's week start. Each week pools the shared counts:
+  // scheduled days, or the weekly target for times-per-week habits.
   const weeklyConsistency = useMemo(() => {
     const weeks: Array<{ week: string; fullDate: string; rate: number; perfect: boolean }> = []
+    const todayStart = new Date(today)
+    todayStart.setHours(0, 0, 0, 0)
     for (let w = 11; w >= 0; w--) {
-      const wStart = startOfWeek(subWeeks(today, w))
-      const wEnd = endOfWeek(subWeeks(today, w))
-      const wDays = eachDayOfInterval({ start: wStart, end: wEnd })
+      const wStart = startOfWeek(subWeeks(today, w), { weekStartsOn })
+      const wEnd = endOfWeek(subWeeks(today, w), { weekStartsOn })
+      const until = wEnd > todayStart ? todayStart : wEnd
+      const length = Math.round((until.getTime() - wStart.getTime()) / 86_400_000) + 1
       let totalScheduled = 0
       let totalCompleted = 0
-      wDays.forEach(day => {
-        habits.forEach(habit => {
-          if (!isScheduledForDay(habit, day)) return
-          totalScheduled++
-          const dateStr = format(day, "yyyy-MM-dd")
-          if (completions.some(c => c.habitId === habit.id && c.date === dateStr && c.completed)) totalCompleted++
-        })
+      habits.forEach(habit => {
+        const counts = calculateSuccessCounts(habit, completions, length, until, weekStartsOn, today)
+        totalScheduled += counts.expected
+        totalCompleted += counts.done
       })
       const rate = totalScheduled > 0 ? Math.round((totalCompleted / totalScheduled) * 100) : 0
       weeks.push({
@@ -450,7 +455,7 @@ export const HabitStatistics = memo(function HabitStatistics({
       })
     }
     return weeks
-  }, [habits, completions, today, t, dateLocale])
+  }, [habits, completions, today, t, dateLocale, weekStartsOn])
 
   // Heatmap color helper
   // Custom tooltip for recharts. The heading is the datum's full date, not the
@@ -572,8 +577,13 @@ export const HabitStatistics = memo(function HabitStatistics({
             <div className="flex items-center justify-center gap-1 mb-1">
               <Flame className="h-4 w-4 text-exercise" />
             </div>
-            <div className="text-2xl font-bold text-foreground">
-              {streakLeaderboard.length > 0 ? Math.max(...streakLeaderboard.map(s => s.currentStreak)) : 0}
+            <div
+              className="text-2xl font-bold text-foreground"
+              title={topStreak ? plural(topStreak.unit === "weeks" ? t.streakWeeks : t.streakDays, topStreak.currentStreak) : undefined}
+            >
+              {topStreak?.unit === "weeks"
+                ? formatMessage(t.streakWeeksShort, { count: topStreak.currentStreak })
+                : topStreak?.currentStreak ?? 0}
             </div>
             <div className="text-xs text-muted-foreground mt-1">{t.bestActiveStreak}</div>
           </div>

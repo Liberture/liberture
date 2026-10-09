@@ -10,6 +10,7 @@ import { mergeCalendarEvents } from "@/lib/habits/calendar-utils"
 import { syncOptimizedStorageTables } from "@/lib/habits/optimized-storage"
 import { getAuthFromRequest, type AuthInfo } from "@/lib/habits/app-auth"
 import { laterBackupAt } from "@/lib/habits/backup-status"
+import { mergeCoachRecommendations } from "@/lib/habits/coach/suggestions"
 
 const defaultData: StorageData = {
   habits: [],
@@ -438,6 +439,9 @@ export async function POST(request: Request) {
     // stale (usually absent) value. Outside the merge branch on purpose: this
     // has to hold for a plain overwrite too.
     data.lastBackupAt = laterBackupAt(data.lastBackupAt, currentData?.lastBackupAt)
+    // respond_to_suggestion (MCP) writes suggestion statuses server-side; a tab
+    // that loaded before must not undo them.
+    data.coachRecommendations = mergeCoachRecommendations(data.coachRecommendations, currentData?.coachRecommendations)
 
     // If merge strategy is enabled, merge arrays
     if (mergeStrategy === 'smart') {

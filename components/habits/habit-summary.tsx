@@ -4,7 +4,7 @@ import { memo } from "react"
 
 import { format, eachDayOfInterval } from "date-fns"
 import type { Habit, HabitCompletion } from "@/lib/habits/types"
-import { calculateSuccessRate, isHabitActiveOnDate } from "@/lib/habits/habit-utils"
+import { calculateSuccessRate, isHabitActiveOnDate, type WeekStart } from "@/lib/habits/habit-utils"
 import { cn } from "@/lib/utils"
 import { BarChart3, Calendar } from "lucide-react"
 import type { DateRange } from "@/components/habits/date-range-filter"
@@ -17,6 +17,8 @@ interface HabitSummaryProps {
   completions: HabitCompletion[]
   /** Explicit period, owned by the stats view's DateRangeFilter. */
   range: DateRange
+  /** First day of the week, for times-per-week targets. */
+  weekStartsOn?: WeekStart
 }
 
 /**
@@ -28,6 +30,7 @@ export const HabitSummary = memo(function HabitSummary({
   habits,
   completions,
   range,
+  weekStartsOn = 1,
 }: HabitSummaryProps) {
   const t = useTranslations().habits.app.habitSummary
   const dateLocale = useDateLocale()
@@ -45,7 +48,7 @@ export const HabitSummary = memo(function HabitSummary({
     const habit = habitById.get(habitId)
     if (!habit) return 0
     const days = Math.ceil((currentEnd.getTime() - currentStart.getTime()) / 86400000) + 1
-    return Math.round(calculateSuccessRate(habit, completions, days, currentEnd) * 100)
+    return Math.round(calculateSuccessRate(habit, completions, days, currentEnd, weekStartsOn) * 100)
   }
 
   return (

@@ -1,11 +1,18 @@
 "use client"
 
 import { memo, useCallback, useMemo, useState } from "react"
-import { addDays, differenceInCalendarDays, format, isSameDay, isValid, parseISO, startOfDay, subDays } from "date-fns"
+import { addDays, differenceInCalendarDays, format, isSameDay, isValid, parseISO, startOfDay } from "date-fns"
 import { CalendarDays, ChevronLeft, ChevronRight, Compass, Flame, Plus, Sparkles, Store, TrendingUp } from "lucide-react"
 
 import { HabitRow } from "@/components/habits/tracker/habit-row"
-import { calculateStreak, getNextMilestone, isHabitScheduledOnDate } from "@/lib/habits/habit-utils"
+import {
+  calculateStreak,
+  calculateSuccessCounts,
+  getNextMilestone,
+  isHabitDueOnDate,
+  weeklyProgress,
+  type WeekStart,
+} from "@/lib/habits/habit-utils"
 import type { Habit, HabitCompletion } from "@/lib/habits/types"
 import { cn } from "@/lib/utils"
 import { useLocale, useTranslations } from "@/components/i18n/locale-provider"
@@ -32,6 +39,8 @@ interface DailyTrackerProps {
   onBrowse: () => void
   timeOfDayFilter: string | null
   onTimeOfDayFilterChange: (value: string | null) => void
+  /** First day of the week, for times-per-week targets. */
+  weekStartsOn?: WeekStart
 }
 
 /** Filter buckets, keyed to the habit's inferred `timeOfDay`. Labels live in `dailyTracker.timeFilters`. */
@@ -41,14 +50,6 @@ const TIME_FILTERS: Array<{ id: string | null; labelKey: "allDay" | "morning" | 
   { id: "afternoon", labelKey: "afternoon" },
   { id: "evening", labelKey: "evening" },
 ]
-
-/**
- * Delegates to the shared check so stepping back to a past day does not list
- * habits that did not exist yet, or ones that were archived at the time.
- */
-function isScheduledOn(habit: Habit, date: Date): boolean {
-  return isHabitScheduledOnDate(habit, date)
-}
 
 function greeting(t: TrackerStrings, name?: string): string {
   const hour = new Date().getHours()
@@ -73,6 +74,7 @@ export const DailyTracker = memo(function DailyTracker({
   onBrowse,
   timeOfDayFilter,
   onTimeOfDayFilterChange,
+  weekStartsOn = 1,
 }: DailyTrackerProps) {
   const t = useTranslations().habits.app.dailyTracker
   const locale = useLocale()
@@ -83,13 +85,16 @@ export const DailyTracker = memo(function DailyTracker({
 
   const activeHabits = useMemo(() => habits.filter((h) => !h.archived), [habits])
 
+  // The shared due check: stepping back to a past day does not list habits
+  // that did not exist yet or were archived then, and a times-per-week habit
+  // drops off once that week's target was met on earlier days.
   const todays = useMemo(
     () =>
       activeHabits
-        .filter((h) => isScheduledOn(h, viewDate))
+        .filter((h) => isHabitDueOnDate(h, viewDate, completions, weekStartsOn))
         .filter((h) => !timeOfDayFilter || h.timeOfDay === timeOfDayFilter)
         .sort((a, b) => (a.time || "").localeCompare(b.time || "")),
-    [activeHabits, viewDate, timeOfDayFilter]
+    [activeHabits, viewDate, completions, weekStartsOn, timeOfDayFilter]
   )
 
   // date+habit → completed, so each card is an O(1) lookup.
@@ -136,31 +141,45 @@ export const DailyTracker = memo(function DailyTracker({
     for (const habit of activeHabits) {
       map.set(
         habit.id,
-        calculateStreak(habit.id, completionsByHabit.get(habit.id) ?? empty, habit.streakData, habit)
+        calculateStreak(habit.id, completionsByHabit.get(habit.id) ?? empty, habit.streakData, habit, new Date(), weekStartsOn)
       )
     }
     return map
-  }, [activeHabits, completionsByHabit])
+  }, [activeHabits, completionsByHabit, weekStartsOn])
+
+  // "2/3 this week" for times-per-week habits, for the viewed day's week.
+  const weekProgress = useMemo(() => {
+    const map = new Map<string, { done: number; target: number }>()
+    const empty: HabitCompletion[] = []
+    for (const habit of activeHabits) {
+      if (habit.schedule?.type !== "times_per_week") continue
+      const p = weeklyProgress(habit, completionsByHabit.get(habit.id) ?? empty, viewDate, weekStartsOn)
+      map.set(habit.id, { done: p.done, target: p.target })
+    }
+    return map
+  }, [activeHabits, completionsByHabit, viewDate, weekStartsOn])
 
   const stats = useMemo(() => {
+    // Milestones and the header count days, so week streaks stay out of them;
+    // those show on their own rows with their unit.
     let bestStreak = 0
     let currentBest = 0
     for (const streak of streaks.values()) {
+      if (streak.unit === "weeks") continue
       bestStreak = Math.max(bestStreak, streak.longest)
       currentBest = Math.max(currentBest, streak.current)
     }
 
-    // Scheduled-day completion rate over the trailing week.
+    // Completion rate over the trailing week: scheduled days, or the weekly
+    // target for times-per-week habits (rest days aren't misses).
     let scheduled = 0
     let done = 0
-    for (let i = 0; i < 7; i++) {
-      const day = subDays(startOfDay(new Date()), i)
-      const dayStr = format(day, "yyyy-MM-dd")
-      for (const habit of activeHabits) {
-        if (!isScheduledOn(habit, day)) continue
-        scheduled++
-        if (completedKeys.has(`${dayStr}:${habit.id}`)) done++
-      }
+    const today = startOfDay(new Date())
+    const empty: HabitCompletion[] = []
+    for (const habit of activeHabits) {
+      const counts = calculateSuccessCounts(habit, completionsByHabit.get(habit.id) ?? empty, 7, today, weekStartsOn, today)
+      scheduled += counts.expected
+      done += counts.done
     }
 
     const protocols = new Set(
@@ -174,7 +193,7 @@ export const DailyTracker = memo(function DailyTracker({
       avg7: scheduled === 0 ? 0 : Math.round((done / scheduled) * 100),
       protocolCount: protocols.size,
     }
-  }, [streaks, activeHabits, completedKeys])
+  }, [streaks, activeHabits, completionsByHabit, weekStartsOn])
 
   // Stable per viewed day, so a toggle re-renders one card rather than the list.
   const toggleForDay = useCallback(
@@ -358,6 +377,7 @@ export const DailyTracker = memo(function DailyTracker({
                     habit={habit}
                     completed={false}
                     streak={streaks.get(habit.id) ?? { current: 0 }}
+                    week={weekProgress.get(habit.id)}
                     onToggle={toggleForDay}
                     onLogData={logForDay}
                     onEdit={onEditHabit}
@@ -383,6 +403,7 @@ export const DailyTracker = memo(function DailyTracker({
                         habit={habit}
                         completed
                         streak={streaks.get(habit.id) ?? { current: 0 }}
+                        week={weekProgress.get(habit.id)}
                         onToggle={toggleForDay}
                         onLogData={logForDay}
                         onEdit={onEditHabit}

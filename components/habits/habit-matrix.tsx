@@ -5,7 +5,7 @@ import { differenceInCalendarDays, format, isSameMonth, startOfDay, subDays } fr
 import { CalendarRange } from "lucide-react"
 
 import type { Habit, HabitCompletion } from "@/lib/habits/types"
-import { isHabitScheduledOnDate } from "@/lib/habits/habit-utils"
+import { calculateSuccessCounts, isHabitDueOnDate, isHabitScheduledOnDate, type WeekStart } from "@/lib/habits/habit-utils"
 import {
   PILLAR_HEX,
   PILLAR_IDS,
@@ -66,9 +66,11 @@ interface HabitMatrixProps {
   habits: Habit[]
   completions: HabitCompletion[]
   onToggleCompletion: (habitId: string, date: Date) => void
+  /** First day of the week, for times-per-week targets. */
+  weekStartsOn?: WeekStart
 }
 
-export function HabitMatrix({ habits, completions, onToggleCompletion }: HabitMatrixProps) {
+export function HabitMatrix({ habits, completions, onToggleCompletion, weekStartsOn = 1 }: HabitMatrixProps) {
   const t = useTranslations().habits.app.habitMatrix
   const dateLocale = useDateLocale()
   const [range, setRange] = useState<RangeKey>("90d")
@@ -136,20 +138,31 @@ export function HabitMatrix({ habits, completions, onToggleCompletion }: HabitMa
     }))
   }, [habits])
 
-  /** Scheduled-day completion rate over the visible range. */
+  // Completions per habit, so the shared rate only scans one habit's rows.
+  const completionsByHabit = useMemo(() => {
+    const map = new Map<string, HabitCompletion[]>()
+    for (const c of completions) {
+      if (!c.completed) continue
+      const list = map.get(c.habitId)
+      if (list) list.push(c)
+      else map.set(c.habitId, [c])
+    }
+    return map
+  }, [completions])
+
+  /** The shared completion rate over the visible range (weekly targets for times-per-week habits). */
   const rateFor = useMemo(() => {
     return (habit: Habit) => {
-      const done = completedByHabit.get(habit.id)
-      let scheduled = 0
-      let hit = 0
-      for (let i = 0; i < days.length; i++) {
-        if (!isHabitScheduledOnDate(habit, days[i])) continue
-        scheduled++
-        if (done?.has(dayStrings[i])) hit++
-      }
+      const { done: hit, expected: scheduled } = calculateSuccessCounts(
+        habit,
+        completionsByHabit.get(habit.id) ?? [],
+        days.length,
+        days[0],
+        weekStartsOn
+      )
       return { scheduled, hit, pct: scheduled === 0 ? 0 : Math.round((hit / scheduled) * 100) }
     }
-  }, [completedByHabit, days, dayStrings])
+  }, [completionsByHabit, days, weekStartsOn])
 
   // Today lives at the left edge now, so reset the scroll there when the range
   // changes. Layout effect so it happens before paint.
@@ -238,7 +251,7 @@ export function HabitMatrix({ habits, completions, onToggleCompletion }: HabitMa
                     key={habit.id}
                     className="flex items-center gap-2.5 px-4"
                     style={{ height: rowHeight }}
-                    title={formatMessage(t.rowTitle, { name: habit.name, hit, scheduled })}
+                    title={formatMessage(habit.schedule?.type === "times_per_week" ? t.rowTitleWeekly : t.rowTitle, { name: habit.name, hit, scheduled })}
                   >
                     <span
                       className="h-2.5 w-2.5 shrink-0 rounded-full"
@@ -295,6 +308,7 @@ export function HabitMatrix({ habits, completions, onToggleCompletion }: HabitMa
                     days={days}
                     dayStrings={dayStrings}
                     completed={completedByHabit.get(habit.id)}
+                    weekStartsOn={weekStartsOn}
                     color={PILLAR_HEX[pillar]}
                     cellSize={cellSize}
                     cellGap={cellGap}
@@ -355,8 +369,10 @@ const MatrixRow = memo(function MatrixRow({
   rowHeight,
   onToggleCompletion,
   onHover,
+  weekStartsOn,
 }: {
   habit: Habit
+  weekStartsOn: WeekStart
   days: Date[]
   dayStrings: string[]
   completed: Set<string> | undefined
@@ -379,7 +395,10 @@ const MatrixRow = memo(function MatrixRow({
       {days.map((day, i) => {
         const dateStr = dayStrings[i]
         const isDone = completed?.has(dateStr) ?? false
-        const scheduled = isHabitScheduledOnDate(habit, day)
+        // A times-per-week habit isn't "missed" on a rest day once the week's target is met.
+        const scheduled = completed
+          ? isHabitDueOnDate(habit, day, completed, weekStartsOn)
+          : isHabitScheduledOnDate(habit, day)
         const isToday = i === 0
         const status = isDone ? t.statusDone : scheduled ? t.statusMissed : t.statusNotScheduled
         const hover = (): void => onHover({ day, habitName: habit.name, status })

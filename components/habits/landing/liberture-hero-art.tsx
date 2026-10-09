@@ -82,7 +82,8 @@ export function HeroBackground() {
 export function HeroPillarButtons() {
   return (
     <motion.div
-      className="flex flex-wrap items-center justify-center gap-6 md:gap-10"
+      // Phones: two rows of three. From md up: one centred row, as before.
+      className="mx-auto grid max-w-xs grid-cols-3 justify-items-center gap-6 md:flex md:max-w-none md:flex-wrap md:items-center md:justify-center md:gap-10"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
     >

@@ -82,6 +82,26 @@ const DEFINITIONS: PromptDefinition[] = [
       ". Suggest at most three I haven't adopted, one line each on why it fits, with its infoUrl. If I pick one, add it with adopt_habit. " +
       KEEP_IT_SHORT,
   },
+  {
+    name: "coach_checkin",
+    title: "Coach check-in",
+    description: "A proactive check-in that respects the user's quiet hours and daily limit. For scheduled tasks and automations.",
+    arguments: [
+      {
+        name: "kind",
+        description: "morning, afternoon, evening, weekly or missed_logging. Default: whichever fits the time of day.",
+        required: false,
+      },
+    ],
+    text: (args) =>
+      `Run a coach check-in${args.kind ? ` (kind ${args.kind})` : ""}. First call get_coach_state. Then call record_coach_nudge ` +
+      `with kind=${args.kind ?? "the one that fits the time of day"} and the message you plan to send. If it returns allowed: false, ` +
+      "stop and send nothing. Otherwise write one short message: morning = two priorities and a first step (use get_today); " +
+      "afternoon = the next thing still worth doing; weekly = what worked, where it slipped, and one change phrased as a " +
+      "proposal; missed_logging = ask whether the habits with unloggedDueDays ≥ 3 were skipped or just not logged — not logged " +
+      "is not the same as not done. Never change anything without my answer. If a suggestion comes up and I decline or want it " +
+      `later, record it with respond_to_suggestion. ${KEEP_IT_SHORT}`,
+  },
 ]
 
 export const MCP_PROMPTS: McpPrompt[] = DEFINITIONS.map(({ name, title, description, arguments: args }) => ({ name, title, description, arguments: args }))

@@ -1,23 +1,14 @@
 import { NextResponse } from "next/server"
 import { authorizeIntegration } from "@/lib/habits/integration-auth"
-import { calculateStreak, isHabitScheduledOnDate } from "@/lib/habits/habit-utils"
+import { calculateStreak, calculateSuccessRate, isHabitDueOnDate, isHabitScheduledOnDate, weeklyProgress } from "@/lib/habits/habit-utils"
 import { parseDateOnly } from "@/lib/habits/date-utils"
 import { userToday } from "@/lib/habits/api/time-zone"
-import { format, subDays } from "date-fns"
 import { appendHabits, buildCustomHabit, type CustomHabitInput } from "@/lib/habits/api/habit-writes"
 import { normalizeName } from "@/lib/habits/api/resolve"
 
-function completionRateForDays(
-  habitId: string,
-  completions: { habitId: string; date: string; completed: boolean }[],
-  days: number,
-  currentDate: Date
-): number {
-  const cutoff = format(subDays(currentDate, days - 1), "yyyy-MM-dd")
-  const relevant = completions.filter(
-    (c) => c.habitId === habitId && c.completed && c.date >= cutoff
-  )
-  return Math.round((relevant.length / days) * 100) / 100
+/** Rounded to two decimals, like the other rates in the API. */
+function rate(value: number): number {
+  return Math.round(value * 100) / 100
 }
 
 /**
@@ -34,11 +25,16 @@ export async function GET(request: Request) {
   const today = userToday(request, data, undefined, url.searchParams.get("tz"))
   const includeArchived = url.searchParams.get("includeArchived") === "true"
   const currentDate = parseDateOnly(today)
+  const weekStartsOn = data.preferences?.weekStartsOn ?? 1
+  const completions = data.completions ?? []
 
   const habits = (data.habits ?? [])
     .filter((h) => includeArchived || !h.archived)
     .map((habit) => {
-      const streakData = calculateStreak(habit.id, data.completions ?? [], undefined, habit, currentDate)
+      const streakData = calculateStreak(habit.id, completions, undefined, habit, currentDate, weekStartsOn)
+      const weekly = habit.schedule?.type === "times_per_week"
+        ? weeklyProgress(habit, completions, currentDate, weekStartsOn)
+        : null
       const completedToday = (data.completions ?? []).some(
         (c) => c.habitId === habit.id && c.date === today && c.completed
       )
@@ -62,9 +58,12 @@ export async function GET(request: Request) {
         startDate: habit.startDate ?? habit.createdAt?.slice(0, 10) ?? null,
         currentStreak: streakData.current,
         longestStreak: streakData.longest,
-        completionRate7d: completionRateForDays(habit.id, data.completions ?? [], 7, currentDate),
-        completionRate30d: completionRateForDays(habit.id, data.completions ?? [], 30, currentDate),
+        streakUnit: streakData.unit ?? "days",
+        completionRate7d: rate(calculateSuccessRate(habit, completions, 7, currentDate, weekStartsOn, currentDate)),
+        completionRate30d: rate(calculateSuccessRate(habit, completions, 30, currentDate, weekStartsOn, currentDate)),
         scheduledToday: isHabitScheduledOnDate(habit, currentDate, currentDate),
+        dueToday: isHabitDueOnDate(habit, currentDate, completions, weekStartsOn, currentDate),
+        weeklyProgress: weekly,
         completedToday,
         lastCompletedAt: lastCompletion?.date ?? null,
         dataEntry: habit.dataEntry ?? null,

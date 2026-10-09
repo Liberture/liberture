@@ -32,8 +32,9 @@ export function AppPreview({ dict, locale }: { dict: Dictionary; locale: Locale 
           <p className="mx-auto mt-3 max-w-2xl text-pretty text-muted-foreground">{t.body}</p>
         </div>
 
-        <div className="relative mx-auto max-w-5xl pb-10 sm:pb-16">
-          <motion.figure className="relative overflow-hidden rounded-xl border border-white/15 bg-background shadow-2xl shadow-black/50" {...reveal()}>
+        {/* Phones get the phone screenshot alone; the desktop composition starts at sm. */}
+        <div className="relative mx-auto max-w-5xl sm:pb-16">
+          <motion.figure className="relative hidden overflow-hidden rounded-xl border border-white/15 bg-background shadow-2xl shadow-black/50 sm:block" {...reveal()}>
             <Image src={screenshotSrc(locale, "tracker-today")} alt={t.today} width={today.width} height={today.height} sizes="(min-width: 1024px) 1000px, 100vw" className="h-auto w-full" />
           </motion.figure>
           <motion.figure
@@ -43,10 +44,10 @@ export function AppPreview({ dict, locale }: { dict: Dictionary; locale: Locale 
             <Image src={screenshotSrc(locale, "statistics")} alt={t.stats} width={stats.width} height={stats.height} sizes="400px" className="h-auto w-full" />
           </motion.figure>
           <motion.figure
-            className="absolute -bottom-4 right-[3%] w-[26%] max-w-[220px] overflow-hidden rounded-[1.6rem] border-4 border-white/20 bg-background shadow-2xl shadow-black/60 sm:w-[20%]"
+            className="relative mx-auto w-[64%] max-w-[260px] overflow-hidden rounded-[1.6rem] border-4 border-white/20 bg-background shadow-2xl shadow-black/60 sm:absolute sm:-bottom-4 sm:right-[3%] sm:mx-0 sm:w-[20%] sm:max-w-[220px]"
             {...reveal(0.25)}
           >
-            <Image src={screenshotSrc(locale, "mobile-today")} alt={t.mobile} width={phone.width} height={phone.height} sizes="220px" className="h-auto w-full" />
+            <Image src={screenshotSrc(locale, "mobile-today")} alt={t.mobile} width={phone.width} height={phone.height} sizes="(min-width: 640px) 220px, 260px" className="h-auto w-full" />
           </motion.figure>
         </div>
 

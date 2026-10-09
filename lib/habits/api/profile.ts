@@ -2,7 +2,7 @@ import { getDb } from "@/lib/habits/db"
 import { resolveByName } from "@/lib/habits/api/resolve"
 import { parseTime } from "@/lib/habits/api/habit-writes"
 import { isTimeZone } from "@/lib/habits/api/time-zone"
-import { DEFAULT_PREFERENCES, type Habit, type UserPreferences, type UserProfile } from "@/lib/habits/types"
+import { DEFAULT_COACH_PREFERENCES, DEFAULT_PREFERENCES, type CoachPreferences, type Habit, type UserPreferences, type UserProfile } from "@/lib/habits/types"
 
 /**
  * Profile and preferences for the assistant API (get_profile /
@@ -25,6 +25,10 @@ export interface ProfileUpdateInput {
   habitsLayout?: unknown
   defaultReminderTime?: unknown
   notifications?: unknown
+  /** "en" | "es": the language of server-sent messages. */
+  language?: unknown
+  /** Partial CoachPreferences; merged into the saved group. */
+  coach?: unknown
 }
 
 export interface ProfileState {
@@ -160,12 +164,100 @@ export function applyProfileUpdate(state: ProfileState, input: ProfileUpdateInpu
     prefChanges.push(on ? "reminders on" : "reminders off")
   }
 
+  if (input.language !== undefined) {
+    if (input.language !== "en" && input.language !== "es") return { error: "language must be en or es" }
+    preferences.language = input.language
+    prefChanges.push(`messages in ${input.language === "es" ? "Spanish" : "English"}`)
+  }
+  if (input.coach !== undefined) {
+    const coach = applyCoachUpdate(preferences.coach, input.coach)
+    if ("error" in coach) return coach
+    preferences.coach = coach.coach
+    prefChanges.push(...coach.changes)
+  }
+
   if (!profileChanges.length && !prefChanges.length) {
-    return { error: "Nothing to change: send name, missionStatement, focusHabits, checkInTimes or a preference" }
+    return { error: "Nothing to change: send name, missionStatement, focusHabits, checkInTimes, coach or a preference" }
   }
   if (profileChanges.length) profile.updatedAt = now
   if (prefChanges.length) preferences.updatedAt = now
   return { profile, preferences, changes: [...profileChanges, ...prefChanges] }
+}
+
+function strictTime(value: unknown): string | null {
+  if (typeof value !== "string" || !/^\d{1,2}:\d{2}$/.test(value.trim())) return null
+  const time = parseTime(value)
+  return time || null
+}
+
+/**
+ * Pure: the coach preference group after a partial update. A check-in time of
+ * "" or null turns that check-in off; times must be HH:MM, the weekly day
+ * 0 (Sunday) to 6, the daily limit 1 to 10.
+ */
+export function applyCoachUpdate(
+  current: CoachPreferences | undefined,
+  input: unknown
+): { coach: CoachPreferences; changes: string[] } | { error: string } {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return { error: "coach must be an object" }
+  const patch = input as Record<string, unknown>
+  const coach: CoachPreferences = { ...(current ?? {}), checkIns: { ...(current?.checkIns ?? {}) } }
+  const checkIns = coach.checkIns!
+  const changes: string[] = []
+  const off = (value: unknown) => value === null || value === "" || value === false
+
+  if (patch.checkIns !== undefined) {
+    if (!patch.checkIns || typeof patch.checkIns !== "object") return { error: "coach.checkIns must be { morning?, afternoon?, weekly? }" }
+    const given = patch.checkIns as Record<string, unknown>
+    for (const slot of ["morning", "afternoon"] as const) {
+      if (given[slot] === undefined) continue
+      if (off(given[slot])) {
+        delete checkIns[slot]
+        changes.push(`${slot} check-in off`)
+        continue
+      }
+      const time = strictTime(given[slot])
+      if (!time) return { error: `coach.checkIns.${slot} must be HH:MM` }
+      checkIns[slot] = time
+      changes.push(`${slot} check-in at ${time}`)
+    }
+    if (given.weekly !== undefined) {
+      if (off(given.weekly)) {
+        delete checkIns.weekly
+        changes.push("weekly check-in off")
+      } else {
+        const weekly = given.weekly as Record<string, unknown>
+        const day = Number(weekly?.day)
+        const time = strictTime(weekly?.time)
+        if (!Number.isInteger(day) || day < 0 || day > 6) return { error: "coach.checkIns.weekly.day must be 0 (Sunday) to 6 (Saturday)" }
+        if (!time) return { error: "coach.checkIns.weekly.time must be HH:MM" }
+        checkIns.weekly = { day, time }
+        changes.push(`weekly check-in on day ${day} at ${time}`)
+      }
+    }
+  }
+  if (patch.missedLogging !== undefined) {
+    const on = bool(patch.missedLogging)
+    if (on === null) return { error: "coach.missedLogging must be true or false" }
+    coach.missedLogging = on
+    changes.push(on ? "missed-logging check on" : "missed-logging check off")
+  }
+  if (patch.quietHours !== undefined) {
+    const quiet = patch.quietHours as Record<string, unknown> | null
+    const start = strictTime(quiet?.start ?? coach.quietHours?.start ?? DEFAULT_COACH_PREFERENCES.quietHours.start)
+    const end = strictTime(quiet?.end ?? coach.quietHours?.end ?? DEFAULT_COACH_PREFERENCES.quietHours.end)
+    if (!quiet || typeof quiet !== "object" || !start || !end) return { error: "coach.quietHours must be { start, end } as HH:MM" }
+    coach.quietHours = { start, end }
+    changes.push(`quiet hours ${start}–${end}`)
+  }
+  if (patch.maxNudgesPerDay !== undefined) {
+    const max = Number(patch.maxNudgesPerDay)
+    if (!Number.isInteger(max) || max < 1 || max > 10) return { error: "coach.maxNudgesPerDay must be 1 to 10" }
+    coach.maxNudgesPerDay = max
+    changes.push(`at most ${max} coach messages a day`)
+  }
+  if (!changes.length) return { error: "Nothing to change in coach: send checkIns, missedLogging, quietHours or maxNudgesPerDay" }
+  return { coach, changes }
 }
 
 /** What get_profile returns: preferences with defaults filled in, focus habits by name. */
@@ -180,6 +272,7 @@ export function profileView(profile: UserProfile | undefined, preferences: UserP
       ...DEFAULT_PREFERENCES,
       ...Object.fromEntries(Object.entries(preferences ?? {}).filter(([, v]) => v !== undefined)),
       timeZone: preferences?.timeZone ?? null,
+      coach: { ...DEFAULT_COACH_PREFERENCES, checkIns: {}, ...(preferences?.coach ?? {}) },
     },
   }
 }

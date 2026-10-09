@@ -3,11 +3,12 @@
 import { useCallback, useRef } from "react"
 import { format } from "date-fns"
 
-import type { CalendarEvent, CoachRecommendationSet, Habit, HabitCompletion, OnboardingState, Project, StorageData, Todo } from "@/lib/habits/types"
+import type { CalendarEvent, CoachRecommendationEntry, CoachRecommendationSet, Habit, HabitCompletion, OnboardingState, Project, StorageData, Todo } from "@/lib/habits/types"
 import type { CatalogHabit, CatalogProtocol } from "@/lib/habits/protocols/catalog"
 import { adoptProtocol, catalogHabitToHabit } from "@/lib/habits/protocols/adopt"
 import { customRecommendationToHabit, type CustomHabitSpec } from "@/lib/habits/agent/recommendation"
 import { inferTimeOfDay } from "@/lib/habits/habit-utils"
+import { carryResponses, markAccepted, respondInSet, suggestionKey, type SuggestionResponse } from "@/lib/habits/coach/suggestions"
 import { getCompletionCelebration } from "@/lib/habits/motivational-messages"
 import { mergeProjectTombstones } from "@/lib/habits/project-sync"
 import { mergeTodoTombstones } from "@/lib/habits/todo-sync"
@@ -595,15 +596,25 @@ export function useTrackerActions(data: TrackerData) {
    * Marketplace adoption. Catalog entries become plain habits, so nothing here
    * touches the storage schema — see lib/protocols/adopt.ts.
    */
+  /** Adopting something the coach suggested answers that suggestion: accepted. */
+  const acceptSuggestion = useCallback((match: { slugs?: string[]; names?: string[] }) => {
+    updateStorageMeta((current) => {
+      const next = markAccepted(current.coachRecommendations, match)
+      return next === current.coachRecommendations ? current : { ...current, coachRecommendations: next }
+    })
+  }, [updateStorageMeta])
+
   const adoptCatalogProtocol = useCallback((protocol: CatalogProtocol) => {
     // Skip anything already tracked so re-adding a protocol tops it up
     // instead of creating duplicates.
     adoptHabits(protocol.name, adoptProtocol(protocol), sameCatalogSlug)
-  }, [adoptHabits])
+    acceptSuggestion({ slugs: [protocol.slug] })
+  }, [adoptHabits, acceptSuggestion])
 
   const adoptCatalogHabit = useCallback((entry: CatalogHabit) => {
     adoptHabits(entry.name, [catalogHabitToHabit(entry)], sameCatalogSlug)
-  }, [adoptHabits])
+    acceptSuggestion({ slugs: [entry.slug] })
+  }, [adoptHabits, acceptSuggestion])
 
   /**
    * A habit the coach invented rather than found in the catalog. It has no
@@ -615,7 +626,8 @@ export function useTrackerActions(data: TrackerData) {
     adoptHabits(spec.name, [customRecommendationToHabit(spec)], (existing, candidate) =>
       existing.some((h) => !h.archived && h.name.trim().toLowerCase() === candidate.name.trim().toLowerCase()),
     )
-  }, [adoptHabits])
+    acceptSuggestion({ names: [spec.name] })
+  }, [adoptHabits, acceptSuggestion])
 
   /**
    * Keep the coach's latest suggestions in the storage blob so
@@ -624,7 +636,33 @@ export function useTrackerActions(data: TrackerData) {
    * not "what have I ever been told". Rides the normal autosave.
    */
   const recordCoachRecommendations = useCallback((set: CoachRecommendationSet) => {
-    updateStorageMeta((current) => ({ ...current, coachRecommendations: set }))
+    // A suggestion the user already dismissed or snoozed stays that way when
+    // the coach brings it up again.
+    updateStorageMeta((current) => ({ ...current, coachRecommendations: carryResponses(set, current.coachRecommendations) }))
+  }, [updateStorageMeta])
+
+  /**
+   * Dismiss or snooze (7 days) a coach suggestion: by index in the stored set,
+   * by slug or custom name, or as the entry itself. A card from an older
+   * reply that is no longer in the stored set is appended with its answer,
+   * so it stays hidden. Saved with the blob, so get_recommendations and
+   * get_coach_state see it too.
+   */
+  const respondToSuggestion = useCallback((suggestion: number | string | CoachRecommendationEntry, response: SuggestionResponse) => {
+    updateStorageMeta((current) => {
+      const set = current.coachRecommendations ?? { generatedAt: new Date().toISOString(), question: "", entries: [] }
+      const key = typeof suggestion === "object" ? suggestionKey(suggestion) : suggestion
+      const index = typeof suggestion === "number"
+        ? suggestion
+        : set.entries.findIndex((entry) => suggestionKey(entry) === key || entry.slug === key)
+      if (index < 0) {
+        if (typeof suggestion !== "object") return current
+        const appended = { ...set, entries: [...set.entries, suggestion] }
+        return { ...current, coachRecommendations: respondInSet(appended, appended.entries.length - 1, response) }
+      }
+      const next = respondInSet(set, index, response)
+      return next === set ? current : { ...current, coachRecommendations: next }
+    })
   }, [updateStorageMeta])
 
   // Stable identity for the memoised day rows; toggleCompletion itself is
@@ -668,5 +706,6 @@ export function useTrackerActions(data: TrackerData) {
     adoptCatalogHabit,
     adoptCustomHabit,
     recordCoachRecommendations,
+    respondToSuggestion,
   }
 }

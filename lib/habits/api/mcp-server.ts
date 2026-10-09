@@ -4,6 +4,7 @@ import { MCP_TOOLS, callMcpTool } from "@/lib/habits/api/mcp-tools"
 import { MCP_RESOURCES, MCP_RESOURCE_TEMPLATES, readResource } from "@/lib/habits/api/mcp-resources"
 import { MCP_PROMPTS, getPrompt } from "@/lib/habits/api/mcp-prompts"
 import { completeArgument } from "@/lib/habits/api/mcp-completion"
+import { SERVER_VERSION } from "@/lib/habits/api/operations"
 
 /**
  * Model Context Protocol over Streamable HTTP: stateless, JSON responses.
@@ -16,7 +17,9 @@ import { completeArgument } from "@/lib/habits/api/mcp-completion"
  * unprompted, and the one candidate (tools/list_changed when the user flips
  * a permission) isn't worth sessions — a switched-off tool still answers with
  * scope_disabled and a message to relay. So GET stays 405 and every list
- * advertises listChanged: false.
+ * advertises listChanged: false. A deploy that changes the tools changes
+ * serverInfo.version instead (TOOLS_VERSION), and get_permissions reports the
+ * count and version, so a stale client can be told to refresh.
  */
 
 const SUPPORTED_PROTOCOL_VERSIONS = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"]
@@ -29,7 +32,10 @@ const INSTRUCTIONS =
   "follow-up questions when a default works (a new habit is daily with no reminder): do it, then read back the `say` " +
   "sentence the tool returns and offer to adjust. On 409 ask which of `options`. To stop a habit, archive it. Keep " +
   "replies to one or two sentences. When recommending, share infoUrl. If a tool returns scope_disabled, relay its " +
-  "message; don't retry."
+  "message; don't retry. If the user mentions something get_permissions says this connector offers (connector.tools) " +
+  "but your tool list lacks it, tell them to refresh the Liberture connector in their assistant's settings. Before " +
+  "any message the user didn't ask for (a scheduled check-in), call get_coach_state, then record_coach_nudge, and " +
+  "only message them if it returns allowed."
 
 interface JsonRpcRequest {
   jsonrpc?: string
@@ -66,7 +72,8 @@ async function handleMessage(message: JsonRpcRequest, token: string, origin: str
         serverInfo: {
           name: "liberture-habits",
           title: "Liberture",
-          version: "1.0.0",
+          // 1.2.0+<hash of tool names and schemas>: changes with the tool list.
+          version: SERVER_VERSION,
           websiteUrl: origin,
           icons: [
             { src: `${origin}/pwa-icon-512.png`, mimeType: "image/png", sizes: ["512x512"] },
