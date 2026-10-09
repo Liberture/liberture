@@ -85,6 +85,7 @@ export async function GET(request: Request) {
   return NextResponse.json({
     totalHabits: habits.length,
     activeHabits: activeHabitsCount,
+    habitsLoggedLast30d: activeHabitsCount,
     totalCompletions: completions.filter((c) => {
       const habit = allHabits.find((h) => h.id === c.habitId)
       return c.completed && isHabitActiveOnDate(habit, parseDateOnly(c.date), todayDate)
@@ -95,5 +96,15 @@ export async function GET(request: Request) {
     bestHabitName: bestStreak.name,
     totalStreakDays,
     completionsByDay,
+    // So an assistant can explain the numbers instead of guessing them.
+    definitions: {
+      totalHabits: "Habits that aren't archived. Archived habits are left out of every number here.",
+      activeHabits: "Of those, habits marked done at least once in the last 30 days (same as habitsLoggedLast30d).",
+      completionRateToday: "Done today ÷ habits scheduled today (and created by then). A times-per-week habit counts as scheduled every day, so days off lower the rate.",
+      completionRate7d: "Done ÷ scheduled over the last 7 days, same rule.",
+      bestCurrentStreak: "Longest current run among habits, in scheduled days.",
+      totalCompletions: "Every day marked done, all time.",
+      completionsByDay: "Habits marked done on each of the last 30 days.",
+    },
   })
 }

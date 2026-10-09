@@ -639,7 +639,7 @@ export const API_OPERATIONS: readonly ApiOperation[] = [
     path: "/stats",
     scope: "read",
     summary: "Week and month numbers",
-    description: "Completion rate today and over 7 days, best current streak, 30-day series. For 'how was my week'.",
+    description: "Completion rate today and over 7 days, best current streak, 30-day series. For 'how was my week'. `definitions` explains each number (activeHabits = logged in the last 30 days, not 'not archived'); archived habits are excluded, so archive_habit removes test habits from stats.",
     params: [TZ_PARAM],
     output: SAY_OUTPUT,
   },
