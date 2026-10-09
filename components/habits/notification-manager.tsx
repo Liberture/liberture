@@ -1,12 +1,12 @@
 "use client"
 
 import { useEffect, useRef, useCallback, useState } from "react"
-import type { Habit, HabitCompletion } from "@/lib/habits/types"
-import { format, startOfDay } from "date-fns"
+import type { Habit, HabitCompletion, UserPreferences } from "@/lib/habits/types"
 import { Bell } from "lucide-react"
 import { Button } from "@/components/habits/ui/button"
 import { useTranslations } from "@/components/i18n/locale-provider"
-import { formatMessage } from "@/lib/i18n-format"
+import { dueReminders, localNowFor, type DueReminder } from "@/lib/habits/reminders/due"
+import { claimReminder, getActivePushSubscription, type AuthHeaders } from "@/lib/habits/reminders/client"
 
 interface NotificationManagerProps {
   habits: Habit[]
@@ -17,17 +17,48 @@ interface NotificationManagerProps {
   dismissedAt?: string
   /** "Not now": the parent saves preferences.notificationPromptDismissedAt = now. */
   onDismiss: () => void
+  /** Week start, time zone and quiet hours: the same inputs the server tick uses. */
+  preferences?: UserPreferences
+  /** Sent with POST /api/habits/push/claim (API-key accounts; Nostr uses the cookie). */
+  authHeaders?: AuthHeaders
 }
 
 /** "Not now" keeps the permission prompt away for this long. */
 const PROMPT_SNOOZE_MS = 30 * 24 * 60 * 60 * 1000
+/** How often the in-tab fallback looks for due reminders. */
+const CHECK_INTERVAL_MS = 60_000
 
-export function NotificationManager({ habits, completions, enabled = true, dismissedAt, onDismiss }: NotificationManagerProps) {
+function deviceTimeZone(): string | undefined {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * Habit reminders while Liberture is open, as a fallback: a device with an
+ * active push subscription gets them from the server (even closed), so this
+ * loop stays quiet there. Otherwise it fires what lib/habits/reminders/due.ts
+ * says is due and claims each one first, so the server, other tabs and other
+ * devices never show it twice.
+ */
+export function NotificationManager({
+  habits,
+  completions,
+  enabled = true,
+  dismissedAt,
+  onDismiss,
+  preferences,
+  authHeaders,
+}: NotificationManagerProps) {
   const t = useTranslations().habits.app.notificationManager
-  const notifiedHabitsRef = useRef<Set<string>>(new Set())
   // "unsupported" until mounted: there is no Notification API during SSR.
   const [permission, setPermission] = useState<NotificationPermission | "unsupported">("unsupported")
-  const checkIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  /** This tab already handled the key (claimed or lost the claim): don't ask again. */
+  const handledRef = useRef<Set<string>>(new Set())
+  const authRef = useRef<AuthHeaders>(authHeaders ?? {})
+  authRef.current = authHeaders ?? {}
 
   const requestPermission = useCallback(async () => {
     if (!("Notification" in window)) return
@@ -41,14 +72,13 @@ export function NotificationManager({ habits, completions, enabled = true, dismi
     if ("Notification" in window) setPermission(Notification.permission)
   }, [])
 
-  const sendNotification = useCallback(async (habitName: string, body?: string) => {
-    if (!("Notification" in window) || Notification.permission !== "granted") return
-
+  const showReminder = useCallback(async (reminder: DueReminder) => {
     const options: NotificationOptions = {
-      body: body ?? formatMessage(t.reminderBody, { name: habitName }),
+      body: reminder.body,
       icon: "/pwa-icon-192.png",
       badge: "/icon-dark-32x32.png",
-      tag: `habit-${habitName}`,
+      tag: reminder.tag,
+      data: { url: reminder.url },
       requireInteraction: false,
       silent: false,
     }
@@ -59,7 +89,7 @@ export function NotificationManager({ habits, completions, enabled = true, dismi
       if ("serviceWorker" in navigator) {
         const registration = await navigator.serviceWorker.getRegistration()
         if (registration) {
-          await registration.showNotification(t.reminderTitle, options)
+          await registration.showNotification(reminder.title, options)
           return
         }
       }
@@ -68,7 +98,7 @@ export function NotificationManager({ habits, completions, enabled = true, dismi
     }
 
     try {
-      const notification = new Notification(t.reminderTitle, options)
+      const notification = new Notification(reminder.title, options)
       notification.onclick = () => {
         window.focus()
         notification.close()
@@ -77,128 +107,38 @@ export function NotificationManager({ habits, completions, enabled = true, dismi
     } catch (error) {
       console.warn("Notification delivery failed", error)
     }
-  }, [t])
-
-  const isHabitScheduledForToday = useCallback((habit: Habit): boolean => {
-    const today = new Date().getDay()
-
-    if (habit.schedule.type === "daily") {
-      return true
-    } else if (habit.schedule.type === "specific_days" && habit.schedule.days) {
-      return habit.schedule.days.includes(today)
-    } else if (habit.schedule.type === "times_per_week") {
-      // For times_per_week, assume any day is valid
-      return true
-    }
-
-    return false
   }, [])
 
-  const checkHabits = useCallback(() => {
+  const checkHabits = useCallback(async () => {
     if (!enabled || !habits.length) return
+    if (!("Notification" in window) || Notification.permission !== "granted") return
+    // The server delivers to this device: firing here too would duplicate.
+    if (await getActivePushSubscription()) return
 
-    const now = new Date()
-    const todayStr = format(startOfDay(now), "yyyy-MM-dd")
-    const currentTimeMinutes = now.getHours() * 60 + now.getMinutes()
+    const localNow = localNowFor(preferences?.timeZone || deviceTimeZone())
+    const due = dueReminders(
+      { habits, preferences },
+      completions,
+      localNow,
+      preferences?.weekStartsOn ?? 1,
+      { reminderTitle: t.reminderTitle, reminderBody: t.reminderBody, dueBody: t.dueBody },
+    )
 
-    habits.forEach((habit) => {
-      if (habit.archived) return
-
-      // Skip if habit is not scheduled for today
-      if (!isHabitScheduledForToday(habit)) return
-
-      // Check if already completed today. A record can exist with completed:false
-      // when only data was logged, so the flag has to be read, not just presence.
-      const isCompleted = completions.some(
-        (c) => c.habitId === habit.id && c.date === todayStr && c.completed
-      )
-
-      if (isCompleted) return
-
-      // Opt-in nudges at random points in the day, separate from the reminder
-      // at the habit's scheduled time below.
-      if (habit.randomRemindersEnabled) {
-        const randomNotificationKey = habit.id + "-" + todayStr + "-random-" + Math.floor(currentTimeMinutes / 180)
-        if (!notifiedHabitsRef.current.has(randomNotificationKey) && Math.random() < 1 / 120) {
-          sendNotification(habit.name)
-          notifiedHabitsRef.current.add(randomNotificationKey)
-        }
+    for (const reminder of due) {
+      if (handledRef.current.has(reminder.key)) continue
+      handledRef.current.add(reminder.key)
+      if (await claimReminder(reminder.key, reminder.kind, localNow.date, authRef.current)) {
+        await showReminder(reminder)
       }
-
-      // Parse habit time (format: "HH:MM" or "H:MM AM/PM").
-      // Older/pro-model habits may only have timeOfDay and no concrete time;
-      // skip those instead of throwing on every render/interval.
-      if (typeof habit.time !== "string" || habit.time.trim() === "") {
-        return
-      }
-
-      const timeParts = habit.time.match(/(\d+):(\d+)\s*(AM|PM)?/i)
-      if (!timeParts) return
-
-      let hours = Number.parseInt(timeParts[1])
-      const minutes = Number.parseInt(timeParts[2])
-      const period = timeParts[3]?.toUpperCase()
-
-      if (period === "PM" && hours !== 12) hours += 12
-      if (period === "AM" && hours === 12) hours = 0
-
-      const habitTimeMinutes = hours * 60 + minutes
-
-      const minutesOverdue = currentTimeMinutes - habitTimeMinutes
-
-      if (minutesOverdue >= 0 && minutesOverdue <= 720) {
-        // From the scheduled minute up to 12 hours late
-        const notificationKey = `${habit.id}-${todayStr}`
-
-        // Only notify once per habit per day
-        if (!notifiedHabitsRef.current.has(notificationKey)) {
-          console.log(`[v0] Sending notification for overdue habit: ${habit.name}`)
-          sendNotification(habit.name, formatMessage(t.overdueBody, { name: habit.name, time: habit.time }))
-          notifiedHabitsRef.current.add(notificationKey)
-        }
-      }
-    })
-  }, [habits, completions, enabled, sendNotification, isHabitScheduledForToday, t])
+    }
+  }, [habits, completions, enabled, preferences, showReminder, t])
 
   useEffect(() => {
     if (!enabled) return
-
-    // Check immediately on mount
-    checkHabits()
-
-    // Then check every minute
-    checkIntervalRef.current = setInterval(checkHabits, 60000)
-
-    return () => {
-      if (checkIntervalRef.current) {
-        clearInterval(checkIntervalRef.current)
-      }
-    }
+    void checkHabits()
+    const interval = setInterval(() => void checkHabits(), CHECK_INTERVAL_MS)
+    return () => clearInterval(interval)
   }, [checkHabits, enabled])
-
-  useEffect(() => {
-    const now = new Date()
-    const tomorrow = new Date(now)
-    tomorrow.setHours(24, 0, 0, 0)
-    const msUntilMidnight = tomorrow.getTime() - now.getTime()
-
-    const midnightTimer = setTimeout(() => {
-      console.log("[v0] Clearing notification cache at midnight")
-      notifiedHabitsRef.current.clear()
-
-      // Set up daily clearing
-      const dailyInterval = setInterval(
-        () => {
-          notifiedHabitsRef.current.clear()
-        },
-        24 * 60 * 60 * 1000,
-      )
-
-      return () => clearInterval(dailyInterval)
-    }, msUntilMidnight)
-
-    return () => clearTimeout(midnightTimer)
-  }, [])
 
   // A blocked permission can only be undone in browser settings, so nagging
   // about it forever just covers the UI. Settings → Reminders shows the status

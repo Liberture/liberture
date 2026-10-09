@@ -6,7 +6,7 @@ import { differenceInCalendarDays, format, isSameDay, startOfDay, subDays } from
 import { Orbit, Pause, Play, RotateCcw } from "lucide-react"
 
 import type { Habit, HabitCompletion } from "@/lib/habits/types"
-import { isHabitScheduledOnDate } from "@/lib/habits/habit-utils"
+import { calculateSuccessCounts, type WeekStart } from "@/lib/habits/habit-utils"
 import {
   PILLAR_HEX,
   PILLAR_ICON_MAP,
@@ -68,6 +68,8 @@ interface HabitHelixProps {
    * clipped to today) and the helix's own 90d/180d/1y picker is hidden.
    */
   range?: { start: Date; end: Date }
+  /** First day of the week, for times-per-week targets. */
+  weekStartsOn?: WeekStart
 }
 
 interface Ring {
@@ -112,7 +114,7 @@ function bearing(pillarIndex: number): number {
   return (pillarIndex / PILLAR_IDS.length) * Math.PI * 2
 }
 
-export function HabitHelix({ habits, completions, range: externalRange }: HabitHelixProps) {
+export function HabitHelix({ habits, completions, range: externalRange, weekStartsOn = 1 }: HabitHelixProps) {
   const t = useTranslations().habits.app.habitHelix
   const dateLocale = useDateLocale()
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -146,10 +148,16 @@ export function HabitHelix({ habits, completions, range: externalRange }: HabitH
     return map
   }, [activeHabits])
 
-  const completedKeys = useMemo(() => {
-    const set = new Set<string>()
-    for (const c of completions) if (c.completed) set.add(`${c.date}:${c.habitId}`)
-    return set
+  // Bucketed per habit, so each ring's shared-rate call only scans its own habit.
+  const completionsByHabit = useMemo(() => {
+    const map = new Map<string, HabitCompletion[]>()
+    for (const c of completions) {
+      if (!c.completed) continue
+      const list = map.get(c.habitId)
+      if (list) list.push(c)
+      else map.set(c.habitId, [c])
+    }
+    return map
   }, [completions])
 
   const todayKey = format(new Date(), "yyyy-MM-dd")
@@ -182,16 +190,18 @@ export function HabitHelix({ habits, completions, range: externalRange }: HabitH
       for (let offset = 0; offset < bucketSize; offset++) {
         const daysAgo = dayCount - 1 - (ringIndex * bucketSize + offset)
         if (daysAgo < 0) continue
-        const day = subDays(today, daysAgo)
-        last = day
+        last = subDays(today, daysAgo)
         span++
-        const dateStr = format(day, "yyyy-MM-dd")
+      }
 
+      // The shared counts: scheduled days, or the weekly target for
+      // times-per-week habits, so rest days don't thin a ring.
+      if (span > 0) {
         for (const habit of activeHabits) {
-          if (!isHabitScheduledOnDate(habit, day)) continue
+          const counts = calculateSuccessCounts(habit, completionsByHabit.get(habit.id) ?? [], span, last, weekStartsOn)
           const index = PILLAR_IDS.indexOf(pillarOf.get(habit.id) ?? "work")
-          scheduled[index]++
-          if (completedKeys.has(`${dateStr}:${habit.id}`)) done[index]++
+          scheduled[index] += counts.expected
+          done[index] += counts.done
         }
       }
 
@@ -209,7 +219,7 @@ export function HabitHelix({ habits, completions, range: externalRange }: HabitH
     }
 
     return result
-  }, [activeHabits, completedKeys, pillarOf, dayCount, anchorDay, dateLocale])
+  }, [activeHabits, completionsByHabit, pillarOf, dayCount, anchorDay, dateLocale, weekStartsOn])
 
   const summary = useMemo(() => {
     if (rings.length === 0) return null

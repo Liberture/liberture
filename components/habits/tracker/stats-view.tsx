@@ -10,6 +10,7 @@ import { HabitMatrix } from "@/components/habits/habit-matrix"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { useMobile } from "@/hooks/use-mobile"
 import type { Habit, HabitCompletion, Todo } from "@/lib/habits/types"
+import type { WeekStart } from "@/lib/habits/habit-utils"
 
 function StatisticsLoading() {
   const t = useTranslations().habits.app.habitTracker
@@ -52,6 +53,8 @@ interface StatsViewProps {
   /** Owned by the tracker so it survives switching views. */
   range: DateRange
   onRangeChange: (range: DateRange) => void
+  /** First day of the week, for the picker and times-per-week targets. */
+  weekStartsOn?: WeekStart
 }
 
 /**
@@ -59,7 +62,7 @@ interface StatsViewProps {
  * Habits view and deliberately do not reach in here: Stats always covers every
  * current (unarchived) habit, whatever the Habits view happens to be showing.
  */
-export function StatsView({ habits, completions, todos, onToggleCompletion, range, onRangeChange }: StatsViewProps) {
+export function StatsView({ habits, completions, todos, onToggleCompletion, range, onRangeChange, weekStartsOn = 1 }: StatsViewProps) {
   const app = useTranslations().habits.app
   const counts = app.settingsDialog
   const isMobile = useMobile()
@@ -92,14 +95,15 @@ export function StatsView({ habits, completions, todos, onToggleCompletion, rang
         ))}
       </dl>
 
-      <DateRangeFilter value={range} onChange={onRangeChange} />
-      <HabitStatistics habits={activeHabits} completions={completions} range={range} />
-      <HabitSummary habits={activeHabits} completions={completions} range={range} />
-      <HabitHelix habits={activeHabits} completions={completions} range={range} />
+      <DateRangeFilter value={range} onChange={onRangeChange} weekStartsOn={weekStartsOn} />
+      <HabitStatistics habits={activeHabits} completions={completions} range={range} weekStartsOn={weekStartsOn} />
+      <HabitSummary habits={activeHabits} completions={completions} range={range} weekStartsOn={weekStartsOn} />
+      <HabitHelix habits={activeHabits} completions={completions} range={range} weekStartsOn={weekStartsOn} />
       {!isMobile && (
         <HabitMatrix
           habits={sortedHabits}
           completions={completions}
+          weekStartsOn={weekStartsOn}
           // Same routing as the Habits view: data/reading habits open their modal.
           onToggleCompletion={onToggleCompletion}
         />

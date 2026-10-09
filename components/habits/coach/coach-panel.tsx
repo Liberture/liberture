@@ -6,11 +6,12 @@ import { AlertCircle, Loader2, MessageSquarePlus, Send, Settings2, Sparkles, Squ
 import { ProtocolReader } from "@/components/habits/marketplace/protocol-reader"
 import { CoachAdmin } from "@/components/habits/coach/coach-admin"
 import { RecommendationCards } from "@/components/habits/coach/recommendation-cards"
+import { isSuggestionHidden, suggestionKey } from "@/lib/habits/coach/suggestions"
 import { AppDialog } from "@/components/habits/ui/app-dialog"
 import { parseAgentReply, toStoredEntries, type CustomHabitSpec, type Recommendation } from "@/lib/habits/agent/recommendation"
 import { adoptedProtocolSlugs, adoptedSlugs } from "@/lib/habits/protocols/adopt"
 import { CATALOG_PROTOCOLS, type CatalogHabit, type CatalogProtocol } from "@/lib/habits/protocols/catalog"
-import type { CoachRecommendationSet, Habit } from "@/lib/habits/types"
+import type { CoachRecommendationEntry, CoachRecommendationSet, Habit } from "@/lib/habits/types"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "@/components/i18n/locale-provider"
 
@@ -22,6 +23,10 @@ interface CoachPanelProps {
   onAdoptCustom: (spec: CustomHabitSpec) => void
   /** Persists the reply so GET /api/v1/coach/recommendations can serve it. */
   onRecommendations: (set: CoachRecommendationSet) => void
+  /** The stored suggestions with what the user did about them; dismissed and snoozed cards are hidden. */
+  storedRecommendations?: CoachRecommendationSet
+  /** Dismiss or snooze a suggestion (persisted with the blob). */
+  onRespondToSuggestion?: (entry: CoachRecommendationEntry, response: "dismiss" | "snooze") => void
 }
 
 interface Message {
@@ -119,6 +124,8 @@ export function CoachPanel({
   onAdoptHabit,
   onAdoptCustom,
   onRecommendations,
+  storedRecommendations,
+  onRespondToSuggestion,
 }: CoachPanelProps) {
   const t = useTranslations().habits.app.coachPanel
   const [historyReady, setHistoryReady] = useState(false)
@@ -195,6 +202,18 @@ export function CoachPanel({
     const retry = window.setInterval(save, 30_000)
     return () => { window.clearTimeout(timer); window.clearInterval(retry); save() }
   }, [messages, historyReady, saveHistory])
+
+  const hiddenKeys = useMemo(() => {
+    const now = new Date()
+    return new Set((storedRecommendations?.entries ?? []).filter((entry) => isSuggestionHidden(entry, now)).map(suggestionKey))
+  }, [storedRecommendations])
+  const respond = useMemo(
+    () =>
+      onRespondToSuggestion
+        ? (rec: Recommendation, response: "dismiss" | "snooze") => onRespondToSuggestion(toStoredEntries([rec])[0], response)
+        : undefined,
+    [onRespondToSuggestion]
+  )
 
   const habitSlugs = useMemo(() => adoptedSlugs(habits), [habits])
   const protocolSlugs = useMemo(() => adoptedProtocolSlugs(habits, CATALOG_PROTOCOLS), [habits])
@@ -447,6 +466,8 @@ export function CoachPanel({
                   onAdoptHabit={onAdoptHabit}
                   onAdoptCustom={onAdoptCustom}
                   onReadProtocol={(protocol) => setReadingSlug(protocol.slug)}
+                  hiddenKeys={hiddenKeys}
+                  onRespond={respond}
                 />
               </div>
             )}

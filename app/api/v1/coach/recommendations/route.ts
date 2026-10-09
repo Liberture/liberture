@@ -5,6 +5,7 @@ import { authorizeIntegration } from "@/lib/habits/integration-auth"
 import { catalogLinks, requestOrigin } from "@/lib/habits/api/assistant"
 import { adoptedProtocolSlugs, adoptedSlugs } from "@/lib/habits/protocols/adopt"
 import { CATALOG_PROTOCOLS } from "@/lib/habits/protocols/catalog"
+import { effectiveStatus, isSuggestionHidden } from "@/lib/habits/coach/suggestions"
 
 /**
  * GET /api/v1/coach/recommendations
@@ -45,10 +46,17 @@ export async function GET(request: Request) {
   const adoptedHabits = adoptedSlugs(habits)
   const adoptedProtocols = adoptedProtocolSlugs(habits, CATALOG_PROTOCOLS)
 
-  const recommendations = stored.entries
-    .map((entry) => resolveRecommendationCard(entry, adoptedHabits, adoptedProtocols))
+  // Dismissed suggestions, and snoozed ones until the snooze ends, are left
+  // out: the user already answered them (respond_to_suggestion or the panel).
+  const now = new Date()
+  const visible = stored.entries.filter((entry) => !isSuggestionHidden(entry, now))
+  const recommendations = visible
+    .map((entry) => {
+      const card = resolveRecommendationCard(entry, adoptedHabits, adoptedProtocols)
+      return card ? { ...card, status: effectiveStatus(entry, now) } : null
+    })
     // A stored slug can outlive the catalog entry it points at.
-    .filter((card): card is RecommendationCard => card !== null)
+    .filter((card): card is RecommendationCard & { status: ReturnType<typeof effectiveStatus> } => card !== null)
     .map((card) => ({ ...card, ...catalogLinks(card.kind, card.slug, origin) }))
 
   return NextResponse.json(
@@ -58,7 +66,9 @@ export async function GET(request: Request) {
       recommendations,
       hasRun: true,
       /** Set when the catalog moved on and some suggestions no longer resolve. */
-      unresolved: stored.entries.length - recommendations.length,
+      unresolved: visible.length - recommendations.length,
+      /** Dismissed, or snoozed and not yet due back. */
+      hidden: stored.entries.length - visible.length,
     },
     { headers: { "Cache-Control": "no-store" } }
   )

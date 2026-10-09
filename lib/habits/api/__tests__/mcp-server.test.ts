@@ -105,7 +105,7 @@ describe("tools/list", () => {
     const { json } = await rpc("tools/list")
     const tools = json.result.tools as Array<Record<string, any>>
     expect(tools).toHaveLength(API_OPERATIONS.length)
-    expect(tools.length).toBe(35)
+    expect(tools.length).toBe(39)
     expect(new Set(tools.map((t) => t.name)).size).toBe(tools.length)
     for (const tool of tools) {
       expect(typeof tool.name).toBe("string")
@@ -224,7 +224,7 @@ describe("resources", () => {
 })
 
 describe("prompts", () => {
-  it("lists the five prompts and fills arguments in", async () => {
+  it("lists the prompts and fills arguments in", async () => {
     const list = await rpc("prompts/list")
     expect(list.json.result.prompts.map((p: { name: string }) => p.name)).toEqual([
       "morning_checkin",
@@ -232,6 +232,7 @@ describe("prompts", () => {
       "weekly_review",
       "plan_my_day",
       "pick_a_protocol",
+      "coach_checkin",
     ])
     const prompt = await rpc("prompts/get", { name: "pick_a_protocol", arguments: { goal: "sleep better" } })
     const text = prompt.json.result.messages[0].content.text as string

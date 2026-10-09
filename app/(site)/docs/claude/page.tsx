@@ -41,6 +41,17 @@ export default async function ClaudeDocsPage() {
       </DocsSection>
 
       <DocsCallout title={t.voiceTitle}>{t.voice}</DocsCallout>
+
+      <DocsSection title={t.troubleTitle}>
+        <dl className="space-y-4">
+          {t.trouble.map((item) => (
+            <div key={item.q}>
+              <dt className="font-mono text-sm font-semibold text-foreground">{item.q}</dt>
+              <dd className="mt-1 text-muted-foreground">{item.a}</dd>
+            </div>
+          ))}
+        </dl>
+      </DocsSection>
     </>
   )
 }

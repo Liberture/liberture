@@ -114,6 +114,7 @@ export function AssistantConnectSection({ apiKey, isNostrAuth }: AssistantAccess
   const { copiedField, copy } = useCopy()
   const mcpUrl = useMcpUrl()
   const [gptUrl, setGptUrl] = useState<string | null>(null)
+  const [tools, setTools] = useState<{ count: number; version: string } | null>(null)
   const [connections, setConnections] = useState<Connection[] | null>(null)
   const [permissions, setPermissions] = useState<Record<ApiScope, boolean> | null>(null)
   const [savingScope, setSavingScope] = useState<ApiScope | null>(null)
@@ -128,7 +129,10 @@ export function AssistantConnectSection({ apiKey, isNostrAuth }: AssistantAccess
   useEffect(() => {
     fetch("/api/v1/integrations")
       .then((r) => r.json())
-      .then((d) => setGptUrl(d.gptUrl ?? null))
+      .then((d) => {
+        setGptUrl(d.gptUrl ?? null)
+        if (typeof d.toolCount === "number" && typeof d.toolsVersion === "string") setTools({ count: d.toolCount, version: d.toolsVersion })
+      })
       .catch(() => {})
   }, [])
 
@@ -240,6 +244,9 @@ export function AssistantConnectSection({ apiKey, isNostrAuth }: AssistantAccess
             </>
           )}
         </div>
+        {tools ? (
+          <p className="text-xs text-muted-foreground">{formatMessage(t.toolsLine, { count: tools.count, version: tools.version })}</p>
+        ) : null}
       </SettingsCard>
 
       <SettingsCard title={t.connectedTitle} description={t.connectedDescription}>

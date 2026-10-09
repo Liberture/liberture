@@ -26,6 +26,12 @@ x-app-env: &app-env
   HABIT_INSTANCE_ID: liberture
   RESEND_API_KEY: ${RESEND_API_KEY:-}
   PERPLEXITY_API_KEY: ${PERPLEXITY_API_KEY:-}
+  # Web Push for reminders with the app closed (node scripts/generate-vapid-keys.mjs).
+  # Unset keys = no server push; REMINDER_SCHEDULER=off stops the minute ticker.
+  VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+  VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+  VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:hello@liberture.com}
+  REMINDER_SCHEDULER: ${REMINDER_SCHEDULER:-}
 
 services:
   database:

@@ -17,7 +17,7 @@ import {
   pillarForHabit,
   type PillarId,
 } from "@/lib/habits/pillars"
-import { isHabitScheduledOnDate } from "@/lib/habits/habit-utils"
+import { isHabitDueOnDate, type WeekStart } from "@/lib/habits/habit-utils"
 import { cn } from "@/lib/utils"
 import { useDateLocale, useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage } from "@/lib/i18n-format"
@@ -38,6 +38,8 @@ interface MorningDashboardProps {
   onDismiss: () => void
   /** Ticks a habit for today from the dashboard. */
   onToggleHabit?: (habitId: string) => void
+  /** First day of the week, for times-per-week targets. */
+  weekStartsOn?: WeekStart
 }
 
 export function MorningDashboard({
@@ -47,6 +49,7 @@ export function MorningDashboard({
   onStartDay,
   onDismiss,
   onToggleHabit,
+  weekStartsOn = 1,
 }: MorningDashboardProps) {
   const t = useTranslations().habits.app.morningDashboard
   const dateLocale = useDateLocale()
@@ -60,12 +63,13 @@ export function MorningDashboard({
   )
 
   // Only what is due today counts: a Mon/Wed/Fri habit on a Tuesday is not
-  // "left to do", and counting it made the bar impossible to finish.
+  // "left to do", and counting it made the bar impossible to finish. Nor is a
+  // 3×-a-week habit whose three are already done this week.
   const activeHabits = useMemo(
-    () => habits.filter((h) => !h.archived && isHabitScheduledOnDate(h, now)),
+    () => habits.filter((h) => !h.archived && isHabitDueOnDate(h, now, completions, weekStartsOn)),
     // `today` stands in for `now`; the list only changes with the day.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [habits, today]
+    [habits, completions, weekStartsOn, today]
   )
 
   const titleId = useId()

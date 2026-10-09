@@ -65,8 +65,10 @@ export interface IdentityConfig {
 }
 
 export interface StreakData {
-  current: number // Current consecutive days
+  current: number // Current consecutive days (weeks for times-per-week habits)
   longest: number // All-time longest streak
+  /** What current/longest count. Missing on older stored data, which counted days. */
+  unit?: "days" | "weeks"
   freezesAvailable: number // Streak freezes earned
   freezesUsed: number // Total freezes used
   lastCompletedDate?: string // YYYY-MM-DD
@@ -303,11 +305,43 @@ export interface UserPreferences {
   habitsLayout?: "day" | "week" | "matrix"
   /** HH:MM pre-filled for new habits; empty = no reminder. */
   defaultReminderTime?: string
+  /** Language for messages the server sends (push check-ins). Mirrors the `lang` cookie. */
+  language?: "en" | "es"
+  /** Proactive coach check-ins and the limits every coach (in-app or an assistant) must respect. */
+  coach?: CoachPreferences
   /** ISO time of the last change; the storage POST keeps the newer copy. */
   updatedAt?: string
 }
 
-export const DEFAULT_PREFERENCES: Required<Omit<UserPreferences, "notificationPromptDismissedAt" | "morningDashboardDismissedOn" | "timeZone" | "updatedAt">> = {
+/**
+ * Check-ins are off until the user sets a time. Quiet hours and the daily
+ * cap apply to every nudge: server push check-ins and an assistant's
+ * automations (MCP record_coach_nudge) alike.
+ */
+export interface CoachPreferences {
+  checkIns?: {
+    /** HH:MM local; absent = off. Two priorities and a first action. */
+    morning?: string
+    /** HH:MM local; absent = off. The next thing still worth doing. */
+    afternoon?: string
+    /** Weekly review; absent = off. day 0 = Sunday. */
+    weekly?: { day: number; time: string }
+  }
+  /** Ask when a habit has gone unlogged for several due days ("skipped, or forgot to log?"). */
+  missedLogging?: boolean
+  /** No nudges between start and end (HH:MM, may wrap midnight). */
+  quietHours?: { start: string; end: string }
+  /** Coach messages per local day, all coaches combined. Habit reminders don't count. */
+  maxNudgesPerDay?: number
+}
+
+export const DEFAULT_COACH_PREFERENCES: Required<Pick<CoachPreferences, "missedLogging" | "quietHours" | "maxNudgesPerDay">> = {
+  missedLogging: false,
+  quietHours: { start: "22:00", end: "08:00" },
+  maxNudgesPerDay: 3,
+}
+
+export const DEFAULT_PREFERENCES: Required<Omit<UserPreferences, "notificationPromptDismissedAt" | "morningDashboardDismissedOn" | "timeZone" | "updatedAt" | "language" | "coach">> = {
   notifications: true,
   theme: "system",
   weekStartsOn: 1,
@@ -380,6 +414,11 @@ export interface CoachRecommendationEntry {
   slug?: string
   /** Why the coach thinks this fits, in its own words. */
   reason: string
+  /** What the user did with it. Absent = pending. */
+  status?: "pending" | "accepted" | "dismissed" | "snoozed"
+  /** ISO time a snooze ends; the suggestion is pending again after it. */
+  snoozedUntil?: string
+  respondedAt?: string
   /** The habit to create. Present only for kind "custom". */
   custom?: {
     name: string

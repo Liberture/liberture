@@ -1,6 +1,6 @@
 "use client"
 
-import { Clock, Plus, Sparkles } from "lucide-react"
+import { AlarmClock, Clock, Plus, Sparkles, X } from "lucide-react"
 
 import { CatalogHabitCard, ProtocolCard } from "@/components/habits/marketplace/protocol-card"
 import { DifficultyTag, PillarTag, useCatalogLabels } from "@/components/habits/marketplace/pillar-tag"
@@ -11,6 +11,11 @@ import type { CatalogHabit, CatalogProtocol } from "@/lib/habits/protocols/catal
 import { cn } from "@/lib/utils"
 import { useTranslations } from "@/components/i18n/locale-provider"
 
+/** What identifies a card across replies: its slug, or the custom habit's name (as suggestionKey does). */
+export function recommendationKey(rec: Recommendation): string {
+  return rec.slug ?? rec.custom?.name.trim().toLowerCase() ?? ""
+}
+
 interface RecommendationCardsProps {
   recommendations: Recommendation[]
   adoptedHabitSlugs: Set<string>
@@ -19,6 +24,10 @@ interface RecommendationCardsProps {
   onAdoptHabit: (habit: CatalogHabit) => void
   onAdoptCustom: (spec: CustomHabitSpec) => void
   onReadProtocol: (protocol: CatalogProtocol) => void
+  /** Keys (recommendationKey) of suggestions the user dismissed or snoozed: not shown. */
+  hiddenKeys?: Set<string>
+  /** Dismiss or snooze a suggestion; without it the cards have no such buttons. */
+  onRespond?: (rec: Recommendation, response: "dismiss" | "snooze") => void
 }
 
 /**
@@ -37,12 +46,16 @@ export function RecommendationCards({
   onAdoptHabit,
   onAdoptCustom,
   onReadProtocol,
+  hiddenKeys,
+  onRespond,
 }: RecommendationCardsProps) {
-  if (recommendations.length === 0) return null
+  const visible = hiddenKeys?.size ? recommendations.filter((rec) => !hiddenKeys.has(recommendationKey(rec))) : recommendations
+  if (visible.length === 0) return null
 
   return (
     <div className="mt-4 space-y-3">
-      {recommendations.map((rec, index) => {
+      {visible.map((rec, index) => {
+        const respond = onRespond ? (response: "dismiss" | "snooze") => onRespond(rec, response) : undefined
         // Slugs come from a model and the catalog changes between releases, so
         // a miss is expected rather than exceptional. Drop the card and keep
         // the prose — a broken card is worse than one fewer suggestion.
@@ -50,7 +63,7 @@ export function RecommendationCards({
           const protocol = rec.slug ? findProtocol(rec.slug) : undefined
           if (!protocol) return null
           return (
-            <Reason key={`${rec.slug}-${index}`} reason={rec.reason}>
+            <Reason key={`${rec.slug}-${index}`} reason={rec.reason} onRespond={adoptedProtocolSlugs.has(protocol.slug) ? undefined : respond}>
               <ProtocolCard
                 protocol={protocol}
                 adopted={adoptedProtocolSlugs.has(protocol.slug)}
@@ -65,7 +78,7 @@ export function RecommendationCards({
           const habit = rec.slug ? findCatalogHabit(rec.slug) : undefined
           if (!habit) return null
           return (
-            <Reason key={`${rec.slug}-${index}`} reason={rec.reason}>
+            <Reason key={`${rec.slug}-${index}`} reason={rec.reason} onRespond={adoptedHabitSlugs.has(habit.slug) ? undefined : respond}>
               <CatalogHabitCard
                 habit={habit}
                 adopted={adoptedHabitSlugs.has(habit.slug)}
@@ -77,7 +90,7 @@ export function RecommendationCards({
 
         if (!rec.custom) return null
         return (
-          <Reason key={`custom-${index}`} reason={rec.reason}>
+          <Reason key={`custom-${index}`} reason={rec.reason} onRespond={respond}>
             <CustomHabitCard spec={rec.custom} onAdopt={() => onAdoptCustom(rec.custom!)} />
           </Reason>
         )
@@ -86,8 +99,17 @@ export function RecommendationCards({
   )
 }
 
-/** The coach's justification, above the card it justifies. */
-function Reason({ reason, children }: { reason: string; children: React.ReactNode }) {
+/** The coach's justification, above the card it justifies, and Dismiss / Snooze below it. */
+function Reason({
+  reason,
+  children,
+  onRespond,
+}: {
+  reason: string
+  children: React.ReactNode
+  onRespond?: (response: "dismiss" | "snooze") => void
+}) {
+  const t = useTranslations().habits.app.coachPanel
   return (
     <div className="space-y-1.5">
       {reason ? (
@@ -97,6 +119,26 @@ function Reason({ reason, children }: { reason: string; children: React.ReactNod
         </p>
       ) : null}
       {children}
+      {onRespond ? (
+        <div role="group" aria-label={t.suggestionActions} className="flex justify-end gap-1">
+          <button
+            type="button"
+            onClick={() => onRespond("snooze")}
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+          >
+            <AlarmClock className="h-3.5 w-3.5" aria-hidden />
+            {t.snooze}
+          </button>
+          <button
+            type="button"
+            onClick={() => onRespond("dismiss")}
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground"
+          >
+            <X className="h-3.5 w-3.5" aria-hidden />
+            {t.dismiss}
+          </button>
+        </div>
+      ) : null}
     </div>
   )
 }
