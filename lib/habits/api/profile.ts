@@ -3,6 +3,7 @@ import { resolveByName } from "@/lib/habits/api/resolve"
 import { parseTime } from "@/lib/habits/api/habit-writes"
 import { isTimeZone } from "@/lib/habits/api/time-zone"
 import { DEFAULT_COACH_PREFERENCES, DEFAULT_PREFERENCES, type CoachPreferences, type Habit, type UserPreferences, type UserProfile } from "@/lib/habits/types"
+import { stampChangedFields } from "@/lib/habits/habit-sync"
 
 /**
  * Profile and preferences for the assistant API (get_profile /
@@ -179,9 +180,12 @@ export function applyProfileUpdate(state: ProfileState, input: ProfileUpdateInpu
   if (!profileChanges.length && !prefChanges.length) {
     return { error: "Nothing to change: send name, missionStatement, focusHabits, checkInTimes, coach or a preference" }
   }
-  if (profileChanges.length) profile.updatedAt = now
-  if (prefChanges.length) preferences.updatedAt = now
-  return { profile, preferences, changes: [...profileChanges, ...prefChanges] }
+  // Per-field stamps, so a tab that loaded earlier can't revert these on save (mergeFieldStamped).
+  return {
+    profile: stampChangedFields(state.profile, profile, now),
+    preferences: stampChangedFields(state.preferences, preferences, now),
+    changes: [...profileChanges, ...prefChanges],
+  }
 }
 
 function strictTime(value: unknown): string | null {

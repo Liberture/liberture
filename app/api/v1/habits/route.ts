@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { authorizeIntegration } from "@/lib/habits/integration-auth"
 import { calculateStreak, calculateSuccessRate, isHabitDueOnDate, isHabitScheduledOnDate, weeklyProgress } from "@/lib/habits/habit-utils"
 import { parseDateOnly } from "@/lib/habits/date-utils"
-import { userToday } from "@/lib/habits/api/time-zone"
+import { habitStartDay, userTimeZone, userToday } from "@/lib/habits/api/time-zone"
 import { appendHabits, buildCustomHabit, type CustomHabitInput } from "@/lib/habits/api/habit-writes"
 import { normalizeName } from "@/lib/habits/api/resolve"
 
@@ -55,7 +55,7 @@ export async function GET(request: Request) {
         priority: habit.priority ?? null,
         archived: Boolean(habit.archived),
         protocolSlug: habit.protocolSlug ?? null,
-        startDate: habit.startDate ?? habit.createdAt?.slice(0, 10) ?? null,
+        startDate: habitStartDay(habit, userTimeZone(request, data)),
         currentStreak: streakData.current,
         longestStreak: streakData.longest,
         streakUnit: streakData.unit ?? "days",
@@ -111,7 +111,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    await appendHabits(user.userId, [built.habit])
+    await appendHabits(user.userId, [built.habit], userToday(request, user.data))
   } catch (error) {
     console.error("Failed to create habit:", error)
     return NextResponse.json({ error: "Failed to create habit" }, { status: 500 })

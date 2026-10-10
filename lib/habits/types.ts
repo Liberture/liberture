@@ -170,8 +170,10 @@ export interface Habit {
   createdAt: string // ISO timestamp
   /**
    * "YYYY-MM-DD" the habit counts as active from, when that is earlier than
-   * createdAt: days logged before it was created (an assistant backfilling
-   * "I did it yesterday"). Derived by withCompletionStarts, never edited.
+   * createdAt's day. Set by withCompletionStarts (days logged before it was
+   * created: an assistant backfilling "I did it yesterday"), and by
+   * server-side creation to the user's local day, since createdAt is a UTC
+   * instant that can fall on the next calendar day. Never edited by hand.
    */
   startDate?: string
   /**
@@ -278,8 +280,10 @@ export interface UserProfile {
     midday?: string // HH:MM
     evening?: string // HH:MM
   }
-  /** ISO time of the last change; the storage POST keeps the newer copy. */
+  /** ISO time of the last change. */
   updatedAt?: string
+  /** When each field last changed; the storage POST merges field by field (see mergeFieldStamped). */
+  fieldsUpdatedAt?: Record<string, string>
 }
 
 /**
@@ -309,8 +313,10 @@ export interface UserPreferences {
   language?: "en" | "es"
   /** Proactive coach check-ins and the limits every coach (in-app or an assistant) must respect. */
   coach?: CoachPreferences
-  /** ISO time of the last change; the storage POST keeps the newer copy. */
+  /** ISO time of the last change. */
   updatedAt?: string
+  /** When each field last changed; the storage POST merges field by field (see mergeFieldStamped). */
+  fieldsUpdatedAt?: Record<string, string>
 }
 
 /**
@@ -341,7 +347,7 @@ export const DEFAULT_COACH_PREFERENCES: Required<Pick<CoachPreferences, "missedL
   maxNudgesPerDay: 3,
 }
 
-export const DEFAULT_PREFERENCES: Required<Omit<UserPreferences, "notificationPromptDismissedAt" | "morningDashboardDismissedOn" | "timeZone" | "updatedAt" | "language" | "coach">> = {
+export const DEFAULT_PREFERENCES: Required<Omit<UserPreferences, "notificationPromptDismissedAt" | "morningDashboardDismissedOn" | "timeZone" | "updatedAt" | "fieldsUpdatedAt" | "language" | "coach">> = {
   notifications: true,
   theme: "system",
   weekStartsOn: 1,

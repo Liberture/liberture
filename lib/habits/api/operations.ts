@@ -195,7 +195,7 @@ export const API_OPERATIONS: readonly ApiOperation[] = [
     scope: "log_completions",
     summary: "Mark a habit done (or undo it), by name",
     description:
-      "Marks a habit done for today, or for `date`. Pass the habit as the user said it (\"walk\", \"meditación\"); it's matched for you, no lookup needed. completed: false undoes. Optional note (\"felt great\") and value (a number for habits that track one). Read back the `say` field. On 409 ask which of `options`; on 404 offer create_habit.",
+      "Marks a habit done for today, or for `date`. Pass the habit as the user said it (\"walk\", \"meditación\"); it's matched for you, no lookup needed. completed: false undoes it, which removes that day's record including any note or values logged with it. Optional note (\"felt great\") and value (a number for habits that track one). Read back the `say` field. On 409 ask which of `options`; on 404 offer create_habit.",
     annotations: { idempotent: true },
     body: {
       type: "object",
@@ -717,7 +717,7 @@ export const API_OPERATIONS: readonly ApiOperation[] = [
     scope: "settings",
     summary: "Ask to send one coach message; records it if allowed",
     description:
-      "Call right before you message the user unprompted. Applies quiet hours, the daily limit and one-per-kind-per-day (weekly: per week), shared with Liberture's own push check-ins, and records the nudge when allowed. Only message the user if `allowed` is true; otherwise stay silent (reason: quiet_hours, daily_limit or duplicate). Not needed when the user started the conversation.",
+      "Call right before you message the user unprompted. Applies quiet hours, the daily limit and duplicate checks, shared with Liberture's own push check-ins, and records the nudge when allowed. Duplicates: one morning, afternoon, evening and missed_logging nudge per day, one weekly per ISO week; `other` is checked per message, so different `other` messages are each allowed until the daily limit. Only message the user if `allowed` is true; otherwise stay silent (reason: quiet_hours, daily_limit or duplicate). Not needed when the user started the conversation.",
     mcpOnly: true,
     annotations: { idempotent: false },
     body: {
@@ -729,7 +729,7 @@ export const API_OPERATIONS: readonly ApiOperation[] = [
           enum: ["morning", "afternoon", "evening", "weekly", "missed_logging", "other"],
           description: "Which check-in this is.",
         },
-        message: { type: "string", description: "What you plan to say, for the record." },
+        message: { type: "string", description: "What you plan to say, for the record. For kind `other` it is also the duplicate key." },
         timeZone: { type: "string", description: "IANA time zone; defaults to the saved one." },
       },
     },
@@ -772,7 +772,7 @@ export const API_OPERATIONS: readonly ApiOperation[] = [
     scope: "read",
     summary: "Whether reminders and check-ins can reach the user",
     description:
-      "Whether push reminders are set up (devices subscribed, server push on) and what was sent recently. For \"why didn't I get a reminder\".",
+      "Whether push reminders are set up (devices subscribed, server push on) and what was sent today. For \"why didn't I get a reminder\". sentToday counts claims, not confirmed deliveries: see sentTodayByChannel (assistant = nudges recorded by an assistant, which Liberture didn't deliver) and lastDeliveredAt.",
     mcpOnly: true,
     output: { type: "object", additionalProperties: true },
   },

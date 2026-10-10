@@ -10,8 +10,14 @@ import type { DataEntryField, Habit, HabitTag } from "@/lib/habits/types"
  * merge (lib/habit-sync.ts) keeps them when an older tab saves afterwards.
  */
 
-export async function appendHabits(userId: number, habits: Habit[]): Promise<void> {
+/**
+ * `startDate` is the user's local today ("YYYY-MM-DD"). The server runs in
+ * UTC, so a habit created at 21:00 in Buenos Aires has a createdAt on the next
+ * UTC day; without this it wouldn't count as due until tomorrow.
+ */
+export async function appendHabits(userId: number, habits: Habit[], startDate?: string): Promise<void> {
   if (habits.length === 0) return
+  if (startDate) habits = habits.map((habit) => (habit.startDate ? habit : { ...habit, startDate }))
   const now = new Date().toISOString()
   await getDb()`
     UPDATE habit_users

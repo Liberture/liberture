@@ -19,6 +19,7 @@ import { mergeProjectTombstones } from "@/lib/habits/project-sync"
 import { mergeTodoTombstones } from "@/lib/habits/todo-sync"
 import { mergeCalendarEventTombstones } from "@/lib/habits/calendar-sync"
 import { notify } from "@/components/habits/ui/toast"
+import { stampChangedFields } from "@/lib/habits/habit-sync"
 
 /**
  * The tracker's data layer: everything that is loaded from, kept in sync with,
@@ -626,14 +627,14 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
   const updatePreferences = useCallback((patch: Partial<UserPreferences>) => {
     updateStorageMeta((current) => ({
       ...current,
-      preferences: { ...current.preferences, ...patch, updatedAt: new Date().toISOString() },
+      preferences: stampChangedFields(current.preferences, { ...current.preferences, ...patch }, new Date().toISOString()),
     }))
   }, [updateStorageMeta])
 
   const updateProfile = useCallback((patch: Partial<UserProfile>) => {
     updateStorageMeta((current) => ({
       ...current,
-      profile: { ...current.profile, ...patch, updatedAt: new Date().toISOString() },
+      profile: stampChangedFields(current.profile, { ...current.profile, ...patch }, new Date().toISOString()),
     }))
   }, [updateStorageMeta])
 
