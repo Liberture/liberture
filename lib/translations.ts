@@ -648,6 +648,7 @@ const habitsEn = {
           "connect-claude-to-your-habit-tracker",
           "log-habits-by-voice",
           "habit-tracker-privacy-and-permissions",
+          "refresh-your-assistant-connector",
         ],
       },
       {
@@ -717,6 +718,7 @@ const habitsEn = {
           "track-habits-with-chatgpt",
           "log-habits-by-voice",
           "habit-tracker-privacy-and-permissions",
+          "refresh-your-assistant-connector",
         ],
       },
       {
@@ -929,7 +931,7 @@ const habitsEn = {
         slug: "habit-tracker-privacy-and-permissions",
         title: "Control what your AI assistant can see and do",
         description: "Choose exactly what ChatGPT or Claude may do in your habit tracker, from reading stats to deleting habits, and disconnect any assistant instantly.",
-        excerpt: "Eight switches decide what connected assistants may do. Deleting habits is off until you turn it on.",
+        excerpt: "Ten switches decide what connected assistants may do. Deleting anything is off until you turn it on.",
         minutes: "3",
         hero: "assistant-permissions",
         heroAlt: "Connected assistants ChatGPT and Claude with permission switches for reading, logging, todos, calendar and habits",
@@ -949,16 +951,18 @@ const habitsEn = {
           {
             heading: "The permissions",
             paragraphs: [
-              "Every permission is on by default except deleting habits. Changes apply to the very next request:",
+              "Every permission is on by default except the two delete switches. Changes apply to the very next request:",
             ],
             bullets: [
               "Read: habits, streaks, stats, todos, calendar, catalog and recommendations.",
               "Log completions: mark habits done or not done, for today or another day.",
-              "Todos and projects: create, edit, complete and delete.",
-              "Calendar: create, move and delete events.",
+              "Todos and projects: create, edit and complete.",
+              "Calendar: create and move events.",
               "Add habits: create habits and add protocols from the catalog.",
-              "Edit habits: rename and change description, days or time.",
+              "Edit habits: rename, change description, days or time, archive.",
               "Delete habits: off until you turn it on.",
+              "Delete todos, projects and events: off until you turn it on.",
+              "Settings: read and change your profile, preferences and coach check-ins.",
               "Export: download a full JSON backup.",
             ],
           },
@@ -980,6 +984,70 @@ const habitsEn = {
           "track-habits-with-chatgpt",
           "connect-claude-to-your-habit-tracker",
           "read-your-habit-statistics",
+        ],
+      },
+      {
+        slug: "refresh-your-assistant-connector",
+        title: "Get new Liberture tools in ChatGPT and Claude",
+        description: "ChatGPT and Claude keep the tool list they loaded when you connected Liberture. See when new tools are waiting and refresh the connector in a minute.",
+        excerpt: "Assistants don't pick up new tools on their own. Settings tells you when they're behind; one refresh fixes it.",
+        minutes: "2",
+        hero: "connect-assistant",
+        heroAlt: "Liberture settings with ChatGPT and Claude connected and the tool status for each",
+        howTo: true,
+        sections: [
+          {
+            heading: "Why new tools don't just appear",
+            paragraphs: [
+              "When you connect Liberture, ChatGPT or Claude loads the list of things it can do (log a habit, move an event, read your week) and keeps that copy. When Liberture ships new tools, your assistant doesn't check again by itself. Until you refresh the connector it keeps working, just without the new abilities.",
+            ],
+          },
+          {
+            heading: "How you know there's something new",
+            paragraphs: [
+              "Liberture remembers, for each connected assistant, when it last loaded the tool list and which version it got. Nothing about your conversations is stored.",
+            ],
+            bullets: [
+              "Settings → Voice assistants: each connected app says \"Tools up to date\", or how many new tools it's missing and since when.",
+              "Your assistant tells you: when its list is behind, Liberture asks it to mention it once at the start of a chat.",
+              "Docs → Get new tools always shows how many tools Liberture offers right now.",
+            ],
+            image: {
+              key: "connect-assistant",
+              alt: "Connected assistants in Liberture settings, each with its tool status",
+              caption: "Each connected assistant shows whether its tools are up to date.",
+            },
+          },
+          {
+            heading: "Refresh ChatGPT",
+            paragraphs: [
+              "In ChatGPT open Settings → Apps & Connectors and open Liberture. Use Refresh if it's offered; if not, disconnect it and connect again with the same URL, sign in and press Approve. Reconnecting replaces the old connection, and your habits and permissions stay as they are. Then start a new chat: old chats keep the old list.",
+              "Using a Custom GPT with actions instead? Edit the GPT, go to Configure → Actions → Import from URL, paste https://liberture.com/api/v1/openapi.json and press Update.",
+            ],
+          },
+          {
+            heading: "Refresh Claude",
+            paragraphs: [
+              "Claude reads the connector's tools when a conversation starts, so start a new chat first. If the new tools still aren't there, go to Settings → Connectors → Liberture, disconnect, connect again and approve. On the phone app, close it completely and open it again.",
+            ],
+          },
+          {
+            heading: "Check that it worked",
+            paragraphs: [
+              "Back in Liberture, Settings → Voice assistants should now say \"Tools up to date\" for that assistant. You can also just ask it: \"which Liberture tools can you use?\"",
+            ],
+          },
+        ],
+        steps: [
+          "Open Liberture → Settings → Voice assistants and check which assistant says it has new tools waiting.",
+          "In ChatGPT: Settings → Apps & Connectors → Liberture → Refresh, or disconnect and connect again.",
+          "In Claude: start a new chat; if the tools are still missing, disconnect and reconnect Liberture in Settings → Connectors.",
+          "Start a new conversation and confirm Liberture now shows \"Tools up to date\".",
+        ] as string[],
+        related: [
+          "track-habits-with-chatgpt",
+          "connect-claude-to-your-habit-tracker",
+          "habit-tracker-privacy-and-permissions",
         ],
       },
     ],
@@ -3446,6 +3514,7 @@ const habitsEs: HabitsDictionary = {
           "connect-claude-to-your-habit-tracker",
           "log-habits-by-voice",
           "habit-tracker-privacy-and-permissions",
+          "refresh-your-assistant-connector",
         ],
       },
       {
@@ -3515,6 +3584,7 @@ const habitsEs: HabitsDictionary = {
           "track-habits-with-chatgpt",
           "log-habits-by-voice",
           "habit-tracker-privacy-and-permissions",
+          "refresh-your-assistant-connector",
         ],
       },
       {
@@ -3727,7 +3797,7 @@ const habitsEs: HabitsDictionary = {
         slug: "habit-tracker-privacy-and-permissions",
         title: "Controlá qué puede ver y hacer tu asistente de IA",
         description: "Elegí exactamente qué puede hacer ChatGPT o Claude en tu registro de hábitos, desde leer estadísticas hasta borrar hábitos, y desconectá cualquier asistente al instante.",
-        excerpt: "Ocho interruptores deciden qué pueden hacer los asistentes conectados. Borrar hábitos está apagado hasta que lo actives.",
+        excerpt: "Diez interruptores deciden qué pueden hacer los asistentes conectados. Borrar cualquier cosa está apagado hasta que lo actives.",
         minutes: "3",
         hero: "assistant-permissions",
         heroAlt: "Asistentes conectados, ChatGPT y Claude, con permisos para leer, registrar, tareas, calendario y hábitos",
@@ -3747,16 +3817,18 @@ const habitsEs: HabitsDictionary = {
           {
             heading: "Los permisos",
             paragraphs: [
-              "Todos los permisos están activados por defecto, salvo borrar hábitos. Los cambios se aplican desde el siguiente pedido:",
+              "Todos los permisos están activados por defecto, salvo los dos de borrar. Los cambios se aplican desde el siguiente pedido:",
             ],
             bullets: [
               "Leer: hábitos, rachas, estadísticas, tareas, calendario, catálogo y recomendaciones.",
               "Registrar cumplimientos: marcar hábitos como hechos o no, para hoy u otro día.",
-              "Tareas y proyectos: crear, editar, completar y borrar.",
-              "Calendario: crear, mover y borrar eventos.",
+              "Tareas y proyectos: crear, editar y completar.",
+              "Calendario: crear y mover eventos.",
               "Agregar hábitos: crear hábitos y sumar protocolos del catálogo.",
-              "Editar hábitos: renombrar y cambiar descripción, días u horario.",
+              "Editar hábitos: renombrar, cambiar descripción, días u horario, archivar.",
               "Borrar hábitos: apagado hasta que lo actives.",
+              "Borrar tareas, proyectos y eventos: apagado hasta que lo actives.",
+              "Ajustes: ver y cambiar tu perfil, preferencias y avisos del coach.",
               "Exportar: descargar una copia completa en JSON.",
             ],
           },
@@ -3778,6 +3850,70 @@ const habitsEs: HabitsDictionary = {
           "track-habits-with-chatgpt",
           "connect-claude-to-your-habit-tracker",
           "read-your-habit-statistics",
+        ],
+      },
+      {
+        slug: "refresh-your-assistant-connector",
+        title: "Herramientas nuevas de Liberture en ChatGPT y Claude",
+        description: "ChatGPT y Claude se quedan con la lista de herramientas que cargaron al conectar Liberture. Mirá cuándo hay herramientas nuevas y actualizá el conector en un minuto.",
+        excerpt: "Los asistentes no toman las herramientas nuevas solos. Ajustes te avisa cuando están atrasados; con actualizar una vez alcanza.",
+        minutes: "2",
+        hero: "connect-assistant",
+        heroAlt: "Ajustes de Liberture con ChatGPT y Claude conectados y el estado de herramientas de cada uno",
+        howTo: true,
+        sections: [
+          {
+            heading: "Por qué las herramientas nuevas no aparecen solas",
+            paragraphs: [
+              "Cuando conectás Liberture, ChatGPT o Claude carga la lista de cosas que puede hacer (registrar un hábito, mover un evento, leer tu semana) y se queda con esa copia. Cuando Liberture publica herramientas nuevas, tu asistente no vuelve a consultar solo. Hasta que actualices el conector sigue funcionando, pero sin lo nuevo.",
+            ],
+          },
+          {
+            heading: "Cómo te enterás de que hay algo nuevo",
+            paragraphs: [
+              "Liberture recuerda, para cada asistente conectado, cuándo cargó la lista de herramientas por última vez y qué versión recibió. No guarda nada de tus conversaciones.",
+            ],
+            bullets: [
+              "Ajustes → Asistentes de voz: cada app conectada dice \"Herramientas al día\", o cuántas herramientas nuevas le faltan y desde cuándo.",
+              "Tu asistente te avisa: cuando su lista está atrasada, Liberture le pide que te lo mencione una vez al empezar un chat.",
+              "Docs → Herramientas nuevas siempre muestra cuántas herramientas ofrece Liberture ahora.",
+            ],
+            image: {
+              key: "connect-assistant",
+              alt: "Asistentes conectados en los ajustes de Liberture, cada uno con su estado de herramientas",
+              caption: "Cada asistente conectado muestra si sus herramientas están al día.",
+            },
+          },
+          {
+            heading: "Actualizá ChatGPT",
+            paragraphs: [
+              "En ChatGPT abrí Configuración → Apps y conectores y abrí Liberture. Usá Actualizar si aparece; si no, desconectalo y conectalo de nuevo con la misma URL, iniciá sesión y tocá Aprobar. Reconectar reemplaza la conexión anterior, y tus hábitos y permisos quedan como están. Después empezá un chat nuevo: los chats viejos siguen con la lista vieja.",
+              "¿Usás un GPT personalizado con acciones? Editá el GPT, andá a Configurar → Acciones → Importar desde URL, pegá https://liberture.com/api/v1/openapi.json y tocá Actualizar.",
+            ],
+          },
+          {
+            heading: "Actualizá Claude",
+            paragraphs: [
+              "Claude lee las herramientas del conector al empezar cada conversación, así que primero empezá un chat nuevo. Si siguen sin aparecer, andá a Configuración → Conectores → Liberture, desconectá, conectá de nuevo y aprobá. En la app del celular, cerrala del todo y volvé a abrirla.",
+            ],
+          },
+          {
+            heading: "Comprobá que funcionó",
+            paragraphs: [
+              "De vuelta en Liberture, Ajustes → Asistentes de voz debería decir \"Herramientas al día\" para ese asistente. También podés preguntarle directamente: \"¿qué herramientas de Liberture podés usar?\"",
+            ],
+          },
+        ],
+        steps: [
+          "Abrí Liberture → Ajustes → Asistentes de voz y fijate qué asistente dice que tiene herramientas nuevas esperando.",
+          "En ChatGPT: Configuración → Apps y conectores → Liberture → Actualizar, o desconectá y volvé a conectar.",
+          "En Claude: empezá un chat nuevo; si siguen faltando, desconectá y volvé a conectar Liberture en Configuración → Conectores.",
+          "Empezá una conversación nueva y confirmá que Liberture ahora muestra \"Herramientas al día\".",
+        ] as string[],
+        related: [
+          "track-habits-with-chatgpt",
+          "connect-claude-to-your-habit-tracker",
+          "habit-tracker-privacy-and-permissions",
         ],
       },
     ],

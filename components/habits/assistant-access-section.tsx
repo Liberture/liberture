@@ -40,7 +40,7 @@ function ToolsLine({ tools, t }: { tools: Connection["tools"]; t: AssistantAcces
       {tools.newTools.length
         ? formatMessage(tools.newTools.length === 1 ? t.toolsNewOne : t.toolsNewMany, { count: tools.newTools.length, date: day })
         : formatMessage(t.toolsChanged, { date: day })}{" "}
-      <a href="/docs/updates" target="_blank" rel="noreferrer" className="font-medium underline underline-offset-2">
+      <a href="/guides/refresh-your-assistant-connector" target="_blank" rel="noreferrer" className="font-medium underline underline-offset-2">
         {t.toolsHowToRefresh}
       </a>
     </p>
