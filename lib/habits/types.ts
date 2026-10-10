@@ -464,6 +464,12 @@ export interface StorageData {
    * ago" — see lib/backup-status.ts.
    */
   lastBackupAt?: string
+  /**
+   * When the account was last reset (Settings → Reset account). The storage
+   * POST refuses a save made from a copy older than this, so another open tab
+   * can't bring the deleted data back.
+   */
+  resetAt?: string
   // New neuroscience-backed fields
   schemaVersion?: number // Data version for migrations
   onboarding?: OnboardingState

@@ -41,14 +41,15 @@ interface DataTabProps {
   lastBackupAt?: string
   onExport: () => void
   onImport: (backup: BackupImport) => void
-  onClearAllData: () => void
+  /** Resolves true once the server reset the account. */
+  onResetAccount: () => Promise<boolean>
   onLogout: () => void
   isNostrAuth: boolean
   /** Closes Settings itself (after clearing everything). */
   onCloseSettings: () => void
 }
 
-export function DataTab({ habits, lastBackupAt, onExport, onImport, onClearAllData, onLogout, isNostrAuth, onCloseSettings }: DataTabProps) {
+export function DataTab({ habits, lastBackupAt, onExport, onImport, onResetAccount, onLogout, isNostrAuth, onCloseSettings }: DataTabProps) {
   const copy = useTranslations().habits.app
   const t = copy.settingsDialog
   const locale = useLocale()
@@ -97,10 +98,14 @@ export function DataTab({ habits, lastBackupAt, onExport, onImport, onClearAllDa
     setClearText("")
   }
   const clearMatches = clearText.trim().toUpperCase() === t.data.clearWord.toUpperCase()
-  const confirmClear = () => {
-    if (!clearMatches) return
+  const [resetting, setResetting] = useState(false)
+  const confirmClear = async () => {
+    if (!clearMatches || resetting) return
+    setResetting(true)
+    const done = await onResetAccount()
+    setResetting(false)
+    if (!done) return // the error toast is up; the dialog stays so they can retry
     closeClear()
-    onClearAllData()
     onCloseSettings()
   }
 
@@ -225,9 +230,9 @@ export function DataTab({ habits, lastBackupAt, onExport, onImport, onClearAllDa
             <button type="button" onClick={closeClear} className={settingsButtonClass()}>
               {copy.common.cancel}
             </button>
-            <button type="button" onClick={confirmClear} disabled={!clearMatches} className={settingsButtonClass("danger")}>
+            <button type="button" onClick={confirmClear} disabled={!clearMatches || resetting} className={settingsButtonClass("danger")}>
               <Trash2 className="h-4 w-4" />
-              {t.data.clearConfirm}
+              {resetting ? t.data.clearWorking : t.data.clearConfirm}
             </button>
           </>
         }
@@ -240,6 +245,12 @@ export function DataTab({ habits, lastBackupAt, onExport, onImport, onClearAllDa
           }}
         >
           <p className="text-sm text-muted-foreground">{t.data.clearDescription}</p>
+          <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+            {t.data.clearDeletes.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+          <p className="text-sm text-muted-foreground">{t.data.clearKeeps}</p>
           <label htmlFor="clear-confirm" className="block text-sm font-medium text-foreground">
             {formatMessage(t.data.clearTypeToConfirm, { word: t.data.clearWord })}
           </label>
