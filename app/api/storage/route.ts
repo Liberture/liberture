@@ -11,58 +11,8 @@ import { syncOptimizedStorageTables } from "@/lib/habits/optimized-storage"
 import { getAuthFromRequest, type AuthInfo } from "@/lib/habits/app-auth"
 import { laterBackupAt } from "@/lib/habits/backup-status"
 import { mergeCoachRecommendations } from "@/lib/habits/coach/suggestions"
+import { freshStorageData } from "@/lib/habits/default-data"
 
-const defaultData: StorageData = {
-  habits: [],
-  completions: [],
-  todos: [],
-  projects: [],
-  projectTombstones: {},
-  todoTombstones: {},
-  calendarEvents: [],
-  calendarEventTombstones: {},
-  lastUpdated: new Date().toISOString(),
-  schemaVersion: 7,
-  onboarding: {
-    completed: false,
-    currentStep: 1,
-    skipped: false
-  },
-  profile: {
-    checkInTimes: {
-      morning: '08:00',
-      midday: '12:00',
-      evening: '20:00'
-    }
-  },
-  habitStacks: [],
-  thoughtRecords: [],
-  aiInsights: [],
-  focusMode: {
-    enabled: false,
-    hidePastDates: false,
-    showOnlyPending: false,
-    singleColumn: false
-  },
-  accessibility: {
-    reduceMotion: false,
-    highContrast: false,
-    simpleLanguage: false,
-    extraReminders: false,
-    stepByStepMode: false,
-    compassionateMode: false,
-    adhdSupport: false
-  },
-  rewardConfig: {
-    celebrationsEnabled: true,
-    soundEnabled: false,
-    confettiEnabled: true,
-    sharePrompts: true,
-    variableRewards: true
-  },
-  accountabilityPartners: [],
-  commitmentContracts: []
-}
 
 function redactSecretMetadata(data: StorageData): StorageData {
   const redacted = { ...data } as StorageData & { integrationToken?: unknown }
@@ -93,7 +43,7 @@ async function getUserData(auth: AuthInfo, sql: ReturnType<typeof getDb>): Promi
     return null
   }
 
-  return result[0].data || defaultData
+  return result[0].data || freshStorageData()
 }
 
 /**
@@ -281,6 +231,23 @@ function isSuspiciousEmptySnapshot(data: StorageData, currentData: StorageData |
     && currentData.todos.length > 0
 }
 
+/**
+ * After a reset (POST /api/account/reset) a tab still holding the old data
+ * would merge it straight back. A save whose base copy predates the reset is
+ * refused with the fresh data, which the tab adopts instead.
+ */
+function predatesReset(clientLastUpdated: string | undefined, currentData: StorageData | null): boolean {
+  const resetAt = currentData?.resetAt
+  return Boolean(resetAt && (!clientLastUpdated || clientLastUpdated < resetAt))
+}
+
+function rejectedAfterReset(currentData: StorageData): NextResponse {
+  return NextResponse.json(
+    { error: "This account was reset after your copy was loaded.", code: "account_reset", data: redactSecretMetadata(currentData) },
+    { status: 409 }
+  )
+}
+
 function rejectedEmptySnapshot(currentData: StorageData): NextResponse {
   return NextResponse.json({
     error: "Refused to replace populated habits and todos with an inconsistent empty snapshot.",
@@ -359,6 +326,8 @@ export async function POST(request: Request) {
           return NextResponse.json({ error: "Invalid API key" }, { status: 401 })
         }
 
+        if (predatesReset(clientLastUpdated, currentData)) return rejectedAfterReset(currentData)
+        if (currentData.resetAt) data.resetAt = currentData.resetAt
         if (isSuspiciousEmptySnapshot(data, currentData)) {
           return rejectedEmptySnapshot(currentData)
         }
@@ -424,6 +393,9 @@ export async function POST(request: Request) {
     const sql = getDb()
     
     const currentData = await getUserData(auth, sql)
+    if (predatesReset(clientLastUpdated, currentData)) return rejectedAfterReset(currentData!)
+    // Server-owned, like the backup date: a save never drops or moves it.
+    if (currentData?.resetAt) data.resetAt = currentData.resetAt
     if (isSuspiciousEmptySnapshot(data, currentData)) {
       return rejectedEmptySnapshot(currentData!)
     }
