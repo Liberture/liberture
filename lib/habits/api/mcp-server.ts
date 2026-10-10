@@ -5,6 +5,7 @@ import { MCP_RESOURCES, MCP_RESOURCE_TEMPLATES, readResource } from "@/lib/habit
 import { MCP_PROMPTS, getPrompt } from "@/lib/habits/api/mcp-prompts"
 import { completeArgument } from "@/lib/habits/api/mcp-completion"
 import { SERVER_VERSION } from "@/lib/habits/api/operations"
+import { connectionKeyFor, recordToolSync } from "@/lib/habits/api/connector-sync"
 
 /**
  * Model Context Protocol over Streamable HTTP: stateless, JSON responses.
@@ -52,7 +53,7 @@ function rpcError(id: JsonRpcRequest["id"], code: number, message: string) {
   return { jsonrpc: "2.0", id: id ?? null, error: { code, message } }
 }
 
-async function handleMessage(message: JsonRpcRequest, token: string, origin: string): Promise<object | null> {
+async function handleMessage(message: JsonRpcRequest, token: string, origin: string, caller?: McpCaller): Promise<object | null> {
   // Notifications (no id) get no response.
   const isNotification = message.id === undefined
   switch (message.method) {
@@ -87,6 +88,9 @@ async function handleMessage(message: JsonRpcRequest, token: string, origin: str
     case "ping":
       return rpcResult(message.id, {})
     case "tools/list":
+      // The client is loading the list now: remember which version it got,
+      // so get_today and Settings can say when it falls behind.
+      if (caller) await recordToolSync(caller.userId, connectionKeyFor(caller)).catch(() => undefined)
       // Everything fits in one page; no nextCursor.
       return rpcResult(message.id, { tools: MCP_TOOLS })
     case "resources/list":
@@ -139,7 +143,13 @@ async function handleMessage(message: JsonRpcRequest, token: string, origin: str
 }
 
 /** Handle one POST once the caller's token is known to be valid. */
-export async function handleMcpPost(request: Request, token: string): Promise<NextResponse> {
+/** Who is calling, when the route has verified the token (for the tool-sync record). */
+export interface McpCaller {
+  userId: number
+  connectionId: string | null
+}
+
+export async function handleMcpPost(request: Request, token: string, caller?: McpCaller): Promise<NextResponse> {
   let payload: unknown
   try {
     payload = await request.json()
@@ -155,7 +165,7 @@ export async function handleMcpPost(request: Request, token: string): Promise<Ne
       responses.push(rpcError(null, -32600, "Invalid request"))
       continue
     }
-    const response = await handleMessage(message as JsonRpcRequest, token, origin)
+    const response = await handleMessage(message as JsonRpcRequest, token, origin, caller)
     if (response) responses.push(response)
   }
 

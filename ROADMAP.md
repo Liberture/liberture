@@ -11,15 +11,11 @@ Liberture is a **self-hostable habit tracker**:
 3. Protocols are shareable with friends + a marketplace for community protocols.
 4. **No Nostr / web-of-trust / decentralized-network stuff** — dropped explicitly.
 
-The how-it-works page now sells this vision; most of it is still to be BUILT.
+The how-it-works page sells this vision. Points 1 and 2 are built (October 2026:
+tracker, assistant API / MCP, coach); sharing and the marketplace are what's left.
 
 ## Now
 
-- [ ] Build the habit tracker core: `Habit` + `HabitLog` models, adopt-protocol flow
-      (Protocol.steps → habits), streaks, completion rates. The page promises
-      `/api/tracker/*` endpoints — make them real.
-- [ ] Assistant API: scoped API keys (issue/revoke in dashboard), Bearer auth on
-      `/api/tracker/*`. This is the differentiator — prioritize after core tracking.
 - [ ] Protocol sharing: share-by-link, adopt-and-remix; marketplace already has
       models/routes (`MarketplaceItem`, `/marketplace`) to build on.
 - [ ] Unify /marketplace with the protocol library — marketplace items and
@@ -83,6 +79,10 @@ doctrine into it:
 
 ## Later
 
+- [ ] Tell connected assistants about new tools without a manual refresh: MCP
+      `notifications/tools/list_changed` needs sessions + a server→client stream
+      (the server is stateless JSON today). Until then, the connector-sync record
+      (`habit_connector_syncs`) + Settings + get_today notice cover it.
 - [ ] Bump GitHub Actions deps flagged by the Node 20 deprecation warning
       (`actions/checkout@v4`, `setup-node@v4`, `pnpm/action-setup@v4` → Node 24-ready).
 - [ ] Health/uptime monitoring for liberture.com — the July 31 outage was only
@@ -91,6 +91,28 @@ doctrine into it:
 
 ## Done
 
+- 2026-10-10 — Connector tool sync (`habit_connector_syncs`): every MCP
+  `tools/list` records the connection, date, tool version and a sync counter.
+  Settings → Assistants shows "tools up to date" or "N new tools — refresh";
+  get_today and get_permissions tell the assistant when its list is behind.
+  New guide: /docs/updates (refresh ChatGPT, Custom GPT, Claude); internals in
+  `docs/CONNECTOR-UPDATES.md`.
+- 2026-10-10 — Retired `~/productivity-system`; its coach doctrine is the
+  "Coach doctrine" section above (#36).
+- 2026-10-10 — Fixes from the 39-tool MCP validation run (#35): event moves keep
+  their length, habits start on the user's local day, agenda defaults to local
+  midnight, field-by-field preference merge, zone-aware todo urgency, clearer
+  audit and reminder status.
+- 2026-10-10 — "Clear all data" is a real server-side account reset (#34).
+- 2026-10-09 — Weekly targets, closed-app push reminders, coach state + MCP coach
+  tools, tool-list version (#32); reminders setup doc (#33).
+- 2026-10-09 — Hexagon logo for every site icon (#31); MCP fixes from the first
+  ChatGPT connector test (#30).
+- 2026-10-09 — Habit tracker core + assistant API shipped (#29): 35 MCP tools /
+  30 OpenAPI operations, scoped permissions, saved preferences, settings and
+  navigation overhaul. Data lives in the per-user JSON blob plus
+  `habit_completions` / `habit_todos` / `habit_projects`, not the `Habit` +
+  `HabitLog` models first planned here.
 - 2026-07-31 — Protocol library foundation (commit `1b4de15`): `why` field +
   `ProtocolRelation` model (synergy/alternative + note); 12 evidence-referenced
   protocols seeded (2/pillar, published, canonical pillar ids) cross-linked by

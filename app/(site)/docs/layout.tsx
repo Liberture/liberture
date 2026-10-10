@@ -18,6 +18,7 @@ export default async function DocsLayout({ children }: { children: ReactNode }) 
     { href: "/docs/chatgpt", label: dict.docs.sidebar.chatgpt },
     { href: "/docs/claude", label: dict.docs.sidebar.claude },
     { href: "/docs/permissions", label: dict.docs.sidebar.permissions },
+    { href: "/docs/updates", label: dict.docs.sidebar.updates },
     { href: "/docs/api", label: dict.docs.sidebar.api },
   ]
 
