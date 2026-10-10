@@ -554,15 +554,17 @@ export function useTrackerActions(data: TrackerData) {
     markDirty()
   }
 
-  const clearAllData = async () => {
-    const before = snapshot()
-    setHabits([])
-    setCompletions([])
-    setTodos([])
-    setProjects([])
-    setCalendarEvents([])
-    markDirty()
-    notify.undo(common.dataCleared, common.undo, () => restore(before))
+  /** Settings → Reset account. Can't be undone: the server deleted everything. */
+  const resetAccount = async (): Promise<boolean> => {
+    try {
+      await data.resetAccount()
+      notify.success(common.accountReset)
+      return true
+    } catch (error) {
+      console.error("Account reset failed:", error)
+      notify.error(common.accountResetFailed)
+      return false
+    }
   }
 
   /**
@@ -701,7 +703,7 @@ export function useTrackerActions(data: TrackerData) {
     importData,
     updateHabit,
     updateTodo,
-    clearAllData,
+    resetAccount,
     adoptCatalogProtocol,
     adoptCatalogHabit,
     adoptCustomHabit,

@@ -68,7 +68,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
     return headers
   }, [apiKey])
 
-  const data = useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMessage: t.staleCopyRejected })
+  const data = useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMessage: t.staleCopyRejected, accountResetMessage: t.accountResetElsewhere })
   const actions = useTrackerActions(data)
   const {
     habits, completions, todos, projects, calendarEvents, storageData, onboardingState,
@@ -580,7 +580,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
           onImport={actions.importData}
           onClose={() => setSettingsTab(null)}
           habits={habits}
-          onClearAllData={actions.clearAllData}
+          onResetAccount={actions.resetAccount}
           apiKey={apiKey}
           isNostrAuth={isNostrAuth}
           onLogout={onLogout}

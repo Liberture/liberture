@@ -7,6 +7,7 @@ import type { StorageData } from "@/lib/habits/types"
 import { verifyAndConsumeChallenge } from "@/lib/habits/nostr/challenge-store"
 import { createSession, SESSION_COOKIE_NAME, SESSION_TTL_SECONDS } from "@/lib/habits/nostr/session-store"
 import { addNostrPubkeyColumn, createNostrChallengesTable, createNostrSessionsTable } from "@/lib/habits/db-migrate"
+import { freshStorageData } from "@/lib/habits/default-data"
 
 const AUTH_EVENT_KIND = 27235
 const MAX_EVENT_AGE_SECONDS = 5 * 60 // 5 minutes
@@ -23,57 +24,6 @@ function withSessionCookie(body: Record<string, unknown>, sessionToken: string) 
   return response
 }
 
-const defaultData: StorageData = {
-  habits: [],
-  completions: [],
-  todos: [],
-  projects: [],
-  projectTombstones: {},
-  todoTombstones: {},
-  calendarEvents: [],
-  calendarEventTombstones: {},
-  lastUpdated: new Date().toISOString(),
-  schemaVersion: 7,
-  onboarding: {
-    completed: false,
-    currentStep: 1,
-    skipped: false
-  },
-  profile: {
-    checkInTimes: {
-      morning: '08:00',
-      midday: '12:00',
-      evening: '20:00'
-    }
-  },
-  habitStacks: [],
-  thoughtRecords: [],
-  aiInsights: [],
-  focusMode: {
-    enabled: false,
-    hidePastDates: false,
-    showOnlyPending: false,
-    singleColumn: false
-  },
-  accessibility: {
-    reduceMotion: false,
-    highContrast: false,
-    simpleLanguage: false,
-    extraReminders: false,
-    stepByStepMode: false,
-    compassionateMode: false,
-    adhdSupport: false
-  },
-  rewardConfig: {
-    celebrationsEnabled: true,
-    soundEnabled: false,
-    confettiEnabled: true,
-    sharePrompts: true,
-    variableRewards: true
-  },
-  accountabilityPartners: [],
-  commitmentContracts: []
-}
 
 /**
  * Extract challenge nonce from event tags
@@ -209,7 +159,7 @@ export async function POST(request: Request) {
     
     await sql`
       INSERT INTO habit_users (api_key, nostr_pubkey, data)
-      VALUES (${internalApiKey}, ${pubkey.toLowerCase()}, ${JSON.stringify(defaultData)}::jsonb)
+      VALUES (${internalApiKey}, ${pubkey.toLowerCase()}, ${JSON.stringify(freshStorageData())}::jsonb)
     `
 
     return withSessionCookie({
