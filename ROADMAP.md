@@ -91,6 +91,10 @@ doctrine into it:
 
 ## Done
 
+- 2026-10-10 — "Reset account" became **Delete account**: removes the account
+  row, every per-user table and all sign-in sessions in one transaction, then
+  signs out to the landing page (it used to keep you signed in and restart the
+  onboarding wizard).
 - 2026-10-10 — First-run handoff to the assistant: a new connection's first
   chats get a welcome from get_today (present Liberture, ask a few questions,
   offer catalog protocols; `complete_welcome` / `welcome` prompt,

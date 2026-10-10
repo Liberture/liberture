@@ -121,3 +121,13 @@ export function isLocalStorageMode(): boolean {
          dbUrl.includes('placeholder') ||
          dbUrl.includes('your_')
 }
+
+/** Remove a user entirely (Settings → Delete account). */
+export async function deleteLocalUser(apiKey: string): Promise<boolean> {
+  const db = await readUsersDB()
+  const before = db.users.length
+  db.users = db.users.filter((u) => u.apiKey !== apiKey)
+  if (db.users.length === before) return false
+  await writeUsersDB(db)
+  return true
+}
