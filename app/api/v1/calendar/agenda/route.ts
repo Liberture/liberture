@@ -1,14 +1,21 @@
 import { NextResponse } from "next/server"
 import { authorizeIntegration } from "@/lib/habits/integration-auth"
 import { filterCalendarEvents } from "@/lib/habits/calendar-utils"
+import { userTimeZone, userToday, zonedToUtc } from "@/lib/habits/api/time-zone"
 
-function range(request: Request): { start: string; end: string } | { error: string } {
+/**
+ * The agenda window. With no `start` it begins at midnight of the user's
+ * today in their saved zone, not the server's (UTC) midnight. A `start` or
+ * `end` without an offset is wall time in that zone too.
+ */
+function range(request: Request, timeZone: string | undefined, today: string): { start: string; end: string } | { error: string } {
   const { searchParams } = new URL(request.url)
   const days = Math.min(30, Math.max(1, Number(searchParams.get("days") ?? 7) || 7))
-  const start = searchParams.get("start") ? new Date(searchParams.get("start")!) : new Date()
+  const rawStart = searchParams.get("start")
+  const start = new Date(rawStart ? zonedToUtc(rawStart, timeZone) : zonedToUtc(`${today}T00:00`, timeZone))
   if (Number.isNaN(start.getTime())) return { error: "start must be a valid ISO timestamp" }
-  if (!searchParams.get("start")) start.setHours(0, 0, 0, 0)
-  const end = searchParams.get("end") ? new Date(searchParams.get("end")!) : new Date(start.getTime() + days * 24 * 60 * 60_000)
+  const rawEnd = searchParams.get("end")
+  const end = rawEnd ? new Date(zonedToUtc(rawEnd, timeZone)) : new Date(start.getTime() + days * 24 * 60 * 60_000)
   if (Number.isNaN(end.getTime())) return { error: "end must be a valid ISO timestamp" }
   if (end <= start) return { error: "end must be after start" }
   return { start: start.toISOString(), end: end.toISOString() }
@@ -19,7 +26,8 @@ export async function GET(request: Request) {
   const user = await authorizeIntegration(request, "read")
   if (user instanceof NextResponse) return user
 
-  const agendaRange = range(request)
+  const timeZone = userTimeZone(request, user.data)
+  const agendaRange = range(request, timeZone, userToday(request, user.data))
   if ("error" in agendaRange) {
     return NextResponse.json({ error: agendaRange.error }, { status: 400 })
   }

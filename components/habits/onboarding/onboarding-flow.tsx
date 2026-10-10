@@ -63,6 +63,8 @@ export function OnboardingFlow({ onComplete, onSkip, apiKey, isNostrAuth }: Onbo
         identity: habitData.identity,
         tinyHabit: habitData.tinyHabit,
         createdAt: new Date().toISOString(),
+        // Local day; createdAt alone is UTC (see Habit.startDate).
+        startDate: new Date().toLocaleDateString("en-CA"),
         streakData: {
           current: 0,
           longest: 0,

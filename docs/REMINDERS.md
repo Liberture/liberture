@@ -74,7 +74,7 @@ These are configured in Settings → Preferences → Coach, stored in `preferenc
 Limits apply to every coach: Liberture's push check-ins and an assistant's automations alike. They live in `lib/habits/coach/limits.ts`:
 - **Quiet hours:** default 22:00–08:00. The window may wrap past midnight.
 - **Daily cap:** `maxNudgesPerDay`, default 3. It counts only coach nudges; habit reminders don't count.
-- **One per kind:** one nudge of each kind per day, and one weekly review per ISO week.
+- **One per kind:** one nudge of each kind per day, and one weekly review per ISO week. The exception is `other`: it's checked per message, so different one-off messages are each allowed until the daily limit, while the same message twice is a duplicate.
 
 Server check-ins only run for users with a subscribed device, so they never use up a day's slot that an assistant could have used.
 

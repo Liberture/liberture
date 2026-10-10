@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { getDb } from "@/lib/habits/db"
 import { authorizeIntegration } from "@/lib/habits/integration-auth"
 import type { Todo } from "@/lib/habits/types"
-import { parseISO, isToday, isTomorrow, isPast, addDays, startOfDay } from "date-fns"
+import { parseISO } from "date-fns"
 import {
   refreshStorageJsonFromOptimizedTables,
   syncOptimizedStorageTablesIfEmpty,
@@ -12,24 +12,8 @@ import crypto from "crypto"
 import { paginate, wantsPage } from "@/lib/habits/api/paginate"
 import { userToday } from "@/lib/habits/api/time-zone"
 import { normalizeSubtasks, normalizeTags, projectIdFromName } from "@/lib/habits/api/todo-fields"
+import { todoUrgency } from "@/lib/habits/api/todo-urgency"
 
-type Urgency = "overdue" | "today" | "tomorrow" | "this_week" | "later" | "no_date"
-
-function calculateUrgency(dueDate?: string): Urgency {
-  if (!dueDate) return "no_date"
-
-  const date = parseISO(dueDate)
-  const today = startOfDay(new Date())
-
-  if (isPast(date) && !isToday(date)) return "overdue"
-  if (isToday(date)) return "today"
-  if (isTomorrow(date)) return "tomorrow"
-
-  const weekFromNow = addDays(today, 7)
-  if (date < weekFromNow) return "this_week"
-
-  return "later"
-}
 
 /** "Friday 9 Oct" — short enough to read aloud, unambiguous within the year. */
 function spokenDate(date: string): string {
@@ -96,7 +80,7 @@ export async function GET(request: Request) {
 
     const todos = rows.map((row) => {
       const todo = row.body as Todo
-      return { ...todo, urgency: calculateUrgency(todo.dueDate) }
+      return { ...todo, urgency: todoUrgency(todo, userToday(request, user.data)) }
     })
     if (!wantsPage(searchParams)) return NextResponse.json(todos)
     const page = paginate(todos, searchParams.get("limit") ?? undefined, searchParams.get("cursor") ?? undefined)
@@ -199,7 +183,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       ...newTodo,
-      urgency: calculateUrgency(newTodo.dueDate),
+      urgency: todoUrgency(newTodo, userToday(request, user.data)),
       say: `Added: ${newTodo.title}${projectSay}${newTodo.dueDate ? `, due ${spokenDate(newTodo.dueDate)}` : ""}.`,
     }, { status: 201 })
   } catch (error) {
