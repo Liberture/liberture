@@ -52,6 +52,8 @@ export interface SummaryContext {
   disabledScopes: string[]
   /** Set when this connection's tool list is older than the server's (connector-sync.ts). */
   connectorNotice?: string | null
+  /** First conversations on a new connection: how to welcome the user (welcome.ts). */
+  welcomeNotice?: string | null
 }
 
 export interface TodayHabit {
@@ -120,6 +122,7 @@ export function buildSpokenSummary(data: StorageData, today: string, context?: S
     // Lets the model notice a stale tool list and ask the user to refresh the connector.
     lines.push(`Connector: ${TOOL_COUNT} tools (version ${TOOLS_VERSION})`)
     if (context.connectorNotice) lines.push(context.connectorNotice)
+    if (context.welcomeNotice) lines.push("", context.welcomeNotice)
     lines.push(
       context.disabledScopes.length
         ? `Switched off by the user: ${context.disabledScopes.join(", ")}. Don't attempt those.`

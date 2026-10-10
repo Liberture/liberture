@@ -269,6 +269,10 @@ export interface OnboardingState {
     story: string
   }
   skipped: boolean
+  /** An assistant was already connected, so setup was left to it (its first chat runs the welcome). */
+  handedOffToAssistant?: boolean
+  /** The "finish setting up with your assistant" card was closed. */
+  assistantCardDismissed?: boolean
 }
 
 export interface UserProfile {

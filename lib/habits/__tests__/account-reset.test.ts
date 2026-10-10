@@ -49,6 +49,7 @@ beforeEach(() => {
     "habit_api_connections",
     "habit_oauth_codes",
     "habit_connector_syncs",
+    "habit_assistant_welcomes",
   ]
 })
 
