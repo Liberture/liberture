@@ -7,7 +7,7 @@ import { translations, type Locale } from "@/lib/translations"
  */
 
 export const SITE_URL = "https://liberture.com"
-export const GUIDES_UPDATED = "2026-10-05"
+export const GUIDES_UPDATED = "2026-10-10"
 
 /** Screenshots of a populated demo account, in /public/screenshots/<locale>/. */
 export const SCREENSHOTS = {
