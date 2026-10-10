@@ -60,6 +60,70 @@ export function mergeHabitTombstones(
  * before it, while edits made in the tab (newer, or simply unstamped but
  * after its sync) still win.
  */
+type FieldStamped = { updatedAt?: string; fieldsUpdatedAt?: Record<string, string> }
+
+const STAMP_KEYS = new Set(["updatedAt", "fieldsUpdatedAt"])
+
+/**
+ * `next` with `fieldsUpdatedAt[key] = now` for every field that differs from
+ * `before` (and `updatedAt = now` when any did). Both the app and the server
+ * (update_profile) stamp this way, so a save can be merged per field.
+ */
+export function stampChangedFields<T extends FieldStamped>(before: T | undefined, next: T, now: string): T {
+  const stamps = { ...(before?.fieldsUpdatedAt ?? {}), ...(next.fieldsUpdatedAt ?? {}) }
+  let changed = false
+  const keys = new Set([...Object.keys(before ?? {}), ...Object.keys(next)])
+  for (const key of keys) {
+    if (STAMP_KEYS.has(key)) continue
+    const a = (before as Record<string, unknown> | undefined)?.[key]
+    const b = (next as Record<string, unknown>)[key]
+    if (JSON.stringify(a) !== JSON.stringify(b)) {
+      stamps[key] = now
+      changed = true
+    }
+  }
+  return changed ? { ...next, fieldsUpdatedAt: stamps, updatedAt: now } : next
+}
+
+/**
+ * Profile/preferences on save: each field from whichever side changed it
+ * last. Whole-object "newest wins" let a tab that changed one preference
+ * (say, the auto-filled time zone) bring back its stale copy of another one
+ * an assistant had just set. Fields nobody stamped fall back to the
+ * whole-object rule (mergeStamped), so older data keeps working.
+ */
+export function mergeFieldStamped<T extends FieldStamped>(
+  client: T | undefined,
+  server: T | undefined,
+  clientLastUpdated: string | undefined
+): T | undefined {
+  if (!client || !server) return client ?? server
+  const fallback = mergeStamped(client, server, clientLastUpdated) ?? client
+  const synced = clientLastUpdated ? Date.parse(clientLastUpdated) || 0 : 0
+  const cs = client.fieldsUpdatedAt ?? {}
+  const ss = server.fieldsUpdatedAt ?? {}
+  const result: Record<string, unknown> = {}
+  const stamps: Record<string, string> = {}
+  const keys = new Set([...Object.keys(client), ...Object.keys(server)])
+  for (const key of keys) {
+    if (STAMP_KEYS.has(key)) continue
+    const c = cs[key] ? Date.parse(cs[key]) || 0 : 0
+    const s = ss[key] ? Date.parse(ss[key]) || 0 : 0
+    const fromClient = client as Record<string, unknown>
+    const fromServer = server as Record<string, unknown>
+    let source: Record<string, unknown>
+    if (c && s) source = c >= s ? fromClient : fromServer // both changed it: the later change
+    else if (c) source = fromClient // only this tab changed it
+    else if (s) source = s > synced ? fromServer : fromClient // changed on the server after this tab last synced
+    else source = fallback as Record<string, unknown> // nobody stamped it: whole-object rule
+    if (key in source) result[key] = source[key]
+    const stamp = c >= s ? cs[key] : ss[key]
+    if (stamp) stamps[key] = stamp
+  }
+  const latest = [client.updatedAt, server.updatedAt].filter(Boolean).sort().pop()
+  return { ...(result as T), ...(latest ? { updatedAt: latest } : {}), ...(Object.keys(stamps).length ? { fieldsUpdatedAt: stamps } : {}) }
+}
+
 export function mergeStamped<T extends { updatedAt?: string }>(
   client: T | undefined,
   server: T | undefined,

@@ -27,6 +27,9 @@ export async function GET(request: Request) {
       quietHours: status.quietHours,
       sentToday: status.sentToday,
       sentTodayByKind: status.sentTodayByKind,
+      sentTodayByChannel: status.sentTodayByChannel,
+      // A row is a claim to send, not proof the person saw it.
+      note: "sentToday counts what was claimed today, not confirmed deliveries. assistant = nudges an assistant recorded and sent itself; push = sent by this server (lastDeliveredAt shows the push service accepted one); local = shown by an open tab.",
     },
     { headers: { "Cache-Control": "no-store" } },
   )

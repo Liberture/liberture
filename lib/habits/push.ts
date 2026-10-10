@@ -244,6 +244,12 @@ export interface ReminderStatus {
   /** Notifications claimed since local midnight: all, and split into habit reminders and coach nudges. */
   sentToday: number
   sentTodayByKind: { habit: number; coach: number }
+  /**
+   * The same rows by who claimed them: push (sent by this server), local
+   * (shown by an open tab), assistant (a nudge an assistant recorded through
+   * record_coach_nudge — Liberture didn't deliver it).
+   */
+  sentTodayByChannel: { push: number; local: number; assistant: number }
 }
 
 export async function reminderStatus(userId: number, now: Date = new Date()): Promise<ReminderStatus> {
@@ -258,11 +264,21 @@ export async function reminderStatus(userId: number, now: Date = new Date()): Pr
   ])
   const preferences = (prefRows[0]?.preferences ?? {}) as UserPreferences
   const dayStart = localDayStartUtc(preferences.timeZone, now)
-  const [all, habit, coach] = await Promise.all([
+  const [all, habit, coach, channelRows] = await Promise.all([
     countSentToday(userId, "", dayStart, sql),
     countSentToday(userId, "habit", dayStart, sql),
     countSentToday(userId, "coach", dayStart, sql),
+    sql`
+      SELECT channel, COUNT(*)::int AS n FROM habit_notifications_sent
+      WHERE user_id = ${userId} AND sent_at >= ${dayStart}
+      GROUP BY channel
+    `,
   ])
+  const byChannel = { push: 0, local: 0, assistant: 0 }
+  for (const row of channelRows) {
+    const channel = row.channel as keyof typeof byChannel
+    if (channel in byChannel) byChannel[channel] = row.n as number
+  }
   const iso = (value: unknown) => (value instanceof Date ? value.toISOString() : typeof value === "string" ? value : null)
   return {
     pushConfigured: pushConfigured(),
@@ -273,5 +289,6 @@ export async function reminderStatus(userId: number, now: Date = new Date()): Pr
     quietHours: preferences.coach?.quietHours ?? DEFAULT_COACH_PREFERENCES.quietHours,
     sentToday: all,
     sentTodayByKind: { habit, coach },
+    sentTodayByChannel: byChannel,
   }
 }

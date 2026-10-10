@@ -2,31 +2,14 @@ import { NextResponse } from "next/server"
 import { getDb } from "@/lib/habits/db"
 import { authorizeIntegration } from "@/lib/habits/integration-auth"
 import type { Todo } from "@/lib/habits/types"
-import { parseISO, isToday, isTomorrow, isPast, addDays, startOfDay } from "date-fns"
 import {
   getTodoRow,
   refreshStorageJsonFromOptimizedTables,
   syncOptimizedStorageTablesIfEmpty,
   upsertTodoRow,
 } from "@/lib/habits/optimized-storage"
-
-type Urgency = "overdue" | "today" | "tomorrow" | "this_week" | "later" | "no_date"
-
-function calculateUrgency(dueDate?: string): Urgency {
-  if (!dueDate) return "no_date"
-
-  const date = parseISO(dueDate)
-  const today = startOfDay(new Date())
-
-  if (isPast(date) && !isToday(date)) return "overdue"
-  if (isToday(date)) return "today"
-  if (isTomorrow(date)) return "tomorrow"
-
-  const weekFromNow = addDays(today, 7)
-  if (date < weekFromNow) return "this_week"
-
-  return "later"
-}
+import { todoUrgency } from "@/lib/habits/api/todo-urgency"
+import { userToday } from "@/lib/habits/api/time-zone"
 
 /**
  * PATCH /api/v1/todos/:id/status
@@ -80,7 +63,7 @@ export async function PATCH(
 
     return NextResponse.json({
       ...updatedTodo,
-      urgency: calculateUrgency(updatedTodo.dueDate),
+      urgency: todoUrgency(updatedTodo, userToday(request, user.data)),
     })
   } catch (error) {
     console.error("Failed to update todo status:", error)

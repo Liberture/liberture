@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { authorizeIntegration } from "@/lib/habits/integration-auth"
 import { findHabitByName } from "@/lib/habits/api/find-habit"
 import { catalogLinks, requestOrigin } from "@/lib/habits/api/assistant"
-import { userToday } from "@/lib/habits/api/time-zone"
+import { habitStartDay, userTimeZone, userToday } from "@/lib/habits/api/time-zone"
 import { calculateStreak, isHabitScheduledOnDate } from "@/lib/habits/habit-utils"
 import { parseDateOnly } from "@/lib/habits/date-utils"
 import { format, subDays } from "date-fns"
@@ -57,7 +57,7 @@ export async function GET(request: Request) {
     protocolSlug: h.protocolSlug ?? null,
     catalogSlug: h.catalogSlug ?? null,
     createdAt: h.createdAt,
-    startDate: h.startDate ?? null,
+    startDate: habitStartDay(h, userTimeZone(request, user.data)),
     scheduledToday: isHabitScheduledOnDate(h, todayDate, todayDate),
     doneToday: completions.some((c) => c.date === today && c.completed),
     currentStreak: streak.current,

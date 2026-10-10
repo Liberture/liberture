@@ -248,8 +248,11 @@ export function buildCalendarEventPatch(
   if (!nextEnd) return { error: "endsAt must be a valid ISO timestamp" }
   if (nextEnd <= nextStart) return { error: "endsAt must be after startsAt" }
 
-  if (input.startsAt !== undefined || input.start !== undefined) patch.startsAt = nextStart.toISOString()
-  if (input.endsAt !== undefined || input.end !== undefined || input.durationMinutes !== undefined) {
+  const startChanged = input.startsAt !== undefined || input.start !== undefined
+  if (startChanged) patch.startsAt = nextStart.toISOString()
+  // A move with no new end keeps the length: the end computed above has to be
+  // written too, or the old end stays and the event runs backwards.
+  if (startChanged || input.endsAt !== undefined || input.end !== undefined || input.durationMinutes !== undefined) {
     patch.endsAt = nextEnd.toISOString()
   }
 
