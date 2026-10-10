@@ -232,7 +232,8 @@ function isSuspiciousEmptySnapshot(data: StorageData, currentData: StorageData |
 }
 
 /**
- * After a reset (POST /api/account/reset) a tab still holding the old data
+ * After an account reset (the old "Reset account", before it became Delete
+ * account; accounts reset then still carry resetAt) a tab still holding the old data
  * would merge it straight back. A save whose base copy predates the reset is
  * refused with the fresh data, which the tab adopts instead.
  */

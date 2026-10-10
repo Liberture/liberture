@@ -577,18 +577,19 @@ export function useTrackerActions(data: TrackerData) {
     markDirty()
   }
 
-  /** Settings → Reset account. Can't be undone: the server deleted everything. */
-  const resetAccount = async (): Promise<boolean> => {
+  /** Settings → Delete account. Can't be undone; the caller signs out afterwards. */
+  const deleteAccount = async (): Promise<boolean> => {
     try {
-      await data.resetAccount()
+      await data.deleteAccount()
       notify.success(common.accountReset)
       return true
     } catch (error) {
-      console.error("Account reset failed:", error)
+      console.error("Account delete failed:", error)
       notify.error(common.accountResetFailed)
       return false
     }
   }
+
 
   /**
    * Add catalog/coach habits, skipping ones already tracked, and say exactly
@@ -728,7 +729,7 @@ export function useTrackerActions(data: TrackerData) {
     importData,
     updateHabit,
     updateTodo,
-    resetAccount,
+    deleteAccount,
     handOffOnboarding,
     dismissAssistantCard,
     adoptCatalogProtocol,

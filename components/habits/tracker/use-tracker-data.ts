@@ -44,7 +44,7 @@ function sameList(sent: unknown[], received: unknown[] | undefined): boolean {
 const UNSAVED_DRAFT_KEY = "habit-tracker-unsaved-draft"
 
 /**
- * This device's copies of account data, cleared by a reset. Sign-in keys
+ * This device's copies of account data, cleared when the account is deleted. Sign-in keys
  * (habit-tracker-api-key, -auth-type, -nostr-*) are left alone on purpose.
  */
 const DEVICE_DATA_KEYS = [
@@ -639,22 +639,23 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
   }, [updateStorageMeta])
 
   /**
-   * Settings → Reset account. The server wipes the account in one transaction
-   * (lib/habits/account-reset.ts); here we adopt the fresh data — onboarding
-   * takes over the screen — and drop what this device kept on the side.
-   * Throws when the server refuses, leaving everything as it was.
+   * Settings → Delete account. The server deletes the account and everything
+   * in it in one transaction (lib/habits/account-delete.ts); here we stop any
+   * pending save and drop what this device kept on the side. The caller then
+   * signs out, which lands on the home page. Throws when the server refuses,
+   * leaving everything as it was.
    */
-  const resetAccount = useCallback(async () => {
+  const deleteAccount = useCallback(async () => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
-    const response = await fetch("/api/account/reset", {
+    const response = await fetch("/api/account/delete", {
       method: "POST",
       headers: { "Content-Type": "application/json", ...authHeaders },
-      body: JSON.stringify({ confirm: "reset" }),
+      body: JSON.stringify({ confirm: "delete" }),
     })
     const result = await response.json().catch(() => null)
-    if (!response.ok || !result?.data) throw new Error(result?.error ?? `Reset failed with status ${response.status}`)
+    if (!response.ok || !result?.success) throw new Error(result?.error ?? `Delete failed with status ${response.status}`)
 
-    applyServerData(result.data)
+    // Nothing left to save: no "unsaved changes" prompt on the way out.
     setIsDirty(false)
     setSaveFailed(false)
     setCachedLocally(false)
@@ -674,7 +675,7 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
     } catch {
       // No service worker or push: nothing to do.
     }
-  }, [authHeaders, applyServerData])
+  }, [authHeaders])
 
   /** The arrays as they are right now, for undo. */
   const snapshot = useCallback((): TrackerSnapshot => ({
@@ -709,7 +710,7 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
     preferences, updatePreferences,
     updateProfile, updateStorageMeta,
     snapshot, restore,
-    resetAccount,
+    deleteAccount,
   }
 }
 
