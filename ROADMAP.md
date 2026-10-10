@@ -51,6 +51,36 @@ The how-it-works page now sells this vision; most of it is still to be BUILT.
 - [ ] Zero-downtime deploys: `pm2 delete` + `start` drops the site for a few seconds
       each push; switch to `pm2 reload` (needs cluster mode) or start-then-swap.
 
+### Coach doctrine (from the retired `~/productivity-system`, 2026-10-10)
+
+The coach and its limits shipped in #32 (check-ins, quiet hours, daily cap,
+MCP coach tools). What it lacks is a point of view. Port the old Topolino
+doctrine into it:
+
+- [ ] **Message formula** for every check-in in `lib/habits/coach/rules.ts`:
+      status in one sentence → the actual miss or risk → exactly one next action
+      with a deadline. Brief and direct, no motivational filler, no vulgarity;
+      Rioplatense Spanish for `es`.
+- [ ] **Response ladder** using the nudge ledger (`habit_notifications_sent`):
+      first miss = reminder + one action; repeated miss = name the pattern and
+      shrink the ask; never repeat the same sermon.
+- [ ] **Habit tiers**: core (strict; = focus habits / priority 4–5), secondary
+      (mentioned, never hammered), zombie (0% for 30+ days and not core →
+      suggest archiving, never nag). Lift the 3-focus-habit cap or add a
+      "core" flag so 4–6 anchors fit.
+- [ ] **Evening close check-in** (default 21:30): what got done, what failed,
+      one change for tomorrow. Morning/afternoon already exist.
+- [ ] **Weekly review prompts** (Sunday 19:00): what moved, what was fake
+      motion, which failure pattern repeated, what gets cut, 3 commitments for
+      next week.
+- [ ] **Empty-board rule**: zero active todos is undefined work, not a free
+      day. Nudge for one 15-minute starter task first, then the weekly three
+      (career/finance, body/discipline, project), each with next action,
+      estimated minutes, energy and "can the coach help" (fields exist on `Todo`).
+- [ ] **Drift = core miss past its window, empty board, or no career/study
+      block today** — feed `get_audit` and the afternoon check-in from this
+      instead of the current priority-only rule.
+
 ## Later
 
 - [ ] Bump GitHub Actions deps flagged by the Node 20 deprecation warning
