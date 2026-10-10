@@ -304,6 +304,7 @@ model HabitUser {
   todos                  HabitTodo[]
   pushSubscriptions      HabitPushSubscription[]
   notificationsSent      HabitNotificationSent[]
+  connectorSyncs         HabitConnectorSync[]
 
   @@index([apiKey], map: "idx_habit_users_api_key")
   @@index([updatedAt], map: "idx_habit_users_updated_at")
@@ -414,6 +415,24 @@ model HabitNotificationSent {
   @@id([userId, dedupeKey])
   @@index([userId, sentAt], map: "idx_habit_notifications_sent_user_sent")
   @@map("habit_notifications_sent")
+}
+
+/// When each assistant connection last loaded the MCP tool list (lib/habits/api/connector-sync.ts):
+/// lets Liberture tell the user a connector needs refreshing after new tools ship.
+/// connection_key is `conn:<habit_api_connections.id>` or `script:<user id>`.
+model HabitConnectorSync {
+  connectionKey String    @id @map("connection_key")
+  userId        Int       @map("user_id")
+  toolsVersion  String    @map("tools_version")
+  toolNames     String[]  @default([]) @map("tool_names")
+  toolCount     Int       @map("tool_count")
+  syncCount     Int       @default(1) @map("sync_count")
+  firstSyncedAt DateTime  @default(now()) @map("first_synced_at") @db.Timestamptz(6)
+  syncedAt      DateTime  @default(now()) @map("synced_at") @db.Timestamptz(6)
+  user          HabitUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "habit_connector_syncs_user_id_fkey")
+
+  @@index([userId], map: "idx_habit_connector_syncs_user")
+  @@map("habit_connector_syncs")
 }
 
 model HabitOauthClient {

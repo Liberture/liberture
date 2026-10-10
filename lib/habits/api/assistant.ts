@@ -50,6 +50,8 @@ export interface SummaryContext {
   name: string | null
   /** Permission scopes the user switched off, so the assistant needs no second call to learn them. */
   disabledScopes: string[]
+  /** Set when this connection's tool list is older than the server's (connector-sync.ts). */
+  connectorNotice?: string | null
 }
 
 export interface TodayHabit {
@@ -117,6 +119,7 @@ export function buildSpokenSummary(data: StorageData, today: string, context?: S
     if (context.name) lines.push(`User: ${context.name}`)
     // Lets the model notice a stale tool list and ask the user to refresh the connector.
     lines.push(`Connector: ${TOOL_COUNT} tools (version ${TOOLS_VERSION})`)
+    if (context.connectorNotice) lines.push(context.connectorNotice)
     lines.push(
       context.disabledScopes.length
         ? `Switched off by the user: ${context.disabledScopes.join(", ")}. Don't attempt those.`
