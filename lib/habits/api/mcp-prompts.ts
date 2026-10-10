@@ -5,6 +5,8 @@
  * time, read back the `say` sentences.
  */
 
+import { WELCOME_GUIDE } from "@/lib/habits/api/welcome"
+
 export interface McpPromptArgument {
   name: string
   description: string
@@ -25,6 +27,14 @@ interface PromptDefinition extends McpPrompt {
 const KEEP_IT_SHORT = "Keep every reply to one or two sentences; I may be listening, not reading."
 
 const DEFINITIONS: PromptDefinition[] = [
+  {
+    name: "welcome",
+    title: "Get started with Liberture",
+    description: "A short tour: what Liberture can do, a few questions about you, and protocols from the catalog to start with.",
+    arguments: [],
+    text: () =>
+      "I just connected Liberture. Call get_today first, then follow this: " + WELCOME_GUIDE + ` ${KEEP_IT_SHORT}`,
+  },
   {
     name: "morning_checkin",
     title: "Morning check-in",

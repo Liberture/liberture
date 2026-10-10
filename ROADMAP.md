@@ -91,6 +91,13 @@ doctrine into it:
 
 ## Done
 
+- 2026-10-10 — First-run handoff to the assistant: a new connection's first
+  chats get a welcome from get_today (present Liberture, ask a few questions,
+  offer catalog protocols; `complete_welcome` / `welcome` prompt,
+  `habit_assistant_welcomes`). "Start in ChatGPT / Claude" links open a new chat
+  with that request (connect step, Settings, tracker card). Accounts connected
+  before opening the tracker skip the wizard. The wizard no longer replaces
+  habits an assistant already created.
 - 2026-10-10 — Connector tool sync (`habit_connector_syncs`): every MCP
   `tools/list` records the connection, date, tool version and a sync counter.
   Settings → Assistants shows "tools up to date" or "N new tools — refresh";

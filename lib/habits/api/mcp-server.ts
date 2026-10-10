@@ -36,7 +36,8 @@ const INSTRUCTIONS =
   "message; don't retry. If the user mentions something get_permissions says this connector offers (connector.tools) " +
   "but your tool list lacks it, tell them to refresh the Liberture connector in their assistant's settings. Before " +
   "any message the user didn't ask for (a scheduled check-in), call get_coach_state, then record_coach_nudge, and " +
-  "only message them if it returns allowed."
+  "only message them if it returns allowed. If get_today contains a FIRST CONVERSATION note, welcome the user as it " +
+  "describes (or use the welcome prompt) and then call complete_welcome."
 
 interface JsonRpcRequest {
   jsonrpc?: string
