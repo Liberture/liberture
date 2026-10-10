@@ -711,6 +711,24 @@ export const API_OPERATIONS: readonly ApiOperation[] = [
     },
   },
   {
+    id: "complete_welcome",
+    method: "POST",
+    path: "/assistant/welcome",
+    scope: "read",
+    summary: "Mark the first-conversation welcome as done",
+    description:
+      "Call once after running the welcome that get_today asks for on a new connection (outcome done), or if the user would rather skip it (outcome skipped). get_today then stops asking for it.",
+    mcpOnly: true,
+    annotations: { idempotent: true },
+    body: {
+      type: "object",
+      properties: {
+        outcome: { type: "string", enum: ["done", "skipped"], description: "Default done." },
+      },
+    },
+    output: SAY_OUTPUT,
+  },
+  {
     id: "record_coach_nudge",
     method: "POST",
     path: "/coach/nudge",

@@ -28,6 +28,7 @@ import { POST as updateHabit } from "@/app/api/v1/habits/update/route"
 import { POST as deleteHabit } from "@/app/api/v1/habits/delete/route"
 import { GET as getProfile, POST as updateProfile } from "@/app/api/v1/profile/route"
 import { GET as getAssistant } from "@/app/api/v1/assistant/route"
+import { POST as completeWelcome } from "@/app/api/v1/assistant/welcome/route"
 import { GET as getAudit } from "@/app/api/v1/audit/route"
 import { GET as getExport } from "@/app/api/v1/export/route"
 import { GET as getCoachState } from "@/app/api/v1/coach/state/route"
@@ -77,6 +78,7 @@ export const HANDLERS: Record<string, Handler> = {
   get_profile: getProfile as Handler,
   update_profile: updateProfile as Handler,
   get_permissions: getAssistant as Handler,
+  complete_welcome: completeWelcome as Handler,
   get_audit: getAudit as Handler,
   export_data: getExport as Handler,
   get_coach_state: getCoachState as Handler,

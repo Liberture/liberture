@@ -1393,6 +1393,17 @@ const habitsEn = {
       continue: "Continue",
       skipForNow: "Skip for now",
       connectLater: "You can always connect later in Settings → Voice assistants.",
+      connectedTitle: "Connected! Finish setting up in your assistant",
+      connectedBody: "Open a new chat: your assistant will show you what it can do, ask a few questions and suggest protocols to start with.",
+      continueHere: "Set up here instead",
+    },
+    assistantStart: {
+      title: "Finish setting up with your assistant",
+      body: "Your assistant is connected. Open a new chat and it will walk you through Liberture: a few questions, then protocols from the catalog to start with.",
+      openChatgpt: "Start in ChatGPT",
+      openClaude: "Start in Claude",
+      dismiss: "Hide",
+      prompt: "Hi! I just connected Liberture. Using the Liberture connector, show me what you can do, ask me a few questions about what I want to improve, and suggest protocols from the catalog to start with.",
     },
     // E
     morningDashboard: {
@@ -4259,6 +4270,17 @@ const habitsEs: HabitsDictionary = {
       continue: "Continuar",
       skipForNow: "Saltar por ahora",
       connectLater: "Siempre podés conectarlo después en Ajustes → Asistentes de voz.",
+      connectedTitle: "¡Conectado! Terminá de configurar en tu asistente",
+      connectedBody: "Abrí un chat nuevo: tu asistente te va a mostrar lo que puede hacer, hacerte unas preguntas y sugerirte protocolos para arrancar.",
+      continueHere: "Configurar acá",
+    },
+    assistantStart: {
+      title: "Terminá de configurar con tu asistente",
+      body: "Tu asistente ya está conectado. Abrí un chat nuevo y te va a guiar por Liberture: unas preguntas y después protocolos del catálogo para arrancar.",
+      openChatgpt: "Empezar en ChatGPT",
+      openClaude: "Empezar en Claude",
+      dismiss: "Ocultar",
+      prompt: "¡Hola! Acabo de conectar Liberture. Usando el conector de Liberture, mostrame lo que podés hacer, haceme unas preguntas sobre qué quiero mejorar y sugerime protocolos del catálogo para arrancar.",
     },
     // E
     morningDashboard: {

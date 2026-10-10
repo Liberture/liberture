@@ -1,10 +1,12 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { Check, CheckCircle2, Copy, Loader2 } from "lucide-react"
 
 import { ChatGPTLogo, ClaudeLogo } from "@/components/habits/brand-logos"
 import { Button } from "@/components/habits/ui/button"
+import { AssistantStartButtons } from "@/components/habits/assistant/assistant-start"
+import { assistantKind, useAssistantConnections } from "@/components/habits/assistant/use-assistant-connections"
 import { useTranslations } from "@/components/i18n/locale-provider"
 
 interface StepConnectAssistantProps {
@@ -22,33 +24,12 @@ export function StepConnectAssistant({ apiKey, isNostrAuth, onNext }: StepConnec
   const t = useTranslations().habits.app.onboardingConnectAssistant
   const [origin, setOrigin] = useState("")
   const [copied, setCopied] = useState(false)
-  const [connected, setConnected] = useState<string[]>([])
+  const connections = useAssistantConnections(apiKey, isNostrAuth, true)
+  const connected = (connections ?? []).map((c) => assistantKind(c.name)).filter((k): k is "chatgpt" | "claude" => k !== null)
+  const anyConnected = (connections ?? []).length > 0
 
   useEffect(() => setOrigin(window.location.origin), [])
   const mcpUrl = `${origin}/mcp`
-
-  const check = useCallback(async () => {
-    try {
-      const session = isNostrAuth ? localStorage.getItem("habit-tracker-nostr-session") : null
-      const url = session ? `/api/v1/connections?token=${encodeURIComponent(session)}` : "/api/v1/connections"
-      const res = await fetch(url, { headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : undefined, credentials: "same-origin" })
-      if (!res.ok) return
-      const data = (await res.json()) as { connections?: { name: string }[] }
-      setConnected([...new Set((data.connections ?? []).map((c) => c.name))])
-    } catch {
-      // Offline or signed out: keep showing the steps.
-    }
-  }, [apiKey, isNostrAuth])
-
-  useEffect(() => {
-    check()
-    const timer = window.setInterval(check, 4000)
-    window.addEventListener("focus", check)
-    return () => {
-      window.clearInterval(timer)
-      window.removeEventListener("focus", check)
-    }
-  }, [check])
 
   const copy = async () => {
     try {
@@ -60,11 +41,13 @@ export function StepConnectAssistant({ apiKey, isNostrAuth, onNext }: StepConnec
 
   const assistants = [
     {
+      kind: "claude" as const,
       name: "Claude",
       Logo: ClaudeLogo,
       steps: t.claudeSteps,
     },
     {
+      kind: "chatgpt" as const,
       name: "ChatGPT",
       Logo: ChatGPTLogo,
       steps: t.chatgptSteps,
@@ -91,8 +74,8 @@ export function StepConnectAssistant({ apiKey, isNostrAuth, onNext }: StepConnec
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        {assistants.map(({ name, Logo, steps }) => {
-          const isConnected = connected.includes(name)
+        {assistants.map(({ kind, name, Logo, steps }) => {
+          const isConnected = connected.includes(kind)
           return (
             <div key={name} className="rounded-xl border border-border bg-background/60 p-4">
               <div className="flex items-center justify-between gap-2">
@@ -121,17 +104,28 @@ export function StepConnectAssistant({ apiKey, isNostrAuth, onNext }: StepConnec
         })}
       </div>
 
-      <div className="flex flex-col items-center gap-3">
-        {connected.length === 0 ? (
+      {anyConnected ? (
+        // Connected: the assistant takes over setup. Its first chat runs the
+        // welcome (get_today asks it to); the wizard stays available here.
+        <div className="space-y-3 rounded-2xl border border-primary/30 bg-primary/5 p-4 text-center">
+          <p className="font-semibold text-foreground">{t.connectedTitle}</p>
+          <p className="text-sm text-muted-foreground">{t.connectedBody}</p>
+          <AssistantStartButtons connected={connected} className="justify-center" />
+          <button type="button" onClick={onNext} className="text-sm font-medium text-muted-foreground underline underline-offset-2 hover:text-foreground">
+            {t.continueHere}
+          </button>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-3">
           <p className="flex items-center gap-2 text-xs text-muted-foreground">
             <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t.waiting}
           </p>
-        ) : null}
-        <Button type="button" onClick={onNext} className="w-full sm:w-auto sm:min-w-48">
-          {connected.length ? t.continue : t.skipForNow}
-        </Button>
-        <p className="text-xs text-muted-foreground">{t.connectLater}</p>
-      </div>
+          <Button type="button" onClick={onNext} className="w-full sm:w-auto sm:min-w-48">
+            {t.skipForNow}
+          </Button>
+          <p className="text-xs text-muted-foreground">{t.connectLater}</p>
+        </div>
+      )}
     </div>
   )
 }

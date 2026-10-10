@@ -12,6 +12,8 @@ import { SettingRow, SettingsCard, SettingsDivider, settingsButtonClass } from "
 import { cn } from "@/lib/utils"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage } from "@/lib/i18n-format"
+import { AssistantStartButtons } from "@/components/habits/assistant/assistant-start"
+import { assistantKind } from "@/components/habits/assistant/use-assistant-connections"
 
 type AssistantAccessCopy = ReturnType<typeof useTranslations>["habits"]["app"]["assistantAccessSection"]
 
@@ -269,6 +271,13 @@ export function AssistantConnectSection({ apiKey, isNostrAuth }: AssistantAccess
       </SettingsCard>
 
       <SettingsCard title={t.connectedTitle} description={t.connectedDescription}>
+        {connections && connections.length > 0 && (
+          // Jump into a new chat that starts with Liberture's welcome tour.
+          <AssistantStartButtons
+            connected={connections.map((c) => assistantKind(c.name)).filter((k): k is "chatgpt" | "claude" => k !== null)}
+            className="mb-3"
+          />
+        )}
         {connections === null ? (
           <p className="flex items-center gap-2 text-sm text-muted-foreground">
             <RefreshCw className="h-3 w-3 animate-spin" /> {t.loading}

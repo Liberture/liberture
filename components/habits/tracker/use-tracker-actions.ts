@@ -61,8 +61,10 @@ export function useTrackerActions(data: TrackerData) {
   }
 
   const handleOnboardingComplete = (habit: Habit, onboarding: OnboardingState) => {
-    // Add the habit created during onboarding
-    setHabits([habit])
+    // Add the habit created during onboarding. Append, never replace: an
+    // assistant connected before the tracker was first opened may already
+    // have created habits, and those must survive finishing the wizard.
+    setHabits((list) => (list.some((h) => h.id === habit.id) ? list : [...list, habit]))
 
     // Create first completion if user did it during onboarding
     const today = format(new Date(), "yyyy-MM-dd")
@@ -72,10 +74,28 @@ export function useTrackerActions(data: TrackerData) {
       completed: true,
       completedAt: new Date().toISOString(),
     }
-    setCompletions([firstCompletion])
+    setCompletions((list) => [
+      ...list.filter((c) => !(c.habitId === habit.id && c.date === today)),
+      firstCompletion,
+    ])
 
     // Update onboarding state
     setOnboardingState({ ...onboarding, completed: true })
+    markDirty()
+  }
+
+  /**
+   * The account already has an assistant connected (it connected before the
+   * tracker was ever opened): skip the wizard and let the assistant's first
+   * chat do the setup. The tracker shows a card with links to that chat.
+   */
+  const handOffOnboarding = () => {
+    setOnboardingState({ completed: true, currentStep: 5, skipped: true, handedOffToAssistant: true })
+    markDirty()
+  }
+
+  const dismissAssistantCard = () => {
+    setOnboardingState((current) => ({ ...current, assistantCardDismissed: true }))
     markDirty()
   }
 
@@ -709,6 +729,8 @@ export function useTrackerActions(data: TrackerData) {
     updateHabit,
     updateTodo,
     resetAccount,
+    handOffOnboarding,
+    dismissAssistantCard,
     adoptCatalogProtocol,
     adoptCatalogHabit,
     adoptCustomHabit,

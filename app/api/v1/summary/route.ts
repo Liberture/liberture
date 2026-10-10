@@ -4,6 +4,7 @@ import { buildSpokenSummary, habitsForDay } from "@/lib/habits/api/assistant"
 import { userToday } from "@/lib/habits/api/time-zone"
 import { effectivePermissions } from "@/lib/habits/api-scopes"
 import { connectionKeyFor, staleConnectorLine, syncStatusFor } from "@/lib/habits/api/connector-sync"
+import { welcomeNoticeFor } from "@/lib/habits/api/welcome"
 
 /**
  * GET /api/v1/summary?tz=Europe/Madrid&format=json
@@ -43,6 +44,11 @@ export async function GET(request: Request) {
     name: user.data.profile?.name ?? null,
     disabledScopes: Object.entries(permissions).filter(([, on]) => !on).map(([scope]) => scope),
     connectorNotice: staleConnectorLine(await syncStatusFor(connectionKeyFor(user)).catch(() => null)),
+    welcomeNotice: await welcomeNoticeFor(
+      user.userId,
+      connectionKeyFor(user),
+      (user.data.habits ?? []).filter((h) => !h.archived).length
+    ),
   }
   return new NextResponse(buildSpokenSummary(user.data, today, context), {
     headers: { "Content-Type": "text/markdown; charset=utf-8", "Cache-Control": "no-store" },

@@ -26,6 +26,7 @@ const USER_TABLES = [
   "habit_api_connections",
   "habit_oauth_codes",
   "habit_connector_syncs",
+  "habit_assistant_welcomes",
 ] as const
 
 export function resetStorageData(now: string = new Date().toISOString()): StorageData {
