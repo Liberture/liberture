@@ -38,6 +38,8 @@ import { useMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage } from "@/lib/i18n-format"
+import { AssistantStartCard } from "@/components/habits/assistant/assistant-start"
+import { assistantKind, useAssistantConnections } from "@/components/habits/assistant/use-assistant-connections"
 
 type HabitsLayout = NonNullable<UserPreferences["habitsLayout"]>
 
@@ -76,6 +78,26 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
     preferences, updatePreferences, updateProfile, habitsRef,
   } = data
   const isMobile = useMobile()
+
+  // An account whose assistant connected before the tracker was ever opened
+  // (connect in ChatGPT/Claude, sign up on the approve page) skips the wizard:
+  // setup happens in that assistant's first chat. Wait briefly for the check
+  // so the wizard doesn't flash; if it fails, fall back to the wizard.
+  const connections = useAssistantConnections(apiKey, isNostrAuth)
+  const connectedKinds = useMemo(
+    () => (connections ?? []).map((c) => assistantKind(c.name)).filter((k): k is "chatgpt" | "claude" => k !== null),
+    [connections],
+  )
+  const [connectionCheckTimedOut, setConnectionCheckTimedOut] = useState(false)
+  useEffect(() => {
+    const timer = window.setTimeout(() => setConnectionCheckTimedOut(true), 2000)
+    return () => window.clearTimeout(timer)
+  }, [])
+  useEffect(() => {
+    if (isLoading || onboardingState.completed || !connections?.length) return
+    actions.handOffOnboarding()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once when the check lands
+  }, [isLoading, onboardingState.completed, connections])
 
   /** Whether this instance has a coach configured, even when disconnected. */
   const [coachConfigured, setCoachConfigured] = useState(false)
@@ -298,7 +320,14 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
     )
   }
 
-  // Show onboarding for new users
+  // New users: the wizard — unless an assistant is already connected (handed off above).
+  if (!onboardingState.completed && (connections?.length || (connections === null && !connectionCheckTimedOut))) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <p className="text-muted-foreground">{t.loadingHabits}</p>
+      </div>
+    )
+  }
   if (!onboardingState.completed) {
     return (
       <OnboardingFlow
@@ -354,6 +383,10 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
               </button>
             ))}
           </div>
+
+          {onboardingState.handedOffToAssistant && !onboardingState.assistantCardDismissed && (
+            <AssistantStartCard connected={connectedKinds} onDismiss={actions.dismissAssistantCard} />
+          )}
 
           <BackupReminder habits={habits} lastBackupAt={storageData?.lastBackupAt} onExport={actions.exportData} />
 
