@@ -1996,6 +1996,12 @@ const habitsEn = {
       tokenRevoked: "Script token revoked",
       newTokenHint: "Copy it now. It won't be shown again.",
       toolsLine: "This server offers {count} tools (version {version}). If your assistant shows fewer, refresh or reconnect the connector.",
+      toolsNeverLoaded: "Hasn't loaded the tool list yet.",
+      toolsUpToDate: "Tools up to date · loaded {date}",
+      toolsNewOne: "1 new tool since {date}: refresh it to use it.",
+      toolsNewMany: "{count} new tools since {date}: refresh it to use them.",
+      toolsChanged: "Tools changed since {date}: refresh it.",
+      toolsHowToRefresh: "How to refresh",
       mcpUrlTitle: "MCP server URL",
       mcpUrlDescription: "For any MCP client. Sign-in happens through OAuth when the client connects.",
       legacyKeyTitle: "API key",
@@ -3033,6 +3039,7 @@ const habitsEn = {
       chatgpt: "ChatGPT",
       claude: "Claude",
       permissions: "Permissions",
+      updates: "Get new tools",
       api: "API reference",
     },
     onThisPage: "On this page",
@@ -3102,7 +3109,7 @@ const habitsEn = {
         { q: "It asks me to sign in again", a: "You disconnected it in Settings, or signed in with a different account. Sign in and approve again." },
         { q: "403 scope_disabled", a: "You switched that permission off in Settings → Voice assistants. The assistant should tell you which one." },
         { q: "It asks for confirmation every time", a: "Choose Always allow when ChatGPT asks about an action." },
-        { q: "New tools don't show up", a: "ChatGPT keeps the tool list it saw when you connected. Refresh it: Settings → Apps & Connectors → Liberture → Refresh, or disconnect and connect again. Liberture → Settings → Assistants shows how many tools there should be." },
+        { q: "New tools don't show up", a: "ChatGPT keeps the tool list it saw when you connected. Refresh it: Settings → Apps & Connectors → Liberture → Refresh, or disconnect and connect again. Liberture → Settings → Assistants says whether it is up to date; full steps in Docs → Get new tools." },
       ],
     },
 
@@ -3126,8 +3133,40 @@ const habitsEn = {
       trouble: [
         { q: "It asks me to sign in again", a: "You disconnected it in Settings, or signed in with a different account. Press Connect and approve again." },
         { q: "403 scope_disabled", a: "You switched that permission off in Liberture → Settings → Assistants. Claude should tell you which one." },
-        { q: "New tools don't show up", a: "Claude keeps the tool list it saw when you connected. In Claude: Settings → Connectors → Liberture → Disconnect, then Connect again. Liberture → Settings → Assistants shows how many tools there should be." },
+        { q: "New tools don't show up", a: "Claude keeps the tool list it saw when you connected. Start a new conversation first; if they still don't appear: Settings → Connectors → Liberture → Disconnect, then Connect again. Liberture → Settings → Assistants says whether it is up to date; full steps in Docs → Get new tools." },
       ],
+    },
+
+    updates: {
+      title: "Get new tools",
+      lead:
+        "When Liberture publishes new tools, ChatGPT and Claude keep using the list they loaded when you connected. They don't check again by themselves: refresh the connector once and the new tools appear.",
+      currentTitle: "What this server offers now",
+      current: "{count} tools · version {version}",
+      knowTitle: "How you know there's something new",
+      know: [
+        "Liberture → Settings → Assistants: each connected app shows when it last loaded the tools, and how many are new since then.",
+        "Your assistant tells you: when its list is behind, Liberture's daily summary (get_today) asks it to mention it once.",
+        "Liberture remembers, for every connection, the date and version of the last tool list it loaded and how many times it has loaded it. Nothing about your conversations is stored.",
+      ],
+      chatgptTitle: "ChatGPT",
+      chatgptSteps: [
+        { title: "Open the connector", body: "In ChatGPT: Settings → Apps & Connectors, then open Liberture." },
+        { title: "Refresh it", body: "Use Refresh if it's offered. If not, disconnect it and connect again with the same URL, then sign in and press Approve. Reconnecting replaces the old connection; your habits and permissions stay as they are." },
+        { title: "Start a new chat", body: "Open a new chat and ask \"which Liberture tools can you use?\". Old chats keep the old list." },
+      ],
+      gptTitle: "ChatGPT Custom GPT (actions)",
+      gpt: "Edit the GPT → Configure → Actions → Import from URL, paste the schema URL below, then Update.",
+      schemaLabel: "Schema URL",
+      claudeTitle: "Claude",
+      claudeSteps: [
+        { title: "Start a new conversation", body: "Claude reads the connector's tools when a conversation starts, so a new chat is often enough." },
+        { title: "Still missing? Reconnect", body: "Settings → Connectors → Liberture → Disconnect, then Connect again and press Approve in Liberture. On the mobile app, close it fully and reopen it." },
+      ],
+      urlLabel: "Connector URL",
+      checkTitle: "Check that it worked",
+      check:
+        "In Liberture → Settings → Assistants the app should say \"Tools up to date\". Or ask your assistant to call get_permissions: connector.yourSync.upToDate should be true.",
     },
 
     permissions: {
@@ -4755,6 +4794,12 @@ const habitsEs: HabitsDictionary = {
       tokenRevoked: "Token para scripts revocado",
       newTokenHint: "Copialo ahora. No se va a volver a mostrar.",
       toolsLine: "Este servidor ofrece {count} herramientas (versión {version}). Si tu asistente muestra menos, actualizá o reconectá el conector.",
+      toolsNeverLoaded: "Todavía no cargó la lista de herramientas.",
+      toolsUpToDate: "Herramientas al día · cargadas el {date}",
+      toolsNewOne: "1 herramienta nueva desde el {date}: actualizalo para usarla.",
+      toolsNewMany: "{count} herramientas nuevas desde el {date}: actualizalo para usarlas.",
+      toolsChanged: "Las herramientas cambiaron desde el {date}: actualizalo.",
+      toolsHowToRefresh: "Cómo actualizar",
       mcpUrlTitle: "URL del servidor MCP",
       mcpUrlDescription: "Para cualquier cliente MCP. El inicio de sesión se hace por OAuth cuando el cliente se conecta.",
       legacyKeyTitle: "Clave de API",
@@ -5792,6 +5837,7 @@ const habitsEs: HabitsDictionary = {
       chatgpt: "ChatGPT",
       claude: "Claude",
       permissions: "Permisos",
+      updates: "Herramientas nuevas",
       api: "Referencia de la API",
     },
     onThisPage: "En esta página",
@@ -5861,7 +5907,7 @@ const habitsEs: HabitsDictionary = {
         { q: "Me pide entrar de nuevo", a: "Lo desconectaste en Ajustes, o entraste con otra cuenta. Entrá y aprobá de nuevo." },
         { q: "403 scope_disabled", a: "Apagaste ese permiso en Ajustes → Asistentes de voz. El asistente debería decirte cuál." },
         { q: "Pide confirmación cada vez", a: "Elegí Permitir siempre cuando ChatGPT pregunte por una acción." },
-        { q: "No aparecen las herramientas nuevas", a: "ChatGPT guarda la lista de herramientas de cuando conectaste. Actualizala: Configuración → Apps y conectores → Liberture → Actualizar, o desconectá y volvé a conectar. Liberture → Ajustes → Asistentes muestra cuántas herramientas debería haber." },
+        { q: "No aparecen las herramientas nuevas", a: "ChatGPT guarda la lista de herramientas de cuando conectaste. Actualizala: Configuración → Apps y conectores → Liberture → Actualizar, o desconectá y volvé a conectar. Liberture → Ajustes → Asistentes te dice si está al día; los pasos completos están en Docs → Herramientas nuevas." },
       ],
     },
 
@@ -5885,8 +5931,40 @@ const habitsEs: HabitsDictionary = {
       trouble: [
         { q: "Me pide entrar de nuevo", a: "Lo desconectaste en Ajustes, o entraste con otra cuenta. Tocá Conectar y aprobá de nuevo." },
         { q: "403 scope_disabled", a: "Apagaste ese permiso en Liberture → Ajustes → Asistentes. Claude debería decirte cuál." },
-        { q: "No aparecen las herramientas nuevas", a: "Claude guarda la lista de herramientas de cuando conectaste. En Claude: Configuración → Conectores → Liberture → Desconectar, y después Conectar de nuevo. Liberture → Ajustes → Asistentes muestra cuántas herramientas debería haber." },
+        { q: "No aparecen las herramientas nuevas", a: "Claude guarda la lista de herramientas de cuando conectaste. Primero empezá una conversación nueva; si siguen sin aparecer: Configuración → Conectores → Liberture → Desconectar, y después Conectar de nuevo. Liberture → Ajustes → Asistentes te dice si está al día; los pasos completos están en Docs → Herramientas nuevas." },
       ],
+    },
+
+    updates: {
+      title: "Herramientas nuevas",
+      lead:
+        "Cuando Liberture publica herramientas nuevas, ChatGPT y Claude siguen usando la lista que cargaron al conectarse. No vuelven a consultarla solos: actualizá el conector una vez y aparecen.",
+      currentTitle: "Lo que ofrece este servidor ahora",
+      current: "{count} herramientas · versión {version}",
+      knowTitle: "Cómo te enterás de que hay algo nuevo",
+      know: [
+        "Liberture → Ajustes → Asistentes: cada app conectada muestra cuándo cargó las herramientas por última vez y cuántas hay nuevas desde entonces.",
+        "Tu asistente te avisa: cuando su lista está atrasada, el resumen diario de Liberture (get_today) le pide que te lo mencione una vez.",
+        "Liberture guarda, para cada conexión, la fecha y la versión de la última lista de herramientas que cargó y cuántas veces la cargó. No guarda nada de tus conversaciones.",
+      ],
+      chatgptTitle: "ChatGPT",
+      chatgptSteps: [
+        { title: "Abrí el conector", body: "En ChatGPT: Configuración → Apps y conectores, y abrí Liberture." },
+        { title: "Actualizalo", body: "Usá Actualizar si aparece. Si no, desconectalo y conectalo de nuevo con la misma URL, iniciá sesión y tocá Aprobar. Reconectar reemplaza la conexión anterior; tus hábitos y permisos quedan como están." },
+        { title: "Empezá un chat nuevo", body: "Abrí un chat nuevo y preguntá \"¿qué herramientas de Liberture podés usar?\". Los chats viejos siguen con la lista vieja." },
+      ],
+      gptTitle: "GPT personalizado de ChatGPT (acciones)",
+      gpt: "Editá el GPT → Configurar → Acciones → Importar desde URL, pegá la URL del esquema de abajo y tocá Actualizar.",
+      schemaLabel: "URL del esquema",
+      claudeTitle: "Claude",
+      claudeSteps: [
+        { title: "Empezá una conversación nueva", body: "Claude lee las herramientas del conector al empezar cada conversación, así que muchas veces alcanza con un chat nuevo." },
+        { title: "¿Siguen faltando? Reconectá", body: "Configuración → Conectores → Liberture → Desconectar, después Conectar y tocá Aprobar en Liberture. En la app del celular, cerrala del todo y volvé a abrirla." },
+      ],
+      urlLabel: "URL del conector",
+      checkTitle: "Comprobá que funcionó",
+      check:
+        "En Liberture → Ajustes → Asistentes la app debería decir \"Herramientas al día\". O pedile a tu asistente que llame a get_permissions: connector.yourSync.upToDate tiene que ser true.",
     },
 
     permissions: {

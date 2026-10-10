@@ -15,7 +15,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ tok
       status: 401,
     })
   }
-  return handleMcpPost(request, token)
+  return handleMcpPost(request, token, user)
 }
 
 export const GET = mcpMethodNotAllowed

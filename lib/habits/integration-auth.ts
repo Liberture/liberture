@@ -20,6 +20,8 @@ export interface IntegrationAuthResult {
   apiKey: string | null
   nostrPubkey: string | null
   data: StorageData
+  /** The OAuth connection (hta_ token); null for the script token (hti_). */
+  connectionId: string | null
 }
 
 /** Bearer token from the header if it looks like one of ours (hti_ or hta_). */
@@ -50,6 +52,7 @@ export async function verifyIntegrationTokenValue(token: string): Promise<Integr
   try {
     const sql = getDb()
     let result
+    let connectionId: string | null = null
     if (/^hti_[0-9a-f]{64}$/.test(token)) {
       result = await sql`
         SELECT id, api_key, nostr_pubkey, data
@@ -59,6 +62,7 @@ export async function verifyIntegrationTokenValue(token: string): Promise<Integr
     } else if (new RegExp(`^${ACCESS_PREFIX}[0-9a-f]{64}$`).test(token)) {
       const connection = await lookupConnection(token)
       if (!connection) return null
+      connectionId = connection.id
       result = await sql`SELECT id, api_key, nostr_pubkey, data FROM habit_users WHERE id = ${connection.userId}`
     } else {
       return null
@@ -70,6 +74,7 @@ export async function verifyIntegrationTokenValue(token: string): Promise<Integr
       apiKey: result[0].api_key as string | null,
       nostrPubkey: result[0].nostr_pubkey as string | null,
       data: withHabitStarts(result[0].data as StorageData),
+      connectionId,
     }
   } catch {
     return null
@@ -143,6 +148,7 @@ export async function verifyApiKey(
         apiKey: result[0].api_key as string,
         nostrPubkey: result[0].nostr_pubkey as string | null,
         data: withHabitStarts(result[0].data as StorageData),
+        connectionId: null,
       }
     }
 
@@ -167,6 +173,7 @@ export async function verifyApiKey(
       apiKey: result[0].api_key as string | null,
       nostrPubkey: result[0].nostr_pubkey as string,
       data: withHabitStarts(result[0].data as StorageData),
+      connectionId: null,
     }
   } catch {
     return null

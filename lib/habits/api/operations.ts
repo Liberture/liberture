@@ -926,6 +926,8 @@ export function computeToolsVersion(ops: readonly ApiOperation[]): string {
 
 export const TOOLS_VERSION = computeToolsVersion(API_OPERATIONS)
 export const TOOL_COUNT = API_OPERATIONS.length
+/** Every MCP tool name, for working out what a connection hasn't seen yet (connector-sync.ts). */
+export const MCP_TOOL_NAMES: readonly string[] = API_OPERATIONS.map((op) => op.id)
 /** serverInfo.version (MCP) and info.version (OpenAPI). */
 export const SERVER_VERSION = `1.2.0+${TOOLS_VERSION}`
 
