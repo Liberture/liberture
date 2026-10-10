@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { appendHabits } from "@/lib/habits/api/habit-writes"
+import { userToday } from "@/lib/habits/api/time-zone"
 import { spokenList } from "@/lib/habits/api/resolve"
 import { authorizeIntegration } from "@/lib/habits/integration-auth"
 import { catalogLinks, protocolSlugForHabit, requestOrigin } from "@/lib/habits/api/assistant"
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    await appendHabits(user.userId, candidates)
+    await appendHabits(user.userId, candidates, userToday(request, user.data))
   } catch (error) {
     console.error("Failed to adopt habits:", error)
     return NextResponse.json({ error: "Failed to add habits" }, { status: 500 })

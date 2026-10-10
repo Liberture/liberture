@@ -6,16 +6,18 @@ import type { CalendarEvent } from "@/lib/habits/types"
 import { buildCalendarEventDraft, filterCalendarEvents } from "@/lib/habits/calendar-utils"
 import { paginate, wantsPage } from "@/lib/habits/api/paginate"
 import { spokenEventTime } from "@/lib/habits/api/event-say"
-import { userTimeZone, withZonedTimes } from "@/lib/habits/api/time-zone"
+import { userTimeZone, userToday, withZonedTimes, zonedToUtc } from "@/lib/habits/api/time-zone"
 
-function calendarRange(request: Request): { start: string; end: string; tag?: string; todoId?: string } | { error: string } {
+/** Defaults to midnight of the user's today in their zone; offset-less times are their wall time. */
+function calendarRange(request: Request, timeZone: string | undefined, today: string): { start: string; end: string; tag?: string; todoId?: string } | { error: string } {
   const { searchParams } = new URL(request.url)
   const days = Math.min(366, Math.max(1, Number(searchParams.get("days") ?? 30) || 30))
-  const start = searchParams.get("start") ? new Date(searchParams.get("start")!) : new Date()
+  const rawStart = searchParams.get("start")
+  const start = new Date(rawStart ? zonedToUtc(rawStart, timeZone) : zonedToUtc(`${today}T00:00`, timeZone))
   if (Number.isNaN(start.getTime())) return { error: "start must be a valid ISO timestamp" }
-  if (!searchParams.get("start")) start.setHours(0, 0, 0, 0)
 
-  const end = searchParams.get("end") ? new Date(searchParams.get("end")!) : new Date(start.getTime() + days * 24 * 60 * 60_000)
+  const rawEnd = searchParams.get("end")
+  const end = rawEnd ? new Date(zonedToUtc(rawEnd, timeZone)) : new Date(start.getTime() + days * 24 * 60 * 60_000)
   if (Number.isNaN(end.getTime())) return { error: "end must be a valid ISO timestamp" }
   if (end <= start) return { error: "end must be after start" }
 
@@ -37,7 +39,7 @@ export async function GET(request: Request) {
   const user = await authorizeIntegration(request, "read")
   if (user instanceof NextResponse) return user
 
-  const range = calendarRange(request)
+  const range = calendarRange(request, userTimeZone(request, user.data), userToday(request, user.data))
   if ("error" in range) {
     return NextResponse.json({ error: range.error }, { status: 400 })
   }

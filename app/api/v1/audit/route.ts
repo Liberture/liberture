@@ -2,8 +2,9 @@ import { NextResponse } from "next/server"
 import { authorizeIntegration } from "@/lib/habits/integration-auth"
 import { calculateStreak, isHabitDueOnDate } from "@/lib/habits/habit-utils"
 import { parseDateOnly } from "@/lib/habits/date-utils"
-import { userToday } from "@/lib/habits/api/time-zone"
+import { userTimeZone, userToday } from "@/lib/habits/api/time-zone"
 import { subHours, parseISO } from "date-fns"
+import { localNowIn } from "@/lib/habits/coach/limits"
 
 /**
  * GET /api/v1/audit
@@ -61,27 +62,40 @@ export async function GET(request: Request) {
   ).length
 
   const completionRateToday = dueToday.length > 0 ? completedTodayCount / dueToday.length : 1
-  const isLateDay = new Date().getHours() >= 18
+  // The user's clock, not the server's (UTC): "late" is 18:00 where they are.
+  const isLateDay = localNowIn(userTimeZone(request, data)).minutes >= 18 * 60
   
   const drift = missedCritical.length > 0 || (isLateDay && completionRateToday < 0.5)
 
   // 5. Generate Recommendations
   const recommendations: string[] = []
+  if (habits.length === 0) {
+    recommendations.push("Start by adding your first habit to build momentum.")
+  } else if (criticalHabits.length === 0) {
+    // Nothing to audit: say so instead of praising a quiet day.
+    recommendations.push(
+      "No critical habits are set, so the audit has nothing to check. Choose up to 3 focus habits in Settings → Profile, or give habits priority 4–5."
+    )
+  }
   if (missedCritical.length > 0) {
     recommendations.push(`Priority: Complete your critical habits: ${missedCritical.join(", ")}.`)
   }
   if (drift && completionRateToday < 0.5) {
     recommendations.push("You're drifting from your routine. Try a 5-minute 'reset' meditation to regain focus.")
   }
-  if (habits.length === 0) {
-    recommendations.push("Start by adding your first habit to build momentum.")
-  }
   if (recommendations.length === 0) {
-    recommendations.push("Great job! You're staying disciplined. Maintain the momentum.")
+    recommendations.push(
+      completionRateToday >= 0.5
+        ? "Your critical habits are on track. Keep the momentum."
+        : `Your critical habits are on track; ${completedTodayCount} of ${dueToday.length} habits due today are done so far.`
+    )
   }
 
   return NextResponse.json({
     critical: criticalHabits.map((h) => h.name),
+    // What "critical" means here, so an empty list isn't read as "all good".
+    criticalRule: "Focus habits from the profile, or priority 4–5. Drift = a missed critical habit, or under half of today's due habits done after 18:00 local.",
+    today: { done: completedTodayCount, due: dueToday.length },
     drift,
     missedCritical,
     streaks,

@@ -107,6 +107,9 @@ export function useTrackerActions(data: TrackerData) {
       timeOfDay: habitData.timeOfDay ?? inferTimeOfDay(time),
       ...(habitData.dataEntry ? { dataEntry: habitData.dataEntry } : {}),
       createdAt: new Date().toISOString(),
+      // This device's calendar day: createdAt is UTC, and on the (UTC) server
+      // a habit added in the evening would otherwise start tomorrow.
+      startDate: format(new Date(), "yyyy-MM-dd"),
       // Initialize streak data for new habits
       streakData: {
         current: 0,
@@ -580,6 +583,8 @@ export function useTrackerActions(data: TrackerData) {
       notify.info(formatMessage(t.alreadyAdded, { name: label }))
       return
     }
+    const startDate = format(new Date(), "yyyy-MM-dd")
+    for (let i = 0; i < fresh.length; i++) if (!fresh[i].startDate) fresh[i] = { ...fresh[i], startDate }
     const freshIds = new Set(fresh.map((h) => h.id))
     setHabits((list) => [...list, ...fresh.filter((h) => !list.some((existing) => existing.id === h.id))])
     markDirty()

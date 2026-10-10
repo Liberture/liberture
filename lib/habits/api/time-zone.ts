@@ -1,4 +1,4 @@
-import { dateForRequest } from "@/lib/habits/date-utils"
+import { dateForRequest, formatDateInTimeZone } from "@/lib/habits/date-utils"
 import type { StorageData } from "@/lib/habits/types"
 
 /**
@@ -81,4 +81,17 @@ export function withZonedTimes<T>(body: T, timeZone: string | undefined): T {
     if (typeof next[key] === "string") next[key] = zonedToUtc(next[key] as string, timeZone)
   }
   return next as T
+}
+
+/**
+ * The day a habit counts from, as the user sees it: its startDate, or else
+ * the day it was created in their zone (createdAt is a UTC instant, which
+ * can fall on the next calendar day). Same answer in list_habits and get_habit.
+ */
+export function habitStartDay(habit: { startDate?: string; createdAt?: string }, timeZone: string | undefined): string | null {
+  const created = habit.createdAt && !Number.isNaN(Date.parse(habit.createdAt))
+    ? formatDateInTimeZone(new Date(habit.createdAt), timeZone)
+    : null
+  if (habit.startDate && created) return habit.startDate < created ? habit.startDate : created
+  return habit.startDate ?? created
 }

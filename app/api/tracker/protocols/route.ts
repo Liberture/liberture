@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { appendHabits } from "@/lib/habits/api/habit-writes"
+import { userToday } from "@/lib/habits/api/time-zone"
 import { verifyApiKey } from "@/lib/habits/integration-auth"
 import { adoptedProtocolSlugs, adoptedSlugs, catalogHabitToHabit } from "@/lib/habits/protocols/adopt"
 import { CATALOG_PROTOCOLS, findProtocol } from "@/lib/habits/protocols/catalog"
@@ -36,7 +37,7 @@ export async function POST(request: Request) {
     .map((h) => catalogHabitToHabit(h, { protocolSlug: protocol.slug }))
 
   try {
-    await appendHabits(user.userId, habits)
+    await appendHabits(user.userId, habits, userToday(request, user.data))
   } catch (error) {
     console.error("Failed to adopt protocol:", error)
     return NextResponse.json({ error: "Failed to add habits" }, { status: 500 })
