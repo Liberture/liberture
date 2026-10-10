@@ -45,8 +45,8 @@ interface SettingsDialogProps {
   lastBackupAt?: string
   /** A parsed backup the user has previewed and confirmed: replace everything with it. */
   onImport: (backup: BackupImport) => void
-  /** Resolves true once the account was reset. */
-  onResetAccount: () => Promise<boolean>
+  /** Resolves true once the account was deleted. */
+  onDeleteAccount: () => Promise<boolean>
   onLogout: () => void
 }
 
@@ -78,7 +78,7 @@ export function SettingsDialog({
   onExport,
   lastBackupAt,
   onImport,
-  onResetAccount,
+  onDeleteAccount,
   onLogout,
 }: SettingsDialogProps) {
   const t = useTranslations().habits.app.settingsDialog
@@ -226,7 +226,7 @@ export function SettingsDialog({
             lastBackupAt={lastBackupAt}
             onExport={onExport}
             onImport={onImport}
-            onResetAccount={onResetAccount}
+            onDeleteAccount={onDeleteAccount}
             onLogout={onLogout}
             isNostrAuth={isNostrAuth}
             onCloseSettings={onClose}
