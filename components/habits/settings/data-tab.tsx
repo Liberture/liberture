@@ -41,15 +41,15 @@ interface DataTabProps {
   lastBackupAt?: string
   onExport: () => void
   onImport: (backup: BackupImport) => void
-  /** Resolves true once the server reset the account. */
-  onResetAccount: () => Promise<boolean>
+  /** Resolves true once the server deleted the account. */
+  onDeleteAccount: () => Promise<boolean>
   onLogout: () => void
   isNostrAuth: boolean
   /** Closes Settings itself (after clearing everything). */
   onCloseSettings: () => void
 }
 
-export function DataTab({ habits, lastBackupAt, onExport, onImport, onResetAccount, onLogout, isNostrAuth, onCloseSettings }: DataTabProps) {
+export function DataTab({ habits, lastBackupAt, onExport, onImport, onDeleteAccount, onLogout, isNostrAuth, onCloseSettings }: DataTabProps) {
   const copy = useTranslations().habits.app
   const t = copy.settingsDialog
   const locale = useLocale()
@@ -102,7 +102,7 @@ export function DataTab({ habits, lastBackupAt, onExport, onImport, onResetAccou
   const confirmClear = async () => {
     if (!clearMatches || resetting) return
     setResetting(true)
-    const done = await onResetAccount()
+    const done = await onDeleteAccount()
     setResetting(false)
     if (!done) return // the error toast is up; the dialog stays so they can retry
     closeClear()

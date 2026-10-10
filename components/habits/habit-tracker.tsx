@@ -613,7 +613,12 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
           onImport={actions.importData}
           onClose={() => setSettingsTab(null)}
           habits={habits}
-          onResetAccount={actions.resetAccount}
+          onDeleteAccount={async () => {
+            const deleted = await actions.deleteAccount()
+            // Signing out lands on the home page; signing in again starts a new account.
+            if (deleted) onLogout()
+            return deleted
+          }}
           apiKey={apiKey}
           isNostrAuth={isNostrAuth}
           onLogout={onLogout}
