@@ -42,6 +42,20 @@ function sameList(sent: unknown[], received: unknown[] | undefined): boolean {
 
 const UNSAVED_DRAFT_KEY = "habit-tracker-unsaved-draft"
 
+/**
+ * This device's copies of account data, cleared by a reset. Sign-in keys
+ * (habit-tracker-api-key, -auth-type, -nostr-*) are left alone on purpose.
+ */
+const DEVICE_DATA_KEYS = [
+  UNSAVED_DRAFT_KEY,
+  "habit-coach-thread-started-at",
+  "habit-tracker-backup-snoozed-until",
+  "habit-tracker-settings-tab",
+  "habit-grid:info-col-widths",
+  "morning-dashboard-shown",
+  "liberture-reminder-claims:",
+]
+
 interface UnsavedDraft {
   owner: string
   cachedAt: number
@@ -78,11 +92,13 @@ interface UseTrackerDataOptions {
   apiKey: string
   isNostrAuth: boolean
   authHeaders: Record<string, string>
+  /** Toast when a save finds the account was reset on another device. */
+  accountResetMessage: string
   /** Shown when the server rejects a stale local copy. */
   staleCopyMessage: string
 }
 
-export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMessage }: UseTrackerDataOptions) {
+export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMessage, accountResetMessage }: UseTrackerDataOptions) {
   const [habits, setHabits] = useState<Habit[]>([])
   const [completions, setCompletions] = useState<HabitCompletion[]>([])
   // Days logged before a habit was created (the assistant backfilling "I did it
@@ -471,6 +487,16 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
 
       if (response.status === 409) {
         const result = await response.json()
+        // The account was reset elsewhere: take the fresh account, drop this copy.
+        if (result.code === "account_reset" && result.data) {
+          applyServerData(result.data)
+          setIsDirty(false)
+          setSaveFailed(false)
+          localStorage.removeItem(UNSAVED_DRAFT_KEY)
+          setCachedLocally(false)
+          notify.info(accountResetMessage)
+          return
+        }
         if (result.code === "suspicious_empty_snapshot" && result.data) {
           applyServerData(result.data)
           setIsDirty(false)
@@ -547,7 +573,7 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
     } finally {
       setIsSaving(false)
     }
-  }, [habits, completions, todos, projects, calendarEvents, isDirty, authHeaders, onboardingState, storageData, draftOwner, applyServerData, staleCopyMessage])
+  }, [habits, completions, todos, projects, calendarEvents, isDirty, authHeaders, onboardingState, storageData, draftOwner, applyServerData, staleCopyMessage, accountResetMessage])
 
   useEffect(() => {
     if (isDirty) {
@@ -611,6 +637,44 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
     }))
   }, [updateStorageMeta])
 
+  /**
+   * Settings → Reset account. The server wipes the account in one transaction
+   * (lib/habits/account-reset.ts); here we adopt the fresh data — onboarding
+   * takes over the screen — and drop what this device kept on the side.
+   * Throws when the server refuses, leaving everything as it was.
+   */
+  const resetAccount = useCallback(async () => {
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current)
+    const response = await fetch("/api/account/reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders },
+      body: JSON.stringify({ confirm: "reset" }),
+    })
+    const result = await response.json().catch(() => null)
+    if (!response.ok || !result?.data) throw new Error(result?.error ?? `Reset failed with status ${response.status}`)
+
+    applyServerData(result.data)
+    setIsDirty(false)
+    setSaveFailed(false)
+    setCachedLocally(false)
+    try {
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i)
+        if (key && DEVICE_DATA_KEYS.some((prefix) => key.startsWith(prefix))) localStorage.removeItem(key)
+      }
+    } catch {
+      // Storage blocked: nothing to clear.
+    }
+    // The server already deleted this device's push subscription; drop it in the browser too.
+    try {
+      const registration = await navigator.serviceWorker?.getRegistration()
+      const subscription = await registration?.pushManager.getSubscription()
+      await subscription?.unsubscribe()
+    } catch {
+      // No service worker or push: nothing to do.
+    }
+  }, [authHeaders, applyServerData])
+
   /** The arrays as they are right now, for undo. */
   const snapshot = useCallback((): TrackerSnapshot => ({
     habits: habitsRef.current,
@@ -644,6 +708,7 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
     preferences, updatePreferences,
     updateProfile, updateStorageMeta,
     snapshot, restore,
+    resetAccount,
   }
 }
 
