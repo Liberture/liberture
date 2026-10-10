@@ -26,6 +26,25 @@ interface Connection {
   kind: string
   createdAt: string
   lastUsedAt: string | null
+  /** When it last loaded Liberture's tool list; null if it never has. */
+  tools: { syncedAt: string; version: string; syncCount: number; upToDate: boolean; newTools: string[] } | null
+}
+
+/** "Tools up to date", or how many new ones it's missing, with the refresh guide. */
+function ToolsLine({ tools, t }: { tools: Connection["tools"]; t: AssistantAccessCopy }) {
+  if (!tools) return <p className="text-xs text-muted-foreground">{t.toolsNeverLoaded}</p>
+  const day = new Date(tools.syncedAt).toLocaleDateString()
+  if (tools.upToDate) return <p className="text-xs text-muted-foreground">{formatMessage(t.toolsUpToDate, { date: day })}</p>
+  return (
+    <p className="text-xs text-exercise">
+      {tools.newTools.length
+        ? formatMessage(tools.newTools.length === 1 ? t.toolsNewOne : t.toolsNewMany, { count: tools.newTools.length, date: day })
+        : formatMessage(t.toolsChanged, { date: day })}{" "}
+      <a href="/docs/updates" target="_blank" rel="noreferrer" className="font-medium underline underline-offset-2">
+        {t.toolsHowToRefresh}
+      </a>
+    </p>
+  )
 }
 
 function ago(iso: string | null, t: AssistantAccessCopy): string {
@@ -263,6 +282,7 @@ export function AssistantConnectSection({ apiKey, isNostrAuth }: AssistantAccess
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium text-foreground">{c.name}</p>
                   <p className="text-xs text-muted-foreground">{ago(c.lastUsedAt, t)}</p>
+                  <ToolsLine tools={c.tools ?? null} t={t} />
                 </div>
                 <button
                   type="button"

@@ -29,7 +29,7 @@ export async function POST(request: Request) {
   if (!token) return unauthorized(request, false)
   const user = await verifyIntegrationTokenValue(token)
   if (!user) return unauthorized(request, true)
-  const response = await handleMcpPost(request, token)
+  const response = await handleMcpPost(request, token, user)
   for (const [k, v] of Object.entries(CORS_HEADERS)) response.headers.set(k, v)
   return response
 }

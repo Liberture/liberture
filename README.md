@@ -40,6 +40,8 @@ The connector URL is the same for everyone: `https://liberture.com/mcp`.
 
 Then ask "what's left today?". Technical reference: [/docs](https://liberture.com/docs) (MCP tools, scopes, the `/api/v1` REST API and the OpenAPI schema).
 
+When new tools ship, ChatGPT and Claude keep their old tool list until you refresh the connector. Settings → Assistants shows when each one is behind; steps: [/docs/updates](https://liberture.com/docs/updates). How the tracking works: [docs/CONNECTOR-UPDATES.md](docs/CONNECTOR-UPDATES.md).
+
 ## Tech stack
 
 - **Next.js 16** (App Router), React 19, Tailwind CSS 4, Radix UI, Framer Motion

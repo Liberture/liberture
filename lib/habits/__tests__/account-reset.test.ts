@@ -48,6 +48,7 @@ beforeEach(() => {
     "habit_notifications_sent",
     "habit_api_connections",
     "habit_oauth_codes",
+    "habit_connector_syncs",
   ]
 })
 
