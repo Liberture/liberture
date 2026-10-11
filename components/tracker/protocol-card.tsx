@@ -10,6 +10,7 @@ import { PILLAR_STYLES } from "@/lib/pillars"
 import { cn } from "@/lib/utils"
 
 import { PillarTag } from "./pillar-chip"
+import { ProtocolPicture } from "@/components/protocols/protocol-picture"
 
 const DIFFICULTY_TONE = {
   easy: "text-nutrition border-nutrition/30 bg-nutrition/10",
@@ -52,6 +53,7 @@ export function ProtocolCard({
         selected ? cn(styles.border, styles.background) : "border-white/10 bg-white/[0.02] hover:border-white/20",
       )}
     >
+      <ProtocolPicture slug={protocol.slug} className="-mx-5 -mt-5 rounded-t-xl border-b border-white/10" />
       <div className="flex flex-wrap items-center gap-2">
         <PillarTag pillar={protocol.pillar} />
         <DifficultyTag difficulty={protocol.difficulty} />
