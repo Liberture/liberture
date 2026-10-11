@@ -2,34 +2,29 @@ import { NextResponse } from "next/server"
 import { getDb } from "@/lib/habits/db"
 import type { StorageData } from "@/lib/habits/types"
 import { syncOptimizedStorageTables } from "@/lib/habits/optimized-storage"
+import { getAuthFromRequest } from "@/lib/habits/app-auth"
 
-function getApiKeyFromRequest(request: Request): string | null {
-  const authHeader = request.headers.get("authorization")
-  if (authHeader?.startsWith("Bearer ")) {
-    return authHeader.slice(7)
-  }
-  return null
-}
-
-// POST - Import storage.json data into user's account
+// POST - Import storage.json data into the signed-in user's account.
+// Auth is the app's own (Nostr session cookie or a legacy ht_ key), never a raw
+// api_key match: Nostr accounts' api_key used to be derivable from the public
+// key, which made this route writable by anyone who knew an npub.
 export async function POST(request: Request) {
   try {
-    const apiKey = getApiKeyFromRequest(request)
-
-    if (!apiKey) {
-      return NextResponse.json({ error: "API key required" }, { status: 401 })
+    const auth = await getAuthFromRequest(request)
+    if (!auth) {
+      return NextResponse.json({ error: "Sign in required" }, { status: 401 })
     }
 
     const sql = getDb()
 
-    // Verify user exists
-    const userCheck = await sql`
-      SELECT id FROM habit_users WHERE api_key = ${apiKey}
-    `
+    const userCheck = auth.type === "api-key"
+      ? await sql`SELECT id FROM habit_users WHERE api_key = ${auth.apiKey ?? ""}`
+      : await sql`SELECT id FROM habit_users WHERE nostr_pubkey = ${(auth.pubkey ?? "").toLowerCase()}`
 
     if (userCheck.length === 0) {
-      return NextResponse.json({ error: "Invalid API key" }, { status: 401 })
+      return NextResponse.json({ error: "Account not found" }, { status: 401 })
     }
+    const userId = userCheck[0].id as number
 
     const importedData = await request.json()
 
@@ -39,7 +34,7 @@ export async function POST(request: Request) {
     }
 
     const currentDataResult = await sql`
-      SELECT data FROM habit_users WHERE api_key = ${apiKey}
+      SELECT data FROM habit_users WHERE id = ${userId}
     `
     const currentData = currentDataResult[0]?.data as
       | (StorageData & { integrationToken?: unknown })
@@ -77,10 +72,10 @@ export async function POST(request: Request) {
     await sql`
       UPDATE habit_users
       SET data = ${JSON.stringify(dataToSave)}::jsonb, updated_at = NOW()
-      WHERE api_key = ${apiKey}
+      WHERE id = ${userId}
     `
 
-    await syncOptimizedStorageTables(sql, userCheck[0].id as number, storageData)
+    await syncOptimizedStorageTables(sql, userId, storageData)
 
     return NextResponse.json({
       success: true,

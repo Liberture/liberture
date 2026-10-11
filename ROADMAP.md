@@ -77,6 +77,12 @@ doctrine into it:
       block today** — feed `get_audit` and the afternoon check-in from this
       instead of the current priority-only rule.
 
+- [ ] **Auth hardening, step 2** (from the 2026-10-11 review): stop sending the
+      Nostr session token in URLs (`?token=` on /api/v1/connections, the session
+      route) and in JS-readable localStorage — cookie only; store session tokens
+      hashed; rate-limit /api/auth/nostr/challenge and sign-in; consider shorter
+      sliding sessions and allowing more than one device per key.
+
 ## Later
 
 - [ ] Tell connected assistants about new tools without a manual refresh: MCP
@@ -91,6 +97,13 @@ doctrine into it:
 
 ## Done
 
+- 2026-10-11 — **Security fix**: Nostr accounts' internal `api_key` was
+  `npub_<16 hex of the public key>`, and `/api/storage/import` matched it as a
+  credential, so anyone knowing an npub could overwrite that account. New
+  accounts get a random key; existing derived keys are rotated at startup
+  (instrumentation.ts); import uses the normal session/`ht_` auth;
+  `/api/auth/verify` only accepts `ht_` keys and no longer reveals whether a
+  pubkey has an account; migrate requires `ht_` and awaits its challenge check.
 - 2026-10-10 — A picture for every catalog protocol (53), drawn from scratch by
   `scripts/generate-protocol-images.tsx` as SVG + PNG + WebP (1200×630): pillar
   colours, a slug-seeded contour field, an icon, name, tagline and habits. Used
