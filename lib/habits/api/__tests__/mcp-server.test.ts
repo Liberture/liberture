@@ -201,6 +201,7 @@ describe("resources", () => {
       "liberture://habits",
       "liberture://calendar.ics",
       "liberture://export",
+      "ui://widget/liberture-catalog-v1.html",
     ])
     const templates = await rpc("resources/templates/list")
     expect(templates.json.result.resourceTemplates[0].uriTemplate).toBe("liberture://protocol/{slug}")

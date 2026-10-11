@@ -59,6 +59,24 @@ Older clients get exactly the results they got before. Images are linked, not em
 - **Tool descriptions:** `search_catalog`, `get_recommendations`, `get_habit` and `get_coach_state` say what `imageUrl` is, to show it when the interface can display images (for example `![name](imageUrl)`), and never to substitute an image from elsewhere.
 - **Server instructions** and the downloadable Claude skill say the same.
 
+## ChatGPT cards (Apps SDK component)
+
+`search_catalog` and `get_recommendations` render in ChatGPT as a row of cards. Each card shows the official image, name, pillar, difficulty, duration or schedule, summary, a "tracking" badge when adopted, and a View link. This doesn't depend on ChatGPT drawing markdown images.
+
+- **Tool descriptors** carry `_meta["openai/outputTemplate"] = "ui://widget/liberture-catalog-v1.html"`, plus the invoking/invoked status texts.
+- **The template** is an MCP resource (`resources/list` / `resources/read`) with MIME type `text/html+skybridge`.
+  - Its `_meta["openai/widgetCSP"]` allows images from this site's origin only.
+  - `openai/widgetDescription` tells the model the cards are already shown.
+- **The page** (`lib/habits/api/mcp-widget.ts`) is self-contained, with no external scripts or styles.
+  - It reads `window.openai.toolOutput` (the tool's structuredContent) and re-renders on `openai:set_globals`.
+  - It follows ChatGPT's light or dark theme.
+  - It opens links with `window.openai.openExternal`.
+  - When an image is missing or fails to load, it shows a pillar-coloured placeholder.
+- **Other clients** ignore the `openai/*` keys. The template doesn't claim the generic MCP Apps `ui.resourceUri`, whose clients speak a different protocol.
+- **Version:** the widget is part of the tool-list version hash, so after deploying, Settings → Assistants and `get_today` tell users to refresh the connector. ChatGPT only picks up the template after a refresh.
+
+To change the cards, edit `catalogWidgetHtml()` and bump the `-v1` in `CATALOG_WIDGET_URI`, because ChatGPT caches templates by URI.
+
 ## Rendering limits
 
 Whether the picture actually **appears** in the chat is up to the client, not the server:
@@ -66,7 +84,7 @@ Whether the picture actually **appears** in the chat is up to the client, not th
 - **ChatGPT:**
   - The model receives `imageUrl` and the resource links.
   - Whether a markdown image in its reply, or a resource link, is drawn inline depends on the ChatGPT surface and version, so it is not guaranteed.
-  - The dependable way to get rich cards in ChatGPT is an Apps SDK component: an HTML template exposed as an MCP resource and referenced from the tool's `_meta`. That isn't built yet; it's the next step if inline cards are a must.
+  - For `search_catalog` and `get_recommendations` the Apps SDK cards above handle it. Other tools still depend on the model and the client.
   - The link (`infoUrl`) is always usable.
 - **Claude:**
   - Claude reads the fields and links.
