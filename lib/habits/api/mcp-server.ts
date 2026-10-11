@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { requestOrigin } from "@/lib/habits/api/assistant"
 import { MCP_TOOLS, callMcpTool } from "@/lib/habits/api/mcp-tools"
-import { MCP_RESOURCES, MCP_RESOURCE_TEMPLATES, readResource } from "@/lib/habits/api/mcp-resources"
+import { listResources, MCP_RESOURCE_TEMPLATES, readResource } from "@/lib/habits/api/mcp-resources"
 import { MCP_PROMPTS, getPrompt } from "@/lib/habits/api/mcp-prompts"
 import { completeArgument } from "@/lib/habits/api/mcp-completion"
 import { SERVER_VERSION } from "@/lib/habits/api/operations"
@@ -95,7 +95,7 @@ async function handleMessage(message: JsonRpcRequest, token: string, origin: str
       // Everything fits in one page; no nextCursor.
       return rpcResult(message.id, { tools: MCP_TOOLS })
     case "resources/list":
-      return rpcResult(message.id, { resources: MCP_RESOURCES })
+      return rpcResult(message.id, { resources: listResources(origin) })
     case "resources/templates/list":
       return rpcResult(message.id, { resourceTemplates: MCP_RESOURCE_TEMPLATES })
     case "resources/read": {

@@ -83,11 +83,6 @@ doctrine into it:
       hashed; rate-limit /api/auth/nostr/challenge and sign-in; consider shorter
       sliding sessions and allowing more than one device per key.
 
-- [ ] **Catalog cards inside ChatGPT**: an Apps SDK component (HTML template as
-      an MCP resource, referenced from the catalog tools' `_meta`) so
-      recommendations render as cards with the official image. `imageUrl` and
-      resource links are already in the tool results (docs/MCP-IMAGES.md).
-
 ## Later
 
 - [ ] Tell connected assistants about new tools without a manual refresh: MCP
@@ -102,6 +97,11 @@ doctrine into it:
 
 ## Done
 
+- 2026-10-11 — Catalog cards inside ChatGPT: Apps SDK component
+  (`ui://widget/liberture-catalog-v1.html`, text/html+skybridge) for
+  search_catalog and get_recommendations — official image, name, pillar,
+  difficulty, duration, summary, link. Standalone catalog habits got their own
+  images (#44), so every catalog entry has one.
 - 2026-10-11 — Official catalog images over MCP: `imageUrl` (absolute public
   PNG, null when none) in search_catalog, get_recommendations, get_habit,
   get_coach_state and adopt_habit, built next to `infoUrl` in `catalogLinks`;
