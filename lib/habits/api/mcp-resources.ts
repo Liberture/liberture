@@ -5,6 +5,7 @@ import { GET as getSummary } from "@/app/api/v1/summary/route"
 import { GET as getHabits } from "@/app/api/v1/habits/route"
 import { GET as getIcs } from "@/app/api/v1/calendar/ics/route"
 import { GET as getExport } from "@/app/api/v1/export/route"
+import { CATALOG_WIDGET_URI, WIDGET_MIME_TYPE, catalogWidgetHtml, catalogWidgetResource, catalogWidgetResourceMeta } from "@/lib/habits/api/mcp-widget"
 
 /**
  * MCP resources: read-only views a client can attach as context without a
@@ -103,13 +104,16 @@ export function protocolMarkdown(slug: string, origin: string): string | null {
 }
 
 export type ReadResult =
-  | { contents: { uri: string; mimeType: string; text: string }[] }
+  | { contents: { uri: string; mimeType: string; text: string; _meta?: Record<string, unknown> }[] }
   | { error: { code: number; message: string } }
 
 /** -32002 is MCP's "resource not found". */
 const NOT_FOUND = -32002
 
 export async function readResource(uri: string, token: string, origin: string): Promise<ReadResult> {
+  if (uri === CATALOG_WIDGET_URI) {
+    return { contents: [{ uri, mimeType: WIDGET_MIME_TYPE, text: catalogWidgetHtml(), _meta: catalogWidgetResourceMeta(origin) }] }
+  }
   if (uri.startsWith(PROTOCOL_PREFIX)) {
     const slug = decodeURIComponent(uri.slice(PROTOCOL_PREFIX.length))
     const text = protocolMarkdown(slug, origin)
@@ -132,4 +136,9 @@ export async function readResource(uri: string, token: string, origin: string): 
     return { error: { code: -32603, message } }
   }
   return { contents: [{ uri, mimeType: resource.mimeType, text: result.text }] }
+}
+
+/** resources/list: the data resources, plus the ChatGPT component template (it needs the origin for its CSP). */
+export function listResources(origin: string) {
+  return [...MCP_RESOURCES, catalogWidgetResource(origin)]
 }

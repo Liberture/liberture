@@ -183,3 +183,37 @@ describe("resource_link blocks (MCP 2025-06-18+)", () => {
     expect(imageLinksFrom({ habits: [{ name: "x", imageUrl: null }] })).toEqual([])
   })
 })
+
+describe("ChatGPT catalog component (Apps SDK)", () => {
+  it("search_catalog and get_recommendations name the template; other tools don't", async () => {
+    const { MCP_TOOLS } = await import("@/lib/habits/api/mcp-tools")
+    const { CATALOG_WIDGET_URI } = await import("@/lib/habits/api/mcp-widget")
+    const byName = new Map(MCP_TOOLS.map((t) => [t.name, t]))
+    for (const name of ["search_catalog", "get_recommendations"]) {
+      expect(byName.get(name)?._meta?.["openai/outputTemplate"]).toBe(CATALOG_WIDGET_URI)
+    }
+    expect(byName.get("log_habit")?._meta).toBeUndefined()
+  })
+
+  it("serves the template as a text/html+skybridge resource whose CSP allows the image origin", async () => {
+    const { listResources, readResource } = await import("@/lib/habits/api/mcp-resources")
+    const { CATALOG_WIDGET_URI } = await import("@/lib/habits/api/mcp-widget")
+    const listed = listResources(ORIGIN).find((r) => r.uri === CATALOG_WIDGET_URI)
+    expect(listed?.mimeType).toBe("text/html+skybridge")
+    const read = await readResource(CATALOG_WIDGET_URI, "hta_test", ORIGIN)
+    if ("error" in read) throw new Error(read.error.message)
+    const [content] = read.contents
+    expect(content.mimeType).toBe("text/html+skybridge")
+    expect(content._meta?.["openai/widgetCSP"]).toEqual({ connect_domains: [], resource_domains: [ORIGIN] })
+    // Self-contained: renders window.openai.toolOutput, loads no external scripts or styles.
+    expect(content.text).toContain("window.openai")
+    expect(content.text).toContain("imageUrl")
+    expect(content.text).not.toMatch(/<script[^>]+src=|<link[^>]+href=/)
+  })
+
+  it("is part of the tool-list version, so connected apps are told to refresh", async () => {
+    const { API_OPERATIONS, computeToolsVersion } = await import("@/lib/habits/api/operations")
+    const without = API_OPERATIONS.map(({ widget: _w, ...op }) => op)
+    expect(computeToolsVersion(without)).not.toBe(computeToolsVersion(API_OPERATIONS))
+  })
+})
