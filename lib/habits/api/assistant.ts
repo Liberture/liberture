@@ -3,6 +3,7 @@ import { parseDateOnly } from "@/lib/habits/date-utils"
 import { CATALOG_PROTOCOLS, STANDALONE_HABITS } from "@/lib/habits/protocols/catalog"
 import { CATALOG_PROTOCOLS as PUBLIC_PROTOCOLS } from "@/lib/tracker/catalog"
 import type { StorageData } from "@/lib/habits/types"
+import { protocolImage } from "@/lib/habits/protocols/images"
 import { TOOL_COUNT, TOOLS_VERSION } from "@/lib/habits/api/operations"
 
 /**
@@ -30,20 +31,36 @@ export function protocolSlugForHabit(habitSlug: string): string | undefined {
 export interface CatalogLinks {
   /** This site's public page for the protocol (or the catalog anchor for a standalone habit). */
   infoUrl: string | null
+  /**
+   * The official catalog image: absolute HTTPS URL of the protocol's PNG
+   * (public/protocols/images, 1200×630, no auth). A catalog habit uses its
+   * protocol's image. null for standalone habits and custom entries, which
+   * have none.
+   */
+  imageUrl: string | null
+}
+
+/** The official image of a catalog protocol, or of the protocol a catalog habit belongs to. */
+export function catalogImageUrl(kind: "protocol" | "habit" | "custom", slug: string | null, origin: string): string | null {
+  if (!slug || kind === "custom") return null
+  const protocolSlug = kind === "protocol" ? slug : protocolSlugForHabit(slug)
+  const image = protocolSlug ? protocolImage(protocolSlug) : null
+  return image ? `${origin}${image.png}` : null
 }
 
 export function catalogLinks(kind: "protocol" | "habit" | "custom", slug: string | null, origin: string): CatalogLinks {
-  if (!slug || kind === "custom") return { infoUrl: null }
+  const imageUrl = catalogImageUrl(kind, slug, origin)
+  if (!slug || kind === "custom") return { infoUrl: null, imageUrl }
   const protocolSlug = kind === "protocol" ? slug : protocolSlugForHabit(slug)
   if (!protocolSlug) {
     // Standalone habits have no protocol page; the catalog anchor is the next best thing.
     const standalone = STANDALONE_HABITS.some((h) => h.slug === slug)
-    return { infoUrl: standalone ? `${origin}/protocols#${slug}` : null }
+    return { infoUrl: standalone ? `${origin}/protocols#${slug}` : null, imageUrl }
   }
   // Liberture's public library only carries part of the catalog; the rest is
   // readable in the tracker's marketplace.
-  if (!PUBLIC_PROTOCOL_SLUGS.has(protocolSlug)) return { infoUrl: `${origin}/tracker?view=market` }
-  return { infoUrl: `${origin}/protocols/${protocolSlug}` }
+  if (!PUBLIC_PROTOCOL_SLUGS.has(protocolSlug)) return { infoUrl: `${origin}/tracker?view=market`, imageUrl }
+  return { infoUrl: `${origin}/protocols/${protocolSlug}`, imageUrl }
 }
 
 export interface SummaryContext {

@@ -84,6 +84,8 @@ projects (\`list_projects\`, \`create_project\`, …), calendar (\`get_agenda\`,
 - Recommend only from the catalog search or the coach's suggestions; never invent protocols.
 - Skip anything marked \`adopted: true\`.
 - Always share \`infoUrl\`: the protocol's page on Liberture.
+- Show \`imageUrl\` with each recommendation when you can display images: it is
+  the protocol's official Liberture image (null when there is none). Never use other images.
 - Add something only when the user clearly asks you to.
 
 ## Permissions

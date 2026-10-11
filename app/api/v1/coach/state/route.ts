@@ -8,6 +8,7 @@ import { COACH_KIND_PREFIX, coachPrefs, inQuietHours, localNowIn } from "@/lib/h
 import { lastLoggedOn, unloggedDueDays } from "@/lib/habits/coach/rules"
 import { effectiveStatus, suggestionName } from "@/lib/habits/coach/suggestions"
 import { weeklyProgress } from "@/lib/habits/habit-utils"
+import { catalogLinks, requestOrigin } from "@/lib/habits/api/assistant"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -50,6 +51,7 @@ export async function GET(request: Request) {
   }
 
   const now = new Date()
+  const origin = requestOrigin(request)
   const suggestions = (data.coachRecommendations?.entries ?? []).map((entry) => ({
     name: suggestionName(entry),
     slug: entry.slug ?? null,
@@ -57,6 +59,8 @@ export async function GET(request: Request) {
     reason: entry.reason,
     status: effectiveStatus(entry, now),
     snoozedUntil: entry.snoozedUntil ?? null,
+    // The official catalog image and page, for showing the suggestion as a card.
+    ...catalogLinks(entry.kind, entry.slug ?? null, origin),
   }))
 
   const habits = (data.habits ?? [])
