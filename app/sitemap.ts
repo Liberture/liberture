@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
 import { GUIDES_UPDATED, guideImages, guidesFor, screenshotSrc } from '@/lib/guides';
-import { absoluteUrl, protocolImage } from '@/lib/habits/protocols/images'
+import { absoluteUrl, protocolImage, standaloneHabitImage } from '@/lib/habits/protocols/images'
+import { STANDALONE_HABITS } from '@/lib/habits/protocols/catalog'
 
 const baseUrl = 'https://liberture.com';
 
@@ -44,7 +45,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     { url: `${baseUrl}/people`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${baseUrl}/organizations`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${baseUrl}/protocols`, lastModified: now, changeFrequency: 'weekly', priority: 1.0 },
+    {
+      url: `${baseUrl}/protocols`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 1.0,
+      // Standalone catalog habits have no page of their own; their pictures belong to the library.
+      images: STANDALONE_HABITS.flatMap((h) => {
+        const image = standaloneHabitImage(h.slug)
+        return image ? [absoluteUrl(baseUrl, image.png)] : []
+      }),
+    },
     { url: `${baseUrl}/books`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${baseUrl}/games`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${baseUrl}/games/hydration`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
