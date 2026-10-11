@@ -63,6 +63,8 @@ export interface ApiOperation {
   markdown?: boolean
   /** MCP only: left out of the OpenAPI document to stay within the Custom GPT limit. */
   mcpOnly?: boolean
+  /** Results render as a ChatGPT component (lib/habits/api/mcp-widget.ts). */
+  widget?: "catalog"
   annotations?: ApiAnnotations
   /** MCP outputSchema of a successful result (structuredContent). A JSON array result is wrapped as { items }. */
   output?: JsonSchema
@@ -654,6 +656,7 @@ export const API_OPERATIONS: readonly ApiOperation[] = [
     method: "GET",
     path: "/catalog",
     scope: "read",
+    widget: "catalog",
     summary: "Find protocols and habits to recommend",
     description:
       "Searches the Liberture catalog. Give the user `infoUrl` (its page on this site) for anything you suggest. " + IMAGE_NOTE + " `adopted` = they already track it. For something the user simply wants to track, use create_habit instead.",
@@ -687,6 +690,7 @@ export const API_OPERATIONS: readonly ApiOperation[] = [
     method: "GET",
     path: "/coach/recommendations",
     scope: "read",
+    widget: "catalog",
     summary: "The in-app coach's latest suggestions",
     description: "What the in-app coach last suggested, with reasons, infoUrl links and imageUrl. " + IMAGE_NOTE + " Empty if it hasn't run.",
     params: [TZ_PARAM],
@@ -943,7 +947,8 @@ export function inputSchemaFor(op: ApiOperation): JsonSchema {
  * in Settings and get_permissions) can tell its cached tool list is stale.
  */
 export function computeToolsVersion(ops: readonly ApiOperation[]): string {
-  const shape = ops.map((op) => ({ name: op.id, inputSchema: inputSchemaFor(op) }))
+  // The widget is part of the shape: a client needs a refresh to pick up a new template.
+  const shape = ops.map((op) => ({ name: op.id, inputSchema: inputSchemaFor(op), ...(op.widget ? { widget: op.widget } : {}) }))
   return createHash("sha256").update(JSON.stringify(shape)).digest("hex").slice(0, 8)
 }
 

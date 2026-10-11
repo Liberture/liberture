@@ -1,5 +1,6 @@
 import { API_OPERATIONS, inputSchemaFor, type ApiOperation, type JsonSchema } from "@/lib/habits/api/operations"
 import { OAUTH_SCOPE } from "@/lib/habits/oauth/metadata"
+import { catalogWidgetToolMeta } from "@/lib/habits/api/mcp-widget"
 import { GET as getSummary } from "@/app/api/v1/summary/route"
 import { GET as getHabits, POST as createHabit } from "@/app/api/v1/habits/route"
 import { GET as getHabitDetail } from "@/app/api/v1/habits/detail/route"
@@ -108,6 +109,8 @@ export interface McpTool {
    * needs, which the server checks on every call (lib/habits/api-scopes.ts).
    */
   securitySchemes: { type: "oauth2"; scopes: string[] }[]
+  /** ChatGPT Apps SDK: the component that renders this tool's results (catalog cards). */
+  _meta?: Record<string, unknown>
 }
 
 const DEFAULT_OUTPUT: JsonSchema = { type: "object", additionalProperties: true }
@@ -131,6 +134,7 @@ export const MCP_TOOLS: McpTool[] = API_OPERATIONS.map((op) => ({
   outputSchema: op.output ?? DEFAULT_OUTPUT,
   annotations: annotationsFor(op),
   securitySchemes: [{ type: "oauth2", scopes: [OAUTH_SCOPE, op.scope] }],
+  ...(op.widget === "catalog" ? { _meta: catalogWidgetToolMeta() } : {}),
 }))
 
 /** MCP 2025-06-18 resource link: a pointer the client may show or fetch. */
