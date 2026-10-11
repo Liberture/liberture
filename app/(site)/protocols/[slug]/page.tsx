@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Target, AlertTriangle, Package, Lightbulb, BookOpen, Link2, Shuffle } from "lucide-react";
 import { ArticleSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
+import { protocolImage } from "@/lib/habits/protocols/images";
 
 type RelatedProtocol = {
   kind: string;
@@ -118,6 +119,8 @@ export default function ProtocolPage() {
   const synergies = (protocol.related || []).filter((r) => r.kind === 'synergy');
   const alternatives = (protocol.related || []).filter((r) => r.kind === 'alternative');
 
+  const image = protocolImage(protocol.slug);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white">
       {/* JSON-LD Schema */}
@@ -126,6 +129,7 @@ export default function ProtocolPage() {
         description={protocol.description}
         url={`https://liberture.com/protocols/${protocol.slug}`}
         author={protocol.creator || 'Liberture'}
+        image={image ? `https://liberture.com${image.png}` : undefined}
       />
       <BreadcrumbSchema
         items={[
@@ -143,6 +147,23 @@ export default function ProtocolPage() {
             </Link>
           </div>
           
+          {/* Protocol picture (scripts/generate-protocol-images.tsx) */}
+          {image && (
+            <figure className="mb-10 overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-black/40">
+              <picture>
+                <source srcSet={image.webp} type="image/webp" />
+                <img
+                  src={image.png}
+                  alt={image.alt}
+                  width={image.width}
+                  height={image.height}
+                  className="block h-auto w-full"
+                  fetchPriority="high"
+                />
+              </picture>
+            </figure>
+          )}
+
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-start gap-2 mb-2">
