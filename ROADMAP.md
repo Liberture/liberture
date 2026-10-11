@@ -83,6 +83,11 @@ doctrine into it:
       hashed; rate-limit /api/auth/nostr/challenge and sign-in; consider shorter
       sliding sessions and allowing more than one device per key.
 
+- [ ] **Catalog cards inside ChatGPT**: an Apps SDK component (HTML template as
+      an MCP resource, referenced from the catalog tools' `_meta`) so
+      recommendations render as cards with the official image. `imageUrl` and
+      resource links are already in the tool results (docs/MCP-IMAGES.md).
+
 ## Later
 
 - [ ] Tell connected assistants about new tools without a manual refresh: MCP
@@ -97,6 +102,12 @@ doctrine into it:
 
 ## Done
 
+- 2026-10-11 — Official catalog images over MCP: `imageUrl` (absolute public
+  PNG, null when none) in search_catalog, get_recommendations, get_habit,
+  get_coach_state and adopt_habit, built next to `infoUrl` in `catalogLinks`;
+  `resource_link` image blocks for MCP 2025-06-18+ clients; tool descriptions,
+  instructions and the Claude skill tell assistants to show it.
+  docs/MCP-IMAGES.md covers client rendering limits.
 - 2026-10-11 — **Security fix**: Nostr accounts' internal `api_key` was
   `npub_<16 hex of the public key>`, and `/api/storage/import` matched it as a
   credential, so anyone knowing an npub could overwrite that account. New

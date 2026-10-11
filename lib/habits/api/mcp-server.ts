@@ -32,7 +32,7 @@ const INSTRUCTIONS =
   "(\"20 pushups\") go to log_habit_value; calendar times without an offset are the user's local time. Don't ask " +
   "follow-up questions when a default works (a new habit is daily with no reminder): do it, then read back the `say` " +
   "sentence the tool returns and offer to adjust. On 409 ask which of `options`. To stop a habit, archive it. Keep " +
-  "replies to one or two sentences. When recommending, share infoUrl. If a tool returns scope_disabled, relay its " +
+  "replies to one or two sentences. When recommending, share infoUrl and show imageUrl (the official image) if you can display images. If a tool returns scope_disabled, relay its " +
   "message; don't retry. If the user mentions something get_permissions says this connector offers (connector.tools) " +
   "but your tool list lacks it, tell them to refresh the Liberture connector in their assistant's settings. Before " +
   "any message the user didn't ask for (a scheduled check-in), call get_coach_state, then record_coach_nudge, and " +
@@ -54,7 +54,7 @@ function rpcError(id: JsonRpcRequest["id"], code: number, message: string) {
   return { jsonrpc: "2.0", id: id ?? null, error: { code, message } }
 }
 
-async function handleMessage(message: JsonRpcRequest, token: string, origin: string, caller?: McpCaller): Promise<object | null> {
+async function handleMessage(message: JsonRpcRequest, token: string, origin: string, caller?: McpCaller, protocolVersion?: string | null): Promise<object | null> {
   // Notifications (no id) get no response.
   const isNotification = message.id === undefined
   switch (message.method) {
@@ -132,7 +132,8 @@ async function handleMessage(message: JsonRpcRequest, token: string, origin: str
         name,
         args && typeof args === "object" && !Array.isArray(args) ? (args as Record<string, unknown>) : {},
         token,
-        origin
+        origin,
+        { protocolVersion }
       )
       if (!result) return rpcError(message.id, -32602, `Unknown tool: ${name}`)
       return rpcResult(message.id, result)
@@ -166,7 +167,8 @@ export async function handleMcpPost(request: Request, token: string, caller?: Mc
       responses.push(rpcError(null, -32600, "Invalid request"))
       continue
     }
-    const response = await handleMessage(message as JsonRpcRequest, token, origin, caller)
+    // Stateless: the version the client negotiated comes back on every request (MCP-Protocol-Version).
+    const response = await handleMessage(message as JsonRpcRequest, token, origin, caller, request.headers.get("mcp-protocol-version"))
     if (response) responses.push(response)
   }
 

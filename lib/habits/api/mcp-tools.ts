@@ -133,10 +133,71 @@ export const MCP_TOOLS: McpTool[] = API_OPERATIONS.map((op) => ({
   securitySchemes: [{ type: "oauth2", scopes: [OAUTH_SCOPE, op.scope] }],
 }))
 
+/** MCP 2025-06-18 resource link: a pointer the client may show or fetch. */
+export interface McpResourceLink {
+  type: "resource_link"
+  uri: string
+  name: string
+  title?: string
+  description?: string
+  mimeType?: string
+  /** Never set; lets callers read `.text` on any block (text blocks always come first). */
+  text?: undefined
+}
+
 export interface McpToolResult {
-  content: { type: "text"; text: string }[]
+  content: ({ type: "text"; text: string } | McpResourceLink)[]
   structuredContent?: Record<string, unknown>
   isError: boolean
+}
+
+/** Options from the MCP session that change how results are written. */
+export interface McpCallOptions {
+  /** MCP-Protocol-Version the client sent; resource links need 2025-06-18 or later. */
+  protocolVersion?: string | null
+}
+
+const MAX_IMAGE_LINKS = 10
+
+/** Whether the client's protocol version knows `resource_link` content (added in 2025-06-18). */
+export function supportsResourceLinks(protocolVersion: string | null | undefined): boolean {
+  return typeof protocolVersion === "string" && protocolVersion >= "2025-06-18"
+}
+
+/**
+ * The official catalog images in a tool's structured result, as resource
+ * links (image/png). Looks at the result itself (get_habit) and the arrays it
+ * carries (search_catalog's protocols/habits, get_recommendations'
+ * recommendations, get_coach_state's suggestions) — anything with an
+ * `imageUrl`. Deduplicated, capped at MAX_IMAGE_LINKS.
+ */
+export function imageLinksFrom(structured: unknown): McpResourceLink[] {
+  const links: McpResourceLink[] = []
+  const seen = new Set<string>()
+  const visit = (value: unknown, depth: number) => {
+    if (links.length >= MAX_IMAGE_LINKS || depth > 3 || !value || typeof value !== "object") return
+    if (Array.isArray(value)) {
+      for (const item of value) visit(item, depth + 1)
+      return
+    }
+    const record = value as Record<string, unknown>
+    const url = record.imageUrl
+    if (typeof url === "string" && /^https?:\/\//.test(url) && !seen.has(url)) {
+      seen.add(url)
+      const name = [record.name, record.title, record.slug].find((v): v is string => typeof v === "string") ?? "Liberture protocol"
+      links.push({
+        type: "resource_link",
+        uri: url,
+        name: `${name} — image`,
+        title: name,
+        description: `Official Liberture catalog image for ${name}`,
+        mimeType: "image/png",
+      })
+    }
+    for (const child of Object.values(record)) if (child && typeof child === "object") visit(child, depth + 1)
+  }
+  visit(structured, 0)
+  return links
 }
 
 export interface ApiCallResult {
@@ -213,7 +274,8 @@ export async function callMcpTool(
   name: string,
   args: Record<string, unknown>,
   token: string,
-  origin: string
+  origin: string,
+  options: McpCallOptions = {}
 ): Promise<McpToolResult | null> {
   const op = API_OPERATIONS.find((o) => o.id === name)
   const handler = HANDLERS[name]
@@ -257,5 +319,10 @@ export async function callMcpTool(
   }
 
   const structuredContent = structuredFor(op, result)
+  // Official catalog images as resource links, for clients that know them.
+  // The imageUrl fields in the JSON are there for everyone.
+  if (structuredContent && result.status < 400 && supportsResourceLinks(options.protocolVersion)) {
+    content.push(...imageLinksFrom(structuredContent))
+  }
   return { content, ...(structuredContent ? { structuredContent } : {}), isError: result.status >= 400 }
 }
