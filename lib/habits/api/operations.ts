@@ -156,6 +156,11 @@ const EVENT_TIME_FIELDS: Record<string, JsonSchema> = {
   tags: { type: "array", items: { type: "string" }, description: "Tags." },
 }
 
+/** How assistants should use `imageUrl` (catalog tools). */
+const IMAGE_NOTE =
+  "`imageUrl` is Liberture's official image for it (absolute HTTPS PNG, 1200×630, public), or null when there is none; a catalog habit uses its protocol's image. " +
+  "When presenting a recommendation, show that image if your interface can display images (e.g. markdown ![name](imageUrl)); never substitute an image from elsewhere."
+
 export const API_OPERATIONS: readonly ApiOperation[] = [
   // ------------------------------------------------------------- start here
   {
@@ -242,7 +247,7 @@ export const API_OPERATIONS: readonly ApiOperation[] = [
     scope: "read",
     summary: "Everything about one habit, by name",
     description:
-      "One habit in detail: schedule, time, plan (intention), what number it tracks, streaks, the last two weeks with notes, and its catalog page (infoUrl) if it came from one. For \"how is my running going\".",
+      "One habit in detail: schedule, time, plan (intention), what number it tracks, streaks, the last two weeks with notes, and its catalog page (infoUrl) and official image (imageUrl) if it came from one. For \"how is my running going\".",
     params: [{ name: "habit", in: "query", required: true, description: "The habit, as the user said it, or its id.", schema: { type: "string" } }, TZ_PARAM],
     output: SAY_OUTPUT,
   },
@@ -651,7 +656,7 @@ export const API_OPERATIONS: readonly ApiOperation[] = [
     scope: "read",
     summary: "Find protocols and habits to recommend",
     description:
-      "Searches the Liberture catalog. Give the user `infoUrl` (its page on this site) for anything you suggest. `adopted` = they already track it. For something the user simply wants to track, use create_habit instead.",
+      "Searches the Liberture catalog. Give the user `infoUrl` (its page on this site) for anything you suggest. " + IMAGE_NOTE + " `adopted` = they already track it. For something the user simply wants to track, use create_habit instead.",
     params: [
       { name: "q", in: "query", description: "Words to match, e.g. 'sleep caffeine'.", schema: { type: "string" } },
       { name: "pillar", in: "query", description: "Limit to one pillar.", schema: { type: "string", enum: PILLARS } },
@@ -683,7 +688,7 @@ export const API_OPERATIONS: readonly ApiOperation[] = [
     path: "/coach/recommendations",
     scope: "read",
     summary: "The in-app coach's latest suggestions",
-    description: "What the in-app coach last suggested, with reasons and infoUrl links. Empty if it hasn't run.",
+    description: "What the in-app coach last suggested, with reasons, infoUrl links and imageUrl. " + IMAGE_NOTE + " Empty if it hasn't run.",
     params: [TZ_PARAM],
     output: SAY_OUTPUT,
   },
@@ -696,7 +701,7 @@ export const API_OPERATIONS: readonly ApiOperation[] = [
     scope: "read",
     summary: "Coach settings, nudges left today and habits needing a word",
     description:
-      "Call before any proactive message (a scheduled check-in or automation). Returns the check-in settings, quiet hours, the daily limit with nudges sent and remaining today, the last nudge per kind, pending and snoozed suggestions, and per habit lastLoggedOn, unloggedDueDays and weeklyProgress. Then call record_coach_nudge and message the user only if it says allowed.",
+      "Call before any proactive message (a scheduled check-in or automation). Returns the check-in settings, quiet hours, the daily limit with nudges sent and remaining today, the last nudge per kind, pending and snoozed suggestions (each with infoUrl and imageUrl), and per habit lastLoggedOn, unloggedDueDays and weeklyProgress. Then call record_coach_nudge and message the user only if it says allowed.",
     mcpOnly: true,
     params: [TZ_PARAM],
     output: {

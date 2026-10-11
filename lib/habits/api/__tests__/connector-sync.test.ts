@@ -81,5 +81,5 @@ describe("tools/list records the sync", () => {
     expect(body.result.tools).toHaveLength(TOOL_COUNT)
     await post("initialize")
     expect(recorded).toEqual([{ userId: 9, key: "conn:conn-9" }])
-  })
+  }, 20_000) // re-imports the whole MCP server after resetModules: slow under a parallel run
 })

@@ -164,7 +164,7 @@ describe("record_coach_nudge", () => {
     vi.setSystemTime(new Date("2026-10-09T23:30:00Z"))
     const result = await callMcpTool("record_coach_nudge", { kind: "other", message: "hi" }, "hta_test", ORIGIN)
     expect(result?.structuredContent).toMatchObject({ allowed: false, reason: "quiet_hours" })
-    expect(result?.content[0].text).toContain("quiet hours")
+    expect(result?.content[0].text!).toContain("quiet hours")
     // 23:30 UTC is 20:30 in Buenos Aires: not quiet there.
     const there = await callMcpTool("record_coach_nudge", { kind: "other", message: "hi", timeZone: "America/Argentina/Buenos_Aires" }, "hta_test", ORIGIN)
     expect(there?.structuredContent).toMatchObject({ allowed: true })

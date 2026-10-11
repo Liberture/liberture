@@ -167,18 +167,18 @@ describe("tools/call", () => {
     const ambiguous = await callMcpTool("log_habit", { habit: "walk" }, "hta_test", ORIGIN)
     // Ordinary results, not isError: the model needs options/say to ask the user.
     expect(ambiguous?.isError).toBe(false)
-    expect(ambiguous?.content[0].text).toBe("Which one: Morning walk or Evening walk?")
+    expect(ambiguous?.content[0].text!).toBe("Which one: Morning walk or Evening walk?")
     expect(ambiguous?.structuredContent).toMatchObject({ ok: false, code: "ambiguous" })
 
     const none = await callMcpTool("archive_habit", { habit: "swimming" }, "hta_test", ORIGIN)
     expect(none?.isError).toBe(false)
-    expect(JSON.parse(none!.content[1].text)).toMatchObject({ code: "not_found", options: ["Morning walk", "Evening walk", "Pushups"] })
+    expect(JSON.parse(none!.content[1].text!)).toMatchObject({ code: "not_found", options: ["Morning walk", "Evening walk", "Pushups"] })
   })
 
   it("relays scope_disabled, with delete_items off by default", async () => {
     const result = await callMcpTool("delete_todo", { todo: "anything" }, "hta_test", ORIGIN)
     expect(result?.isError).toBe(true)
-    expect(result?.content[0].text).toContain("Deleting todos, projects and calendar events is off")
+    expect(result?.content[0].text!).toContain("Deleting todos, projects and calendar events is off")
   })
 
   it("returns the habit detail as structured content", async () => {
@@ -276,7 +276,7 @@ describe("answers that need the user (ChatGPT drops isError content)", () => {
     const result = await callMcpTool("log_habit", { habit: "PRUEBA_INEXISTENTE_990044", completed: false }, "hta_test", ORIGIN)
     expect(result?.isError).toBe(false)
     expect(result?.structuredContent).toMatchObject({ ok: false, code: "not_found", options: ["Morning walk", "Evening walk", "Pushups"] })
-    expect(result?.content[0].text).toContain("can't find that habit")
+    expect(result?.content[0].text!).toContain("can't find that habit")
   })
 
   it("sends ambiguous as an ordinary result", async () => {
