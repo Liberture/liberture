@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils"
 
 import { DifficultyTag } from "./protocol-card"
 import { PillarTag } from "./pillar-chip"
+import { ProtocolPicture } from "@/components/protocols/protocol-picture"
 
 /**
  * Full-text protocol view. This is the "read before you commit" surface — the
@@ -155,6 +156,7 @@ export function ProtocolReader({
             </header>
 
             <div className="flex-1 space-y-6 overflow-y-auto p-6">
+              <ProtocolPicture slug={protocol.slug} loading="eager" className="rounded-xl border border-white/10" />
               <Section title="Why this works">
                 <p className="text-sm leading-relaxed text-muted-foreground">{protocol.why}</p>
               </Section>

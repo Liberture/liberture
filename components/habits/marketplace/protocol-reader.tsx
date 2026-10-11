@@ -12,6 +12,7 @@ import { useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage, plural } from "@/lib/i18n-format"
 
 import { DifficultyTag, PillarTag, useCatalogLabels } from "./pillar-tag"
+import { ProtocolPicture } from "@/components/protocols/protocol-picture"
 
 interface ProtocolReaderProps {
   protocol: CatalogProtocol
@@ -96,6 +97,7 @@ export function ProtocolReader({ protocol, adopted, onAdopt, onClose }: Protocol
         </header>
 
         <div className="custom-scrollbar min-h-0 flex-1 space-y-6 overflow-y-auto p-4 sm:p-5">
+          <ProtocolPicture slug={protocol.slug} loading="eager" className="rounded-xl border border-border" />
           <p className="text-sm leading-relaxed text-muted-foreground">{protocol.description}</p>
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">

@@ -9,6 +9,7 @@ import { useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage, plural } from "@/lib/i18n-format"
 
 import { DifficultyTag, PillarTag, useCatalogLabels } from "./pillar-tag"
+import { ProtocolPicture } from "@/components/protocols/protocol-picture"
 
 interface ProtocolCardProps {
   protocol: CatalogProtocol
@@ -30,6 +31,7 @@ export function ProtocolCard({ protocol, adopted, onRead, onAdopt }: ProtocolCar
         adopted ? cn(styles.border, styles.background) : "border-border bg-card/60 hover:border-border/80"
       )}
     >
+      <ProtocolPicture slug={protocol.slug} className="-mx-5 -mt-5 rounded-t-xl border-b border-border" />
       <div className="flex flex-wrap items-center gap-2">
         <PillarTag pillar={protocol.pillar} />
         <DifficultyTag difficulty={protocol.difficulty} />
