@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
 import { GUIDES_UPDATED, guideImages, guidesFor, screenshotSrc } from '@/lib/guides';
+import { absoluteUrl, protocolImage } from '@/lib/habits/protocols/images'
 
 const baseUrl = 'https://liberture.com';
 
@@ -116,11 +117,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: org.featured ? 0.8 : 0.7,
     })),
 
-    ...protocols.map((protocol) => ({
-      url: `${baseUrl}/protocols/${protocol.slug}`,
-      lastModified: protocol.updatedAt,
-      changeFrequency: 'monthly' as const,
-      priority: protocol.featured ? 0.8 : 0.7,
-    })),
+    ...protocols.map((protocol) => {
+      // Image sitemap entry: the protocol's own picture, so it can show up in image search.
+      const picture = protocolImage(protocol.slug)
+      return {
+        url: `${baseUrl}/protocols/${protocol.slug}`,
+        lastModified: protocol.updatedAt,
+        changeFrequency: 'monthly' as const,
+        priority: protocol.featured ? 0.8 : 0.7,
+        ...(picture ? { images: [absoluteUrl(baseUrl, picture.png)] } : {}),
+      }
+    }),
   ];
 }

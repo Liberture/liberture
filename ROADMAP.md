@@ -91,6 +91,11 @@ doctrine into it:
 
 ## Done
 
+- 2026-10-10 — A picture for every catalog protocol (53), drawn from scratch by
+  `scripts/generate-protocol-images.tsx` as SVG + PNG + WebP (1200×630): pillar
+  colours, a slug-seeded contour field, an icon, name, tagline and habits. Used
+  as the page hero, OG/Twitter image, JSON-LD image, in the /protocols and
+  in-app catalog cards and readers, and listed in the image sitemap.
 - 2026-10-10 — "Reset account" became **Delete account**: removes the account
   row, every per-user table and all sign-in sessions in one transaction, then
   signs out to the landing page (it used to keep you signed in and restart the

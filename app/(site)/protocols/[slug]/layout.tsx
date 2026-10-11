@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { absoluteUrl, protocolImage } from "@/lib/habits/protocols/images";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -28,7 +29,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://liberture.com';
     const url = `${baseUrl}/protocols/${slug}`;
-    const imageUrl = `${baseUrl}/og-image.jpg`;
+    // The protocol's own picture when it has one (catalog protocols), else the site image.
+    const picture = protocolImage(slug);
+    const imageUrl = picture ? absoluteUrl(baseUrl, picture.png) : `${baseUrl}/og-image.jpg`;
     
     const metadata: Metadata = {
       title: `${protocol.name} | ${protocol.pillar} Protocol | Liberture`,
@@ -43,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             url: imageUrl,
             width: 1200,
             height: 630,
-            alt: protocol.name,
+            alt: picture?.alt ?? protocol.name,
           },
         ],
         type: 'article',
