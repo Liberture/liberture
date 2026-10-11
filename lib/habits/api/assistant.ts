@@ -3,7 +3,7 @@ import { parseDateOnly } from "@/lib/habits/date-utils"
 import { CATALOG_PROTOCOLS, STANDALONE_HABITS } from "@/lib/habits/protocols/catalog"
 import { CATALOG_PROTOCOLS as PUBLIC_PROTOCOLS } from "@/lib/tracker/catalog"
 import type { StorageData } from "@/lib/habits/types"
-import { protocolImage } from "@/lib/habits/protocols/images"
+import { protocolImage, standaloneHabitImage } from "@/lib/habits/protocols/images"
 import { TOOL_COUNT, TOOLS_VERSION } from "@/lib/habits/api/operations"
 
 /**
@@ -33,18 +33,19 @@ export interface CatalogLinks {
   infoUrl: string | null
   /**
    * The official catalog image: absolute HTTPS URL of the protocol's PNG
-   * (public/protocols/images, 1200×630, no auth). A catalog habit uses its
-   * protocol's image. null for standalone habits and custom entries, which
-   * have none.
+   * (public/protocols/images, 1200×630, no auth). A habit inside a protocol
+   * uses its protocol's image; a standalone catalog habit has its own. null
+   * for custom entries and unknown slugs.
    */
   imageUrl: string | null
 }
 
-/** The official image of a catalog protocol, or of the protocol a catalog habit belongs to. */
+/** The official image of a catalog protocol or catalog habit (its protocol's, or its own when standalone). */
 export function catalogImageUrl(kind: "protocol" | "habit" | "custom", slug: string | null, origin: string): string | null {
   if (!slug || kind === "custom") return null
   const protocolSlug = kind === "protocol" ? slug : protocolSlugForHabit(slug)
-  const image = protocolSlug ? protocolImage(protocolSlug) : null
+  // A habit inside a protocol shows its protocol; a standalone catalog habit has its own.
+  const image = protocolSlug ? protocolImage(protocolSlug) : kind === "habit" ? standaloneHabitImage(slug) : null
   return image ? `${origin}${image.png}` : null
 }
 

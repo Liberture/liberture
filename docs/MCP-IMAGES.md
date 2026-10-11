@@ -17,9 +17,10 @@ Assistants (ChatGPT, Claude) get the **official Liberture image** for catalog pr
 Rules:
 - A **protocol** uses its own image: `/protocols/images/<slug>.png`.
 - A **catalog habit** that belongs to a protocol uses that protocol's image.
-- A **standalone catalog habit** (10 of them, e.g. `read-pages`), a **custom** habit, or an unknown slug gets `null`. No image is invented.
+- A **standalone catalog habit** (10 of them, e.g. `mobility-stretch`, which belong to no protocol) has its own: `/protocols/images/habits/<slug>.png`.
+- A **custom** habit or an unknown slug gets `null`.
 
-The images are the ones drawn by `scripts/generate-protocol-images.tsx` and served from `public/protocols/images/` (see the protocol pages and the image sitemap). Everything is built in one place: `catalogImageUrl()` / `catalogLinks()` in `lib/habits/api/assistant.ts`, next to `infoUrl`.
+The images are the ones drawn by `scripts/generate-protocol-images.tsx` and served from `public/protocols/images/` (and `habits/` for standalone habits) (see the protocol pages and the image sitemap). Everything is built in one place: `catalogImageUrl()` / `catalogLinks()` in `lib/habits/api/assistant.ts`, next to `infoUrl`.
 
 The field is purely additive, so existing consumers are unaffected.
 
@@ -78,8 +79,9 @@ Check it in the real clients after refreshing the connector: "Recommend me a Lib
 
 `lib/habits/api/__tests__/catalog-images.test.ts` covers:
 - protocol images, and habits inside multi-habit protocols;
-- standalone, custom and unknown entries returning `null`;
+- standalone habits getting their own image, including the "10-minute mobility" case;
+- custom and unknown entries returning `null`;
 - `infoUrl` unchanged;
-- a file existing for every protocol;
+- a file existing for every protocol and standalone habit;
 - `imageUrl` in all four tools;
 - resource links only for 2025-06-18+ clients, deduplicated and capped.

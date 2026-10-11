@@ -26,7 +26,7 @@ vi.mock("@/lib/habits/db", () => ({ getDb: () => { throw new Error("no database 
 import { catalogImageUrl, catalogLinks } from "@/lib/habits/api/assistant"
 import { callMcpTool, imageLinksFrom, supportsResourceLinks } from "@/lib/habits/api/mcp-tools"
 import { CATALOG_PROTOCOLS, STANDALONE_HABITS } from "@/lib/habits/protocols/catalog"
-import { protocolImage } from "@/lib/habits/protocols/images"
+import { protocolImage, standaloneHabitImage } from "@/lib/habits/protocols/images"
 
 const ORIGIN = "https://liberture.com"
 const meditation = CATALOG_PROTOCOLS.find((p) => p.slug === "daily-mindfulness-meditation")!
@@ -48,6 +48,15 @@ beforeEach(() => {
         createdAt: "2026-10-01T00:00:00.000Z",
         catalogSlug: meditation.habits[0].slug,
         protocolSlug: meditation.slug,
+      },
+      {
+        id: "h3",
+        name: "10-minute mobility",
+        time: "19:00",
+        color: "#fff",
+        schedule: { type: "daily" },
+        createdAt: "2026-10-01T00:00:00.000Z",
+        catalogSlug: "mobility-stretch",
       },
       { id: "h2", name: "My own thing", time: "", color: "#fff", schedule: { type: "daily" }, createdAt: "2026-10-01T00:00:00.000Z" },
     ],
@@ -78,9 +87,14 @@ describe("catalogImageUrl / catalogLinks", () => {
     }
   })
 
+  it("gives a standalone catalog habit its own image", () => {
+    expect(catalogImageUrl("habit", standalone.slug, ORIGIN)).toBe(`${ORIGIN}/protocols/images/habits/${standalone.slug}.png`)
+    expect(catalogImageUrl("habit", "mobility-stretch", ORIGIN)).toBe(`${ORIGIN}/protocols/images/habits/mobility-stretch.png`)
+  })
+
   it("is null where no official image exists", () => {
-    expect(catalogImageUrl("habit", standalone.slug, ORIGIN)).toBeNull()
     expect(catalogImageUrl("custom", null, ORIGIN)).toBeNull()
+    expect(catalogImageUrl("habit", "no-such-habit", ORIGIN)).toBeNull()
     expect(catalogImageUrl("protocol", "no-such-protocol", ORIGIN)).toBeNull()
   })
 
@@ -89,9 +103,13 @@ describe("catalogImageUrl / catalogLinks", () => {
     expect(catalogLinks("habit", standalone.slug, ORIGIN).infoUrl).toBe(`${ORIGIN}/protocols#${standalone.slug}`)
   })
 
-  it("points at a file that exists for every catalog protocol (public, no auth)", () => {
+  it("points at a file that exists for every catalog protocol and standalone habit (public, no auth)", () => {
     for (const protocol of CATALOG_PROTOCOLS) {
       const image = protocolImage(protocol.slug)!
+      expect(existsSync(path.join(process.cwd(), "public", image.png))).toBe(true)
+    }
+    for (const habit of STANDALONE_HABITS) {
+      const image = standaloneHabitImage(habit.slug)!
       expect(existsSync(path.join(process.cwd(), "public", image.png))).toBe(true)
     }
   })
@@ -108,12 +126,15 @@ describe("imageUrl in tool results", () => {
 
     const all = await call("search_catalog", { limit: 50 })
     const standaloneHit = (all!.structuredContent as { habits: Record<string, unknown>[] }).habits.find((h) => h.slug === standalone.slug)!
-    expect(standaloneHit).toHaveProperty("imageUrl", null)
+    expect(standaloneHit.imageUrl).toBe(`${ORIGIN}/protocols/images/habits/${standalone.slug}.png`)
   })
 
   it("get_habit: an adopted catalog habit keeps its protocol's image; a custom habit has none", async () => {
     const adopted = await call("get_habit", { habit: "h1" })
     expect((adopted!.structuredContent as Record<string, unknown>).imageUrl).toBe(`${ORIGIN}/protocols/images/${meditation.slug}.png`)
+    // The reported case: an adopted standalone habit ("10-minute mobility") used to come back null.
+    const mobility = await call("get_habit", { habit: "h3" })
+    expect((mobility!.structuredContent as Record<string, unknown>).imageUrl).toBe(`${ORIGIN}/protocols/images/habits/mobility-stretch.png`)
     const custom = await call("get_habit", { habit: "h2" })
     expect((custom!.structuredContent as Record<string, unknown>).imageUrl).toBeNull()
   })

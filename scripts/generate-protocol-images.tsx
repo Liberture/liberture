@@ -1,8 +1,9 @@
 /**
- * Draws one image per catalog protocol, from scratch, in three formats:
- *   public/protocols/images/<slug>.svg   — the source
- *   public/protocols/images/<slug>.png   — share image (OG/Twitter) + sitemap
- *   public/protocols/images/<slug>.webp  — what the pages show
+ * Draws one image per catalog protocol, and per standalone catalog habit
+ * (habits/<slug>), from scratch, in three formats:
+ *   public/protocols/images/[habits/]<slug>.svg   — the source
+ *   public/protocols/images/[habits/]<slug>.png   — share image, sitemap, MCP imageUrl
+ *   public/protocols/images/[habits/]<slug>.webp  — what the pages show
  *
  * 1200×630. Each one carries the protocol's pillar colours, a contour field
  * seeded by its slug (so no two look alike), an icon for what it is, its
@@ -18,7 +19,7 @@ import { renderToStaticMarkup } from "react-dom/server"
 import sharp from "sharp"
 import * as Icons from "lucide-react"
 
-import { CATALOG_PROTOCOLS, type CatalogProtocol } from "@/lib/habits/protocols/catalog"
+import { CATALOG_PROTOCOLS, STANDALONE_HABITS, type CatalogHabit, type CatalogProtocol } from "@/lib/habits/protocols/catalog"
 import { PILLAR_HEX, PILLAR_LABELS, type PillarId } from "@/lib/habits/pillars"
 import { PROTOCOL_IMAGE_SIZE } from "@/lib/habits/protocols/images"
 
@@ -80,6 +81,17 @@ const ICON_BY_SLUG: Record<string, string> = {
   "no-spend-days": "Ban",
   "emergency-fund-ladder": "ShieldCheck",
   "spending-awareness-log": "NotebookPen",
+  // Standalone catalog habits (drawn as "<PILLAR> HABIT").
+  "read-pages": "BookOpen",
+  "mobility-stretch": "PersonStanding",
+  "daily-stoic-passage": "Landmark",
+  "daily-mantra": "Quote",
+  "step-outside": "Trees",
+  "one-hard-conversation": "MessagesSquare",
+  "phone-out-of-bedroom": "Smartphone",
+  "stairs-not-lift": "Footprints",
+  "check-one-number": "Gauge",
+  "vegetables-first": "Carrot",
 }
 
 const PILLAR_FALLBACK_ICON: Record<PillarId, string> = {
@@ -198,7 +210,7 @@ function scheduleLabel(protocol: CatalogProtocol, i: number): string {
 
 // ---------------------------------------------------------------- the picture
 
-export function protocolSvg(protocol: CatalogProtocol): string {
+export function protocolSvg(protocol: CatalogProtocol, label: "PROTOCOL" | "HABIT" = "PROTOCOL"): string {
   const random = rng(protocol.slug)
   const color = PILLAR_HEX[protocol.pillar]
   const icon = iconInner(ICON_BY_SLUG[protocol.slug] ?? PILLAR_FALLBACK_ICON[protocol.pillar])
@@ -246,11 +258,11 @@ export function protocolSvg(protocol: CatalogProtocol): string {
     .map(([dx, dy], i) => `<circle cx="${80 + dx}" cy="${68 + dy}" r="5.5" fill="${LOGO_DOTS[i]}"/>`)
     .join("")
 
-  const pillarLabel = `${PILLAR_LABELS[protocol.pillar].toUpperCase()} PROTOCOL`
+  const pillarLabel = `${PILLAR_LABELS[protocol.pillar].toUpperCase()} ${label}`
   const meta = [protocol.difficulty, protocol.duration].filter(Boolean).join(" · ")
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Inter, 'Helvetica Neue', Arial, sans-serif" role="img" aria-labelledby="t d">
-<title id="t">${esc(protocol.name)} — ${esc(PILLAR_LABELS[protocol.pillar])} protocol</title>
+<title id="t">${esc(protocol.name)} — ${esc(PILLAR_LABELS[protocol.pillar])} ${label.toLowerCase()}</title>
 <desc id="d">${esc(protocol.tagline)}</desc>
 <defs>
   <radialGradient id="glow" cx="${art.cx}" cy="${art.cy}" r="520" gradientUnits="userSpaceOnUse">
@@ -289,22 +301,29 @@ ${habitRows}
 `
 }
 
+/** A standalone catalog habit, in the shape the card drawing uses. */
+function habitAsCard(habit: CatalogHabit): CatalogProtocol {
+  return { slug: habit.slug, name: habit.name, tagline: habit.why, pillar: habit.pillar, habits: [habit], difficulty: habit.difficulty, duration: "" } as unknown as CatalogProtocol
+}
+
+async function render(svg: string, base: string): Promise<number> {
+  await writeFile(`${base}.svg`, svg)
+  // 72 dpi = one SVG unit per pixel: exactly 1200×630.
+  const raster = sharp(Buffer.from(svg), { density: 72 })
+  const png = await raster.clone().png({ compressionLevel: 9, palette: true, quality: 92, effort: 8 }).toBuffer()
+  const webp = await raster.clone().webp({ quality: 84 }).toBuffer()
+  await writeFile(`${base}.png`, png)
+  await writeFile(`${base}.webp`, webp)
+  return png.length + webp.length + Buffer.byteLength(svg)
+}
+
 async function main() {
-  await mkdir(OUT, { recursive: true })
+  await mkdir(path.join(OUT, "habits"), { recursive: true })
   let bytes = 0
-  for (const protocol of CATALOG_PROTOCOLS) {
-    const svg = protocolSvg(protocol)
-    const base = path.join(OUT, protocol.slug)
-    await writeFile(`${base}.svg`, svg)
-    // 72 dpi = one SVG unit per pixel: exactly 1200×630.
-    const raster = sharp(Buffer.from(svg), { density: 72 })
-    const png = await raster.clone().png({ compressionLevel: 9, palette: true, quality: 92, effort: 8 }).toBuffer()
-    const webp = await raster.clone().webp({ quality: 84 }).toBuffer()
-    await writeFile(`${base}.png`, png)
-    await writeFile(`${base}.webp`, webp)
-    bytes += png.length + webp.length + Buffer.byteLength(svg)
-  }
-  console.log(`${CATALOG_PROTOCOLS.length} protocols → ${OUT} (${(bytes / 1024 / 1024).toFixed(1)} MB)`)
+  for (const protocol of CATALOG_PROTOCOLS) bytes += await render(protocolSvg(protocol), path.join(OUT, protocol.slug))
+  // Catalog habits that belong to no protocol get their own (protocol habits use their protocol's).
+  for (const habit of STANDALONE_HABITS) bytes += await render(protocolSvg(habitAsCard(habit), "HABIT"), path.join(OUT, "habits", habit.slug))
+  console.log(`${CATALOG_PROTOCOLS.length} protocols + ${STANDALONE_HABITS.length} habits → ${OUT} (${(bytes / 1024 / 1024).toFixed(1)} MB)`)
 }
 
 main().catch((error) => {
