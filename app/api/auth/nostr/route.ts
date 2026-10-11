@@ -8,6 +8,7 @@ import { verifyAndConsumeChallenge } from "@/lib/habits/nostr/challenge-store"
 import { createSession, SESSION_COOKIE_NAME, SESSION_TTL_SECONDS } from "@/lib/habits/nostr/session-store"
 import { addNostrPubkeyColumn, createNostrChallengesTable, createNostrSessionsTable } from "@/lib/habits/db-migrate"
 import { freshStorageData } from "@/lib/habits/default-data"
+import { randomInternalApiKey } from "@/lib/habits/internal-api-key"
 
 const AUTH_EVENT_KIND = 27235
 const MAX_EVENT_AGE_SECONDS = 5 * 60 // 5 minutes
@@ -155,7 +156,10 @@ export async function POST(request: Request) {
     }
 
     // Create new user with Nostr pubkey
-    const internalApiKey = `npub_${pubkey.slice(0, 16)}`
+    // habit_users.api_key is required and unique, but Nostr accounts never use it to
+    // sign in. It must still be unguessable: it used to be derived from the public
+    // key, and any route matching api_key directly then let anyone in.
+    const internalApiKey = randomInternalApiKey()
     
     await sql`
       INSERT INTO habit_users (api_key, nostr_pubkey, data)

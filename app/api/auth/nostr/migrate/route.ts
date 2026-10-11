@@ -79,10 +79,10 @@ export async function POST(request: Request) {
 
     const apiKey = authHeader.slice(7) // Remove "Bearer " prefix
 
-    // Must be a legacy API key (not nostr:xxx)
-    if (apiKey.startsWith("nostr:")) {
+    // Must be a legacy ht_ key. Nostr accounts' internal api_key is never a credential.
+    if (!/^ht_[0-9a-f]{16,}$/.test(apiKey)) {
       return NextResponse.json({ 
-        error: "Already using Nostr authentication. No migration needed." 
+        error: "A legacy API key (ht_…) is required. Nostr accounts need no migration." 
       }, { status: 400 })
     }
 
@@ -149,7 +149,7 @@ export async function POST(request: Request) {
 
     // Verify and consume the challenge nonce
     const challengeNonce = getChallengeFromTags((signedEvent as Event).tags)!
-    const isValidChallenge = verifyAndConsumeChallenge(pubkey, challengeNonce)
+    const isValidChallenge = await verifyAndConsumeChallenge(pubkey, challengeNonce)
     if (!isValidChallenge) {
       return NextResponse.json({ 
         error: "Invalid or expired challenge. Please request a new challenge." 
