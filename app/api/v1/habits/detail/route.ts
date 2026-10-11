@@ -36,7 +36,7 @@ export async function GET(request: Request) {
     ? catalogLinks("habit", h.catalogSlug, origin)
     : h.protocolSlug
       ? catalogLinks("protocol", h.protocolSlug, origin)
-      : { infoUrl: null }
+      : { infoUrl: null, imageUrl: null }
 
   return NextResponse.json({
     id: h.id,
