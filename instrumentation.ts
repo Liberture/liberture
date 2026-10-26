@@ -2,7 +2,8 @@
  * Runs once when a Next.js server process starts. Starts the reminder
  * scheduler (server push for reminders with the app closed) in the Node
  * runtime only. Off with REMINDER_SCHEDULER=off or when VAPID keys are unset.
- * Also runs a one-time security repair of derived internal API keys.
+ * Also runs one-time security repairs (derived internal API keys, raw session
+ * tokens) and prepares the Nostr sign-in tables.
  */
 export async function register() {
   if (process.env.NEXT_RUNTIME !== "nodejs") return
@@ -19,6 +20,25 @@ export async function register() {
       if (rotated) console.info(`[security] replaced ${rotated} derived internal API key(s)`)
     } catch (error) {
       console.warn("[security] could not rotate derived API keys:", error instanceof Error ? error.message : error)
+    }
+
+    // Nostr sign-in schema, once per start instead of on every login: the
+    // tables, and the unique index on habit_users.nostr_pubkey, which the Prisma
+    // schema doesn't declare (so `prisma db push` in the deploy can't keep it).
+    // Then store any session still kept by its raw token as a hash.
+    try {
+      const [{ getDb }, migrate, { hashStoredSessionTokens }] = await Promise.all([
+        import("./lib/habits/db"),
+        import("./lib/habits/db-migrate"),
+        import("./lib/habits/nostr/session-store"),
+      ])
+      await migrate.addNostrPubkeyColumn()
+      await migrate.createNostrChallengesTable()
+      await migrate.createNostrSessionsTable()
+      const hashed = await hashStoredSessionTokens(getDb())
+      if (hashed) console.info(`[security] hashed ${hashed} stored session token(s)`)
+    } catch (error) {
+      console.warn("[security] could not prepare Nostr sign-in tables:", error instanceof Error ? error.message : error)
     }
   }
 

@@ -36,3 +36,15 @@ export function checkRateLimit(key: string, limit = 120, windowMs = 60_000, now 
   }
   return { allowed: true, retryAfterSeconds: 0 }
 }
+
+/**
+ * The caller's IP, for per-client limits on unauthenticated routes. liberture.com
+ * sits behind Cloudflare, which sets cf-connecting-ip; otherwise the last
+ * X-Forwarded-For hop, the one our own proxy appended.
+ */
+export function clientIp(request: Request): string {
+  const cloudflare = request.headers.get("cf-connecting-ip")
+  if (cloudflare) return cloudflare.trim()
+  const forwarded = request.headers.get("x-forwarded-for")?.split(",").map((hop) => hop.trim()).filter(Boolean)
+  return forwarded?.at(-1) ?? "unknown"
+}

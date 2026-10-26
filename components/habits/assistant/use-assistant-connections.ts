@@ -9,26 +9,24 @@ export interface AssistantConnection {
 
 /**
  * The assistants connected to this account (GET /api/v1/connections, owner
- * auth: the ht_ key as Bearer, or the Nostr session as ?token=). `null` while
+ * auth: the ht_ key as Bearer, or the Nostr session cookie). `null` while
  * loading or when the request fails, so callers can tell "none" from "unknown".
  * With `poll`, it rechecks every 4 s and when the window regains focus — for
  * the connect step, where approving happens in another tab.
  */
-export function useAssistantConnections(apiKey: string, isNostrAuth: boolean, poll = false): AssistantConnection[] | null {
+export function useAssistantConnections(apiKey: string, poll = false): AssistantConnection[] | null {
   const [connections, setConnections] = useState<AssistantConnection[] | null>(null)
 
   const check = useCallback(async () => {
     try {
-      const session = isNostrAuth ? localStorage.getItem("habit-tracker-nostr-session") : null
-      const url = session ? `/api/v1/connections?token=${encodeURIComponent(session)}` : "/api/v1/connections"
-      const res = await fetch(url, { headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : undefined, credentials: "same-origin" })
+      const res = await fetch("/api/v1/connections", { headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : undefined, credentials: "same-origin" })
       if (!res.ok) return
       const data = (await res.json()) as { connections?: AssistantConnection[] }
       setConnections((data.connections ?? []).map(({ id, name }) => ({ id, name })))
     } catch {
       // Offline or signed out: stay unknown.
     }
-  }, [apiKey, isNostrAuth])
+  }, [apiKey])
 
   useEffect(() => {
     check()
