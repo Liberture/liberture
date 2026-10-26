@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { getAuthUser, isAdmin } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
@@ -163,7 +164,7 @@ Return ONLY the JSON object.`;
     // Build summary
     const found = [];
     if (result.wikipedia) found.push('Wikipedia');
-    if (result.publications.length) found.push(`${result.publications.length} publications`);
+    if (result.publications?.length) found.push(`${result.publications.length} publications`);
     if (result.speakingEvents?.length) found.push(`${result.speakingEvents.length} speaking events`);
     if (result.achievements?.length) found.push(`${result.achievements.length} achievements`);
     
@@ -187,6 +188,11 @@ export async function POST(
   { params }: { params: Promise<{ type: string; id: string }> }
 ) {
   try {
+    const authUser = await getAuthUser();
+    if (!authUser || !(await isAdmin(authUser.userId))) {
+      return NextResponse.json({ error: "Admin access required" }, { status: 403 });
+    }
+
     const { type, id } = await params;
     
     // Validate type
@@ -199,7 +205,7 @@ export async function POST(
     
     // Fetch the entity
     let entity: any;
-    let name: string;
+    let name = "";
     let context = '';
     
     switch (type) {
