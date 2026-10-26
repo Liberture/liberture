@@ -83,7 +83,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
   // (connect in ChatGPT/Claude, sign up on the approve page) skips the wizard:
   // setup happens in that assistant's first chat. Wait briefly for the check
   // so the wizard doesn't flash; if it fails, fall back to the wizard.
-  const connections = useAssistantConnections(apiKey, isNostrAuth)
+  const connections = useAssistantConnections(apiKey)
   const connectedKinds = useMemo(
     () => (connections ?? []).map((c) => assistantKind(c.name)).filter((k): k is "chatgpt" | "claude" => k !== null),
     [connections],

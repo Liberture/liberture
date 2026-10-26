@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
 import { isLocalStorageMode } from "@/lib/habits/local-storage"
-import { generateNonce, storeChallenge } from "@/lib/habits/nostr/challenge-store"
+import { issueChallenge } from "@/lib/habits/nostr/challenge-store"
 import { createNostrChallengesTable } from "@/lib/habits/db-migrate"
+import { checkRateLimit, clientIp } from "@/lib/habits/rate-limit"
 
 // Module-level flag to track if migration has run this instance
 let challengeTableEnsured = false
@@ -17,9 +18,17 @@ async function ensureChallengeTable(): Promise<void> {
 
 /**
  * GET /api/auth/nostr/challenge?pubkey=<hex_pubkey>
- * Generate a challenge nonce for the given pubkey
+ * The challenge nonce for the given pubkey (see issueChallenge)
  */
 export async function GET(request: Request) {
+  const limit = checkRateLimit(`nostr-challenge:${clientIp(request)}`, 30)
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: "Too many sign-in attempts", code: "rate_limited" },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
+    )
+  }
+
   const { searchParams } = new URL(request.url)
   const pubkey = searchParams.get("pubkey")
 
@@ -43,11 +52,7 @@ export async function GET(request: Request) {
     // Ensure the challenges table exists
     await ensureChallengeTable()
 
-    // Generate and store challenge in database
-    const nonce = generateNonce()
-    await storeChallenge(pubkey, nonce)
-
-    return NextResponse.json({ challenge: nonce })
+    return NextResponse.json({ challenge: await issueChallenge(pubkey) })
   } catch (error) {
     console.error("Failed to generate challenge:", error)
     return NextResponse.json({ error: "Failed to generate challenge" }, { status: 500 })

@@ -7,21 +7,19 @@ import { SignInDialog, type AuthResult, type AuthType } from "@/components/habit
 import { useNostrAuth } from "@/lib/habits/nostr/auth-context"
 
 // Storage keys shared with the tracker (kept from Liberture Habits so existing sessions restore).
+// The Nostr session itself is an httpOnly cookie; these only say how the user signed in.
 const API_KEY_STORAGE = "habit-tracker-api-key"
 const AUTH_TYPE_STORAGE = "habit-tracker-auth-type"
 const NOSTR_PUBKEY_STORAGE = "habit-tracker-nostr-pubkey"
-const NIP46_CONNECTION_STORAGE = "habit-tracker-nip46-connection"
-const NOSTR_SESSION_STORAGE = "habit-tracker-nostr-session"
 const POST_LOGIN_NEXT = "habit-tracker-post-login-next"
 
 export interface HabitsAuthState {
   type: AuthType | null
   apiKey: string | null
   pubkey: string | null
-  nip46Connection: string | null
 }
 
-const SIGNED_OUT: HabitsAuthState = { type: null, apiKey: null, pubkey: null, nip46Connection: null }
+const SIGNED_OUT: HabitsAuthState = { type: null, apiKey: null, pubkey: null }
 
 interface OpenSignInOptions {
   /** Where to go once signed in. Defaults to /tracker. Pass null to stay on the page. */
@@ -48,8 +46,6 @@ function clearAuthStorage() {
   localStorage.removeItem(API_KEY_STORAGE)
   localStorage.removeItem(AUTH_TYPE_STORAGE)
   localStorage.removeItem(NOSTR_PUBKEY_STORAGE)
-  localStorage.removeItem(NIP46_CONNECTION_STORAGE)
-  localStorage.removeItem(NOSTR_SESSION_STORAGE)
 }
 
 /** Only same-site paths are followed after sign-in. */
@@ -130,18 +126,10 @@ export function HabitsSessionProvider({ children }: { children: ReactNode }) {
         localStorage.setItem(API_KEY_STORAGE, result.apiKey)
         setAuth({ ...SIGNED_OUT, type: "api-key", apiKey: result.apiKey })
       } else if (result.pubkey && (result.type === "nip07" || result.type === "nip46" || result.type === "nsec")) {
-        // The dialog already completed the challenge-response flow and stored the session.
+        // The dialog already completed the challenge-response flow; the server set the session cookie.
         localStorage.setItem(AUTH_TYPE_STORAGE, result.type)
         localStorage.setItem(NOSTR_PUBKEY_STORAGE, result.pubkey)
-        if (result.type === "nip46" && result.nip46Connection) {
-          localStorage.setItem(NIP46_CONNECTION_STORAGE, result.nip46Connection)
-        }
-        setAuth({
-          ...SIGNED_OUT,
-          type: result.type,
-          pubkey: result.pubkey,
-          nip46Connection: result.nip46Connection ?? null,
-        })
+        setAuth({ ...SIGNED_OUT, type: result.type, pubkey: result.pubkey })
       } else {
         return
       }
@@ -161,17 +149,9 @@ export function HabitsSessionProvider({ children }: { children: ReactNode }) {
   const closeDialog = useCallback(() => setDialogOpen(false), [])
 
   const logout = useCallback(async () => {
-    // Best-effort server-side session revoke before clearing local state.
-    const sessionToken = localStorage.getItem(NOSTR_SESSION_STORAGE)
-    if (sessionToken) {
-      try {
-        await fetch(`/api/auth/nostr/session?token=${encodeURIComponent(sessionToken)}`, { method: "DELETE" })
-      } catch {
-        // Ignore — the local clear is what the user sees.
-      }
-    }
+    // Revokes the server-side session (cookie) before clearing local state.
+    await nostrAuth.logout()
     clearAuthStorage()
-    nostrAuth.logout()
     setAuth(SIGNED_OUT)
     router.push("/")
   }, [nostrAuth, router])

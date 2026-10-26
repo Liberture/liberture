@@ -3,12 +3,12 @@
 import { useState, useEffect, useCallback } from "react"
 import { Button } from "@/components/habits/ui/button"
 import { Zap, Link2, AlertCircle, Check, Loader2, Shield, ExternalLink } from "lucide-react"
-import { hasNip07Extension, waitForNip07, nip07GetPublicKey, nip07SignEvent } from "@/lib/habits/nostr/nip07"
-import { parseConnectionString, Nip46Client, type Nip46Status } from "@/lib/habits/nostr/nip46"
+import { Nip07Signer, isNip07Available } from "nostr-wot-sdk/signers"
+import { fromBunkerUri, type Nip46Signer } from "@/lib/habits/nostr/remote-signer"
 import { hexToNpub, shortenNpub } from "@/lib/habits/nostr/crypto"
 import { Input } from "@/components/habits/ui/input"
 import { QrCode } from "@/components/habits/qr-code"
-import type { UnsignedEvent, Event } from "nostr-tools"
+import type { Event } from "nostr-tools"
 import { buildAuthEvent } from "@/lib/habits/nostr/auth-event"
 import { useTranslations } from "@/components/i18n/locale-provider"
 
@@ -27,13 +27,17 @@ function getConnectionStringError(uri: string, t: MigrationCopy): string | null 
   if (!uri.startsWith("bunker://") && !uri.startsWith("nostrconnect://")) {
     return t.uriSchemeError
   }
+  return null
+}
 
-  try {
-    parseConnectionString(uri)
-    return null
-  } catch (err: any) {
-    return err?.message || t.invalidConnectionString
+/** Some extensions inject window.nostr after page load. */
+async function waitForNip07(timeoutMs: number): Promise<boolean> {
+  const start = Date.now()
+  while (!isNip07Available()) {
+    if (Date.now() - start >= timeoutMs) return false
+    await new Promise((r) => setTimeout(r, 100))
   }
+  return true
 }
 
 /**
@@ -55,12 +59,6 @@ async function requestChallenge(pubkey: string, t: MigrationCopy): Promise<strin
   return challenge
 }
 
-/**
- * Create an unsigned auth event with the challenge
- */
-function createAuthEvent(pubkey: string, challenge: string): UnsignedEvent {
-  return { ...buildAuthEvent(challenge, "/api/auth/nostr/migrate"), pubkey }
-}
 
 export function NostrMigrationCard({ apiKey, onMigrationComplete }: NostrMigrationCardProps) {
   const t = useTranslations().habits.app.nostrMigrationCard
@@ -73,7 +71,6 @@ export function NostrMigrationCard({ apiKey, onMigrationComplete }: NostrMigrati
   const [showNip46Input, setShowNip46Input] = useState(false)
   const [nip46LaunchMode, setNip46LaunchMode] = useState<Nip46LaunchMode>("bunker")
   const [nip46Input, setNip46Input] = useState("")
-  const [nip46Status, setNip46Status] = useState<Nip46Status>("disconnected")
   const trimmedNip46Input = nip46Input.trim()
   const nip46ValidationError = getConnectionStringError(trimmedNip46Input, t)
   const isNip46UriValid = !!trimmedNip46Input && !nip46ValidationError
@@ -120,15 +117,15 @@ export function NostrMigrationCard({ apiKey, onMigrationComplete }: NostrMigrati
       }
 
       // Get public key from extension
-      const pubkey = await nip07GetPublicKey()
+      const signer = new Nip07Signer()
+      const pubkey = await signer.getPublicKey()
       
       // Request challenge from server
       const challenge = await requestChallenge(pubkey, t)
       
       // Create and sign auth event
       setState("signing")
-      const unsignedEvent = createAuthEvent(pubkey, challenge)
-      const signedEvent = await nip07SignEvent(unsignedEvent)
+      const signedEvent = await signer.signEvent(buildAuthEvent(challenge, "/api/auth/nostr/migrate"))
       
       // Submit migration
       await submitMigration(pubkey, signedEvent)
@@ -162,28 +159,25 @@ export function NostrMigrationCard({ apiKey, onMigrationComplete }: NostrMigrati
     setError(null)
     setState("connecting")
 
-    let client: Nip46Client | null = null
+    let signer: Nip46Signer | null = null
 
     try {
-      const params = parseConnectionString(trimmedNip46Input)
-      client = new Nip46Client(params, setNip46Status)
-      
-      // Connect to remote signer and get pubkey
-      const pubkey = await client.connect(30000)
+      // Connect to remote signer (bunker:// URI) and get pubkey
+      signer = await fromBunkerUri(trimmedNip46Input)
+      const pubkey = await signer.getPublicKey()
       
       // Request challenge from server
       const challenge = await requestChallenge(pubkey, t)
       
       // Create and sign auth event
       setState("signing")
-      const unsignedEvent = createAuthEvent(pubkey, challenge)
-      const signedEvent = await client.signEvent(unsignedEvent)
+      const signedEvent = await signer.signEvent(buildAuthEvent(challenge, "/api/auth/nostr/migrate"))
       
       // Submit migration
       await submitMigration(pubkey, signedEvent)
       
-      // Disconnect client (we don't need to maintain the connection)
-      client.disconnect()
+      // Disconnect (we don't need to maintain the connection)
+      await signer.close()
       
       // Success!
       const npub = hexToNpub(pubkey)
@@ -191,8 +185,8 @@ export function NostrMigrationCard({ apiKey, onMigrationComplete }: NostrMigrati
       setState("success")
       onMigrationComplete(pubkey, npub)
     } catch (err: any) {
-      if (client) {
-        client.disconnect()
+      if (signer) {
+        void signer.close()
       }
       setError(err.message || t.migrationFailed)
       setState("error")
@@ -213,7 +207,6 @@ export function NostrMigrationCard({ apiKey, onMigrationComplete }: NostrMigrati
     setShowNip46Input(false)
     setNip46LaunchMode("bunker")
     setNip46Input("")
-    setNip46Status("disconnected")
   }, [])
 
   // Success state

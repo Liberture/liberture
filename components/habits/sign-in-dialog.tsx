@@ -18,7 +18,7 @@ import {
   ShieldCheck,
   Check,
 } from "lucide-react"
-import { Nip07Signer, PrivateKeySigner, isNip07Available } from "@nostr-wot/signers"
+import { Nip07Signer, PrivateKeySigner, isNip07Available } from "nostr-wot-sdk/signers"
 import {
   generateKeyPair,
   getPublicKeyFromPrivate,
@@ -28,8 +28,8 @@ import {
   type NostrKeyPair,
 } from "@/lib/habits/nostr/crypto"
 import { QrCode } from "@/components/habits/qr-code"
-import { fromBunkerUri, startNostrConnect } from "@/lib/habits/nostr/bunker-signer-adapter"
-import type { Event, UnsignedEvent } from "nostr-tools"
+import { fromBunkerUri, startNostrConnect } from "@/lib/habits/nostr/remote-signer"
+import type { Event, EventTemplate } from "nostr-tools"
 import { buildAuthEvent } from "@/lib/habits/nostr/auth-event"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage } from "@/lib/i18n-format"
@@ -46,7 +46,6 @@ export interface AuthResult {
   apiKey?: string
   pubkey?: string
   npub?: string
-  nip46Connection?: string
 }
 
 interface SignInDialogProps {
@@ -56,11 +55,10 @@ interface SignInDialogProps {
 }
 
 interface ChallengeSigner {
-  signEvent(event: Omit<UnsignedEvent, "pubkey"> | UnsignedEvent): Promise<Event>
+  signEvent(template: EventTemplate): Promise<Event>
 }
 
 const AUTH_IN_PROGRESS_KEY = "habit-tracker-auth-in-progress"
-const NOSTRCONNECT_RELAYS = ["wss://relay.nsec.app", "wss://relay.damus.io", "wss://nos.lol"]
 
 function getBunkerUrlError(uri: string, t: SignInStrings): string | null {
   if (!uri) return null
@@ -78,14 +76,19 @@ async function waitForNip07(timeoutMs: number): Promise<boolean> {
   return false
 }
 
+/**
+ * Sign the server's challenge and post it. On success the server sets the
+ * httpOnly session cookie; nothing secret comes back to this page.
+ */
 async function performChallengeAuth(
   signer: ChallengeSigner,
   pubkey: string,
   t: SignInStrings
-): Promise<{ sessionToken?: string }> {
+): Promise<void> {
   const challengeRes = await fetch(
     `/api/auth/nostr/challenge?pubkey=${encodeURIComponent(pubkey)}`
   )
+  if (challengeRes.status === 429) throw new Error(t.errorRateLimited)
   if (!challengeRes.ok) {
     const err = await challengeRes
       .json()
@@ -102,17 +105,13 @@ async function performChallengeAuth(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ pubkey, signedEvent }),
   })
+  if (authRes.status === 429) throw new Error(t.errorRateLimited)
   if (!authRes.ok) {
     const err = await authRes
       .json()
       .catch(() => ({ error: t.errorAuthFailed }))
     throw new Error(err.error || t.errorAuthFailed)
   }
-  return authRes.json().catch(() => ({}))
-}
-
-function storeSessionToken(sessionToken?: string) {
-  if (sessionToken) localStorage.setItem("habit-tracker-nostr-session", sessionToken)
 }
 
 function normalizeLoginError(err: unknown, fallback: string, t: SignInStrings): string {
@@ -170,8 +169,6 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
 
       try {
         const handle = startNostrConnect({
-          relays: NOSTRCONNECT_RELAYS,
-          metadata: { name: "Liberture", url: "https://liberture-habits.fabriok.ar" },
           onAuthChallenge: (url) => setAuthChallengeUrl(url),
         })
 
@@ -187,15 +184,15 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
         if (cancelled) return
 
         const pubkey = await signer.getPublicKey()
-        const { sessionToken } = await performChallengeAuth(signer, pubkey, t)
-        storeSessionToken(sessionToken)
+        await performChallengeAuth(signer, pubkey, t)
+        // Signed in: the session is the cookie, the relay connection isn't needed.
+        await signer.close()
         localStorage.removeItem(AUTH_IN_PROGRESS_KEY)
 
         onAuthenticated({
           type: "nip46",
           pubkey,
           npub: hexToNpub(pubkey),
-          nip46Connection: handle.uri,
         })
       } catch (err) {
         localStorage.removeItem(AUTH_IN_PROGRESS_KEY)
@@ -230,8 +227,7 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
       }
       const signer = new Nip07Signer()
       const pubkey = await signer.getPublicKey()
-      const { sessionToken } = await performChallengeAuth(signer, pubkey, t)
-      storeSessionToken(sessionToken)
+      await performChallengeAuth(signer, pubkey, t)
       onAuthenticated({ type: "nip07", pubkey, npub: hexToNpub(pubkey) })
     } catch (err) {
       setError(normalizeLoginError(err, t.errorExtensionFailed, t))
@@ -256,14 +252,12 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
         onAuthChallenge: (url) => setAuthChallengeUrl(url),
       })
       const pubkey = await signer.getPublicKey()
-      const { sessionToken } = await performChallengeAuth(signer, pubkey, t)
-      storeSessionToken(sessionToken)
+      await performChallengeAuth(signer, pubkey, t)
       await signer.close()
       onAuthenticated({
         type: "nip46",
         pubkey,
         npub: hexToNpub(pubkey),
-        nip46Connection: uri,
       })
     } catch (err) {
       setError(normalizeLoginError(err, t.errorRemoteSignerFailed, t))
@@ -283,8 +277,7 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
 
   const signInWithSecretKey = async (secretKey: Uint8Array | string, publicKeyHex: string) => {
     const signer = new PrivateKeySigner(secretKey)
-    const { sessionToken } = await performChallengeAuth(signer, publicKeyHex, t)
-    storeSessionToken(sessionToken)
+    await performChallengeAuth(signer, publicKeyHex, t)
     onAuthenticated({ type: "nsec", pubkey: publicKeyHex, npub: hexToNpub(publicKeyHex) })
   }
 
@@ -729,7 +722,7 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
                 {authChallengeUrl && (
                   <a
                     href={authChallengeUrl}
-                    target={authChallengeUrl.startsWith("http") ? "_blank" : undefined}
+                    target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setAuthChallengeUrl(null)}
                     className="block rounded-lg border border-primary/50 bg-primary/10 p-3 text-center text-sm font-bold text-primary animate-pulse"

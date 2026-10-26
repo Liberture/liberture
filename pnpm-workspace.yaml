@@ -3,3 +3,10 @@ ignoredBuiltDependencies:
   - '@prisma/engines'
   - better-sqlite3
   - prisma
+# Patched versions of transitive dependencies flagged by `pnpm audit --prod`
+# (recharts → lodash, autoprefixer → postcss → nanoid / source-map-js).
+overrides:
+  lodash: ^4.18.0
+  postcss: ^8.5.18
+  'nanoid@<3.3.18': ^3.3.18
+  source-map-js: ^1.2.2

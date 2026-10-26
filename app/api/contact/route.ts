@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { randomUUID } from 'crypto'
 
 export async function POST(request: Request) {
   try {
@@ -23,11 +24,13 @@ export async function POST(request: Request) {
     // Save to database
     await prisma.contactMessage.create({
       data: {
+        id: randomUUID(),
         name,
         email,
         subject: subject || null,
         message,
-        replied: false
+        replied: false,
+        updatedAt: new Date()
       }
     })
 
