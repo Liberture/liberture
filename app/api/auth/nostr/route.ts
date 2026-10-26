@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server"
-import { authUrlTagMatches } from "@/lib/habits/nostr/auth-event"
+import { checkAuthEvent } from "@/lib/habits/nostr/auth-event"
 import { verifyEvent, type Event } from "nostr-tools"
 import { getDb } from "@/lib/habits/db"
 import { isLocalStorageMode } from "@/lib/habits/local-storage"
-import type { StorageData } from "@/lib/habits/types"
 import { verifyAndConsumeChallenge } from "@/lib/habits/nostr/challenge-store"
 import { createSession, SESSION_COOKIE_NAME, SESSION_TTL_SECONDS } from "@/lib/habits/nostr/session-store"
-import { addNostrPubkeyColumn, createNostrChallengesTable, createNostrSessionsTable } from "@/lib/habits/db-migrate"
 import { freshStorageData } from "@/lib/habits/default-data"
 import { randomInternalApiKey } from "@/lib/habits/internal-api-key"
+import { checkRateLimit, clientIp } from "@/lib/habits/rate-limit"
 
-const AUTH_EVENT_KIND = 27235
-const MAX_EVENT_AGE_SECONDS = 5 * 60 // 5 minutes
-
+/**
+ * The session token goes only into the httpOnly cookie, never the response
+ * body, so page JavaScript (or anything injected into it) never sees it.
+ */
 function withSessionCookie(body: Record<string, unknown>, sessionToken: string) {
   const response = NextResponse.json(body)
   response.cookies.set(SESSION_COOKIE_NAME, sessionToken, {
@@ -25,67 +25,27 @@ function withSessionCookie(body: Record<string, unknown>, sessionToken: string) 
   return response
 }
 
-
-/**
- * Extract challenge nonce from event tags
- */
-function getChallengeFromTags(tags: string[][]): string | null {
-  const challengeTag = tags.find((tag) => tag[0] === "challenge" && tag.length >= 2)
-  return challengeTag ? challengeTag[1] : null
-}
-
-/**
- * Validate the signed event structure and content
- */
-function validateSignedEvent(
-  signedEvent: Event,
-  expectedPubkey: string
-): { valid: false; error: string } | { valid: true } {
-  // Check pubkey matches
-  if (signedEvent.pubkey !== expectedPubkey.toLowerCase()) {
-    return { valid: false, error: "Event pubkey does not match claimed pubkey" }
-  }
-
-  // Check kind
-  if (signedEvent.kind !== AUTH_EVENT_KIND) {
-    return { valid: false, error: `Invalid event kind: expected ${AUTH_EVENT_KIND}` }
-  }
-
-  // Check created_at is recent (within 5 minutes)
-  const now = Math.floor(Date.now() / 1000)
-  const eventAge = now - signedEvent.created_at
-  if (eventAge > MAX_EVENT_AGE_SECONDS) {
-    return { valid: false, error: "Event is too old" }
-  }
-  if (eventAge < -60) {
-    // Allow 1 minute clock skew into the future
-    return { valid: false, error: "Event timestamp is in the future" }
-  }
-
-  // NIP-98 u tag, when present, must name this endpoint
-  if (!authUrlTagMatches(signedEvent.tags, "/api/auth/nostr")) {
-    return { valid: false, error: "Auth event is for a different URL" }
-  }
-
-  // Check for challenge tag
-  const challengeNonce = getChallengeFromTags(signedEvent.tags)
-  if (!challengeNonce) {
-    return { valid: false, error: "Missing challenge tag in event" }
-  }
-
-  return { valid: true }
-}
-
 /**
  * POST /api/auth/nostr
  * Verify a signed challenge event and create/authenticate user
- * 
+ *
  * Body: {
  *   pubkey: string (hex),
  *   signedEvent: Event (full signed Nostr event)
  * }
+ *
+ * Schema (nostr_sessions, nostr_challenges, habit_users.nostr_pubkey) is
+ * ensured at startup (instrumentation.ts), not on every sign-in.
  */
 export async function POST(request: Request) {
+  const limit = checkRateLimit(`nostr-login:${clientIp(request)}`, 20)
+  if (!limit.allowed) {
+    return NextResponse.json(
+      { error: "Too many sign-in attempts", code: "rate_limited" },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
+    )
+  }
+
   try {
     const { pubkey, signedEvent } = await request.json()
 
@@ -105,20 +65,15 @@ export async function POST(request: Request) {
 
     // Local storage mode not supported for Nostr auth
     if (isLocalStorageMode()) {
-      return NextResponse.json({ 
-        error: "Nostr auth requires database mode. Set DATABASE_URL environment variable." 
+      return NextResponse.json({
+        error: "Nostr auth requires database mode. Set DATABASE_URL environment variable."
       }, { status: 400 })
     }
 
-    // Ensure required database tables/columns exist (idempotent)
-    await addNostrPubkeyColumn()
-    await createNostrChallengesTable()
-    await createNostrSessionsTable()
-
-    // Validate the signed event structure
-    const validation = validateSignedEvent(signedEvent as Event, pubkey)
-    if (!validation.valid) {
-      return NextResponse.json({ error: validation.error }, { status: 401 })
+    // Validate the signed event: pubkey, kind, age, and that it names this site
+    const check = checkAuthEvent(signedEvent, pubkey, "/api/auth/nostr")
+    if (!check.valid) {
+      return NextResponse.json({ error: check.error }, { status: 401 })
     }
 
     // Verify the cryptographic signature
@@ -128,30 +83,29 @@ export async function POST(request: Request) {
     }
 
     // Verify and consume the challenge nonce
-    const challengeNonce = getChallengeFromTags((signedEvent as Event).tags)!
-    const isValidChallenge = await verifyAndConsumeChallenge(pubkey, challengeNonce)
+    const isValidChallenge = await verifyAndConsumeChallenge(pubkey, check.challenge)
     if (!isValidChallenge) {
-      return NextResponse.json({ 
-        error: "Invalid or expired challenge. Please request a new challenge." 
+      return NextResponse.json({
+        error: "Invalid or expired challenge. Please request a new challenge."
       }, { status: 401 })
     }
 
     // All verification passed - create or fetch user
     const sql = getDb()
+    const normalizedPubkey = pubkey.toLowerCase()
 
     // Check if user already exists
     const existing = await sql`
-      SELECT id, created_at FROM habit_users WHERE nostr_pubkey = ${pubkey.toLowerCase()}
+      SELECT id, created_at FROM habit_users WHERE nostr_pubkey = ${normalizedPubkey}
     `
 
-    // Create session token for persistent auth (7 days)
-    const sessionToken = await createSession(pubkey.toLowerCase())
+    // Create session token for persistent auth (cookie)
+    const sessionToken = await createSession(normalizedPubkey)
 
     if (existing.length > 0) {
       return withSessionCookie({
         exists: true,
         createdAt: existing[0].created_at,
-        sessionToken,
       }, sessionToken)
     }
 
@@ -159,33 +113,24 @@ export async function POST(request: Request) {
     // habit_users.api_key is required and unique, but Nostr accounts never use it to
     // sign in. It must still be unguessable: it used to be derived from the public
     // key, and any route matching api_key directly then let anyone in.
-    const internalApiKey = randomInternalApiKey()
-    
-    await sql`
-      INSERT INTO habit_users (api_key, nostr_pubkey, data)
-      VALUES (${internalApiKey}, ${pubkey.toLowerCase()}, ${JSON.stringify(freshStorageData())}::jsonb)
-    `
+    try {
+      await sql`
+        INSERT INTO habit_users (api_key, nostr_pubkey, data)
+        VALUES (${randomInternalApiKey()}, ${normalizedPubkey}, ${JSON.stringify(freshStorageData())}::jsonb)
+      `
+    } catch (error) {
+      // A concurrent first sign-in with the same key created the account
+      // between our SELECT and INSERT. This request is verified too: sign it in.
+      if ((error as { code?: string }).code !== "23505") throw error
+      return withSessionCookie({ exists: true }, sessionToken)
+    }
 
     return withSessionCookie({
       exists: false,
       created: true,
-      sessionToken,
     }, sessionToken)
-  } catch (error: any) {
+  } catch (error) {
     console.error("Failed to verify Nostr auth:", error)
-    
-    // Handle unique constraint violation (user already exists race condition)
-    if (error.code === '23505') {
-      // Still need to create a session for the existing user
-      try {
-        const { pubkey } = await request.clone().json()
-        const sessionToken = await createSession(pubkey.toLowerCase())
-        return withSessionCookie({ exists: true, sessionToken }, sessionToken)
-      } catch {
-        return NextResponse.json({ exists: true })
-      }
-    }
-    
     return NextResponse.json({ error: "Authentication failed" }, { status: 500 })
   }
 }

@@ -1,63 +1,9 @@
 import { NextResponse } from "next/server"
-import { authUrlTagMatches } from "@/lib/habits/nostr/auth-event"
+import { checkAuthEvent } from "@/lib/habits/nostr/auth-event"
 import { verifyEvent, type Event } from "nostr-tools"
 import { getDb } from "@/lib/habits/db"
 import { isLocalStorageMode } from "@/lib/habits/local-storage"
 import { verifyAndConsumeChallenge } from "@/lib/habits/nostr/challenge-store"
-import { addNostrPubkeyColumn, createNostrChallengesTable } from "@/lib/habits/db-migrate"
-
-const AUTH_EVENT_KIND = 27235
-const MAX_EVENT_AGE_SECONDS = 5 * 60 // 5 minutes
-
-/**
- * Extract challenge nonce from event tags
- */
-function getChallengeFromTags(tags: string[][]): string | null {
-  const challengeTag = tags.find((tag) => tag[0] === "challenge" && tag.length >= 2)
-  return challengeTag ? challengeTag[1] : null
-}
-
-/**
- * Validate the signed event structure and content
- */
-function validateSignedEvent(
-  signedEvent: Event,
-  expectedPubkey: string
-): { valid: false; error: string } | { valid: true } {
-  // Check pubkey matches
-  if (signedEvent.pubkey !== expectedPubkey.toLowerCase()) {
-    return { valid: false, error: "Event pubkey does not match claimed pubkey" }
-  }
-
-  // Check kind
-  if (signedEvent.kind !== AUTH_EVENT_KIND) {
-    return { valid: false, error: `Invalid event kind: expected ${AUTH_EVENT_KIND}` }
-  }
-
-  // Check created_at is recent (within 5 minutes)
-  const now = Math.floor(Date.now() / 1000)
-  const eventAge = now - signedEvent.created_at
-  if (eventAge > MAX_EVENT_AGE_SECONDS) {
-    return { valid: false, error: "Event is too old" }
-  }
-  if (eventAge < -60) {
-    // Allow 1 minute clock skew into the future
-    return { valid: false, error: "Event timestamp is in the future" }
-  }
-
-  // NIP-98 u tag, when present, must name this endpoint
-  if (!authUrlTagMatches(signedEvent.tags, "/api/auth/nostr/migrate")) {
-    return { valid: false, error: "Auth event is for a different URL" }
-  }
-
-  // Check for challenge tag
-  const challengeNonce = getChallengeFromTags(signedEvent.tags)
-  if (!challengeNonce) {
-    return { valid: false, error: "Missing challenge tag in event" }
-  }
-
-  return { valid: true }
-}
 
 /**
  * POST /api/auth/nostr/migrate
@@ -110,10 +56,6 @@ export async function POST(request: Request) {
       }, { status: 400 })
     }
 
-    // Ensure required database tables/columns exist (idempotent)
-    await addNostrPubkeyColumn()
-    await createNostrChallengesTable()
-
     const sql = getDb()
 
     // Verify the API key is valid and get the user
@@ -135,10 +77,10 @@ export async function POST(request: Request) {
       }, { status: 400 })
     }
 
-    // Validate the signed event structure
-    const validation = validateSignedEvent(signedEvent as Event, pubkey)
-    if (!validation.valid) {
-      return NextResponse.json({ error: validation.error }, { status: 401 })
+    // Validate the signed event: pubkey, kind, age, and that it names this site
+    const check = checkAuthEvent(signedEvent, pubkey, "/api/auth/nostr/migrate")
+    if (!check.valid) {
+      return NextResponse.json({ error: check.error }, { status: 401 })
     }
 
     // Verify the cryptographic signature
@@ -148,8 +90,7 @@ export async function POST(request: Request) {
     }
 
     // Verify and consume the challenge nonce
-    const challengeNonce = getChallengeFromTags((signedEvent as Event).tags)!
-    const isValidChallenge = await verifyAndConsumeChallenge(pubkey, challengeNonce)
+    const isValidChallenge = await verifyAndConsumeChallenge(pubkey, check.challenge)
     if (!isValidChallenge) {
       return NextResponse.json({ 
         error: "Invalid or expired challenge. Please request a new challenge." 

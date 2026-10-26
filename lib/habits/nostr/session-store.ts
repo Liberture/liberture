@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto"
 import { getDb } from "@/lib/habits/db"
 
 // Session duration: 30 days. PWA/mobile users should not have to re-auth constantly.
@@ -26,8 +27,33 @@ export function generateSessionToken(): string {
 }
 
 /**
+ * What nostr_sessions stores in place of the token: its SHA-256. The token
+ * lives only in the user's httpOnly cookie, so a copy of the table (a backup,
+ * a read-only leak) holds no usable sessions.
+ */
+export function hashSessionToken(token: string): string {
+  return createHash("sha256").update(token).digest("hex")
+}
+
+const isSessionToken = (token: string) => /^nses_[0-9a-f]{64}$/.test(token)
+
+/**
+ * One-time repair: sessions created before 2026-10-26 were stored by their raw
+ * token. Replace each with its hash, so the cookies users already hold keep
+ * working. Idempotent (hashes don't start with nses_); run at startup.
+ */
+export async function hashStoredSessionTokens(sql: ReturnType<typeof getDb>): Promise<number> {
+  const rows = await sql`
+    UPDATE nostr_sessions SET token = encode(sha256(convert_to(token, 'UTF8')), 'hex')
+    WHERE token LIKE 'nses\\_%'
+    RETURNING pubkey
+  `
+  return rows.length
+}
+
+/**
  * Create a new session for a Nostr pubkey
- * Returns the session token
+ * Returns the session token (only its hash is stored)
  */
 export async function createSession(pubkey: string): Promise<string> {
   const sql = getDb()
@@ -41,7 +67,7 @@ export async function createSession(pubkey: string): Promise<string> {
   // Create new session
   await sql`
     INSERT INTO nostr_sessions (pubkey, token, expires_at, created_at)
-    VALUES (${normalizedPubkey}, ${token}, ${expiresAt}, NOW())
+    VALUES (${normalizedPubkey}, ${hashSessionToken(token)}, ${expiresAt}, NOW())
   `
 
   return token
@@ -52,14 +78,15 @@ export async function createSession(pubkey: string): Promise<string> {
  * Returns the pubkey if valid, null otherwise
  */
 export async function verifySession(token: string): Promise<string | null> {
-  if (!token || !token.startsWith("nses_")) {
+  if (!token || !isSessionToken(token)) {
     return null
   }
 
   const sql = getDb()
+  const hash = hashSessionToken(token)
 
   const result = await sql`
-    SELECT pubkey, expires_at FROM nostr_sessions WHERE token = ${token}
+    SELECT pubkey, expires_at FROM nostr_sessions WHERE token = ${hash}
   `
 
   if (result.length === 0) {
@@ -71,7 +98,7 @@ export async function verifySession(token: string): Promise<string | null> {
   // Check expiry
   if (new Date(session.expires_at) <= new Date()) {
     // Delete expired session
-    await sql`DELETE FROM nostr_sessions WHERE token = ${token}`
+    await sql`DELETE FROM nostr_sessions WHERE token = ${hash}`
     return null
   }
 
@@ -83,7 +110,7 @@ export async function verifySession(token: string): Promise<string | null> {
  * Call this on successful API requests to keep active sessions alive
  */
 export async function refreshSession(token: string): Promise<boolean> {
-  if (!token || !token.startsWith("nses_")) {
+  if (!token || !isSessionToken(token)) {
     return false
   }
 
@@ -93,7 +120,7 @@ export async function refreshSession(token: string): Promise<boolean> {
   const result = await sql`
     UPDATE nostr_sessions 
     SET expires_at = ${newExpiresAt}
-    WHERE token = ${token} AND expires_at > NOW()
+    WHERE token = ${hashSessionToken(token)} AND expires_at > NOW()
     RETURNING pubkey
   `
 
@@ -104,12 +131,12 @@ export async function refreshSession(token: string): Promise<boolean> {
  * Delete a session (logout)
  */
 export async function deleteSession(token: string): Promise<void> {
-  if (!token || !token.startsWith("nses_")) {
+  if (!token || !isSessionToken(token)) {
     return
   }
 
   const sql = getDb()
-  await sql`DELETE FROM nostr_sessions WHERE token = ${token}`
+  await sql`DELETE FROM nostr_sessions WHERE token = ${hashSessionToken(token)}`
 }
 
 /**
@@ -127,7 +154,7 @@ export async function cleanupExpiredSessions(): Promise<number> {
   const sql = getDb()
   const result = await sql`
     DELETE FROM nostr_sessions WHERE expires_at < NOW()
-    RETURNING token
+    RETURNING pubkey
   `
   return result.length
 }

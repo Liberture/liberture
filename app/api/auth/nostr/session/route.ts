@@ -6,16 +6,15 @@ import { createNostrSessionsTable } from "@/lib/habits/db-migrate"
 
 /**
  * GET /api/auth/nostr/session
- * Verify a session token and return the associated pubkey
+ * Verify the httpOnly session cookie and return the associated pubkey
  * This allows clients to restore auth state without re-signing
- * 
- * Query params:
- *   token: optional session token (nses_xxx); if omitted, uses the httpOnly cookie.
+ *
+ * Cookie only: a token in the URL would land in logs and history, and setting
+ * the cookie from one would let a link sign a visitor into someone else's account.
  */
 export async function GET(request: Request) {
   try {
-    const url = new URL(request.url)
-    const token = url.searchParams.get("token") ?? getSessionTokenFromCookie(request)
+    const token = getSessionTokenFromCookie(request)
 
     if (!token) {
       return NextResponse.json({ error: "Missing session token" }, { status: 401 })
@@ -71,15 +70,11 @@ export async function GET(request: Request) {
 
 /**
  * DELETE /api/auth/nostr/session
- * Logout / invalidate a session token
- * 
- * Query params:
- *   token: optional session token to invalidate; if omitted, uses the httpOnly cookie.
+ * Logout: invalidate the session in the httpOnly cookie and clear it
  */
 export async function DELETE(request: Request) {
   try {
-    const url = new URL(request.url)
-    const token = url.searchParams.get("token") ?? getSessionTokenFromCookie(request)
+    const token = getSessionTokenFromCookie(request)
 
     if (!token) {
       const response = NextResponse.json({ success: true })

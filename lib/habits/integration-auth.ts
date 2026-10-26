@@ -152,8 +152,7 @@ export async function verifyApiKey(
       }
     }
 
-    const url = new URL(request.url)
-    const sessionToken = getSessionTokenFromCookie(request) ?? url.searchParams.get("token")
+    const sessionToken = getSessionTokenFromCookie(request)
     if (!sessionToken) return null
 
     await createNostrSessionsTable()

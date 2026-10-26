@@ -24,7 +24,7 @@ export function StepConnectAssistant({ apiKey, isNostrAuth, onNext }: StepConnec
   const t = useTranslations().habits.app.onboardingConnectAssistant
   const [origin, setOrigin] = useState("")
   const [copied, setCopied] = useState(false)
-  const connections = useAssistantConnections(apiKey, isNostrAuth, true)
+  const connections = useAssistantConnections(apiKey, true)
   const connected = (connections ?? []).map((c) => assistantKind(c.name)).filter((k): k is "chatgpt" | "claude" => k !== null)
   const anyConnected = (connections ?? []).length > 0
 

@@ -59,20 +59,15 @@ function ago(iso: string | null, t: AssistantAccessCopy): string {
   return formatMessage(t.usedDaysAgo, { count: Math.round(hours / 24) })
 }
 
-/** Owner auth: the ht_ key as Bearer, or the Nostr session as ?token=. */
-function useOwnerRequest(apiKey: string, isNostrAuth: boolean) {
+/** Owner auth: the ht_ key as Bearer, or the Nostr session cookie. */
+function useOwnerRequest(apiKey: string) {
   return useCallback(
     (path: string, init: RequestInit = {}) => {
-      let sessionToken: string | null = null
-      try {
-        sessionToken = isNostrAuth ? localStorage.getItem("habit-tracker-nostr-session") : null
-      } catch {}
-      const url = sessionToken ? `${path}?token=${encodeURIComponent(sessionToken)}` : path
       const headers = new Headers(init.headers)
       if (apiKey) headers.set("Authorization", `Bearer ${apiKey}`)
-      return fetch(url, { ...init, headers, credentials: "same-origin" })
+      return fetch(path, { ...init, headers, credentials: "same-origin" })
     },
-    [apiKey, isNostrAuth]
+    [apiKey]
   )
 }
 
@@ -131,7 +126,7 @@ function CopyBox({ value, field, copiedField, onCopy, tone = "default" }: {
 export function AssistantConnectSection({ apiKey, isNostrAuth }: AssistantAccessSectionProps) {
   const t = useTranslations().habits.app.assistantAccessSection
   const SCOPE_COPY = t.scopes
-  const ownerRequest = useOwnerRequest(apiKey, isNostrAuth)
+  const ownerRequest = useOwnerRequest(apiKey)
   const { copiedField, copy } = useCopy()
   const mcpUrl = useMcpUrl()
   const [gptUrl, setGptUrl] = useState<string | null>(null)
@@ -355,7 +350,7 @@ export function AssistantConnectSection({ apiKey, isNostrAuth }: AssistantAccess
  */
 export function DeveloperSection({ apiKey, isNostrAuth }: AssistantAccessSectionProps) {
   const t = useTranslations().habits.app.assistantAccessSection
-  const ownerRequest = useOwnerRequest(apiKey, isNostrAuth)
+  const ownerRequest = useOwnerRequest(apiKey)
   const { copiedField, copy } = useCopy()
   const mcpUrl = useMcpUrl()
   const [downloading, setDownloading] = useState(false)

@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { getAuthUser, isAdmin } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
   try {
+    const authUser = await getAuthUser();
+    if (!authUser || !(await isAdmin(authUser.userId))) {
+      return NextResponse.json({ error: "Admin access required" }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get("limit") || "50");
     const entityType = searchParams.get("entityType");

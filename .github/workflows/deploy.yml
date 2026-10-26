@@ -61,7 +61,9 @@ jobs:
             npm i -g pnpm@10 || true
             pnpm install --frozen-lockfile
             pnpm exec prisma generate
-            pnpm exec prisma db push --skip-generate --accept-data-loss || true
+            # No --accept-data-loss and no `|| true`: a schema change that would
+            # drop data stops the deploy here, before the app restarts.
+            pnpm exec prisma db push --skip-generate
             pnpm exec tsx scripts/seed-directory-quick.ts || true
             pnpm exec tsx scripts/seed-marketplace-protocols.ts || true
             export PORT=3033

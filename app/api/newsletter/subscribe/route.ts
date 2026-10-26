@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { randomUUID } from 'crypto'
 
 export async function POST(request: Request) {
   try {
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
     } else {
       // New subscriber
       await prisma.newsletter.create({
-        data: { email, subscribed: true }
+        data: { id: randomUUID(), email, subscribed: true, updatedAt: new Date() }
       })
     }
 
