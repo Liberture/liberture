@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getAuthUser, isAdmin } from "@/lib/auth";
 
 // In-memory queue (persists across requests within the same server instance)
 const enrichmentQueue: Array<{
@@ -16,6 +17,11 @@ const enrichmentQueue: Array<{
 
 export async function GET() {
   try {
+    const authUser = await getAuthUser();
+    if (!authUser || !(await isAdmin(authUser.userId))) {
+      return NextResponse.json({ error: "Admin access required" }, { status: 403 });
+    }
+
     const pending = enrichmentQueue.filter((item) => item.status === "pending");
 
     return NextResponse.json({
@@ -30,6 +36,11 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const authUser = await getAuthUser();
+    if (!authUser || !(await isAdmin(authUser.userId))) {
+      return NextResponse.json({ error: "Admin access required" }, { status: 403 });
+    }
+
     const { type, id, name, priority = "normal" } = await request.json();
 
     // Check if already queued
@@ -74,6 +85,11 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
+    const authUser = await getAuthUser();
+    if (!authUser || !(await isAdmin(authUser.userId))) {
+      return NextResponse.json({ error: "Admin access required" }, { status: 403 });
+    }
+
     const { jobId, status, result } = await request.json();
 
     const item = enrichmentQueue.find((i) => i.jobId === jobId);
