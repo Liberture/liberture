@@ -22,14 +22,12 @@ type State =
   | { kind: "done" }
   | { kind: "error"; message: string }
 
-/** Owner auth the same way Settings does it: ht_ key, or the Nostr session. */
+/** Owner auth the same way Settings does it: ht_ key, or the Nostr session cookie. */
 function ownerFetch(path: string, init: RequestInit = {}): Promise<Response> {
   const apiKey = localStorage.getItem("habit-tracker-api-key")
-  const session = localStorage.getItem("habit-tracker-nostr-session")
   const headers = new Headers(init.headers)
   if (apiKey && localStorage.getItem("habit-tracker-auth-type") === "api-key") headers.set("Authorization", `Bearer ${apiKey}`)
-  const url = session ? `${path}?token=${encodeURIComponent(session)}` : path
-  return fetch(url, { ...init, headers, credentials: "same-origin" })
+  return fetch(path, { ...init, headers, credentials: "same-origin" })
 }
 
 const fill = (text: string, app: string, host = "") => text.replaceAll("{app}", app).replaceAll("{host}", host)

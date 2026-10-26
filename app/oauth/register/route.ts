@@ -1,7 +1,7 @@
 import { corsJson, corsPreflight } from "@/lib/habits/oauth/metadata"
 import { isAcceptableRedirectUri } from "@/lib/habits/oauth/pkce"
 import { registerClient } from "@/lib/habits/oauth/store"
-import { checkRateLimit } from "@/lib/habits/rate-limit"
+import { checkRateLimit, clientIp } from "@/lib/habits/rate-limit"
 
 /**
  * POST /oauth/register — RFC 7591 dynamic client registration.
@@ -11,8 +11,7 @@ import { checkRateLimit } from "@/lib/habits/rate-limit"
  * sends them back to.
  */
 export async function POST(request: Request) {
-  const ip = request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for") ?? "unknown"
-  if (!checkRateLimit(`register:${ip}`, 20).allowed) {
+  if (!checkRateLimit(`register:${clientIp(request)}`, 20).allowed) {
     return corsJson({ error: "slow_down" }, { status: 429 })
   }
 
