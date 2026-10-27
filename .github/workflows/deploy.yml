@@ -28,7 +28,13 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Write .env from secret
-        run: echo "${{ secrets.ENV_PRODUCTION }}" > .env
+        run: |
+          echo "${{ secrets.ENV_PRODUCTION }}" > .env
+          # Web Push keys have their own secrets (docs/REMINDERS.md). Never rotate them:
+          # new keys cut off every subscribed device.
+          echo "VAPID_PUBLIC_KEY=${{ secrets.VAPID_PUBLIC_KEY }}" >> .env
+          echo "VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }}" >> .env
+          echo "VAPID_SUBJECT=${{ secrets.VAPID_SUBJECT }}" >> .env
 
       - name: Generate Prisma client
         run: pnpm exec prisma generate
