@@ -26,7 +26,7 @@ It prints three lines. Add them to the server environment:
 | `REMINDER_SCHEDULER` | `off` disables the server scheduler (e.g. on a second instance you don't want sending) |
 | `HABIT_TRACKER_TIME_ZONE` | Fallback zone for users who haven't saved one |
 
-The tables (`habit_push_subscriptions`, `habit_notifications_sent`) are created by `prisma db push` in the deploy. The Docker app also creates them lazily on first use.
+The tables (`habit_push_subscriptions`, `habit_notifications_sent`, `habit_push_actions`) are created by `prisma db push` in the deploy. The Docker app also creates them lazily on first use.
 
 **Without the keys** nothing breaks:
 - the scheduler logs `[reminders] scheduler not started: …` once and stays off;
@@ -60,6 +60,14 @@ instrumentation.ts ──▶ scheduler (every 60 s, one process via pg_try_advis
 - **Dead subscriptions** (the push service answers 404 or 410) are deleted. Other failures increase `failures` and set `last_failure_at`.
 - **Tapping a notification** opens its `url` (default `/tracker`). When the browser rotates a subscription, `pushsubscriptionchange` in `sw.js` re-subscribes it.
 
+What `habit_notifications_sent.kind` holds (what `get_reminder_status` counts by kind):
+
+| Kind | Sent by | Counts toward |
+|---|---|---|
+| `habit` | Habit reminders (`habit:<id>:<date>:<kind>`) | Nothing |
+| `coach:<kind>` | Check-ins, daytime pulses (`coach:pulse`), assistants' `record_coach_nudge` | `maxNudgesPerDay` |
+| `log:habit`, `log:todo` | Assistant receipts | Their own cap of 50 a day |
+
 ## Coach check-ins
 
 These are configured in Settings → Preferences → Coach, stored in `preferences.coach`, and all off by default:
@@ -77,6 +85,36 @@ Limits apply to every coach: Liberture's push check-ins and an assistant's autom
 - **One per kind:** one nudge of each kind per day, and one weekly review per ISO week. The exception is `other`: it's checked per message, so different one-off messages are each allowed until the daily limit, while the same message twice is a duplicate.
 
 Server check-ins only run for users with a subscribed device, so they never use up a day's slot that an assistant could have used.
+
+### Daytime pulses
+
+**Random check-ins** (Settings → Preferences → Coach, `coach.pulsesPerDay`, 0–3, off by default) are a few unprompted pushes at random times.
+
+- **When:** the waking day runs from the end of quiet hours to their start, with 30 minutes off each edge (08:30–21:30 by default). It is cut into equal parts, and each part gets one minute picked from a hash of the user and the date (`pulseSlots` in `lib/habits/coach/pulse-rules.ts`). A pulse fires in the 5 minutes from its slot.
+- **What:** each pulse rotates through four sources by day and slot, skipping any with nothing to say:
+  - a pending coach suggestion (not dismissed, snoozed or already adopted), linking to the coach tab;
+  - today's progress ("2 of 5 done. Next: Read.");
+  - an unadopted catalog habit from the pillar the user has the fewest habits in;
+  - a short quote (160 characters or fewer).
+  
+  The titles are translated. Catalog and quote text is English only, as elsewhere in the app.
+- **Limits:** pulses are coach messages (ledger kind `coach:pulse`, one row per slot per day). They respect quiet hours and count toward `maxNudgesPerDay`. A pulse is skipped if any coach message went out in the last 30 minutes, so it never lands on top of a check-in. Settings warns when check-ins plus pulses exceed the daily cap.
+- `record_coach_nudge` doesn't accept `pulse`: assistants use `other` for their own messages.
+
+## Assistant receipts
+
+When an assistant (an MCP connector, a Custom GPT action, the Claude skill) marks a habit or todo done, every subscribed device gets a receipt: "Claude logged Meditation · 2 of 5 habits done today." with an **Undo** button.
+
+- **Source:** only the `/api/v1` write handlers send receipts, on the change from not done to done: `completions/toggle` (`log_habit`), `completions` POST (`log_habit_value` once the goal is reached), `todos/:id/status` (`set_todo_status`) and `todos/:id` PUT (`update_todo`). The web tracker saves through `/api/storage`, so a tap in the app never sends one. Repeats, unmarking and partial values send nothing.
+- **Delivery:** `lib/habits/assistant-receipts.ts` sends the push after the response, so it never slows the assistant's reply (`runAfterResponse` in `lib/habits/after-response.ts`).
+- **On by default** for anyone with push set up: `preferences.assistantLogPush`, the switch in Settings → Reminders → "When an assistant logs something". `preferences.notifications` turns it off too.
+- **Not limited by quiet hours or the coach cap**, because it answers something the user just asked for. There is a separate cap of 50 a day (ledger kind `log:habit` or `log:todo`, keyed by item and `completedAt`, so re-logging after an Undo sends a new receipt).
+- **Each item has its own tag** (`log-habit-<id>-<date>`, `log-todo-<id>`), so several receipts keep their own Undo buttons.
+- **Undo:**
+  - The button carries a single-use token. `habit_push_actions` stores only its SHA-256, with the exact change to revert. The token expires after 24 hours.
+  - The service worker POSTs it to `/api/habits/push/action`. The server puts back the previous state (no completion, the partial value, or the todo's earlier status), but only if the item still has the `completedAt` the assistant set. Anything changed since wins.
+  - The receipt is replaced in place with "Undone", or "Couldn't undo". The user's other devices get a silent push with the same tag.
+  - Chrome, Edge and Android show the button. Safari (including iPhone PWAs) and Firefox don't support notification buttons; there, a tap opens the tracker.
 
 ### Assistants as the coach (MCP)
 
@@ -103,7 +141,13 @@ The `coach_checkin` prompt walks a model through this.
    ```
 5. Open the app on a device without a subscription. The same reminder does not show again.
 
-Unit tests cover the scheduling, claim, limit and rule logic: `pnpm test` (`lib/habits/__tests__/reminders.test.ts`, `lib/habits/api/__tests__/coach-*.test.ts`).
+6. Receipts: with a device subscribed and the app closed, log a habit through an assistant, or directly:
+   ```bash
+   curl -X POST https://<host>/api/v1/completions/toggle -H "Authorization: Bearer hta_…" -H "Content-Type: application/json" -d '{"habit":"Pushups"}'
+   ```
+   One receipt with Undo arrives. Tap Undo: the habit is unmarked, open tabs update, and the receipt turns into "Undone". The same curl again (already done) sends nothing.
+
+Unit tests cover the scheduling, claim, limit and rule logic: `pnpm test` (`lib/habits/__tests__/reminders.test.ts`, `assistant-receipts.test.ts`, `push-actions.test.ts`, and `lib/habits/api/__tests__/coach-*.test.ts`, `assistant-receipts-handlers.test.ts`).
 
 ## Endpoints
 
@@ -114,4 +158,5 @@ Unit tests cover the scheduling, claim, limit and rule logic: `pnpm test` (`lib/
 | `GET /api/habits/push/status` | session | Devices, last delivery and failure |
 | `POST /api/habits/push/test` | session | Send a push to all your devices now |
 | `POST /api/habits/push/claim` | session | Claim a reminder key (the in-tab fallback) |
+| `POST /api/habits/push/action` | single-use token from the push (no session) | A notification button: `{ token, action: "undo" }`. 404 unknown or used, 410 expired, rate-limited per IP |
 | `GET /api/v1/reminders/status` | assistant token (`read`) | Same status for assistants (`get_reminder_status`) |

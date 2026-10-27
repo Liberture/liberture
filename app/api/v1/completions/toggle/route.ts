@@ -7,6 +7,7 @@ import { userToday } from "@/lib/habits/api/time-zone"
 import { valuesForHabit } from "@/lib/habits/api/completion-values"
 import type { HabitCompletion } from "@/lib/habits/types"
 import { resolveByName, spokenList } from "@/lib/habits/api/resolve"
+import { queueAssistantReceipt } from "@/lib/habits/assistant-receipts"
 import {
   deleteCompletionRow,
   getCompletionRow,
@@ -156,6 +157,14 @@ export async function POST(request: Request) {
     }
 
     await refreshStorageJsonFromOptimizedTables(sql, user.userId, ["completions"], now)
+    if (targetCompleted) {
+      queueAssistantReceipt({
+        userId: user.userId,
+        connectionId: user.connectionId,
+        today: requestToday,
+        item: { type: "habit", habitId, name: habit.name, date: completionDate, completedAt: now, previous: existingCompletion ?? null },
+      })
+    }
     const updatedCompletions = await getCompletionRows(sql, user.userId)
     // A day logged before the habit existed must count toward the streak we report.
     const [countedHabit] = withCompletionStarts([habit], updatedCompletions)

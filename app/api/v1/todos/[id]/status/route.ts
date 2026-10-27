@@ -10,6 +10,7 @@ import {
 } from "@/lib/habits/optimized-storage"
 import { todoUrgency } from "@/lib/habits/api/todo-urgency"
 import { userToday } from "@/lib/habits/api/time-zone"
+import { queueAssistantReceipt } from "@/lib/habits/assistant-receipts"
 
 /**
  * PATCH /api/v1/todos/:id/status
@@ -60,6 +61,14 @@ export async function PATCH(
 
     await upsertTodoRow(sql, user.userId, updatedTodo)
     await refreshStorageJsonFromOptimizedTables(sql, user.userId, ["todos"], now)
+    if (status === "completed" && existing.status !== "completed") {
+      queueAssistantReceipt({
+        userId: user.userId,
+        connectionId: user.connectionId,
+        today: userToday(request, user.data),
+        item: { type: "todo", todoId: existing.id, name: existing.title, completedAt: now, previous: { status: existing.status, completedAt: existing.completedAt } },
+      })
+    }
 
     return NextResponse.json({
       ...updatedTodo,

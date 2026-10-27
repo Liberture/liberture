@@ -57,9 +57,10 @@ export async function register() {
 
   try {
     const { startReminderScheduler } = await import("./lib/habits/reminders/scheduler")
-    // Coach check-ins register themselves on the same tick, when that module exists.
+    // Coach check-ins, then daytime pulses, register themselves on the same tick, when those modules exist.
     try {
       await import("./lib/habits/coach/checkins")
+      await import("./lib/habits/coach/pulses")
     } catch {
       // Not present on this build.
     }

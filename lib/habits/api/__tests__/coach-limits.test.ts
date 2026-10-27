@@ -63,6 +63,11 @@ describe("coachPrefs and keys", () => {
     expect(nudgeDedupeKey("morning", "2026-10-09")).toBe("coach:morning:2026-10-09")
     expect(nudgeDedupeKey("other", "2026-10-09", "a")).not.toBe(nudgeDedupeKey("other", "2026-10-09", "b"))
   })
+
+  it("keys pulses by slot, whatever they say", () => {
+    expect(nudgeDedupeKey("pulse", "2026-10-09", undefined, 2)).toBe("coach:pulse:2026-10-09:2")
+    expect(nudgeDedupeKey("pulse", "2026-10-09", "a", 1)).toBe(nudgeDedupeKey("pulse", "2026-10-09", "b", 1))
+  })
 })
 
 describe("canNudge", () => {
@@ -87,5 +92,15 @@ describe("canNudge", () => {
     expect(second).toMatchObject({ allowed: false, reason: "duplicate" })
     const other = await canNudge({ userId: 1, kind: "afternoon", localNow: at("15:00"), data: data() })
     expect(other.allowed).toBe(true)
+  })
+
+  it("claims pulses per slot as coach messages, under the same cap", async () => {
+    const first = await canNudge({ userId: 1, kind: "pulse", slot: 0, localNow: at("10:00"), data: data() })
+    expect(first.allowed).toBe(true)
+    expect(ledger.claims[0]).toEqual({ key: "coach:pulse:2026-10-09:0", kind: "coach:pulse", channel: "push" })
+    expect((await canNudge({ userId: 1, kind: "pulse", slot: 0, localNow: at("10:03"), data: data() })).reason).toBe("duplicate")
+    expect((await canNudge({ userId: 1, kind: "pulse", slot: 1, localNow: at("15:00"), data: data() })).allowed).toBe(true)
+    ledger.sentToday = 3
+    expect((await canNudge({ userId: 1, kind: "pulse", slot: 2, localNow: at("19:00"), data: data() })).reason).toBe("daily_limit")
   })
 })

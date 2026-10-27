@@ -23,6 +23,7 @@ export const USER_TABLES = [
   "habit_coach_messages",
   "habit_push_subscriptions",
   "habit_notifications_sent",
+  "habit_push_actions",
   "habit_api_connections",
   "habit_oauth_codes",
   "habit_connector_syncs",

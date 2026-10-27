@@ -4,6 +4,7 @@ import { SettingRow, SettingsCard, SettingsDivider, settingsInputClass } from "@
 import { Switch } from "@/components/habits/ui/switch"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { DEFAULT_COACH_PREFERENCES, type CoachPreferences, type UserPreferences } from "@/lib/habits/types"
+import { formatMessage } from "@/lib/i18n-format"
 import { cn } from "@/lib/utils"
 
 interface CoachSectionProps {
@@ -15,10 +16,11 @@ interface CoachSectionProps {
 const DEFAULT_TIMES = { morning: "08:30", afternoon: "14:00", weekly: { day: 0, time: "18:00" } } as const
 
 const MAX_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+const PULSE_OPTIONS = [0, 1, 2, 3]
 
 /**
  * Settings for the proactive coach: push check-ins (off until switched on),
- * quiet hours and the daily cap. The same limits bind an assistant's
+ * random daytime pulses (off by default), quiet hours and the daily cap. The same limits bind an assistant's
  * automations through record_coach_nudge.
  */
 export function CoachSection({ preferences, onPreferencesChange }: CoachSectionProps) {
@@ -27,6 +29,9 @@ export function CoachSection({ preferences, onPreferencesChange }: CoachSectionP
   const checkIns = coach.checkIns ?? {}
   const quiet = coach.quietHours ?? DEFAULT_COACH_PREFERENCES.quietHours
   const max = coach.maxNudgesPerDay ?? DEFAULT_COACH_PREFERENCES.maxNudgesPerDay
+  const pulses = coach.pulsesPerDay ?? DEFAULT_COACH_PREFERENCES.pulsesPerDay
+  // Daily messages that could all want a slot on the same day (the weekly review aside).
+  const dailyMessages = (checkIns.morning ? 1 : 0) + (checkIns.afternoon ? 1 : 0) + (coach.missedLogging ? 1 : 0) + pulses
 
   // preferences merge shallowly, so the whole group is written each time.
   const save = (patch: Partial<CoachPreferences>) => onPreferencesChange({ coach: { ...coach, ...patch } })
@@ -120,6 +125,33 @@ export function CoachSection({ preferences, onPreferencesChange }: CoachSectionP
             checked={coach.missedLogging ?? DEFAULT_COACH_PREFERENCES.missedLogging}
             onCheckedChange={(missedLogging) => save({ missedLogging })}
           />
+        }
+      />
+      <SettingsDivider />
+      <SettingRow
+        htmlFor="coach-pulses"
+        title={t.pulses}
+        description={
+          <>
+            {t.pulsesHint}
+            {pulses > 0 && dailyMessages > max ? (
+              <span className="mt-1 block text-destructive">{formatMessage(t.pulsesOverCap, { max })}</span>
+            ) : null}
+          </>
+        }
+        action={
+          <select
+            id="coach-pulses"
+            value={pulses}
+            onChange={(event) => save({ pulsesPerDay: Number(event.target.value) })}
+            className={cn(settingsInputClass, "w-32")}
+          >
+            {PULSE_OPTIONS.map((n) => (
+              <option key={n} value={n}>
+                {n === 0 ? t.pulsesOff : formatMessage(t.pulsesCount, { count: n })}
+              </option>
+            ))}
+          </select>
         }
       />
       <SettingsDivider />

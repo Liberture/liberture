@@ -6,6 +6,7 @@ import { isDateOnlyString, parseDateOnly } from "@/lib/habits/date-utils"
 import { userToday } from "@/lib/habits/api/time-zone"
 import { format, subDays } from "date-fns"
 import type { HabitCompletion } from "@/lib/habits/types"
+import { queueAssistantReceipt } from "@/lib/habits/assistant-receipts"
 import {
   deleteCompletionRow,
   getCompletionRow,
@@ -171,6 +172,14 @@ export async function POST(request: Request) {
 
     await upsertCompletionRow(sql, user.userId, newCompletion)
     await refreshStorageJsonFromOptimizedTables(sql, user.userId, ["completions"], now)
+    if (isGoalMet && !existingCompletion?.completed) {
+      queueAssistantReceipt({
+        userId: user.userId,
+        connectionId: user.connectionId,
+        today: requestToday,
+        item: { type: "habit", habitId, name: habit.name, date: completionDate, completedAt, previous: existingCompletion ?? null },
+      })
+    }
 
     const updatedCompletions = await getCompletionRows(sql, user.userId)
     const streakData = calculateStreak(habitId, updatedCompletions, undefined, habit, parseDateOnly(requestToday))

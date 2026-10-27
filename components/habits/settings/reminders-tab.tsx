@@ -26,9 +26,12 @@ interface RemindersTabProps {
   enabled: boolean
   /** Saved to the account (preferences.notifications). */
   onToggle: (enabled: boolean) => void
+  /** A receipt with Undo when an assistant logs something (preferences.assistantLogPush). */
+  receipts: boolean
+  onReceiptsToggle: (enabled: boolean) => void
 }
 
-export function RemindersTab({ enabled, onToggle }: RemindersTabProps) {
+export function RemindersTab({ enabled, onToggle, receipts, onReceiptsToggle }: RemindersTabProps) {
   const t = useTranslations().habits.app.settingsDialog
   const [permission, setPermission] = useState<Permission>("default")
   const [swRegistered, setSwRegistered] = useState<boolean | null>(null)
@@ -299,6 +302,25 @@ export function RemindersTab({ enabled, onToggle }: RemindersTabProps) {
                 {serverTest.message}
               </p>
             )}
+            <SettingsDivider />
+            <SettingRow
+              htmlFor="assistant-receipts-switch"
+              title={t.assistantReceiptsTitle}
+              description={
+                <>
+                  {t.assistantReceiptsDescription}{" "}
+                  <span aria-live="polite">{receipts && enabled ? t.assistantReceiptsOn : t.assistantReceiptsOff}</span>
+                </>
+              }
+              action={
+                <Switch
+                  id="assistant-receipts-switch"
+                  checked={receipts && enabled}
+                  disabled={!enabled}
+                  onCheckedChange={onReceiptsToggle}
+                />
+              }
+            />
           </>
         )}
       </SettingsCard>
