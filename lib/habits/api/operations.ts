@@ -799,7 +799,7 @@ export const API_OPERATIONS: readonly ApiOperation[] = [
     scope: "read",
     summary: "Whether reminders and check-ins can reach the user",
     description:
-      "Whether push reminders are set up (devices subscribed, server push on) and what was sent today. For \"why didn't I get a reminder\". sentToday counts claims, not confirmed deliveries: see sentTodayByChannel (assistant = nudges recorded by an assistant, which Liberture didn't deliver) and lastDeliveredAt.",
+      "Whether push reminders are set up (devices subscribed, server push on) and what was sent today. For \"why didn't I get a reminder\". sentToday counts claims, not confirmed deliveries: see sentTodayByChannel (assistant = nudges recorded by an assistant, which Liberture didn't deliver) and lastDeliveredAt. When you log a habit or finish a todo, the user's devices get a receipt with Undo (sentTodayByKind.log; assistantReceipts says whether that's on).",
     mcpOnly: true,
     output: { type: "object", additionalProperties: true },
   },

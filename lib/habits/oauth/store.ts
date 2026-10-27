@@ -243,6 +243,13 @@ export async function lookupConnection(accessToken: string): Promise<{ id: strin
   return rows.length ? { id: rows[0].id as string, userId: rows[0].user_id as number } : null
 }
 
+/** The connection's display name ("ChatGPT", "Claude skill"), or null when unknown or revoked. */
+export async function connectionName(id: string): Promise<string | null> {
+  await ensureOAuthTables()
+  const rows = await getDb()`SELECT name FROM habit_api_connections WHERE id = ${id} AND revoked_at IS NULL`
+  return (rows[0]?.name as string | undefined) ?? null
+}
+
 export interface ConnectionSummary {
   id: string
   name: string

@@ -174,6 +174,12 @@ describe("record_coach_nudge", () => {
     const result = await callMcpTool("record_coach_nudge", { kind: "spam" }, "hta_test", ORIGIN)
     expect(result?.isError).toBe(true)
   })
+
+  it("keeps pulses to Liberture's own scheduler", async () => {
+    const result = await callMcpTool("record_coach_nudge", { kind: "pulse" }, "hta_test", ORIGIN)
+    expect(result?.isError).toBe(true)
+    expect(state.claimed.size).toBe(0)
+  })
 })
 
 describe("get_coach_state", () => {
@@ -181,7 +187,7 @@ describe("get_coach_state", () => {
     state.sentToday = 1
     const result = await callMcpTool("get_coach_state", {}, "hta_test", ORIGIN)
     const body = result?.structuredContent as Record<string, any>
-    expect(body.settings).toMatchObject({ maxNudgesPerDay: 2, quietHours: { start: "22:00", end: "08:00" }, missedLogging: false, checkIns: {} })
+    expect(body.settings).toMatchObject({ maxNudgesPerDay: 2, quietHours: { start: "22:00", end: "08:00" }, missedLogging: false, checkIns: {}, pulsesPerDay: 0 })
     expect(body.nudges).toMatchObject({ sentToday: 1, remainingToday: 1, inQuietHours: false, lastByKind: { morning: "2026-10-09T09:00:00.000Z" } })
     expect(body.suggestions.pending.map((s: { name: string }) => s.name)).toEqual(["Evening walk", "No screens after 22"])
     const journal = body.habits.find((h: { name: string }) => h.name === "Journal")

@@ -82,7 +82,7 @@ export function inQuietHours(minutes: number, quietHours: { start: string; end: 
 }
 
 /** FNV-1a, enough to spread slots; must be identical on server and client. */
-function hash32(input: string): number {
+export function hash32(input: string): number {
   let h = 0x811c9dc5
   for (let i = 0; i < input.length; i++) {
     h ^= input.charCodeAt(i)

@@ -315,6 +315,8 @@ export interface UserPreferences {
   defaultReminderTime?: string
   /** Language for messages the server sends (push check-ins). Mirrors the `lang` cookie. */
   language?: "en" | "es"
+  /** Push a receipt (with Undo) to every device when an assistant logs a habit or finishes a todo. Default on. */
+  assistantLogPush?: boolean
   /** Proactive coach check-ins and the limits every coach (in-app or an assistant) must respect. */
   coach?: CoachPreferences
   /** ISO time of the last change. */
@@ -343,12 +345,15 @@ export interface CoachPreferences {
   quietHours?: { start: string; end: string }
   /** Coach messages per local day, all coaches combined. Habit reminders don't count. */
   maxNudgesPerDay?: number
+  /** Unprompted pushes at random times through the day (a suggestion, progress, a quote); 0 = off. Count toward maxNudgesPerDay. */
+  pulsesPerDay?: number
 }
 
-export const DEFAULT_COACH_PREFERENCES: Required<Pick<CoachPreferences, "missedLogging" | "quietHours" | "maxNudgesPerDay">> = {
+export const DEFAULT_COACH_PREFERENCES: Required<Pick<CoachPreferences, "missedLogging" | "quietHours" | "maxNudgesPerDay" | "pulsesPerDay">> = {
   missedLogging: false,
   quietHours: { start: "22:00", end: "08:00" },
   maxNudgesPerDay: 3,
+  pulsesPerDay: 0,
 }
 
 export const DEFAULT_PREFERENCES: Required<Omit<UserPreferences, "notificationPromptDismissedAt" | "morningDashboardDismissedOn" | "timeZone" | "updatedAt" | "fieldsUpdatedAt" | "language" | "coach">> = {
@@ -359,6 +364,7 @@ export const DEFAULT_PREFERENCES: Required<Omit<UserPreferences, "notificationPr
   morningDashboard: true,
   habitsLayout: "day",
   defaultReminderTime: "",
+  assistantLogPush: true,
 }
 
 // Accessibility and user preferences
