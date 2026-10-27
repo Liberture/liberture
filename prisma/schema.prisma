@@ -304,6 +304,7 @@ model HabitUser {
   todos                  HabitTodo[]
   pushSubscriptions      HabitPushSubscription[]
   notificationsSent      HabitNotificationSent[]
+  pushActions            HabitPushAction[]
   connectorSyncs         HabitConnectorSync[]
   assistantWelcomes      HabitAssistantWelcome[]
 
@@ -416,6 +417,19 @@ model HabitNotificationSent {
   @@id([userId, dedupeKey])
   @@index([userId, sentAt], map: "idx_habit_notifications_sent_user_sent")
   @@map("habit_notifications_sent")
+}
+
+/// Single-use token behind a notification button (Undo on an assistant's log): only the SHA-256 is stored.
+model HabitPushAction {
+  tokenHash String    @id(map: "habit_push_actions_pkey") @map("token_hash")
+  userId    Int       @map("user_id")
+  action    Json
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  user      HabitUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "habit_push_actions_user_id_fkey")
+
+  @@index([userId, expiresAt], map: "idx_habit_push_actions_user_expires")
+  @@map("habit_push_actions")
 }
 
 /// When each assistant connection last loaded the MCP tool list (lib/habits/api/connector-sync.ts):

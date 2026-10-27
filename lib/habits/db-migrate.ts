@@ -234,9 +234,10 @@ export async function backfillOptimizedStorageTables(): Promise<void> {
 }
 
 /**
- * Web Push subscriptions and the notification dedupe ledger (reminders that
- * arrive with the app closed). Mirrors the HabitPushSubscription and
- * HabitNotificationSent models in prisma/schema.prisma for deployments that
+ * Web Push subscriptions, the notification dedupe ledger (reminders that
+ * arrive with the app closed) and notification-button tokens. Mirrors the
+ * HabitPushSubscription, HabitNotificationSent and HabitPushAction models in
+ * prisma/schema.prisma for deployments that
  * don't run `prisma db push`. Safe to run multiple times (IF NOT EXISTS).
  */
 export async function createPushTables(): Promise<void> {
@@ -274,6 +275,21 @@ export async function createPushTables(): Promise<void> {
     )
   `
   await sql`CREATE INDEX IF NOT EXISTS idx_habit_notifications_sent_user_sent ON habit_notifications_sent(user_id, sent_at)`
+
+  // Single-use tokens behind notification buttons (Undo on an assistant's log).
+  await sql`
+    CREATE TABLE IF NOT EXISTS habit_push_actions (
+      token_hash TEXT NOT NULL,
+      user_id INTEGER NOT NULL,
+      action JSONB NOT NULL,
+      expires_at TIMESTAMPTZ(6) NOT NULL,
+      created_at TIMESTAMPTZ(6) NOT NULL DEFAULT NOW(),
+      CONSTRAINT habit_push_actions_pkey PRIMARY KEY (token_hash),
+      CONSTRAINT habit_push_actions_user_id_fkey
+        FOREIGN KEY (user_id) REFERENCES habit_users(id) ON DELETE CASCADE ON UPDATE NO ACTION
+    )
+  `
+  await sql`CREATE INDEX IF NOT EXISTS idx_habit_push_actions_user_expires ON habit_push_actions(user_id, expires_at)`
 }
 
 /**

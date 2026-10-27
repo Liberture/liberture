@@ -21,6 +21,12 @@ export interface PushPayload {
   tag: string
   /** Opened by the service worker on click. */
   url: string
+  /** Notification buttons; browsers without support (Safari, Firefox) ignore them. */
+  actions?: { action: string; title: string }[]
+  /** Extra strings for the service worker (e.g. an action token and the texts to show after it). */
+  data?: Record<string, string>
+  /** Replace an earlier notification without sound or vibration. */
+  silent?: boolean
 }
 
 /** What PushSubscription.toJSON() gives in the browser. */
@@ -131,6 +137,12 @@ export async function replaceSubscription(
   return userId
 }
 
+/** Whether the user has at least one subscribed device. */
+export async function hasPushDevice(sql: Sql, userId: number): Promise<boolean> {
+  const rows = await sql`SELECT 1 FROM habit_push_subscriptions WHERE user_id = ${userId} LIMIT 1`
+  return rows.length > 0
+}
+
 export async function removeSubscription(userId: number, endpoint: string): Promise<boolean> {
   await ensurePushTables()
   const sql = getDb()
@@ -236,14 +248,16 @@ export interface ReminderStatus {
   pushConfigured: boolean
   /** preferences.notifications: reminders on for this account. */
   notifications: boolean
+  /** preferences.assistantLogPush: a receipt with Undo when an assistant logs something. */
+  assistantReceipts: boolean
   /** Subscribed browsers/devices. */
   devices: number
   lastDeliveredAt: string | null
   lastFailureAt: string | null
   quietHours: { start: string; end: string }
-  /** Notifications claimed since local midnight: all, and split into habit reminders and coach nudges. */
+  /** Notifications claimed since local midnight: all, and split into habit reminders, coach nudges and assistant-log receipts. */
   sentToday: number
-  sentTodayByKind: { habit: number; coach: number }
+  sentTodayByKind: { habit: number; coach: number; log: number }
   /**
    * The same rows by who claimed them: push (sent by this server), local
    * (shown by an open tab), assistant (a nudge an assistant recorded through
@@ -264,10 +278,11 @@ export async function reminderStatus(userId: number, now: Date = new Date()): Pr
   ])
   const preferences = (prefRows[0]?.preferences ?? {}) as UserPreferences
   const dayStart = localDayStartUtc(preferences.timeZone, now)
-  const [all, habit, coach, channelRows] = await Promise.all([
+  const [all, habit, coach, log, channelRows] = await Promise.all([
     countSentToday(userId, "", dayStart, sql),
     countSentToday(userId, "habit", dayStart, sql),
     countSentToday(userId, "coach", dayStart, sql),
+    countSentToday(userId, "log:", dayStart, sql),
     sql`
       SELECT channel, COUNT(*)::int AS n FROM habit_notifications_sent
       WHERE user_id = ${userId} AND sent_at >= ${dayStart}
@@ -283,12 +298,13 @@ export async function reminderStatus(userId: number, now: Date = new Date()): Pr
   return {
     pushConfigured: pushConfigured(),
     notifications: preferences.notifications !== false,
+    assistantReceipts: preferences.assistantLogPush !== false,
     devices: (subRows[0]?.devices as number | undefined) ?? 0,
     lastDeliveredAt: iso(subRows[0]?.last_success),
     lastFailureAt: iso(subRows[0]?.last_failure),
     quietHours: preferences.coach?.quietHours ?? DEFAULT_COACH_PREFERENCES.quietHours,
     sentToday: all,
-    sentTodayByKind: { habit, coach },
+    sentTodayByKind: { habit, coach, log },
     sentTodayByChannel: byChannel,
   }
 }

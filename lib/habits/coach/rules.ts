@@ -72,6 +72,23 @@ function urgentTodos(data: CoachData, localNow: LocalNow): Todo[] {
     .sort((a, b) => (a.dueDate! < b.dueDate! ? -1 : a.dueDate! > b.dueDate! ? 1 : 0) || b.priority - a.priority)
 }
 
+/**
+ * Today's habit tally: done today, out of done plus still due. A
+ * times-per-week habit that just met its target counts as done, not as
+ * "no longer due". `next` is the first habit still due (same order as the
+ * check-ins). `completions` must reach back a week for weekly targets.
+ */
+export function todayProgress(data: CoachData, completions: HabitCompletion[], date: string): { done: number; total: number; next: Habit | null } {
+  const pending = pendingHabits(data, completions, { date, minutes: 0, dateObj: parseDateOnly(date) })
+  const done = activeHabits(data).filter((h) => doneOn(h.id, date, completions)).length
+  return { done, total: done + pending.length, next: pending[0] ?? null }
+}
+
+/** Open todos due on `date` or earlier, most urgent first. */
+export function openTodosDueBy(data: CoachData, date: string): Todo[] {
+  return urgentTodos(data, { date, minutes: 0, dateObj: parseDateOnly(date) })
+}
+
 function habitLabel(habit: Habit, locale: Locale): string {
   const t = copy(locale)
   return habit.time ? formatMessage(t.atTime, { name: habit.name.trim(), time: habit.time }) : habit.name.trim()
