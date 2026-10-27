@@ -48,7 +48,15 @@ vi.mock("@/lib/habits/db", () => {
       db.users.push({ id: db.users.length + 1, nostr_pubkey: v[1] as string, created_at: now })
       return []
     }
-    if (q.startsWith("DELETE FROM nostr_sessions WHERE pubkey = $")) {
+    if (q.startsWith("DELETE FROM nostr_sessions WHERE pubkey = $ AND (expires_at <= NOW() OR token NOT IN (")) {
+      // Map order is insertion order, i.e. created_at: keep the newest `limit`.
+      const [pubkey, , limit] = v as [string, string, number]
+      const mine = [...db.sessions].filter(([, s]) => s.pubkey === pubkey)
+      const kept = new Set(mine.slice(-limit).map(([k]) => k))
+      for (const [k, s] of mine) if (s.expiresAt <= now || !kept.has(k)) db.sessions.delete(k)
+      return []
+    }
+    if (q === "DELETE FROM nostr_sessions WHERE pubkey = $") {
       for (const [k, s] of db.sessions) if (s.pubkey === v[0]) db.sessions.delete(k)
       return []
     }
@@ -81,7 +89,7 @@ import { POST as login } from "@/app/api/auth/nostr/route"
 import { GET as challengeFor } from "@/app/api/auth/nostr/challenge/route"
 import { GET as sessionGet } from "@/app/api/auth/nostr/session/route"
 import { checkAuthEvent } from "@/lib/habits/nostr/auth-event"
-import { hashSessionToken, SESSION_COOKIE_NAME } from "@/lib/habits/nostr/session-store"
+import { hashSessionToken, MAX_SESSIONS_PER_USER, SESSION_COOKIE_NAME } from "@/lib/habits/nostr/session-store"
 import { verifyApiKey } from "@/lib/habits/integration-auth"
 
 const ORIGIN = "https://liberture.test"
@@ -183,6 +191,32 @@ describe("POST /api/auth/nostr", () => {
 
     expect([a.status, b.status].sort()).toEqual([200, 401])
     expect((await postLogin(pubkey, event)).status).toBe(401)
+  })
+
+  it("signing in on another device keeps the first one signed in", async () => {
+    const { sk, pubkey } = newKey()
+    const phone = sessionCookie(await postLogin(pubkey, loginEvent(sk, await getChallenge(pubkey))))!
+    const laptop = sessionCookie(await postLogin(pubkey, loginEvent(sk, await getChallenge(pubkey))))!
+    expect(laptop).not.toBe(phone)
+
+    for (const token of [phone, laptop]) {
+      const res = await sessionGet(
+        new Request(`${ORIGIN}/api/auth/nostr/session`, { headers: { cookie: `${SESSION_COOKIE_NAME}=${token}` } })
+      )
+      expect(res.status).toBe(200)
+      expect((await res.json()).pubkey).toBe(pubkey)
+    }
+  })
+
+  it(`keeps at most ${MAX_SESSIONS_PER_USER} sessions per user, dropping the oldest`, async () => {
+    const { sk, pubkey } = newKey()
+    const tokens: string[] = []
+    for (let i = 0; i <= MAX_SESSIONS_PER_USER; i++) {
+      tokens.push(sessionCookie(await postLogin(pubkey, loginEvent(sk, await getChallenge(pubkey))))!)
+    }
+    expect(db.sessions.size).toBe(MAX_SESSIONS_PER_USER)
+    expect(db.sessions.has(hashSessionToken(tokens[0]))).toBe(false)
+    expect(db.sessions.has(hashSessionToken(tokens.at(-1)!))).toBe(true)
   })
 
   it("limits sign-in attempts per client", async () => {
