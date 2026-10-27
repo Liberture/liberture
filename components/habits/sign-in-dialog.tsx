@@ -60,6 +60,10 @@ interface ChallengeSigner {
 
 const AUTH_IN_PROGRESS_KEY = "habit-tracker-auth-in-progress"
 
+// The sign-in method buttons. Button defaults to whitespace-nowrap, which ran
+// their hint lines past the edge of the sheet on phones.
+const OPTION_BUTTON_CLASS = "h-auto w-full justify-start gap-3 whitespace-normal py-3 sm:py-4"
+
 function getBunkerUrlError(uri: string, t: SignInStrings): string | null {
   if (!uri) return null
   if (!uri.startsWith("bunker://")) return t.errorBunkerPrefix
@@ -389,19 +393,28 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
   }, [onClose])
 
   // Escape closes, and the page behind shouldn't scroll while the modal is open.
+  // Both html and body: depending on the page, either one is the scroller.
   useEffect(() => {
     if (!open) return
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose()
     }
     document.addEventListener("keydown", onKey)
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = "hidden"
+    const { documentElement: html, body } = document
+    const previous = [html.style.overflow, body.style.overflow]
+    html.style.overflow = "hidden"
+    body.style.overflow = "hidden"
     return () => {
       document.removeEventListener("keydown", onKey)
-      document.body.style.overflow = previousOverflow
+      ;[html.style.overflow, body.style.overflow] = previous
     }
   }, [open, onClose])
+
+  // Each screen starts at its top, not wherever the previous one was scrolled to.
+  const scrollRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    scrollRef.current?.scrollTo(0, 0)
+  }, [subMode, nsecMode])
 
   const openSignerApp = () => {
     if (!connectUri) return
@@ -411,33 +424,41 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
   if (!open) return null
 
   return (
+        // z-[60]: above the cookie banner (z-50), which otherwise covers the
+        // bottom sheet for exactly the visitors who are signing in fresh.
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-background/80 p-0 backdrop-blur-sm duration-200 animate-in fade-in sm:items-center sm:p-6"
+          className="fixed inset-0 z-[60] flex items-end justify-center bg-background/80 p-0 backdrop-blur-sm duration-200 animate-in fade-in sm:items-center sm:p-6"
           onClick={closeLogin}
         >
+          {/* The sheet itself doesn't scroll; the inner area does, so the close
+              button stays put and the page behind never scrolls along. */}
           <div
             role="dialog"
             aria-modal="true"
             aria-label={t.dialogAriaLabel}
             onClick={(event) => event.stopPropagation()}
-            className="custom-scrollbar relative max-h-[92dvh] w-full max-w-md space-y-6 overflow-y-auto rounded-t-2xl border border-border bg-card p-6 shadow-2xl duration-200 animate-in slide-in-from-bottom-6 sm:rounded-2xl sm:zoom-in-95 sm:slide-in-from-bottom-0"
+            className="relative flex max-h-[92dvh] w-full max-w-md flex-col overflow-hidden rounded-t-2xl border border-border bg-card shadow-2xl duration-200 animate-in slide-in-from-bottom-6 sm:rounded-2xl sm:zoom-in-95 sm:slide-in-from-bottom-0"
           >
             <button
               type="button"
               onClick={closeLogin}
               aria-label={t.closeAriaLabel}
-              className="absolute right-4 top-4 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+              className="absolute right-3 top-3 z-10 rounded-lg bg-card/80 p-2 text-muted-foreground backdrop-blur transition-colors hover:bg-accent hover:text-accent-foreground"
             >
               <X className="h-4 w-4" aria-hidden />
             </button>
 
-          <div className="text-center space-y-2">
+          <div
+            ref={scrollRef}
+            className="custom-scrollbar min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-6 sm:space-y-6 sm:p-6"
+          >
+          <div className="text-center space-y-2 px-8">
             <div className="flex justify-center">
-              <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Zap className="h-6 w-6 text-primary" />
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center sm:h-12 sm:w-12">
+                <Zap className="h-5 w-5 text-primary sm:h-6 sm:w-6" />
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-foreground">{t.title}</h1>
+            <h1 className="text-xl font-bold text-foreground sm:text-2xl">{t.title}</h1>
             <p className="text-muted-foreground text-sm">
               {subMode === "select"
                 ? t.subtitleSelect
@@ -447,19 +468,20 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
             </p>
           </div>
 
-          <div className="bg-card border border-border rounded-lg p-6 space-y-4">
+          {/* A card inside the sheet only from sm up: on a phone it cost ~50px of width. */}
+          <div className="space-y-3 sm:space-y-4 sm:rounded-lg sm:border sm:border-border sm:p-6">
             {subMode === "select" ? (
               <>
                 {hasExtension && (
                   <Button
                     onClick={handleNip07Login}
                     disabled={isLoading}
-                    className="w-full justify-start gap-3 h-auto py-4"
+                    className={OPTION_BUTTON_CLASS}
                   >
                     <div className="h-10 w-10 rounded-lg bg-primary-foreground/15 flex items-center justify-center shrink-0">
                       <Zap className="h-5 w-5 text-primary-foreground" />
                     </div>
-                    <div className="text-left text-primary-foreground">
+                    <div className="min-w-0 text-left text-primary-foreground">
                       <div className="font-semibold">{t.extensionTitle}</div>
                       <div className="text-xs text-primary-foreground/80 font-normal">
                         {t.extensionHint}
@@ -476,12 +498,12 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
                   }}
                   disabled={isLoading}
                   variant="outline"
-                  className="w-full justify-start gap-3 h-auto py-4"
+                  className={OPTION_BUTTON_CLASS}
                 >
                   <div className="h-10 w-10 rounded-lg bg-work/20 flex items-center justify-center shrink-0">
                     <Link2 className="h-5 w-5 text-work" />
                   </div>
-                  <div className="text-left">
+                  <div className="min-w-0 text-left">
                     <div className="font-semibold">{t.remoteSignerTitle}</div>
                     <div className="text-xs text-muted-foreground font-normal">
                       Amber, nsec.app, nsecBunker (NIP-46)
@@ -497,12 +519,12 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
                   }}
                   disabled={isLoading}
                   variant="outline"
-                  className="w-full justify-start gap-3 h-auto py-4"
+                  className={OPTION_BUTTON_CLASS}
                 >
                   <div className="h-10 w-10 rounded-lg bg-sleep/20 flex items-center justify-center shrink-0">
                     <KeyRound className="h-5 w-5 text-sleep" />
                   </div>
-                  <div className="text-left">
+                  <div className="min-w-0 text-left">
                     <div className="font-semibold">{t.secretKeyTitle}</div>
                     <div className="text-xs text-muted-foreground font-normal">
                       {t.secretKeyHint}
@@ -518,12 +540,12 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
                   }}
                   disabled={isLoading}
                   variant="outline"
-                  className="w-full justify-start gap-3 h-auto py-4"
+                  className={OPTION_BUTTON_CLASS}
                 >
                   <div className="h-10 w-10 rounded-lg bg-nutrition/20 flex items-center justify-center shrink-0">
                     <UserPlus className="h-5 w-5 text-nutrition" />
                   </div>
-                  <div className="text-left">
+                  <div className="min-w-0 text-left">
                     <div className="font-semibold">{t.createTitle}</div>
                     <div className="text-xs text-muted-foreground font-normal">
                       {t.createHint}
@@ -648,23 +670,17 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
 
                     {generatedKey && (
                       <div className="space-y-2">
-                        <label className="text-sm font-medium text-foreground">
-                          {t.newKeyLabel}
-                        </label>
-                        <div className="relative">
-                          <textarea
-                            readOnly
-                            value={generatedKey.nsec}
-                            rows={3}
-                            onFocus={(e) => e.currentTarget.select()}
-                            className="w-full rounded-md border border-border bg-background px-3 py-2 pr-16 font-mono text-xs break-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          />
+                        {/* Copy sits beside the label: laid over the textarea, it hid part of the key. */}
+                        <div className="flex items-center justify-between gap-2">
+                          <label htmlFor="new-nsec" className="text-sm font-medium text-foreground">
+                            {t.newKeyLabel}
+                          </label>
                           <Button
                             type="button"
                             variant="outline"
                             size="sm"
                             onClick={handleCopyNsec}
-                            className="absolute right-2 top-2 gap-1.5"
+                            className="gap-1.5"
                           >
                             {copied ? (
                               <Check className="h-3.5 w-3.5" />
@@ -674,6 +690,14 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
                             {copied ? t.copiedKey : t.copyKey}
                           </Button>
                         </div>
+                        <textarea
+                          id="new-nsec"
+                          readOnly
+                          value={generatedKey.nsec}
+                          rows={3}
+                          onFocus={(e) => e.currentTarget.select()}
+                          className="block w-full resize-none rounded-md border border-border bg-background px-3 py-2 font-mono text-xs break-all focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        />
                         <p className="text-xs text-muted-foreground break-all">
                           {formatMessage(t.publicKey, { npub: generatedKey.npub })}
                         </p>
@@ -832,6 +856,7 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
             <p className="text-center text-xs text-muted-foreground">
               {t.footer}
             </p>
+          </div>
           </div>
         </div>
   )
