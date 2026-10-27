@@ -11,9 +11,13 @@ import { DEFAULT_COACH_PREFERENCES, type CoachPreferences, type StorageData } fr
  * (lib/habits/push.ts); a coach nudge is a row whose kind starts "coach:".
  */
 
-export type CoachNudgeKind = "morning" | "afternoon" | "evening" | "weekly" | "missed_logging" | "other"
+/** What an assistant may record through MCP record_coach_nudge. */
+export type AssistantNudgeKind = "morning" | "afternoon" | "evening" | "weekly" | "missed_logging" | "other"
 
-export const COACH_NUDGE_KINDS: readonly CoachNudgeKind[] = ["morning", "afternoon", "evening", "weekly", "missed_logging", "other"]
+/** Plus Liberture's own daytime pulses (coach/pulses.ts), one ledger row per slot. */
+export type CoachNudgeKind = AssistantNudgeKind | "pulse"
+
+export const COACH_NUDGE_KINDS: readonly AssistantNudgeKind[] = ["morning", "afternoon", "evening", "weekly", "missed_logging", "other"]
 
 export const COACH_KIND_PREFIX = "coach:"
 
@@ -94,8 +98,9 @@ function shortHash(text: string): string {
   return (h >>> 0).toString(36)
 }
 
-/** The ledger key: one per kind per local day, or per ISO week for the weekly review. */
-export function nudgeDedupeKey(kind: CoachNudgeKind, date: string, message?: string): string {
+/** The ledger key: one per kind per local day, per ISO week for the weekly review, per slot for pulses. */
+export function nudgeDedupeKey(kind: CoachNudgeKind, date: string, message?: string, slot?: number): string {
+  if (kind === "pulse") return `${COACH_KIND_PREFIX}pulse:${date}:${slot ?? 0}`
   const period = kind === "weekly" ? isoWeekKey(date) : date
   const suffix = kind === "other" && message ? `:${shortHash(message.trim().toLowerCase())}` : ""
   return `${COACH_KIND_PREFIX}${kind}:${period}${suffix}`
@@ -110,6 +115,8 @@ export interface CanNudgeInput {
   /** Who is sending: push (in-app check-ins) or an assistant. */
   channel?: NotificationChannel
   message?: string
+  /** Which of the day's pulses ("pulse" only). */
+  slot?: number
 }
 
 export interface CanNudgeResult {
@@ -125,7 +132,7 @@ export interface CanNudgeResult {
  * daily cap, then the claim (a second caller for the same kind and day gets
  * `duplicate`).
  */
-export async function canNudge({ sql = getDb(), userId, kind, localNow, data, channel = "push", message }: CanNudgeInput): Promise<CanNudgeResult> {
+export async function canNudge({ sql = getDb(), userId, kind, localNow, data, channel = "push", message, slot }: CanNudgeInput): Promise<CanNudgeResult> {
   const prefs = coachPrefs(data)
   const limit = prefs.maxNudgesPerDay
   if (inQuietHours(localNow.minutes, prefs.quietHours)) return { allowed: false, reason: "quiet_hours", sentToday: 0, limit }
@@ -134,7 +141,7 @@ export async function canNudge({ sql = getDb(), userId, kind, localNow, data, ch
   const sentToday = await countSentToday(userId, COACH_KIND_PREFIX, dayStart, sql)
   if (sentToday >= limit) return { allowed: false, reason: "daily_limit", sentToday, limit }
 
-  const claimed = await claimNotification(userId, nudgeDedupeKey(kind, localNow.date, message), `${COACH_KIND_PREFIX}${kind}`, channel, sql)
+  const claimed = await claimNotification(userId, nudgeDedupeKey(kind, localNow.date, message, slot), `${COACH_KIND_PREFIX}${kind}`, channel, sql)
   if (!claimed) return { allowed: false, reason: "duplicate", sentToday, limit }
   return { allowed: true, reason: null, sentToday: sentToday + 1, limit }
 }

@@ -213,6 +213,8 @@ export function SettingsDialog({
           <RemindersTab
             enabled={notificationsEnabled ?? preferences.notifications ?? DEFAULT_PREFERENCES.notifications}
             onToggle={(notifications) => onPreferencesChange({ notifications })}
+            receipts={preferences.assistantLogPush ?? DEFAULT_PREFERENCES.assistantLogPush}
+            onReceiptsToggle={(assistantLogPush) => onPreferencesChange({ assistantLogPush })}
           />
         )}
 

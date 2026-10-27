@@ -1,4 +1,4 @@
-import { pushConfigured, sendPush } from "@/lib/habits/push"
+import { hasPushDevice, pushConfigured, sendPush } from "@/lib/habits/push"
 import { registerTickHandler } from "@/lib/habits/reminders/scheduler"
 import { canNudge, coachPrefs, timeToMinutes, type CoachNudgeKind, type LocalNow } from "@/lib/habits/coach/limits"
 import { afternoonCheckIn, coachLocale, missedLoggingCheckIn, morningCheckIn, weeklyCheckIn, type CoachMessage } from "@/lib/habits/coach/rules"
@@ -77,11 +77,6 @@ async function completionsForMissedLogging(sql: CoachTickContext["sql"], userId:
   return (data.completions ?? []).filter((c) => c?.date >= sinceKey)
 }
 
-async function hasDevice(sql: CoachTickContext["sql"], userId: number): Promise<boolean> {
-  const rows = await sql`SELECT 1 FROM habit_push_subscriptions WHERE user_id = ${userId} LIMIT 1`
-  return rows.length > 0
-}
-
 /** One user, one tick. Exported for tests. */
 export async function runCoachCheckIns({ sql, userId, data, completions, localNow }: CoachTickContext): Promise<CoachNudgeKind[]> {
   const sent: CoachNudgeKind[] = []
@@ -89,7 +84,7 @@ export async function runCoachCheckIns({ sql, userId, data, completions, localNo
   if (!kinds.length || !pushConfigured()) return sent
   // Without a subscribed device the check-in would only use up the day's
   // slot and make an assistant's nudge of the same kind look like a duplicate.
-  if (!(await hasDevice(sql, userId))) return sent
+  if (!(await hasPushDevice(sql, userId))) return sent
   // The rules read the calendar day from the date string, whatever dateObj's zone.
   const now: LocalNow = { ...localNow, dateObj: parseDateOnly(localNow.date) }
 

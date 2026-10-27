@@ -6,6 +6,7 @@ import { getDb } from "@/lib/habits/db"
 import { countSentToday, ensurePushTables, localDayStartUtc } from "@/lib/habits/push"
 import { COACH_KIND_PREFIX, coachPrefs, inQuietHours, localNowIn } from "@/lib/habits/coach/limits"
 import { lastLoggedOn, unloggedDueDays } from "@/lib/habits/coach/rules"
+import { pulsesPerDay } from "@/lib/habits/coach/pulse-rules"
 import { effectiveStatus, suggestionName } from "@/lib/habits/coach/suggestions"
 import { weeklyProgress } from "@/lib/habits/habit-utils"
 import { catalogLinks, requestOrigin } from "@/lib/habits/api/assistant"
@@ -84,6 +85,7 @@ export async function GET(request: Request) {
         missedLogging: prefs.missedLogging,
         quietHours: prefs.quietHours,
         maxNudgesPerDay: prefs.maxNudgesPerDay,
+        pulsesPerDay: pulsesPerDay(data),
         language: data.preferences?.language ?? "en",
       },
       nudges: {

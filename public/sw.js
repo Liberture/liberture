@@ -1,6 +1,6 @@
 // PWA cache policy: cache the install shell and static assets only.
 // Authenticated API routes and user-specific JSON are always network-only.
-const CACHE_VERSION = "habit-tracker-pwa-v9-20261009"
+const CACHE_VERSION = "habit-tracker-pwa-v10-20261027"
 const STATIC_CACHE = `${CACHE_VERSION}-static`
 const SHELL_CACHE = `${CACHE_VERSION}-shell`
 
@@ -127,8 +127,13 @@ self.addEventListener("fetch", (event) => {
 
 const DEFAULT_NOTIFICATION_URL = "/tracker"
 
+const NOTIFICATION_ICON = "/pwa-icon-192.png"
+const NOTIFICATION_BADGE = "/icon-dark-32x32.png"
+
 // Server push (reminders with the app closed): payload is JSON
-// { title, body, tag, url } from lib/habits/push.ts.
+// { title, body, tag, url, actions?, data?, silent? } from lib/habits/push.ts.
+// `data` carries strings for the buttons (an action token and the texts to
+// show after it): the worker has no translations of its own.
 self.addEventListener("push", (event) => {
   let payload = {}
   try {
@@ -137,15 +142,18 @@ self.addEventListener("push", (event) => {
     payload = { body: event.data ? event.data.text() : "" }
   }
   const title = payload.title || "Liberture"
-  event.waitUntil(
-    self.registration.showNotification(title, {
-      body: payload.body || "",
-      icon: "/pwa-icon-192.png",
-      badge: "/icon-dark-32x32.png",
-      tag: payload.tag || undefined,
-      data: { url: payload.url || DEFAULT_NOTIFICATION_URL },
-    })
-  )
+  const extra = payload.data && typeof payload.data === "object" ? payload.data : {}
+  const options = {
+    body: payload.body || "",
+    icon: NOTIFICATION_ICON,
+    badge: NOTIFICATION_BADGE,
+    tag: payload.tag || undefined,
+    data: { ...extra, url: payload.url || DEFAULT_NOTIFICATION_URL },
+  }
+  // Browsers without buttons (Safari, Firefox) ignore `actions`; a tap still opens the url.
+  if (Array.isArray(payload.actions) && payload.actions.length) options.actions = payload.actions.slice(0, 2)
+  if (payload.silent) options.silent = true
+  event.waitUntil(self.registration.showNotification(title, options))
 })
 
 function urlBase64ToUint8Array(base64) {
@@ -190,12 +198,42 @@ self.addEventListener("pushsubscriptionchange", (event) => {
   )
 })
 
+// Undo on an assistant's log: the token is single-use and is the only
+// credential (/api/habits/push/action). Whatever happens, the receipt is
+// replaced in place (same tag) with the outcome.
+async function runUndo(notification) {
+  const data = notification.data || {}
+  let ok = false
+  try {
+    const response = await fetch("/api/habits/push/action", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: data.actionToken, action: "undo" }),
+    })
+    const result = await response.json().catch(() => ({}))
+    ok = response.ok && result.ok === true
+  } catch {
+    ok = false
+  }
+  await self.registration.showNotification(ok ? data.undoneTitle || "Liberture" : data.undoFailedTitle || "Liberture", {
+    body: (ok ? data.undoneBody : data.undoFailedBody) || "",
+    icon: NOTIFICATION_ICON,
+    badge: NOTIFICATION_BADGE,
+    tag: notification.tag || undefined,
+    data: { url: data.url || DEFAULT_NOTIFICATION_URL },
+  })
+}
+
 // Reminders are shown with registration.showNotification(), so the click is
 // handled here: focus a tab already on the app and take it to the
 // notification's url, otherwise open one.
 self.addEventListener("notificationclick", (event) => {
   event.notification.close()
   const data = event.notification.data || {}
+  if (event.action === "undo" && data.actionToken) {
+    event.waitUntil(runUndo(event.notification))
+    return
+  }
   const target = new URL(data.url || DEFAULT_NOTIFICATION_URL, self.location.origin).href
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
