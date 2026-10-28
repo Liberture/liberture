@@ -5,6 +5,10 @@ import { getDb } from "@/lib/habits/db"
 export const SESSION_TTL_SECONDS = 30 * 24 * 60 * 60
 export const SESSION_COOKIE_NAME = "habit_tracker_nostr_session"
 
+// Sessions kept per user: one per device or browser (phone PWA, laptop, the
+// OAuth consent for an assistant). Beyond this, the oldest are dropped.
+export const MAX_SESSIONS_PER_USER = 10
+
 export function getSessionTokenFromCookie(request: Request): string | null {
   return request.headers.get("cookie")
     ?.split(";")
@@ -61,13 +65,20 @@ export async function createSession(pubkey: string): Promise<string> {
   const token = generateSessionToken()
   const expiresAt = new Date(Date.now() + SESSION_TTL_SECONDS * 1000)
 
-  // Delete any existing sessions for this pubkey (one session per user)
-  await sql`DELETE FROM nostr_sessions WHERE pubkey = ${normalizedPubkey}`
-
-  // Create new session
   await sql`
     INSERT INTO nostr_sessions (pubkey, token, expires_at, created_at)
     VALUES (${normalizedPubkey}, ${hashSessionToken(token)}, ${expiresAt}, NOW())
+  `
+
+  // Other devices stay signed in. This used to delete every session for the
+  // pubkey, so signing in on the laptop signed the phone out (and vice versa).
+  await sql`
+    DELETE FROM nostr_sessions
+    WHERE pubkey = ${normalizedPubkey}
+      AND (expires_at <= NOW() OR token NOT IN (
+        SELECT token FROM nostr_sessions WHERE pubkey = ${normalizedPubkey}
+        ORDER BY created_at DESC LIMIT ${MAX_SESSIONS_PER_USER}
+      ))
   `
 
   return token

@@ -230,7 +230,9 @@ export const CalendarView = memo(function CalendarView({
         </div>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+      {/* grid-cols-1 is minmax(0,1fr): without it the phone's implicit column
+          grows to the calendar's min-content (~510px) and the view scrolls sideways. */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
         <CalendarBoard
           events={events}
           todos={todos}
