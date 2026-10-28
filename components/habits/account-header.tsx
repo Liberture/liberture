@@ -22,7 +22,7 @@ interface AccountHeaderProps {
   /** Downloads a full backup; the menu item is hidden without it. */
   onExport?: () => void
   onLogout: () => void
-  /** Compact = phone header: smaller avatar, name truncated harder. */
+  /** Compact = phone header: smaller avatar, bigger menu rows, its own Settings button. */
   compact?: boolean
 }
 
@@ -60,8 +60,10 @@ export function Avatar({ src, name, size }: { src: string | null; name: string; 
 }
 
 /**
- * Who is signed in (Nostr picture, name, NIP-05 address). One button that
- * opens the account menu: profile, settings, assistants, export, sign out.
+ * Who is signed in (Nostr picture, name, NIP-05 address). The whole card is
+ * one button that opens the account menu: profile, settings, assistants,
+ * export, sign out. Phones also get a Settings button at the other end of the
+ * header, since the menu is one tap further away there.
  */
 export function AccountHeader({ pubkey, fallbackName, onOpenSettings, onExport, onLogout, compact = false }: AccountHeaderProps) {
   const t = useTranslations().habits.app.accountHeader
@@ -75,20 +77,25 @@ export function AccountHeader({ pubkey, fallbackName, onOpenSettings, onExport, 
   // dialog opened from it restores focus there when it closes.
   const afterClose = (action: () => void) => () => window.setTimeout(action, 0)
 
+  // Finger-sized rows on phones, the usual dense menu with a mouse.
   const itemClass = cn(
-    "flex cursor-pointer select-none items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-foreground outline-none transition-colors",
-    "data-[highlighted]:bg-secondary data-[highlighted]:text-foreground"
+    "flex cursor-pointer select-none items-center rounded-lg text-foreground outline-none transition-colors",
+    "data-[highlighted]:bg-secondary data-[highlighted]:text-foreground",
+    compact ? "min-h-11 gap-3 px-3 text-base" : "gap-2.5 px-3 py-2 text-sm"
   )
+  const iconClass = cn("shrink-0 text-muted-foreground", compact ? "h-5 w-5" : "h-4 w-4")
 
   return (
-    <div className={cn("flex min-w-0 items-center", compact && "w-full")}>
+    <div className={cn("flex min-w-0 items-center", compact && "w-full justify-between gap-2")}>
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
           <button
             type="button"
             className={cn(
-              "flex min-w-0 items-center gap-2.5 rounded-xl px-1.5 py-1 text-left transition-colors hover:bg-secondary/60",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:bg-secondary/60"
+              "group flex min-w-0 cursor-pointer items-center gap-2.5 rounded-xl border border-border/60 bg-muted/50 pl-1 pr-2.5 text-left transition-colors",
+              compact ? "h-11" : "py-1",
+              "hover:border-border hover:bg-secondary data-[state=open]:border-border data-[state=open]:bg-secondary",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             )}
             aria-label={formatMessage(t.accountLabel, { name })}
           >
@@ -102,31 +109,41 @@ export function AccountHeader({ pubkey, fallbackName, onOpenSettings, onExport, 
                 </span>
               ) : null}
             </span>
-            <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+            <ChevronDown
+              className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-data-[state=open]:rotate-180"
+              aria-hidden
+            />
           </button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Portal>
           <DropdownMenu.Content
-            align="start"
+            // The card sits at the left of the phone header and the right of the desktop one.
+            align={compact ? "start" : "end"}
             sideOffset={6}
             collisionPadding={12}
-            className="z-50 min-w-52 rounded-xl border border-border bg-popover p-1 text-popover-foreground shadow-lg animate-in fade-in zoom-in-95"
+            className={cn(
+              "z-50 rounded-xl border border-border bg-popover text-popover-foreground shadow-lg animate-in fade-in zoom-in-95",
+              // Never narrower than the card that opened it.
+              compact
+                ? "min-w-[max(15rem,var(--radix-dropdown-menu-trigger-width))] p-1.5"
+                : "min-w-[max(13rem,var(--radix-dropdown-menu-trigger-width))] p-1"
+            )}
           >
             <DropdownMenu.Item className={itemClass} onSelect={afterClose(() => onOpenSettings("profile"))}>
-              <UserRound className="h-4 w-4 text-muted-foreground" aria-hidden />
+              <UserRound className={iconClass} aria-hidden />
               {t.profile}
             </DropdownMenu.Item>
             <DropdownMenu.Item className={itemClass} onSelect={afterClose(() => onOpenSettings("preferences"))}>
-              <Settings className="h-4 w-4 text-muted-foreground" aria-hidden />
+              <Settings className={iconClass} aria-hidden />
               {t.settings}
             </DropdownMenu.Item>
             <DropdownMenu.Item className={itemClass} onSelect={afterClose(() => onOpenSettings("assistants"))}>
-              <Mic className="h-4 w-4 text-muted-foreground" aria-hidden />
+              <Mic className={iconClass} aria-hidden />
               {t.assistants}
             </DropdownMenu.Item>
             {onExport ? (
               <DropdownMenu.Item className={itemClass} onSelect={onExport}>
-                <Download className="h-4 w-4 text-muted-foreground" aria-hidden />
+                <Download className={iconClass} aria-hidden />
                 {t.exportBackup}
               </DropdownMenu.Item>
             ) : null}
@@ -135,12 +152,29 @@ export function AccountHeader({ pubkey, fallbackName, onOpenSettings, onExport, 
               className={cn(itemClass, "text-destructive data-[highlighted]:bg-destructive/15 data-[highlighted]:text-destructive")}
               onSelect={afterClose(() => setConfirmingSignOut(true))}
             >
-              <LogOut className="h-4 w-4" aria-hidden />
+              <LogOut className={cn("shrink-0", compact ? "h-5 w-5" : "h-4 w-4")} aria-hidden />
               {t.signOut}
             </DropdownMenu.Item>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
       </DropdownMenu.Root>
+
+      {compact ? (
+        <button
+          type="button"
+          onClick={() => onOpenSettings("preferences")}
+          aria-label={t.openSettings}
+          title={t.openSettings}
+          className={cn(
+            // Same height as the account card next to it.
+            "flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-border/60 bg-muted/50 text-foreground transition-colors md:hidden",
+            "hover:border-border hover:bg-secondary active:bg-secondary",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          )}
+        >
+          <Settings className="h-5 w-5" aria-hidden />
+        </button>
+      ) : null}
 
       <AppDialog
         open={confirmingSignOut}
