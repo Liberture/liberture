@@ -28,6 +28,7 @@ export const USER_TABLES = [
   "habit_oauth_codes",
   "habit_connector_syncs",
   "habit_assistant_welcomes",
+  "habit_imports",
 ] as const
 
 /** Deletes the signed-in account. False when there was no such account. */

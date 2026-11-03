@@ -2,10 +2,11 @@
 
 import type React from "react"
 import { useRef, useState } from "react"
-import { Download, LogOut, Trash2, Upload } from "lucide-react"
+import { Download, GitMerge, LogOut, Trash2, Upload } from "lucide-react"
 
 import { SettingRow, SettingsCard, SettingsDivider, settingsButtonClass, settingsInputClass } from "@/components/habits/settings/settings-ui"
 import { AppDialog } from "@/components/habits/ui/app-dialog"
+import { MergeHistoryDialog } from "@/components/habits/settings/merge-history-dialog"
 import { notify } from "@/components/habits/ui/toast"
 import { useLocale, useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage } from "@/lib/i18n-format"
@@ -47,13 +48,17 @@ interface DataTabProps {
   isNostrAuth: boolean
   /** Closes Settings itself (after clearing everything). */
   onCloseSettings: () => void
+  /** Legacy API key, for the merge-history request; Nostr sessions use the cookie. */
+  apiKey?: string
 }
 
-export function DataTab({ habits, lastBackupAt, onExport, onImport, onDeleteAccount, onLogout, isNostrAuth, onCloseSettings }: DataTabProps) {
+export function DataTab({ habits, lastBackupAt, onExport, onImport, onDeleteAccount, onLogout, isNostrAuth, onCloseSettings, apiKey }: DataTabProps) {
   const copy = useTranslations().habits.app
   const t = copy.settingsDialog
   const locale = useLocale()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const mergeInputRef = useRef<HTMLInputElement>(null)
+  const [merging, setMerging] = useState<{ fileName: string; data: unknown } | null>(null)
   const [preview, setPreview] = useState<{ fileName: string; backup: BackupImport } | null>(null)
   const [clearing, setClearing] = useState(false)
   const [clearText, setClearText] = useState("")
@@ -83,6 +88,28 @@ export function DataTab({ habits, lastBackupAt, onExport, onImport, onDeleteAcco
         const backup = parseBackup(text)
         if (backup) setPreview({ fileName: file.name, backup })
         else notify.error(t.data.importInvalid)
+      })
+      .catch(() => notify.error(t.data.importUnreadable))
+  }
+
+  const readMergeFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const input = event.target
+    const file = input.files?.[0]
+    input.value = ""
+    if (!file) return
+    file
+      .text()
+      .then((text) => {
+        let data: unknown
+        try {
+          data = JSON.parse(text)
+        } catch {
+          notify.error(t.data.merge.invalid)
+          return
+        }
+        const completions = Array.isArray(data) ? data : (data as { completions?: unknown } | null)?.completions
+        if (Array.isArray(completions) && completions.length) setMerging({ fileName: file.name, data })
+        else notify.error(t.data.merge.invalid)
       })
       .catch(() => notify.error(t.data.importUnreadable))
   }
@@ -147,6 +174,26 @@ export function DataTab({ habits, lastBackupAt, onExport, onImport, onDeleteAcco
             </button>
           }
         />
+        <SettingsDivider />
+        <SettingRow
+          title={t.mergeHistory}
+          description={t.mergeHistoryDescription}
+          action={
+            <button type="button" onClick={() => mergeInputRef.current?.click()} className={settingsButtonClass()}>
+              <GitMerge className="h-4 w-4" />
+              {t.mergeHistory}
+            </button>
+          }
+        />
+        <input
+          ref={mergeInputRef}
+          type="file"
+          accept=".json,application/json"
+          onChange={readMergeFile}
+          className="hidden"
+          aria-label={t.mergeHistory}
+          tabIndex={-1}
+        />
         <input
           ref={fileInputRef}
           type="file"
@@ -183,6 +230,8 @@ export function DataTab({ habits, lastBackupAt, onExport, onImport, onDeleteAcco
           }
         />
       </SettingsCard>
+
+      <MergeHistoryDialog backup={merging} habits={habits} apiKey={apiKey} onClose={() => setMerging(null)} />
 
       <AppDialog
         open={preview !== null}
