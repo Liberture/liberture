@@ -36,6 +36,7 @@ import { GET as getCoachState } from "@/app/api/v1/coach/state/route"
 import { POST as recordCoachNudge } from "@/app/api/v1/coach/nudge/route"
 import { POST as respondToSuggestion } from "@/app/api/v1/coach/respond/route"
 import { GET as getReminderStatus } from "@/app/api/v1/reminders/status/route"
+import { POST as importHabitHistory } from "@/app/api/v1/import/habit-history/route"
 
 /**
  * MCP tools are the /api/v1 handlers, called in-process with the token as an
@@ -86,6 +87,7 @@ export const HANDLERS: Record<string, Handler> = {
   record_coach_nudge: recordCoachNudge as Handler,
   respond_to_suggestion: respondToSuggestion as Handler,
   get_reminder_status: getReminderStatus as Handler,
+  import_habit_history: importHabitHistory as Handler,
 }
 
 export interface McpAnnotations {

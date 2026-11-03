@@ -307,6 +307,7 @@ model HabitUser {
   pushActions            HabitPushAction[]
   connectorSyncs         HabitConnectorSync[]
   assistantWelcomes      HabitAssistantWelcome[]
+  imports                HabitImport[]
 
   @@index([apiKey], map: "idx_habit_users_api_key")
   @@index([updatedAt], map: "idx_habit_users_updated_at")
@@ -328,6 +329,21 @@ model HabitCompletion {
   @@index([userId, date(sort: Desc)], map: "idx_habit_completions_user_date")
   @@index([userId, habitId], map: "idx_habit_completions_user_habit")
   @@map("habit_completions")
+}
+
+/// A backup imported with POST /api/v1/import/habit-history (lib/habits/import):
+/// its habits and completions, kept so pending records can be imported later.
+model HabitImport {
+  userId     Int       @map("user_id")
+  id         String
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  source     Json
+  lastResult Json?     @map("last_result")
+  user       HabitUser @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "habit_imports_user_id_fkey")
+
+  @@id([userId, id])
+  @@map("habit_imports")
 }
 
 model HabitProject {
