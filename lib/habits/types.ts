@@ -189,6 +189,12 @@ export interface Habit {
    * above are: an instance that doesn't know it just toggles the habit normally.
    */
   readingContent?: ReadingContent
+  /**
+   * Habit ids from another tracker whose history was imported into this habit
+   * (lib/habits/import), so importing the same backup again matches it
+   * without asking. Optional and additive, like the fields above.
+   */
+  importedIds?: string[]
   implementationIntention?: ImplementationIntention
   identity?: IdentityConfig
   tinyHabit?: TinyHabitConfig
@@ -211,6 +217,8 @@ export interface HabitCompletion {
   difficulty?: number // 1-5
   celebrationViewed?: boolean
   context?: string // Notes about completion context
+  /** Set on records written by a history import: where it came from, and the habit's id there. */
+  importedFrom?: { source: string; habitId: string }
 }
 
 export interface Todo {
