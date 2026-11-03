@@ -105,7 +105,7 @@ describe("tools/list", () => {
     const { json } = await rpc("tools/list")
     const tools = json.result.tools as Array<Record<string, any>>
     expect(tools).toHaveLength(API_OPERATIONS.length)
-    expect(tools.length).toBe(40)
+    expect(tools.length).toBe(41)
     expect(new Set(tools.map((t) => t.name)).size).toBe(tools.length)
     for (const tool of tools) {
       expect(typeof tool.name).toBe("string")

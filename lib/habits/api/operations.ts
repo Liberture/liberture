@@ -928,6 +928,73 @@ export const API_OPERATIONS: readonly ApiOperation[] = [
     mcpOnly: true,
     output: { type: "object", additionalProperties: true },
   },
+  {
+    id: "import_habit_history",
+    method: "POST",
+    path: "/import/habit-history",
+    scope: "log_completions",
+    summary: "Merge completion history from another tracker's backup",
+    description:
+      "Imports past check-ins (habit, day, done, time logged, values) from a habit-tracker backup JSON into this account, without replacing or removing anything. " +
+      "Always call with dryRun: true first and tell the user the result: how many would be imported, already there, conflicts, and which old habits are ambiguous or unmatched (habitMapping, with candidates). " +
+      "Then call without dryRun, passing habitMapping only for matches the user confirmed — never pick between candidates yourself. " +
+      "Days that already have a record are kept as they are (conflicts are reported); `completed: false` in the backup never un-marks a day. " +
+      "Records whose habit isn't matched stay pending: the response's importId lets you import them later with a habitMapping, without sending the file again. " +
+      "Safe to repeat: the same backup twice imports nothing new. Streaks and stats are rebuilt from the history. Read back `say`.",
+    mcpOnly: true,
+    annotations: { idempotent: true },
+    body: {
+      type: "object",
+      properties: {
+        data: {
+          type: "object",
+          additionalProperties: true,
+          description: "The backup: { habits: [...], completions: [{ habitId, date, completed, completedAt, data }] }, as exported. Omit when passing importId.",
+        },
+        importId: { type: "string", description: "importId from an earlier import, to run it again (e.g. with a new habitMapping) without sending data." },
+        dryRun: { type: "boolean", description: "true = only report what would happen; nothing is written." },
+        habitMapping: {
+          type: "array",
+          description: "Confirmed matches: old habit id → current habit (id or exact name). newHabitId null keeps that habit's records pending.",
+          items: {
+            type: "object",
+            properties: {
+              oldHabitId: { type: "string" },
+              newHabitId: { type: ["string", "null"] },
+              fields: { type: "object", additionalProperties: { type: "string" }, description: "Optional: old value field id → current field id." },
+            },
+            required: ["oldHabitId", "newHabitId"],
+          },
+        },
+        conflictPolicy: {
+          type: "string",
+          enum: ["preserve_existing", "merge_values"],
+          description: "preserve_existing (default): a day already logged is left untouched. merge_values: also add values or a note that day lacks; existing values still win. Only when the user asks for it.",
+        },
+        mode: { type: "string", enum: ["merge"], description: "Always merge (the default)." },
+        batchSize: { type: "integer", minimum: 1, maximum: 2000, description: "Records written per transaction, default 500." },
+        timeZone: { type: "string", description: "IANA time zone; decides 'today' for current streaks." },
+      },
+    },
+    output: {
+      type: "object",
+      properties: {
+        status: { type: "string", enum: ["completed", "partial", "failed", "dry_run"] },
+        total: { type: "integer" },
+        imported: { type: "integer" },
+        merged: { type: "integer" },
+        skipped: { type: "integer" },
+        conflicts: { type: "integer" },
+        unresolved: { type: "integer" },
+        failed: { type: "integer" },
+        habitsMapped: { type: "integer" },
+        streaksRecalculated: { type: "boolean" },
+        importId: { type: ["string", "null"] },
+        say: SAY,
+      },
+      additionalProperties: true,
+    },
+  },
 ]
 
 /** The MCP input schema of an operation: its body properties plus its query/path params. */
