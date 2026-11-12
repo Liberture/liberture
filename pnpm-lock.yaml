@@ -90,8 +90,8 @@ importers:
         specifier: ^2.25.2
         version: 2.25.2(typescript@5.0.2)
       nostr-wot-sdk:
-        specifier: ^3.0.1
-        version: 3.0.1(nostr-tools@2.25.2(typescript@5.0.2))(react@19.3.1)
+        specifier: ^3.0.2
+        version: 3.0.2(nostr-tools@2.25.2(typescript@5.0.2))(react@19.3.1)
       postgres:
         specifier: 3.4.7
         version: 3.4.7
@@ -2024,8 +2024,8 @@ packages:
   nostr-wasm@0.1.0:
     resolution: {integrity: sha512-78BTryCLcLYv96ONU8Ws3Q1JzjlAt+43pWQhIl86xZmWeegYCNLPml7yQ+gG3vR6V5h4XGj+TxO+SS5dsThQIA==}
 
-  nostr-wot-sdk@3.0.1:
-    resolution: {integrity: sha512-RvZXh2DvMC5CoikauN/A1z1+71e59Zkf3UC7t044RdXNCLGlwLTWtTRCtpVs7NkBu/wzaHVhQayZnsvgWuEOog==}
+  nostr-wot-sdk@3.0.2:
+    resolution: {integrity: sha512-TqeHmVgpsxFErvNkb2d7JkTPxexVyFQifYXkpGB6gWrFgo8hNzJsgvqRe21AydmcLdXp0g/MkHZG16iuE3VEwg==, tarball: https://registry.npmjs.org/nostr-wot-sdk/-/nostr-wot-sdk-3.0.2.tgz}
     peerDependencies:
       '@nostr-wot/auth': ^5.0.1-next.0
       '@nostr-wot/dm': ^2.0.1-next.0
@@ -2817,11 +2817,11 @@ snapshots:
       '@noble/post-quantum': 0.6.1
       nostr-tools: 2.25.2(typescript@5.0.2)
 
-  '@nostr-wot/wot@3.0.1(nostr-tools@2.25.2(typescript@5.0.2))(nostr-wot-sdk@3.0.1(nostr-tools@2.25.2(typescript@5.0.2))(react@19.3.1))(react@19.3.1)':
+  '@nostr-wot/wot@3.0.1(nostr-tools@2.25.2(typescript@5.0.2))(nostr-wot-sdk@3.0.2(nostr-tools@2.25.2(typescript@5.0.2))(react@19.3.1))(react@19.3.1)':
     dependencies:
       nostr-tools: 2.25.2(typescript@5.0.2)
     optionalDependencies:
-      nostr-wot-sdk: 3.0.1(nostr-tools@2.25.2(typescript@5.0.2))(react@19.3.1)
+      nostr-wot-sdk: 3.0.2(nostr-tools@2.25.2(typescript@5.0.2))(react@19.3.1)
       react: 19.3.1
 
   '@oxc-project/types@0.156.0': {}
@@ -4090,11 +4090,11 @@ snapshots:
 
   nostr-wasm@0.1.0: {}
 
-  nostr-wot-sdk@3.0.1(nostr-tools@2.25.2(typescript@5.0.2))(react@19.3.1):
+  nostr-wot-sdk@3.0.2(nostr-tools@2.25.2(typescript@5.0.2))(react@19.3.1):
     dependencies:
       '@noble/hashes': 1.8.0
       '@nostr-wot/pq': 1.0.0(nostr-tools@2.25.2(typescript@5.0.2))
-      '@nostr-wot/wot': 3.0.1(nostr-tools@2.25.2(typescript@5.0.2))(nostr-wot-sdk@3.0.1(nostr-tools@2.25.2(typescript@5.0.2))(react@19.3.1))(react@19.3.1)
+      '@nostr-wot/wot': 3.0.1(nostr-tools@2.25.2(typescript@5.0.2))(nostr-wot-sdk@3.0.2(nostr-tools@2.25.2(typescript@5.0.2))(react@19.3.1))(react@19.3.1)
       nostr-tools: 2.25.2(typescript@5.0.2)
     optionalDependencies:
       react: 19.3.1
