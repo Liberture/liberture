@@ -485,6 +485,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
           events={calendarEvents}
           todos={todos}
           habits={calendarHabits}
+          accountCreatedAt={data.accountCreatedAt}
           completions={completions}
           onAddEvent={actions.addCalendarEvent}
           onRemoveEvent={actions.removeCalendarEvent}

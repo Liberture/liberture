@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { getDb } from "@/lib/habits/db"
 import type { StorageData } from "@/lib/habits/types"
 import { migrateStorageData, validateStorageData, createBackup } from "@/lib/habits/migrations"
-import { getLocalUser, updateLocalUser, isLocalStorageMode } from "@/lib/habits/local-storage"
+import { getLocalUser, getLocalUserRecord, updateLocalUser, isLocalStorageMode } from "@/lib/habits/local-storage"
 import { mergeProjects } from "@/lib/habits/project-sync"
 import { mergeTodos } from "@/lib/habits/todo-sync"
 import { mergeFieldStamped, mergeHabits, mergeHabitTombstones } from "@/lib/habits/habit-sync"
@@ -23,16 +23,16 @@ function redactSecretMetadata(data: StorageData): StorageData {
 /**
  * Get user data from database using either API key or Nostr pubkey
  */
-async function getUserData(auth: AuthInfo, sql: ReturnType<typeof getDb>): Promise<StorageData | null> {
+async function getUserRecord(auth: AuthInfo, sql: ReturnType<typeof getDb>): Promise<{ data: StorageData; createdAt: string | null } | null> {
   let result
   
   if (auth.type === 'nostr' && auth.pubkey) {
     result = await sql`
-      SELECT data FROM habit_users WHERE nostr_pubkey = ${auth.pubkey.toLowerCase()}
+      SELECT data, created_at FROM habit_users WHERE nostr_pubkey = ${auth.pubkey.toLowerCase()}
     `
   } else if (auth.type === 'api-key' && auth.apiKey) {
     result = await sql`
-      SELECT data FROM habit_users
+      SELECT data, created_at FROM habit_users
       WHERE api_key = ${auth.apiKey}
     `
   } else {
@@ -43,7 +43,7 @@ async function getUserData(auth: AuthInfo, sql: ReturnType<typeof getDb>): Promi
     return null
   }
 
-  return result[0].data || freshStorageData()
+  return { data: result[0].data || freshStorageData(), createdAt: result[0].created_at }
 }
 
 /**
@@ -73,6 +73,12 @@ async function updateUserData(auth: AuthInfo, data: StorageData, sql: ReturnType
   return result[0]?.id as number | undefined ?? null
 }
 
+function storageResponse(data: StorageData, createdAt: string | null) {
+  const response = NextResponse.json(redactSecretMetadata(data))
+  if (createdAt) response.headers.set("X-Account-Created-At", new Date(createdAt).toISOString())
+  return response
+}
+
 // GET - Read storage data
 export async function GET(request: Request) {
   try {
@@ -88,7 +94,8 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: "Nostr auth requires database mode" }, { status: 400 })
       }
       
-      const data = await getLocalUser(auth.apiKey!)
+      const record = await getLocalUserRecord(auth.apiKey!)
+      const data = record?.data
 
       if (!data) {
         return NextResponse.json({ error: "Invalid API key" }, { status: 401 })
@@ -104,21 +111,21 @@ export async function GET(request: Request) {
 
         if (validateStorageData(migratedData)) {
           await updateLocalUser(auth.apiKey!, migratedData)
-          return NextResponse.json(redactSecretMetadata(migratedData))
+          return storageResponse(migratedData, record.createdAt)
         }
       }
 
-      return NextResponse.json(redactSecretMetadata(data as StorageData))
+      return storageResponse(data, record.createdAt)
     }
 
     // Production mode: use Neon database
     const sql = getDb()
-    let data = await getUserData(auth, sql)
-
-    if (!data) {
+    const record = await getUserRecord(auth, sql)
+    if (!record) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
     }
 
+    let data = record.data
     // Check if migration is needed
     const currentVersion = data.schemaVersion || 1
     const targetVersion = 7
@@ -151,7 +158,7 @@ export async function GET(request: Request) {
       }
     }
 
-    return NextResponse.json(redactSecretMetadata(data as StorageData))
+    return storageResponse(data, record.createdAt)
   } catch (error) {
     console.error("Failed to read storage:", error)
     return NextResponse.json({ error: "Failed to read data" }, { status: 500 })
@@ -394,7 +401,7 @@ export async function POST(request: Request) {
     // Production mode: use Neon database
     const sql = getDb()
     
-    const currentData = await getUserData(auth, sql)
+    const currentData = (await getUserRecord(auth, sql))?.data ?? null
     if (predatesReset(clientLastUpdated, currentData)) return rejectedAfterReset(currentData!)
     // Server-owned, like the backup date: a save never drops or moves it.
     if (currentData?.resetAt) data.resetAt = currentData.resetAt

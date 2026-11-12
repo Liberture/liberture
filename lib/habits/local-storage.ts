@@ -79,9 +79,12 @@ export async function createLocalUser(apiKey: string, data: StorageData): Promis
  * Get user by API key
  */
 export async function getLocalUser(apiKey: string): Promise<StorageData | null> {
+  return (await getLocalUserRecord(apiKey))?.data ?? null
+}
+
+export async function getLocalUserRecord(apiKey: string): Promise<LocalUser | null> {
   const db = await readUsersDB()
-  const user = db.users.find(u => u.apiKey === apiKey)
-  return user ? user.data : null
+  return db.users.find(user => user.apiKey === apiKey) ?? null
 }
 
 /**

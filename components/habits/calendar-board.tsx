@@ -7,6 +7,7 @@ import { addMinutes, format, getDay, isSameDay, parse, startOfDay, startOfMonth,
 import { enUS, es } from "date-fns/locale"
 
 import { useLocale, useTranslations } from "@/components/i18n/locale-provider"
+import { habitRunsOnDate } from "./calendar/calendar-utils"
 import { formatMessage } from "@/lib/i18n-format"
 
 import type { CalendarEvent, Habit, HabitCompletion, Todo } from "@/lib/habits/types"
@@ -47,6 +48,7 @@ interface CalendarBoardProps {
   events: CalendarEvent[]
   todos: Todo[]
   habits: Habit[]
+  accountStart?: number
   completions: HabitCompletion[]
   showTodos: boolean
   showHabits: boolean
@@ -75,14 +77,6 @@ function atTime(day: Date, time: string | undefined): Date {
   return base
 }
 
-function isHabitScheduledOn(habit: Habit, date: Date): boolean {
-  if (!habit.schedule || habit.schedule.type === "daily") return true
-  if (habit.schedule.type === "specific_days" && habit.schedule.days) {
-    return habit.schedule.days.includes(getDay(date))
-  }
-  return true
-}
-
 function buildFormats(timeFormat: "24h" | "12h"): Formats {
   const p = timeFormat === "12h" ? "h:mm a" : "HH:mm"
   type Range = { start: Date; end: Date }
@@ -104,6 +98,7 @@ export function CalendarBoard({
   events,
   todos,
   habits,
+  accountStart,
   completions,
   showTodos,
   showHabits,
@@ -192,7 +187,7 @@ export function CalendarBoard({
         const day = new Date(anchor)
         day.setDate(anchor.getDate() + i)
         const dayStr = format(day, "yyyy-MM-dd")
-        const due = habits.filter((h) => !h.archived && isHabitScheduledOn(h, day))
+        const due = habits.filter((h) => !h.archived && habitRunsOnDate(h, day, completedKeys.has(`${dayStr}:${h.id}`), accountStart))
         if (due.length === 0) continue
 
         if (view === "month") {
@@ -229,7 +224,7 @@ export function CalendarBoard({
     }
 
     return list
-  }, [events, todos, habits, showTodos, showHabits, view, date, weekStartsOn, completedKeys, t])
+  }, [accountStart, events, todos, habits, showTodos, showHabits, view, date, weekStartsOn, completedKeys, t])
 
   const messages = useMemo(
     () => ({

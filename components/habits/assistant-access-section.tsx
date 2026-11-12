@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import { AssistantSetup, type AssistantPlatform } from "@/components/habits/assistant/assistant-setup"
 import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
 import { BookOpen, Check, Copy, Download, ExternalLink, FileCode2, Key, RefreshCw, Trash2, Unplug } from "lucide-react"
@@ -127,8 +127,7 @@ export function AssistantConnectSection({ apiKey, isNostrAuth }: AssistantAccess
   const t = useTranslations().habits.app.assistantAccessSection
   const SCOPE_COPY = t.scopes
   const ownerRequest = useOwnerRequest(apiKey)
-  const { copiedField, copy } = useCopy()
-  const mcpUrl = useMcpUrl()
+  const [platform, setPlatform] = useState<AssistantPlatform>("claude")
   const [gptUrl, setGptUrl] = useState<string | null>(null)
   const [tools, setTools] = useState<{ count: number; version: string } | null>(null)
   const [connections, setConnections] = useState<Connection[] | null>(null)
@@ -206,17 +205,6 @@ export function AssistantConnectSection({ apiKey, isNostrAuth }: AssistantAccess
     }
   }
 
-  const step = (n: number, children: React.ReactNode) => (
-    <li className="flex gap-3 text-sm text-muted-foreground">
-      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[11px] font-semibold text-primary">
-        {n}
-      </span>
-      <span className="leading-relaxed">{children}</span>
-    </li>
-  )
-
-  const urlBox = <CopyBox value={mcpUrl} field="mcp" copiedField={copiedField} onCopy={copy} />
-
   return (
     <>
       <SettingsCard
@@ -231,18 +219,11 @@ export function AssistantConnectSection({ apiKey, isNostrAuth }: AssistantAccess
           </>
         }
       >
-        <div className="space-y-3 rounded-xl border border-border bg-card p-3">
-          <p className="text-sm font-semibold text-foreground">Claude</p>
-          <ol className="space-y-2">
-            {step(1, <>{t.claudeStep1Before}<b className="text-foreground">{t.claudeStep1Path}</b>{t.claudeStep1After}</>)}
-            {step(2, <>{t.claudeStep2Before}<b className="text-foreground">{t.claudeStep2Add}</b>{t.claudeStep2Middle}<b className="text-foreground">{t.claudeStep2Connect}</b>{t.claudeStep2After}</>)}
-          </ol>
-          {urlBox}
-        </div>
-
-        <div className="space-y-3 rounded-xl border border-border bg-card p-3">
-          <p className="text-sm font-semibold text-foreground">ChatGPT</p>
-          {gptUrl ? (
+        <AssistantSetup
+          platform={platform}
+          onSelect={setPlatform}
+          connected={(connections ?? []).map(c => assistantKind(c.name)).filter((kind): kind is AssistantPlatform => kind !== null)}
+          chatgptAlternative={gptUrl && (
             <>
               <a href={gptUrl} target="_blank" rel="noopener noreferrer" className={cn(settingsButtonClass("primary"), "w-full")}>
                 <ExternalLink className="h-4 w-4" />
@@ -250,16 +231,8 @@ export function AssistantConnectSection({ apiKey, isNostrAuth }: AssistantAccess
               </a>
               <p className="text-xs text-muted-foreground">{t.chatGptHint}</p>
             </>
-          ) : (
-            <>
-              <ol className="space-y-2">
-                {step(1, <>{t.chatGptStep1Before}<b className="text-foreground">{t.chatGptStep1Path}</b>{t.chatGptStep1Middle}<b className="text-foreground">{t.chatGptStep1Create}</b>{t.chatGptStep1After}</>)}
-                {step(2, <>{t.chatGptStep2Before}<b className="text-foreground">OAuth</b>{t.chatGptStep2After}</>)}
-              </ol>
-              {urlBox}
-            </>
           )}
-        </div>
+        />
         {tools ? (
           <p className="text-xs text-muted-foreground">{formatMessage(t.toolsLine, { count: tools.count, version: tools.version })}</p>
         ) : null}
@@ -303,42 +276,44 @@ export function AssistantConnectSection({ apiKey, isNostrAuth }: AssistantAccess
         )}
       </SettingsCard>
 
-      <SettingsCard title={t.permissionsTitle} description={t.permissionsDescription}>
-        {permissions ? (
-          API_SCOPES.map((scope) => (
-            <SettingRow
-              key={scope}
-              htmlFor={`scope-${scope}`}
-              title={
-                <span className="flex items-center gap-2">
-                  {SCOPE_COPY[scope].label}
-                  {DEFAULT_OFF.has(scope) ? (
-                    <span className="rounded-full border border-destructive/30 bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-destructive">
-                      {t.offByDefault}
-                    </span>
-                  ) : null}
-                </span>
-              }
-              description={SCOPE_COPY[scope].hint}
-              action={
-                <Switch
-                  id={`scope-${scope}`}
-                  checked={permissions[scope]}
-                  disabled={savingScope !== null}
-                  onCheckedChange={(checked) => {
-                    if (checked && DEFAULT_OFF.has(scope) && !confirm(formatMessage(t.enableDestructiveConfirm, { action: SCOPE_COPY[scope].label.toLowerCase() }))) return
-                    toggleScope(scope, checked)
-                  }}
-                />
-              }
-            />
-          ))
-        ) : (
-          <p className="flex items-center gap-2 text-sm text-muted-foreground">
-            <RefreshCw className="h-3 w-3 animate-spin" /> {t.loadingPermissions}
-          </p>
-        )}
-      </SettingsCard>
+      {connections && connections.length > 0 && (
+        <SettingsCard title={t.permissionsTitle} description={t.permissionsDescription}>
+          {permissions ? (
+            API_SCOPES.map((scope) => (
+              <SettingRow
+                key={scope}
+                htmlFor={`scope-${scope}`}
+                title={
+                  <span className="flex items-center gap-2">
+                    {SCOPE_COPY[scope].label}
+                    {DEFAULT_OFF.has(scope) ? (
+                      <span className="rounded-full border border-destructive/30 bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-destructive">
+                        {t.offByDefault}
+                      </span>
+                    ) : null}
+                  </span>
+                }
+                description={SCOPE_COPY[scope].hint}
+                action={
+                  <Switch
+                    id={`scope-${scope}`}
+                    checked={permissions[scope]}
+                    disabled={savingScope !== null}
+                    onCheckedChange={(checked) => {
+                      if (checked && DEFAULT_OFF.has(scope) && !confirm(formatMessage(t.enableDestructiveConfirm, { action: SCOPE_COPY[scope].label.toLowerCase() }))) return
+                      toggleScope(scope, checked)
+                    }}
+                  />
+                }
+              />
+            ))
+          ) : (
+            <p className="flex items-center gap-2 text-sm text-muted-foreground">
+              <RefreshCw className="h-3 w-3 animate-spin" /> {t.loadingPermissions}
+            </p>
+          )}
+        </SettingsCard>
+      )}
     </>
   )
 }

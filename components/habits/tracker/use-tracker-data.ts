@@ -120,6 +120,7 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
     return () => window.clearTimeout(timer)
   }, [saveResult])
 
+  const [accountCreatedAt, setAccountCreatedAt] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [saveFailed, setSaveFailed] = useState(false)
   const [cachedLocally, setCachedLocally] = useState(false)
@@ -270,6 +271,7 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
           headers: authHeaders,
         })
         if (response.ok) {
+          setAccountCreatedAt(response.headers.get("X-Account-Created-At"))
           data = await response.json()
         }
       } catch (error) {
@@ -715,7 +717,7 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
     calendarEvents, setCalendarEvents,
     storageData, setStorageData,
     onboardingState, setOnboardingState,
-    isLoading, isSaving, isDirty, saveFailed, cachedLocally, saveResult,
+    accountCreatedAt, isLoading, isSaving, isDirty, saveFailed, cachedLocally, saveResult,
     markDirty,
     habitsRef,
     projectTombstonesRef,
