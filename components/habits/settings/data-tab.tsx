@@ -4,7 +4,7 @@ import type React from "react"
 import { useRef, useState } from "react"
 import { Download, GitMerge, LogOut, Trash2, Upload } from "lucide-react"
 
-import { SettingRow, SettingsCard, SettingsDivider, settingsButtonClass, settingsInputClass } from "@/components/habits/settings/settings-ui"
+import { SettingRow, SettingsCard, settingsButtonClass, settingsInputClass } from "@/components/habits/settings/settings-ui"
 import { AppDialog } from "@/components/habits/ui/app-dialog"
 import { MergeHistoryDialog } from "@/components/habits/settings/merge-history-dialog"
 import { notify } from "@/components/habits/ui/toast"
@@ -72,9 +72,7 @@ export function DataTab({ habits, lastBackupAt, onExport, onImport, onDeleteAcco
       : backupStatus.daysSince === 1
         ? t.lastBackupYesterday
         : formatMessage(t.lastBackupDaysAgo, { count: backupStatus.daysSince ?? 0 })
-    : habits.some((h) => !h.archived)
-      ? t.neverBackedUp
-      : t.nothingToBackUp
+    : t.neverBackedUp
 
   const readFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const input = event.target
@@ -152,39 +150,27 @@ export function DataTab({ habits, lastBackupAt, onExport, onImport, onDeleteAcco
 
   return (
     <>
-      <SettingsCard title={t.backupTitle} description={t.backupDescription}>
-        <SettingRow
-          title={t.export}
-          description={<span className={cn(backupStatus.overdue && "text-exercise")}>{backupLabel}</span>}
-          action={
+      <SettingsCard>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="min-w-0 flex-1 basis-52">
+            <h3 className="text-sm font-semibold text-foreground">{t.backupTitle}</h3>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t.backupDescription}</p>
+            <p role="status" className={cn("mt-1 text-xs font-medium", backupStatus.neverBackedUp || backupStatus.overdue ? "text-exercise" : "text-nutrition")}>
+              {backupLabel}
+            </p>
+          </div>
+          <div className="ml-auto flex flex-wrap justify-end gap-2">
             <button type="button" onClick={onExport} className={settingsButtonClass("primary")}>
-              <Download className="h-4 w-4" />
-              {t.export}
+              <Download className="h-4 w-4" /> {t.export}
             </button>
-          }
-        />
-        <SettingsDivider />
-        <SettingRow
-          title={t.import}
-          description={t.importDescription}
-          action={
             <button type="button" onClick={() => fileInputRef.current?.click()} className={settingsButtonClass()}>
-              <Upload className="h-4 w-4" />
-              {t.import}
+              <Upload className="h-4 w-4" /> {t.import}
             </button>
-          }
-        />
-        <SettingsDivider />
-        <SettingRow
-          title={t.mergeHistory}
-          description={t.mergeHistoryDescription}
-          action={
             <button type="button" onClick={() => mergeInputRef.current?.click()} className={settingsButtonClass()}>
-              <GitMerge className="h-4 w-4" />
-              {t.mergeHistory}
+              <GitMerge className="h-4 w-4" /> {t.mergeHistory}
             </button>
-          }
-        />
+          </div>
+        </div>
         <input
           ref={mergeInputRef}
           type="file"
