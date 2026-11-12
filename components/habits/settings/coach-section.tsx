@@ -1,5 +1,6 @@
 "use client"
 
+import { FieldSelect, FieldOption } from "@/components/ui/select"
 import { SettingRow, SettingsCard, SettingsDivider, settingsInputClass } from "@/components/habits/settings/settings-ui"
 import { Switch } from "@/components/habits/ui/switch"
 import { useTranslations } from "@/components/i18n/locale-provider"
@@ -92,18 +93,18 @@ export function CoachSection({ preferences, onPreferencesChange }: CoachSectionP
               <div className="flex flex-wrap items-center gap-2">
                 {weekly ? (
                   <>
-                    <select
+                    <FieldSelect
                       aria-label={`${t.weekly}: ${t.weeklyDay}`}
                       value={weekly.day}
-                      onChange={(event) => saveCheckIns({ weekly: { ...weekly, day: Number(event.target.value) } })}
+                      onValueChange={(value) => saveCheckIns({ weekly: { ...weekly, day: Number(value) } })}
                       className={cn(settingsInputClass, "w-36")}
                     >
                       {t.days.map((name, day) => (
-                        <option key={name} value={day}>
+                        <FieldOption key={name} value={day}>
                           {name}
-                        </option>
+                        </FieldOption>
                       ))}
-                    </select>
+                    </FieldSelect>
                     {timeInput("coach-weekly-time", weekly.time, (time) => saveCheckIns({ weekly: { ...weekly, time } }), `${t.weekly}: ${t.time}`)}
                   </>
                 ) : null}
@@ -143,18 +144,18 @@ export function CoachSection({ preferences, onPreferencesChange }: CoachSectionP
               </>
             }
             action={
-              <select
+              <FieldSelect
                 id="coach-pulses"
                 value={pulses}
-                onChange={(event) => save({ pulsesPerDay: Number(event.target.value) })}
+                onValueChange={(value) => save({ pulsesPerDay: Number(value) })}
                 className={cn(settingsInputClass, "w-32")}
               >
                 {PULSE_OPTIONS.map((n) => (
-                  <option key={n} value={n}>
+                  <FieldOption key={n} value={n}>
                     {n === 0 ? t.pulsesOff : formatMessage(t.pulsesCount, { count: n })}
-                  </option>
+                  </FieldOption>
                 ))}
-              </select>
+              </FieldSelect>
             }
           />
           <SettingsDivider />
@@ -176,18 +177,18 @@ export function CoachSection({ preferences, onPreferencesChange }: CoachSectionP
             title={t.maxPerDay}
             description={t.maxPerDayHint}
             action={
-              <select
+              <FieldSelect
                 id="coach-max"
                 value={max}
-                onChange={(event) => save({ maxNudgesPerDay: Number(event.target.value) })}
+                onValueChange={(value) => save({ maxNudgesPerDay: Number(value) })}
                 className={cn(settingsInputClass, "w-20")}
               >
                 {MAX_OPTIONS.map((n) => (
-                  <option key={n} value={n}>
+                  <FieldOption key={n} value={n}>
                     {n}
-                  </option>
+                  </FieldOption>
                 ))}
-              </select>
+              </FieldSelect>
             }
           />
         </div>

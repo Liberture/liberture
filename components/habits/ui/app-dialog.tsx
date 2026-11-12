@@ -71,6 +71,7 @@ export function AppDialog({
     })
 
     const onKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return
       if (event.key === "Escape") {
         event.stopPropagation()
         requestCloseRef.current()

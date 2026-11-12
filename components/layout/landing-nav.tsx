@@ -74,7 +74,7 @@ export function LandingNav() {
 
             {pillarsDropdownOpen && (
               <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 w-72">
-                <div className="bg-background border border-border/50 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="lb-dropdown overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="p-2">
                   {pillars.map((pillar) => {
                     const Icon = PILLAR_ICON_MAP[pillar.id as keyof typeof PILLAR_ICON_MAP]
@@ -133,7 +133,7 @@ export function LandingNav() {
 
               {userMenuOpen && (
                 <div className="absolute top-full right-0 pt-2 w-48">
-                  <div className="bg-background border border-border/50 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="lb-dropdown overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="p-2">
                       <Link
                         href="/tracker"

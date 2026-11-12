@@ -1,5 +1,6 @@
 "use client"
 
+import { FieldSelect, FieldOption } from "@/components/ui/select"
 import { useId, useMemo, useState } from "react"
 import { Trash2 } from "lucide-react"
 import { AppDialog } from "@/components/habits/ui/app-dialog"
@@ -189,19 +190,19 @@ export function EventDialog({
 
           <div className="space-y-1.5">
             <Label htmlFor={`${id}-todo`}>{t.linkedTodo}</Label>
-            <select
+            <FieldSelect
               id={`${id}-todo`}
               value={todoId}
-              onChange={(e) => handleTodoChange(e.target.value)}
+              onValueChange={(value) => handleTodoChange(value)}
               className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
             >
-              <option value="">{t.none}</option>
+              <FieldOption value="">{t.none}</FieldOption>
               {todoOptions.map((todo) => (
-                <option key={todo.id} value={todo.id}>
+                <FieldOption key={todo.id} value={todo.id}>
                   {todo.title}
-                </option>
+                </FieldOption>
               ))}
-            </select>
+            </FieldSelect>
           </div>
 
           <div className="space-y-1.5">

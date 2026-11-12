@@ -1,5 +1,6 @@
 "use client"
 
+import { FieldSelect, FieldOption } from "@/components/ui/select"
 import { useId, useState } from "react"
 import { format } from "date-fns"
 import { AppDialog } from "@/components/habits/ui/app-dialog"
@@ -110,18 +111,18 @@ export function ScheduleTodoDialog({
         </div>
         <div className="space-y-1.5">
           <Label htmlFor={`${id}-duration`}>{t.duration}</Label>
-          <select
+          <FieldSelect
             id={`${id}-duration`}
             value={duration}
-            onChange={(e) => setDuration(Number(e.target.value))}
+            onValueChange={(value) => setDuration(Number(value))}
             className="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
           >
             {durations.map((minutes) => (
-              <option key={minutes} value={minutes}>
+              <FieldOption key={minutes} value={minutes}>
                 {formatMessage(t.durationOption, { minutes })}
-              </option>
+              </FieldOption>
             ))}
-          </select>
+          </FieldSelect>
         </div>
         {error && (
           <p role="alert" className="text-xs font-medium text-destructive">

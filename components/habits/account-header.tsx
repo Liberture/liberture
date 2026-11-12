@@ -122,7 +122,7 @@ export function AccountHeader({ pubkey, fallbackName, onOpenSettings, onExport, 
             sideOffset={6}
             collisionPadding={12}
             className={cn(
-              "z-50 rounded-xl border border-border bg-popover text-popover-foreground shadow-lg animate-in fade-in zoom-in-95",
+              "z-50 lb-dropdown animate-in fade-in zoom-in-95",
               // Never narrower than the card that opened it.
               compact
                 ? "min-w-[max(15rem,var(--radix-dropdown-menu-trigger-width))] p-1.5"

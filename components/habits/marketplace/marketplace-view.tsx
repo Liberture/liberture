@@ -1,7 +1,8 @@
 "use client"
 
+import { FieldSelect, FieldOption } from "@/components/ui/select"
 import { memo, useCallback, useMemo, useState } from "react"
-import { Search, X } from "lucide-react"
+import { ArrowDownUp, Search, X } from "lucide-react"
 
 import { PILLAR_ICON_MAP, PILLAR_IDS, PILLAR_STYLES, type PillarId } from "@/lib/habits/pillars"
 import {
@@ -11,9 +12,8 @@ import {
   STANDALONE_HABITS,
   type CatalogHabit,
   type CatalogProtocol,
-  type Difficulty,
 } from "@/lib/habits/protocols/catalog"
-import { COST_TIER_ORDER, type CostTier } from "@/lib/habits/protocols/cost"
+import { COST_TIER_ORDER } from "@/lib/habits/protocols/cost"
 import {
   activeFilterCount,
   DEFAULT_FILTER,
@@ -69,9 +69,9 @@ export const MarketplaceView = memo(function MarketplaceView({ habits, onAdoptPr
     <div className="mx-auto w-full max-w-6xl space-y-6">
       <p className="max-w-2xl text-sm text-muted-foreground">{t.description}</p>
 
-      {/* Search + sort */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center" data-no-swipe>
-        <div className="relative flex-1">
+      {/* Search and filters */}
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-center" data-no-swipe>
+        <div className="relative col-span-2 sm:col-span-1">
           <Search
             className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
             aria-hidden
@@ -85,18 +85,14 @@ export const MarketplaceView = memo(function MarketplaceView({ habits, onAdoptPr
             className="w-full rounded-lg border border-border bg-card/60 py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
-        <select
-          value={filter.sort}
-          onChange={(e) => update("sort", e.target.value as SortMode)}
-          aria-label={t.sortAria}
-          className="rounded-lg border border-border bg-card/60 px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-        >
-          {(Object.keys(SORT_LABEL) as SortMode[]).map((mode) => (
-            <option key={mode} value={mode}>
-              {labels.sort[mode]}
-            </option>
-          ))}
-        </select>
+        <FieldSelect value={filter.maxCost} aria-label={t.cost} prefix={t.cost} className="w-full sm:w-auto" onValueChange={value => update("maxCost", value as CatalogFilter["maxCost"])}>
+          <FieldOption value="any">{t.any}</FieldOption>
+          {COST_TIER_ORDER.map(tier => <FieldOption key={tier} value={tier} title={labels.costBlurb[tier]}>{labels.costTier[tier]}</FieldOption>)}
+        </FieldSelect>
+        <FieldSelect value={filter.difficulty} aria-label={t.effort} prefix={t.effort} className="w-full sm:w-auto" onValueChange={value => update("difficulty", value as CatalogFilter["difficulty"])}>
+          <FieldOption value="all">{t.any}</FieldOption>
+          {DIFFICULTY_ORDER.map(level => <FieldOption key={level} value={level}>{labels.difficulty[level]}</FieldOption>)}
+        </FieldSelect>
       </div>
 
       {/* Pillar filter */}
@@ -122,60 +118,21 @@ export const MarketplaceView = memo(function MarketplaceView({ habits, onAdoptPr
         })}
       </div>
 
-      {/* Cost filter — inclusive, so "$$" also shows free and "$". */}
-      <div data-no-swipe className="custom-scrollbar lb-scroll-x -mx-1 flex items-center gap-2 px-1 pb-1">
-        <span className="shrink-0 pr-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          {t.cost}
-        </span>
-        <FilterChip active={filter.maxCost === "any"} onClick={() => update("maxCost", "any")}>
-          {t.any}
-        </FilterChip>
-        {COST_TIER_ORDER.map((tier) => (
-          <FilterChip
-            key={tier}
-            active={filter.maxCost === tier}
-            onClick={() => update("maxCost", tier as CostTier)}
-            title={labels.costBlurb[tier]}
-          >
-            {labels.costTier[tier]}
-          </FilterChip>
-        ))}
-      </div>
-
-      {/* Difficulty + author */}
-      <div data-no-swipe className="flex flex-col gap-2 sm:flex-row sm:items-center">
-        <div className="custom-scrollbar lb-scroll-x -mx-1 flex items-center gap-2 px-1 pb-1">
-          <span className="shrink-0 pr-1 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {t.effort}
-          </span>
-          <FilterChip active={filter.difficulty === "all"} onClick={() => update("difficulty", "all")}>
-            {t.any}
-          </FilterChip>
-          {DIFFICULTY_ORDER.map((level) => (
-            <FilterChip
-              key={level}
-              active={filter.difficulty === level}
-              onClick={() => update("difficulty", level as Difficulty)}
-            >
-              {labels.difficulty[level]}
-            </FilterChip>
-          ))}
-        </div>
-
+      <div data-no-swipe>
         <div className="flex flex-1 items-center gap-2 sm:justify-end">
-          <select
+          <FieldSelect
             value={filter.authorId}
-            onChange={(e) => update("authorId", e.target.value)}
+            onValueChange={(value) => update("authorId", value)}
             aria-label={t.authorAria}
-            className="min-w-0 flex-1 rounded-lg border border-border bg-card/60 px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:flex-none"
+            className="w-auto max-w-full"
           >
-            <option value="all">{t.allAuthors}</option>
+            <FieldOption value="all">{t.allAuthors}</FieldOption>
             {CATALOG_AUTHORS.map((author) => (
-              <option key={author.id} value={author.id}>
+              <FieldOption key={author.id} value={author.id}>
                 {author.name}
-              </option>
+              </FieldOption>
             ))}
-          </select>
+          </FieldSelect>
           {activeCount > 0 ? (
             <button
               type="button"
@@ -190,9 +147,24 @@ export const MarketplaceView = memo(function MarketplaceView({ habits, onAdoptPr
       </div>
 
       <section className="space-y-4">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground/70">
-          {formatMessage(t.protocolsHeading, { count: protocols.length })}
-        </h3>
+        <div data-no-swipe className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground/70">
+            {formatMessage(t.protocolsHeading, { count: protocols.length })}
+          </h3>
+          <FieldSelect
+            prefix={<ArrowDownUp aria-hidden className="size-4 shrink-0 text-muted-foreground" />}
+            value={filter.sort}
+            onValueChange={(value) => update("sort", value as SortMode)}
+            aria-label={t.sortAria}
+            className="w-auto max-w-full"
+          >
+            {(Object.keys(SORT_LABEL) as SortMode[]).map((mode) => (
+              <FieldOption key={mode} value={mode}>
+                {labels.sort[mode]}
+              </FieldOption>
+            ))}
+          </FieldSelect>
+        </div>
         {protocols.length === 0 ? (
           <EmptyShelf>{t.noProtocols}</EmptyShelf>
         ) : (

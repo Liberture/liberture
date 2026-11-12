@@ -1,5 +1,6 @@
 "use client"
 
+import { FieldSelect, FieldOption } from "@/components/ui/select"
 import { memo, useId, useMemo, useState } from "react"
 import { ChevronDown, ChevronRight, Plus, Search, X } from "lucide-react"
 import { EditTodoDialog } from "@/components/habits/edit-todo-dialog"
@@ -275,18 +276,18 @@ export const TodoList = memo(function TodoList({
             <label htmlFor={`${id}-sort`} className="sr-only">
               {t.sortLabel}
             </label>
-            <select
+            <FieldSelect
               id={`${id}-sort`}
               value={sort}
-              onChange={(event) => setSort(event.target.value as SortKey)}
+              onValueChange={(value) => setSort(value as SortKey)}
               className="h-9 rounded-lg border border-input bg-background px-2 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
             >
               {(["deadline", "priority", "created"] as const).map((key) => (
-                <option key={key} value={key}>
+                <FieldOption key={key} value={key}>
                   {t.sortLabel}: {t.sortOptions[key]}
-                </option>
+                </FieldOption>
               ))}
-            </select>
+            </FieldSelect>
           </div>
         </div>
 

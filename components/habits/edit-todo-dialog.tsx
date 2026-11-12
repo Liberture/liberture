@@ -1,4 +1,5 @@
 "use client"
+import { FieldSelect, FieldOption } from "@/components/ui/select"
 import { useId, useState } from "react"
 import { ChevronDown, CheckCircle2, Circle, PlayCircle, Plus, Trash2, X } from "lucide-react"
 import { Button } from "@/components/habits/ui/button"
@@ -257,14 +258,14 @@ export function EditTodoDialog({ todo, projects, onAddProject, onSave, onDelete,
               </div>
             ) : (
               <div className="flex gap-2">
-                <select id={`${id}-project`} value={projectId} onChange={(e) => setProjectId(e.target.value)} className={fieldClass}>
-                  <option value="">{t.uncategorized}</option>
+                <FieldSelect id={`${id}-project`} value={projectId} onValueChange={(value) => setProjectId(value)} className={fieldClass}>
+                  <FieldOption value="">{t.uncategorized}</FieldOption>
                   {projects.map((project) => (
-                    <option key={project.id} value={project.id}>
+                    <FieldOption key={project.id} value={project.id}>
                       {project.name}
-                    </option>
+                    </FieldOption>
                   ))}
-                </select>
+                </FieldSelect>
                 <Button type="button" variant="outline" onClick={() => setCreatingProject(true)} className="h-10 shrink-0 gap-1.5 rounded-xl">
                   <Plus className="h-4 w-4" />
                   <span className="hidden sm:inline">{t.newProject}</span>
