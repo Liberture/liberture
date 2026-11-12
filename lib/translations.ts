@@ -1637,6 +1637,10 @@ const habitsEn = {
     },
     // E
     protocolReader: {
+      facts: "At a glance",
+      duration: "Duration",
+      habits: "Habits",
+      tabs: { overview: "Overview", routine: "Routine", resources: "Resources", evidence: "Evidence" },
       closeProtocolAria: "Close protocol",
       close: "Close",
       habitCount: {
@@ -4583,6 +4587,10 @@ const habitsEs: HabitsDictionary = {
     },
     // E
     protocolReader: {
+      facts: "En resumen",
+      duration: "Duración",
+      habits: "Hábitos",
+      tabs: { overview: "Resumen", routine: "Rutina", resources: "Recursos", evidence: "Evidencia" },
       closeProtocolAria: "Cerrar protocolo",
       close: "Cerrar",
       habitCount: {
