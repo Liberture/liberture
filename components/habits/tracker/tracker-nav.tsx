@@ -1,5 +1,6 @@
 "use client"
 
+import type { ReactNode } from "react"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { VIEWS, type ActiveView } from "@/components/habits/tracker/use-tracker-view"
@@ -7,11 +8,12 @@ import { VIEWS, type ActiveView } from "@/components/habits/tracker/use-tracker-
 interface NavProps {
   activeView: ActiveView
   onSelect: (view: ActiveView) => void
+  status?: ReactNode
   className?: string
 }
 
 /** Desktop: segmented control in the header. Hidden below `md`. */
-export function DesktopNav({ activeView, onSelect, className }: NavProps) {
+export function DesktopNav({ activeView, onSelect, status, className }: NavProps) {
   const t = useTranslations().habits.app.habitTracker
   return (
     <nav aria-label={t.navLabel} className={cn("hidden items-center gap-1 rounded-xl bg-muted/50 p-1 md:flex", className)}>
@@ -28,7 +30,7 @@ export function DesktopNav({ activeView, onSelect, className }: NavProps) {
               : "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
           )}
         >
-          <Icon className="h-4 w-4" aria-hidden />
+          <span className="inline-flex h-4 w-4 shrink-0">{activeView === id && status ? status : <Icon className="size-full" aria-hidden />}</span>
           {t.views[id]}
         </button>
       ))}
@@ -40,7 +42,7 @@ export function DesktopNav({ activeView, onSelect, className }: NavProps) {
  * Phone: bottom bar with every view (five slots — Discover holds both the
  * catalog and the coach). Hidden from `md` up.
  */
-export function MobileNav({ activeView, onSelect, className }: NavProps) {
+export function MobileNav({ activeView, onSelect, status, className }: NavProps) {
   const t = useTranslations().habits.app.habitTracker
   const activeIndex = Math.max(VIEWS.findIndex((v) => v.id === activeView), 0)
   return (
@@ -69,7 +71,7 @@ export function MobileNav({ activeView, onSelect, className }: NavProps) {
               activeView === id ? "text-primary-foreground" : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
             )}
           >
-            <Icon className="size-6" aria-hidden />
+            <span className="inline-flex size-6 shrink-0">{activeView === id && status ? status : <Icon className="size-full" aria-hidden />}</span>
             <span className="max-w-full truncate text-xs font-semibold">{t.views[id]}</span>
           </button>
         ))}
