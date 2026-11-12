@@ -14,7 +14,7 @@ It prints three lines. Add them to the server environment:
 
 | Deployment | Where |
 |---|---|
-| liberture.com (pm2, `.github/workflows/deploy.yml`) | The `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` repository secrets (`node scripts/generate-vapid-keys.mjs > ~/vapid.env && gh secret set -f ~/vapid.env`). The deploy appends them to `.env` after `ENV_PRODUCTION` |
+| liberture.com (systemd) | Keep the existing `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` in the host runtime environment. See [Production operations](../DEPLOYMENT_SUMMARY.md). |
 | Docker (`compose.liberture-habits.yaml`) | `.env.liberture-habits`, then `up -d --no-deps app` |
 | Local | `.env` |
 

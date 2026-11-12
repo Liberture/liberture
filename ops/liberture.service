@@ -1,0 +1,23 @@
+[Unit]
+Description=Liberture web application
+After=network.target postgresql.service
+
+[Service]
+User=liberture
+Group=liberture
+WorkingDirectory=/srv/liberture/current
+EnvironmentFile=/etc/liberture/app.env
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 3033
+Restart=on-failure
+RestartSec=3
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/liberture/current/.next/cache
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target

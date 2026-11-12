@@ -1,12 +1,14 @@
 # Production operations
 
-Pushes to `master` deploy the app to `/var/www/liberture` and restart the `liberture` process in PM2. The app connects to local PostgreSQL. The deployment workflow builds the host’s `.env` from the GitHub Actions secret `ENV_PRODUCTION`. When rotating the database password, update the PostgreSQL role, the deployed `DATABASE_URL`, and the Actions secret together. See the [deployment workflow](.github/workflows/deploy.yml).
+GitHub Actions tests and builds each push to `master`. A restricted SSH key lets `liberture-deploy` install a release under `/srv/liberture/releases`, prepare the app database, and restart only the Liberture service. The deploy switches the `current` symlink and checks a database-backed endpoint. If that check fails, it reactivates the previous release. Database schema changes persist across a code rollback. See the [workflow](.github/workflows/deploy.yml) and [host commands and units](ops/).
+
+The web service runs as `liberture` on loopback behind the reverse proxy. Systemd loads the database URL, mail key and stable Web Push keys from the root-only `/etc/liberture/app.env`. Update runtime secrets there and restart `liberture.service`. CI uses a dedicated deployment key and a pinned SSH host key.
 
 ## Database backups
 
-On the production host, `liberture-backup.timer` runs at 02:00 UTC daily and catches up after downtime. The service reads the deployed database connection and uploads a PostgreSQL custom-format dump to the private Hetzner bucket `liberture` in Nuremberg under `backups/liberture/`. A bucket lifecycle rule expires that prefix after 30 days. The host manages the timer independently of application deployments.
+On the production host, `liberture-backup.timer` runs at 02:00 UTC daily and catches up after downtime. The service runs as `liberture_backup`, uses PostgreSQL peer authentication with read access to the app tables, and uploads a PostgreSQL custom-format dump to the private Hetzner bucket `liberture` in Nuremberg under `backups/liberture/`. A bucket lifecycle rule expires that prefix after 30 days. The host manages the timer independently of application deployments.
 
-The systemd units live in `/etc/systemd/system/`. The backup and restore scripts live in `/etc/liberture-backup/`. Their root-only `storage.env` holds the dedicated S3 credential, managed under **Hetzner Console → Default → Security → S3 credentials**. Hetzner grants this key project-wide bucket access.
+The systemd units live in `/etc/systemd/system/`. The scripts live in `/usr/local/libexec/liberture-backup/`. The root-only `/etc/liberture-backup/storage.env` holds the dedicated S3 credential, managed under **Hetzner Console → Default → Security → S3 credentials**. Hetzner grants this key project-wide bucket access.
 
 | Task on the production host | Command |
 |---|---|

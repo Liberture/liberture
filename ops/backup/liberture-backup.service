@@ -1,0 +1,16 @@
+[Unit]
+Description=Back up the Liberture production database to Hetzner
+Wants=network-online.target
+After=network-online.target postgresql.service
+[Service]
+Type=oneshot
+User=liberture_backup
+Group=liberture_backup
+RestrictSUIDSGID=true
+EnvironmentFile=/etc/liberture-backup/storage.env
+ExecStart=/usr/bin/python3 /usr/local/libexec/liberture-backup/backup.py
+UMask=0077
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+NoNewPrivileges=true
