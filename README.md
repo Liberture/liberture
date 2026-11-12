@@ -85,6 +85,8 @@ prisma/            schema (content and habit tables)
 
 ## Deployment
 
+For production configuration, backup scheduling, and restore checks, see [Production operations](DEPLOYMENT_SUMMARY.md).
+
 Pushing to `master` deploys liberture.com through `.github/workflows/deploy.yml`. A Docker setup (`Dockerfile`, `compose.liberture-habits.yaml`) runs the same app with its own Postgres.
 
 Reminders that arrive with the app closed need VAPID keys in the server environment; setup, behaviour and testing are in [docs/REMINDERS.md](docs/REMINDERS.md).

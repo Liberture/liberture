@@ -29,6 +29,7 @@ jobs:
 
       - name: Write .env from secret
         run: |
+          umask 077
           echo "${{ secrets.ENV_PRODUCTION }}" > .env
           # Web Push keys have their own secrets (docs/REMINDERS.md). Never rotate them:
           # new keys cut off every subscribed device.
