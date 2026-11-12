@@ -14,7 +14,7 @@ interface Step2TinyGoalsProps {
   habitName?: string
 }
 
-export function Step2TinyGoals({ onNext, onBack, habitName ="My Habit" }: Step2TinyGoalsProps) {
+export function Step2TinyGoals({ onNext, onBack, habitName }: Step2TinyGoalsProps) {
   const t = useTranslations().habits.app.onboardingStep2
   const [tinyVersion, setTinyVersion] = useState("")
   const [fullVersion, setFullVersion] = useState("")
@@ -39,6 +39,7 @@ export function Step2TinyGoals({ onNext, onBack, habitName ="My Habit" }: Step2T
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
+        {habitName && <p className="text-sm font-medium text-primary">{habitName}</p>}
         <h2 className="text-2xl font-bold text-foreground">
           {t.title}
         </h2>
