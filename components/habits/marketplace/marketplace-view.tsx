@@ -2,11 +2,10 @@
 
 import { FieldSelect, FieldOption } from "@/components/ui/select"
 import { memo, useCallback, useMemo, useState } from "react"
-import { ArrowDownUp, Search, X } from "lucide-react"
+import { ArrowDownUp, Search, Store, X } from "lucide-react"
 
 import { PILLAR_ICON_MAP, PILLAR_IDS, PILLAR_STYLES, type PillarId } from "@/lib/habits/pillars"
 import {
-  CATALOG_AUTHORS,
   CATALOG_PROTOCOLS,
   DIFFICULTY_ORDER,
   STANDALONE_HABITS,
@@ -31,6 +30,7 @@ import { formatMessage } from "@/lib/i18n-format"
 
 import { useCatalogLabels } from "./pillar-tag"
 import { CatalogHabitCard, ProtocolCard } from "./protocol-card"
+import { AuthorFilter } from "./author-filter"
 import { ProtocolReader } from "./protocol-reader"
 
 interface MarketplaceViewProps {
@@ -67,10 +67,15 @@ export const MarketplaceView = memo(function MarketplaceView({ habits, onAdoptPr
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
-      <p className="max-w-2xl text-sm text-muted-foreground">{t.description}</p>
+      <header className="space-y-2">
+        <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground">
+          <Store aria-hidden className="size-5 text-primary" /> {t.title}
+        </h2>
+        <p className="max-w-2xl text-sm text-muted-foreground">{t.description}</p>
+      </header>
 
       {/* Search and filters */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto] sm:items-center" data-no-swipe>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_auto_auto] sm:items-center" data-no-swipe>
         <div className="relative col-span-2 sm:col-span-1">
           <Search
             className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
@@ -85,6 +90,7 @@ export const MarketplaceView = memo(function MarketplaceView({ habits, onAdoptPr
             className="w-full rounded-lg border border-border bg-card/60 py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
+        <AuthorFilter value={filter.authorId} onChange={value => update("authorId", value)} />
         <FieldSelect value={filter.maxCost} aria-label={t.cost} prefix={t.cost} className="w-full sm:w-auto" onValueChange={value => update("maxCost", value as CatalogFilter["maxCost"])}>
           <FieldOption value="any">{t.any}</FieldOption>
           {COST_TIER_ORDER.map(tier => <FieldOption key={tier} value={tier} title={labels.costBlurb[tier]}>{labels.costTier[tier]}</FieldOption>)}
@@ -118,33 +124,16 @@ export const MarketplaceView = memo(function MarketplaceView({ habits, onAdoptPr
         })}
       </div>
 
-      <div data-no-swipe>
-        <div className="flex flex-1 items-center gap-2 sm:justify-end">
-          <FieldSelect
-            value={filter.authorId}
-            onValueChange={(value) => update("authorId", value)}
-            aria-label={t.authorAria}
-            className="w-auto max-w-full"
-          >
-            <FieldOption value="all">{t.allAuthors}</FieldOption>
-            {CATALOG_AUTHORS.map((author) => (
-              <FieldOption key={author.id} value={author.id}>
-                {author.name}
-              </FieldOption>
-            ))}
-          </FieldSelect>
-          {activeCount > 0 ? (
-            <button
-              type="button"
-              onClick={() => setFilter(DEFAULT_FILTER)}
-              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-            >
-              <X className="h-3 w-3" aria-hidden />
-              {formatMessage(t.clear, { count: activeCount })}
-            </button>
-          ) : null}
-        </div>
-      </div>
+      {activeCount > 0 ? (
+        <button
+          type="button"
+          onClick={() => setFilter(DEFAULT_FILTER)}
+          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+        >
+          <X className="h-3 w-3" aria-hidden />
+          {formatMessage(t.clear, { count: activeCount })}
+        </button>
+      ) : null}
 
       <section className="space-y-4">
         <div data-no-swipe className="flex flex-wrap items-center justify-between gap-2">

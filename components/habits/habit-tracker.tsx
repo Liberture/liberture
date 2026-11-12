@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { format, subDays, startOfDay } from "date-fns"
 import { Check, CircleAlert, Loader2, Sparkles, Archive, Rows3, LayoutGrid, CalendarRange } from "lucide-react"
 
+import Link from "next/link"
+import { LibertureLogoStatic } from "@/components/branding"
 import { HabitGrid } from "@/components/habits/habit-grid"
 import { AddHabitDialog } from "@/components/habits/add-habit-dialog"
 import { EditHabitDialog } from "@/components/habits/edit-habit-dialog"
@@ -527,6 +529,9 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
         <div className="flex h-12 items-center justify-between gap-2 lg:grid lg:h-auto lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-2">
           <h1 className="sr-only">{t.views[activeView]}</h1>
           <span role="status" className="sr-only">{statusKind && statusLabel}</span>
+          <Link href="/" aria-label={t.homeLink} className="inline-flex size-11 shrink-0 items-center justify-center justify-self-start rounded-lg focus-visible:ring-2 focus-visible:ring-ring">
+            <LibertureLogoStatic size={34} />
+          </Link>
           <DesktopNav className="lg:col-start-2" activeView={activeView} onSelect={selectView} status={saveStatus} />
           <div className="min-w-0 w-full lg:w-auto lg:justify-self-end lg:max-w-full">
             <AccountHeader
