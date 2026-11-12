@@ -1612,6 +1612,7 @@ const habitsEn = {
       cost: "Cost",
       any: "Any",
       effort: "Effort",
+      noAuthors: "No matching authors",
       authorAria: "Filter by author",
       allAuthors: "All authors",
       clear: "Clear {count}",
@@ -2938,6 +2939,7 @@ const habitsEn = {
     },
     // A
     habitTracker: {
+      homeLink: "Liberture home",
       loadingStatistics: "Loading statistics…",
       loadingHelix: "Spinning up the helix…",
       loadingHabits: "Loading your habits...",
@@ -4553,7 +4555,7 @@ const habitsEs: HabitsDictionary = {
     },
     // E
     marketplaceView: {
-      title: "Catálogo",
+      title: "Mercado",
       description: "Protocolos respaldados por evidencia, de investigadores y profesionales con nombre y apellido. Cada uno muestra cuánto cuesta y en qué se basa — leé la investigación y después agregalo. Todo lo que adoptes se vuelve un hábito común que podés editar, reprogramar o borrar.",
       searchPlaceholder: "Buscá protocolos, autores, equipamiento…",
       searchAria: "Buscar en el catálogo",
@@ -4562,6 +4564,7 @@ const habitsEs: HabitsDictionary = {
       cost: "Costo",
       any: "Cualquiera",
       effort: "Esfuerzo",
+      noAuthors: "No hay autores que coincidan",
       authorAria: "Filtrar por autor",
       allAuthors: "Todos los autores",
       clear: "Limpiar {count}",
@@ -5888,6 +5891,7 @@ const habitsEs: HabitsDictionary = {
     },
     // A
     habitTracker: {
+      homeLink: "Inicio de Liberture",
       loadingStatistics: "Cargando estadísticas…",
       loadingHelix: "Armando la hélice…",
       loadingHabits: "Cargando tus hábitos...",
