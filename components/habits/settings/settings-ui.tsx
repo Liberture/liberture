@@ -62,7 +62,7 @@ export function SettingRow({ title, description, action, htmlFor }: SettingRowPr
       ) : (
         <div className="min-w-0">{text}</div>
       )}
-      {action ? <div className="shrink-0">{action}</div> : null}
+      {action ? <div className="max-w-full shrink-0">{action}</div> : null}
     </div>
   )
 }
