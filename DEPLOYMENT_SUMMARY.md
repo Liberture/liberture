@@ -4,6 +4,15 @@ GitHub Actions tests and builds each push to `master`. A restricted SSH key lets
 
 The web service runs as `liberture` on loopback behind the reverse proxy. Systemd loads the database URL, mail key and stable Web Push keys from the root-only `/etc/liberture/app.env`. Update runtime secrets there and restart `liberture.service`. CI uses a dedicated deployment key and a pinned SSH host key.
 
+## Third-party services
+
+| Service | Use and configuration |
+|---|---|
+| Resend | The [mail helpers](lib/resend.ts) send from `hello@liberture.com`. The production service reads `RESEND_API_KEY` from its runtime environment. Manage the sending-only key for `liberture.com` in the Liberture Resend account. |
+| Google Books | The [Goodreads enrichment script](scripts/goodreads-scraper/step3-enrich-and-normalize.ts) reads `GOOGLE_BOOKS_API_KEY` from the environment where the scraper runs. Its Google Cloud key is restricted to the Books API. |
+| Web Push | Browser reminders use stable VAPID keys from the web service’s runtime environment. See [Push reminders](docs/REMINDERS.md). |
+| Hetzner Object Storage | The backup service stores PostgreSQL dumps in a private bucket. The schedule, retention and restore procedure are below. |
+
 ## Database backups
 
 On the production host, `liberture-backup.timer` runs at 02:00 UTC daily and catches up after downtime. The service runs as `liberture_backup`, uses PostgreSQL peer authentication with read access to the app tables, and uploads a PostgreSQL custom-format dump to the private Hetzner bucket `liberture` in Nuremberg under `backups/liberture/`. A bucket lifecycle rule expires that prefix after 30 days. The host manages the timer independently of application deployments.
