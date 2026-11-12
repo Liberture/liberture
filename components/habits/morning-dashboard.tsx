@@ -306,7 +306,7 @@ function MorningHabit({ habit, done, onToggle }: { habit: Habit; done: boolean; 
         <p className={cn("font-medium", done ? "text-muted-foreground line-through" : "text-foreground")}>
           {habit.name}
         </p>
-        {tinyText && <p className="truncate text-sm text-muted-foreground">{tinyText}</p>}
+        {tinyText && tinyText !== habit.name && <p className="truncate text-sm text-muted-foreground">{tinyText}</p>}
         <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
           <span
             className={cn(

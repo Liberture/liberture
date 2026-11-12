@@ -80,6 +80,8 @@ export interface StreakData {
 }
 
 export interface TinyHabitConfig {
+  progression?: "starter"
+  targetWeeks?: number
   tinyVersion: string // "1 pushup"
   mediumVersion?: string // "10 pushups"
   fullVersion: string // "30-minute workout"
@@ -271,7 +273,7 @@ export interface Project {
 // Onboarding and user profile
 export interface OnboardingState {
   completed: boolean
-  currentStep: number // 1-5
+  currentStep: number // 1-6
   emotionalConnection?: {
     category: string
     story: string

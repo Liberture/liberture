@@ -30,7 +30,7 @@ import { formatMessage } from "@/lib/i18n-format"
 
 import { useCatalogLabels } from "./pillar-tag"
 import { CatalogHabitCard, ProtocolCard } from "./protocol-card"
-import { MarketplaceSearch, AuthorSummary } from "./marketplace-search"
+import { MarketplaceSearch } from "./marketplace-search"
 import { ProtocolReader } from "./protocol-reader"
 
 interface MarketplaceViewProps {
@@ -48,6 +48,7 @@ export const MarketplaceView = memo(function MarketplaceView({ habits, onAdoptPr
   const t = useTranslations().habits.app.marketplaceView
   const labels = useCatalogLabels()
   const [filter, setFilter] = useState<CatalogFilter>(DEFAULT_FILTER)
+  const [draft, setDraft] = useState("")
   const [readingSlug, setReadingSlug] = useState<string | null>(null)
 
   const habitSlugs = useMemo(() => adoptedSlugs(habits), [habits])
@@ -68,15 +69,20 @@ export const MarketplaceView = memo(function MarketplaceView({ habits, onAdoptPr
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
-      <header className="space-y-2">
-        <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground">
+      <header className="space-y-2 text-center">
+        <h2 className="flex items-center justify-center gap-2 text-xl font-bold tracking-tight text-foreground">
           <Store aria-hidden className="size-5 text-primary" /> {t.title}
         </h2>
-        <p className="max-w-2xl text-sm text-muted-foreground">{t.description}</p>
+        <p className="mx-auto max-w-2xl text-sm text-muted-foreground">{t.description}</p>
       </header>
 
-      <MarketplaceSearch query={filter.query} onQuery={value => update("query", value)}
-        onAuthor={authorId => setFilter(current => ({ ...DEFAULT_FILTER, sort: current.sort, authorId }))}
+      <MarketplaceSearch query={draft} onQuery={setDraft} author={author}
+        onSearch={() => update("query", draft.trim())}
+        onRemoveAuthor={() => update("authorId", "all")}
+        onAuthor={authorId => {
+          setDraft("")
+          setFilter(current => ({ ...DEFAULT_FILTER, sort: current.sort, authorId }))
+        }}
         onProtocol={setReadingSlug} />
       <div data-no-swipe className="flex flex-wrap items-center justify-center gap-2">
         <FieldSelect value={filter.pillar} prefix={t.vertical} aria-label={t.vertical} className="w-auto max-w-full" onValueChange={value => update("pillar", value as PillarId | "all")}>
@@ -96,15 +102,13 @@ export const MarketplaceView = memo(function MarketplaceView({ habits, onAdoptPr
       {activeCount > 0 ? (
         <button
           type="button"
-          onClick={() => setFilter(DEFAULT_FILTER)}
+          onClick={() => { setDraft(""); setFilter(DEFAULT_FILTER) }}
           className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
         >
           <X className="h-3 w-3" aria-hidden />
           {formatMessage(t.clear, { count: activeCount })}
         </button>
       ) : null}
-
-      {author && <AuthorSummary key={author.id} author={author} onRemove={() => update("authorId", "all")} />}
 
       <section className="space-y-4">
         <div data-no-swipe className="flex flex-wrap items-center justify-between gap-2">

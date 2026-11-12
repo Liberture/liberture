@@ -1,6 +1,6 @@
 "use client"
 
-import { BookOpen, BookOpenCheck, Check, Clock, ListChecks, Plus, Wallet } from "lucide-react"
+import { BookOpenCheck, Check, Clock, ListChecks, Plus, Wallet } from "lucide-react"
 
 import { PILLAR_STYLES } from "@/lib/habits/pillars"
 import type { CatalogHabit, CatalogProtocol } from "@/lib/habits/protocols/catalog"
@@ -23,6 +23,7 @@ export function ProtocolCard({ protocol, adopted, onRead, onAdopt }: ProtocolCar
   const labels = useCatalogLabels()
   const styles = PILLAR_STYLES[protocol.pillar]
   const habitCount = protocol.habits.length
+  const addLabel = formatMessage(adopted ? t.alreadyAddedAria : t.addAria, { name: protocol.name })
 
   return (
     <article
@@ -56,63 +57,43 @@ export function ProtocolCard({ protocol, adopted, onRead, onAdopt }: ProtocolCar
       </div>
 
       <div className="space-y-2">
-        <h3 className="text-lg font-bold leading-snug text-foreground">{protocol.name}</h3>
+        <h3 className="text-lg font-bold leading-snug text-foreground">
+          <button type="button" onClick={onRead} aria-haspopup="dialog"
+            className="text-left after:absolute after:inset-0 after:cursor-pointer after:rounded-xl focus-visible:after:ring-2 focus-visible:after:ring-ring">
+            {protocol.name}
+          </button>
+        </h3>
         <p className="line-clamp-3 text-sm text-muted-foreground">{protocol.tagline}</p>
         {protocol.author ? (
           <p className="text-xs text-muted-foreground/80">{protocol.author.name}</p>
         ) : null}
       </div>
 
-      <dl className="mt-auto flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-        <div className="flex items-center gap-1.5">
-          <ListChecks className="h-3.5 w-3.5" aria-hidden />
-          <dd>
-            {plural(t.habitCount, habitCount)}
-          </dd>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Clock className="h-3.5 w-3.5" aria-hidden />
-          <dd>{protocol.duration}</dd>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Wallet className="h-3.5 w-3.5" aria-hidden />
-          <dd>{labels.costSummary(protocol.cost, protocol.costTier)}</dd>
-        </div>
-      </dl>
+      <div className="mt-auto flex items-end gap-3">
+        <dl className="flex min-w-0 flex-1 flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <ListChecks className="h-3.5 w-3.5" aria-hidden />
+            <dd>
+              {plural(t.habitCount, habitCount)}
+            </dd>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Clock className="h-3.5 w-3.5" aria-hidden />
+            <dd>{protocol.duration}</dd>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Wallet className="h-3.5 w-3.5" aria-hidden />
+            <dd>{labels.costSummary(protocol.cost, protocol.costTier)}</dd>
+          </div>
+        </dl>
 
-      <div className="flex gap-2">
-        <button
-          type="button"
-          onClick={onRead}
-          aria-haspopup="dialog"
-          aria-label={`${t.read} · ${protocol.name}`}
-          className="after:absolute after:inset-0 after:cursor-pointer after:rounded-xl focus-visible:after:ring-2 focus-visible:after:ring-ring inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-        >
-          <BookOpen className="h-4 w-4" aria-hidden />
-          {t.read}
-        </button>
-        <button
-          type="button"
-          onClick={onAdopt}
-          disabled={adopted}
+        <button type="button" onClick={onAdopt} disabled={adopted}
+          aria-label={addLabel} title={addLabel}
           className={cn(
-            "relative z-10 inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-            adopted
-              ? cn("cursor-default border", styles.border, styles.background, styles.text)
-              : "bg-primary text-primary-foreground hover:bg-primary/90"
-          )}
-        >
-          {adopted ? (
-            <>
-              <Check className="h-4 w-4" aria-hidden />
-              {t.added}
-            </>
-          ) : (
-            <>
-              <Plus className="h-4 w-4" aria-hidden />
-              {t.add}
-            </>
-          )}
+            "relative z-10 inline-flex size-10 shrink-0 items-center justify-center rounded-full border shadow-sm focus-visible:ring-2 focus-visible:ring-ring",
+            adopted ? cn("border-border bg-card", styles.text) : "border-primary bg-primary text-primary-foreground hover:brightness-110"
+          )}>
+          {adopted ? <Check className="size-5" aria-hidden /> : <Plus className="size-5" aria-hidden />}
         </button>
       </div>
     </article>

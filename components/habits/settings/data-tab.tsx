@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useRef, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import { Download, GitMerge, LogOut, Trash2, Upload } from "lucide-react"
 
 import { SettingRow, SettingsCard, settingsButtonClass, settingsInputClass } from "@/components/habits/settings/settings-ui"
@@ -59,6 +59,7 @@ export function DataTab({ habits, lastBackupAt, onExport, onImport, onDeleteAcco
   const fileInputRef = useRef<HTMLInputElement>(null)
   const mergeInputRef = useRef<HTMLInputElement>(null)
   const [merging, setMerging] = useState<{ fileName: string; data: unknown } | null>(null)
+  const closeMerge = useCallback(() => setMerging(null), [])
   const [preview, setPreview] = useState<{ fileName: string; backup: BackupImport } | null>(null)
   const [clearing, setClearing] = useState(false)
   const [clearText, setClearText] = useState("")
@@ -217,7 +218,7 @@ export function DataTab({ habits, lastBackupAt, onExport, onImport, onDeleteAcco
         />
       </SettingsCard>
 
-      <MergeHistoryDialog backup={merging} habits={habits} apiKey={apiKey} onClose={() => setMerging(null)} />
+      {merging && <MergeHistoryDialog backup={merging} habits={habits} apiKey={apiKey} onClose={closeMerge} />}
 
       <AppDialog
         open={preview !== null}

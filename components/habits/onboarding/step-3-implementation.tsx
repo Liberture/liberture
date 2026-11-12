@@ -141,7 +141,7 @@ export function Step3Implementation({ onNext, onBack, habitName }: Step3Implemen
         )}
       </div>
 
-      <div className="flex items-center justify-between pt-4">
+      <div className="onboarding-actions pt-4">
         <Button
           variant="ghost"
           onClick={onBack}

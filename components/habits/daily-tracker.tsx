@@ -252,7 +252,7 @@ export const DailyTracker = memo(function DailyTracker({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div data-tour="summary" className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Stat icon={CalendarDays} label={t.statHabits} value={String(stats.habitCount)} />
             <Stat icon={Flame} label={t.statBestStreak} value={String(stats.bestStreak)} tone="text-exercise" />
             <Stat icon={TrendingUp} label={t.stat7DayRate} value={`${stats.avg7}%`} tone="text-nutrition" />
@@ -261,7 +261,7 @@ export const DailyTracker = memo(function DailyTracker({
         </header>
 
         <section className="mt-10">
-          <div className="mb-4 flex items-center justify-between gap-4">
+          <div data-tour="dates" className="mb-4 flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <button
                 type="button"

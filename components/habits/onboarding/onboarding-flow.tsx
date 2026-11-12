@@ -3,156 +3,49 @@
 import { useState } from "react"
 import { Card, CardContent } from "@/components/habits/ui/card"
 import { Button } from "@/components/habits/ui/button"
-import { Progress } from "@/components/habits/ui/progress"
 import { X } from "lucide-react"
-import { OnboardingState, Habit, StorageData } from "@/lib/habits/types"
+import { OnboardingState, Habit } from "@/lib/habits/types"
 import { Step1Emotional } from "./step-1-emotional"
-import { Step2TinyGoals } from "./step-2-tiny-goals"
-import { Step3Implementation } from "./step-3-implementation"
-import { Step4Identity } from "./step-4-identity"
-import { Step5FirstCompletion } from "./step-5-first-completion"
 import { StepConnectAssistant } from "./step-connect-assistant"
 import { TopographicBackground } from "@/components/habits/patterns/topographic-background"
 import { useTranslations } from "@/components/i18n/locale-provider"
-import { formatMessage } from "@/lib/i18n-format"
 
 interface OnboardingFlowProps {
   onComplete: (habits: Habit[], onboardingData: OnboardingState) => void
   onSkip: () => void
   /** Owner auth, for the connect step's live "Connected" check. */
   apiKey: string
-  isNostrAuth: boolean
 }
 
-// Step 1 connects Claude or ChatGPT; steps 2-6 build the first habit.
-const CONNECT_STEP = 1
-
-export function OnboardingFlow({ onComplete, onSkip, apiKey, isNostrAuth }: OnboardingFlowProps) {
-  const t = useTranslations().habits.app.onboardingFlow
-  const [currentStep, setCurrentStep] = useState(1)
-  const [onboardingData, setOnboardingData] = useState<OnboardingState>({
-    completed: false,
-    currentStep: 1,
-    skipped: false
-  })
-  const [habitData, setHabitData] = useState<Partial<Habit>>({
-    id: crypto.randomUUID(),
-    color: "#8B5CF6",
-    schedule: { type: "daily" }
-  })
-
-  const [selectedHabits, setSelectedHabits] = useState<Habit[]>([])
-
-  const totalSteps = 6
-  const progress = (currentStep / totalSteps) * 100
-
-  const handleNext = (data: any) => {
-    setOnboardingData({ ...onboardingData, ...data, currentStep: currentStep + 1 })
-    setHabitData({ ...habitData, ...data.habitData })
-
-    if (currentStep === totalSteps) {
-      // Complete onboarding
-      const completeHabit: Habit = {
-        id: habitData.id!,
-        name: habitData.name || t.defaultHabitName,
-        time: habitData.time || "08:00",
-        color: habitData.color!,
-        schedule: habitData.schedule!,
-        priority: habitData.priority || 5,
-        category: habitData.category || "personal",
-        timeOfDay: habitData.timeOfDay || "morning",
-        implementationIntention: habitData.implementationIntention,
-        identity: habitData.identity,
-        tinyHabit: habitData.tinyHabit,
-        createdAt: new Date().toISOString(),
-        // Local day; createdAt alone is UTC (see Habit.startDate).
-        startDate: new Date().toLocaleDateString("en-CA"),
-        streakData: {
-          current: 0,
-          longest: 0,
-          freezesAvailable: 0,
-          freezesUsed: 0,
-          milestones: [
-            { days: 3, celebrated: false },
-            { days: 7, celebrated: false },
-            { days: 21, celebrated: false },
-            { days: 66, celebrated: false },
-            { days: 100, celebrated: false }
-          ]
-        }
-      }
-
-      onComplete([completeHabit, ...selectedHabits.slice(1)], { ...onboardingData, completed: true, currentStep: totalSteps })
-    } else {
-      setCurrentStep(currentStep + 1)
-    }
-  }
-
-  const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1)
-    }
-  }
-
-  const handleSkip = () => {
-    onSkip()
-  }
-
+export function OnboardingFlow({ onComplete, onSkip, apiKey }: OnboardingFlowProps) {
+  const [page, setPage] = useState<1 | 2 | 3 | 4 | 5 | 6>(1)
+  const app = useTranslations().habits.app
   return (
     <div className="topo-pattern lb-see-through min-h-screen flex items-center justify-center p-4">
       <TopographicBackground />
-      <Card className="w-full max-w-2xl shadow-2xl">
+      <Card className="w-full max-w-2xl overflow-hidden shadow-2xl">
+        <div role="progressbar" aria-label={app.onboardingFlow.welcomeTitle} aria-valuemin={0} aria-valuemax={6} aria-valuenow={page} className="h-1 bg-secondary">
+          <div className="onboarding-progress-fill h-full motion-safe:transition-[width]" style={{ width: `${(page / 6) * 100}%` }} />
+        </div>
         <CardContent className="p-6 sm:p-8">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">
-                {currentStep === CONNECT_STEP ? t.welcomeTitle : t.buildTitle}
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                {formatMessage(t.stepOf, { current: currentStep, total: totalSteps })}
-              </p>
-            </div>
+          <div className="flex justify-end">
             <Button
               variant="ghost"
               size="icon"
-              onClick={handleSkip}
-              aria-label={t.skipAriaLabel}
-              className="text-muted-foreground hover:text-muted-foreground "
+              onClick={onSkip}
+              aria-label={app.onboardingFlow.skipAriaLabel}
+              className="-mr-2 -mt-1 text-muted-foreground hover:text-foreground"
             >
               <X className="h-5 w-5" />
             </Button>
           </div>
 
-          {/* Progress Bar */}
-          <Progress value={progress} className="mb-8" />
-
-          {/* Step Content */}
-          <div className="min-h-[400px]">
-            {currentStep === CONNECT_STEP && (
-              <StepConnectAssistant apiKey={apiKey} isNostrAuth={isNostrAuth} onNext={() => handleNext({})} />
-            )}
-            {currentStep === 2 && (
-              <Step1Emotional initialSelection={selectedHabits.map(habit => habit.category!)} onNext={(habits, story) => {
-                setSelectedHabits(habits)
-                setHabitData(habits[0])
-                setOnboardingData({ ...onboardingData, currentStep: 3, emotionalConnection: { category: habits[0].category!, story } })
-                setCurrentStep(3)
-              }} />
-            )}
-            {currentStep === 3 && (
-              <Step2TinyGoals onNext={handleNext} onBack={handleBack} habitName={habitData.name} />
-            )}
-            {currentStep === 4 && (
-              <Step3Implementation onNext={handleNext} onBack={handleBack} habitName={habitData.name} />
-            )}
-            {currentStep === 5 && (
-              <Step4Identity onNext={handleNext} onBack={handleBack} habitCategory={habitData.category} />
-            )}
-            {currentStep === 6 && (
-              <Step5FirstCompletion onNext={handleNext} onBack={handleBack} habitData={habitData} />
-            )}
-          </div>
+          {page === 1 ? (
+            <StepConnectAssistant apiKey={apiKey} onNext={() => setPage(2)} />
+          ) : (
+            <Step1Emotional page={page} onPageChange={setPage}
+              onStart={habits => onComplete(habits, { completed: true, currentStep: 6, skipped: false })} />
+          )}
         </CardContent>
       </Card>
     </div>

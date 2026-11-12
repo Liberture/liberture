@@ -68,19 +68,6 @@ export function useTrackerActions(data: TrackerData) {
     if (!habit) return
     setHabits(list => [...list, ...selected.filter(choice => !list.some(existing => existing.id === choice.id))])
 
-    // Create first completion if user did it during onboarding
-    const today = format(new Date(), "yyyy-MM-dd")
-    const firstCompletion: HabitCompletion = {
-      habitId: habit.id,
-      date: today,
-      completed: true,
-      completedAt: new Date().toISOString(),
-    }
-    setCompletions((list) => [
-      ...list.filter((c) => !(c.habitId === habit.id && c.date === today)),
-      firstCompletion,
-    ])
-
     // Update onboarding state
     setOnboardingState({ ...onboarding, completed: true })
     markDirty()

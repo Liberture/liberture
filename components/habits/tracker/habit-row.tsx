@@ -59,7 +59,7 @@ export const HabitRow = memo(function HabitRow({
   const intention = habit.implementationIntention
 
   return (
-    <li
+    <li data-tour-habit={habit.id}
       className={cn(
         "lb-list-item group relative flex items-center gap-4 overflow-hidden rounded-xl border p-4 pl-5 transition-colors duration-200",
         onEdit && "hover:border-white/25",

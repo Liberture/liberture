@@ -18,6 +18,8 @@ import { BackupReminder } from "@/components/habits/backup-reminder"
 import { SettingsDialog } from "@/components/habits/settings-dialog"
 import { EditTodoDialog } from "@/components/habits/edit-todo-dialog"
 import { OnboardingFlow } from "@/components/habits/onboarding/onboarding-flow"
+import { progressStarterHabits } from "@/lib/habits/starter-progression"
+import { HabitsTour } from "./onboarding/habits-tour"
 import { MorningDashboard } from "@/components/habits/morning-dashboard"
 import { HabitMatrix } from "@/components/habits/habit-matrix"
 import { DailyTracker } from "@/components/habits/daily-tracker"
@@ -111,6 +113,8 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
   const [editingTodoId, setEditingTodoId] = useState<string | null>(null)
   const [showArchived, setShowArchived] = useState(false)
   const [timeOfDayFilter, setTimeOfDayFilter] = useState<string | null>(null)
+  const tourStartedOn = useRef("")
+  const [tourIds, setTourIds] = useState<string[] | null>(null)
   const [showMorningDashboard, setShowMorningDashboard] = useState(false)
   const [dates, setDates] = useState<Date[]>([])
   const [motivationalMessage, setMotivationalMessage] = useState<string>("")
@@ -214,6 +218,16 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
     }
   }, [])
 
+  const { setHabits, markDirty } = data
+  useEffect(() => {
+    if (isLoading || !dates[0] || !habits.some(habit => habit.tinyHabit)) return
+    const updated = progressStarterHabits(habits, completions, format(dates[0], "yyyy-MM-dd"))
+    if (updated.some((habit, index) => habit !== habits[index])) {
+      setHabits(updated)
+      markDirty()
+    }
+  }, [habits, completions, dates, isLoading, setHabits, markDirty])
+
   // Set motivational message once data is loaded
   useEffect(() => {
     if (!isLoading && habits.length > 0) {
@@ -226,14 +240,14 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
   // account). `?view=morning` opens it explicitly, at any hour.
   const morningHandledRef = useRef(false)
   useEffect(() => {
-    if (isLoading || !onboardingState.completed || habits.length === 0) return
+    if (tourIds !== null || isLoading || !onboardingState.completed || habits.length === 0) return
     const today = format(new Date(), "yyyy-MM-dd")
     if (morningRequested && !morningHandledRef.current) {
       morningHandledRef.current = true
       setShowMorningDashboard(true)
       return
     }
-    if (!preferences.morningDashboard || preferences.morningDashboardDismissedOn === today) return
+    if (tourStartedOn.current === today || !preferences.morningDashboard || preferences.morningDashboardDismissedOn === today) return
     let legacyDismissed = false
     try {
       legacyDismissed = localStorage.getItem("morning-dashboard-shown") === today
@@ -242,7 +256,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
     if (hour >= 5 && hour < 11 && !legacyDismissed) setShowMorningDashboard(true)
     // `dates` changes on day rollover, so a tab left open overnight
     // re-evaluates the morning dashboard for the new day.
-  }, [isLoading, onboardingState.completed, habits.length, dates, morningRequested, preferences.morningDashboard, preferences.morningDashboardDismissedOn])
+  }, [tourIds, isLoading, onboardingState.completed, habits.length, dates, morningRequested, preferences.morningDashboard, preferences.morningDashboardDismissedOn])
 
   const dismissMorningDashboard = useCallback(() => {
     setShowMorningDashboard(false)
@@ -251,7 +265,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
 
   const habitsLayout: HabitsLayout = preferences.habitsLayout
   // Matrix needs a wide screen; a phone falls back to the week grid.
-  const effectiveLayout: HabitsLayout = isMobile && habitsLayout === "matrix" ? "week" : habitsLayout
+  const effectiveLayout: HabitsLayout = tourIds !== null ? "day" : isMobile && habitsLayout === "matrix" ? "week" : habitsLayout
 
   // The time-of-day filter and "show archived" are Habits-view controls only;
   // Stats and Calendar get their own unfiltered lists.
@@ -333,10 +347,14 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
   if (!onboardingState.completed) {
     return (
       <OnboardingFlow
-        onComplete={actions.handleOnboardingComplete}
+        onComplete={(selected, onboarding) => {
+          actions.handleOnboardingComplete(selected, onboarding)
+          switchActiveView("habits")
+          tourStartedOn.current = format(new Date(), "yyyy-MM-dd")
+          setTourIds(selected.map(habit => habit.id))
+        }}
         onSkip={actions.handleOnboardingSkip}
         apiKey={apiKey}
-        isNostrAuth={isNostrAuth}
       />
     )
   }
@@ -359,6 +377,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
     if (view === "habits") {
       return (
         <div className="space-y-4 md:space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-2">
           <div role="group" aria-label={t.layoutLabel} className="flex items-center gap-1 rounded-xl bg-muted/50 p-1 md:inline-flex">
             {LAYOUTS.map(({ id, icon: Icon, desktopOnly }) => (
               <button
@@ -380,6 +399,16 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
             ))}
           </div>
 
+            <button type="button" className="rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-muted"
+              onClick={() => {
+                setTimeOfDayFilter(null)
+                tourStartedOn.current = format(new Date(), "yyyy-MM-dd")
+                setTourIds(habits.filter(habit => !habit.archived).map(habit => habit.id))
+              }}>
+              {t.showTutorial}
+            </button>
+          </div>
+
           {onboardingState.handedOffToAssistant && !onboardingState.assistantCardDismissed && (
             <AssistantStartCard connected={connectedKinds} onDismiss={actions.dismissAssistantCard} />
           )}
@@ -394,7 +423,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
           )}
 
           {effectiveLayout === "day" ? (
-            <DailyTracker
+            <DailyTracker key={tourIds !== null ? "tour" : "tracker"}
               habits={habits}
               completions={completions}
               displayName={storageData?.profile?.name}
@@ -555,6 +584,11 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
         renderView={renderView}
       />
 
+      {tourIds !== null && (
+        <HabitsTour weekStartsOn={preferences.weekStartsOn ?? 1} completions={completions} habits={habits.filter(habit => tourIds.includes(habit.id))}
+          onClose={() => setTourIds(null)} />
+      )}
+
       <MobileNav activeView={activeView} onSelect={selectView} status={saveStatus} />
 
       {showAddDialog && (
@@ -568,6 +602,8 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
       {editingHabit && (
         <EditHabitDialog
           habit={editingHabit}
+          completions={completions}
+          weekStartsOn={preferences.weekStartsOn ?? 1}
           onSave={actions.updateHabit}
           onDelete={actions.deleteHabitById}
           onArchive={actions.archiveHabit}
