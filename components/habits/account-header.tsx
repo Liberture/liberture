@@ -167,7 +167,7 @@ export function AccountHeader({ pubkey, fallbackName, onOpenSettings, onExport, 
           title={t.openSettings}
           className={cn(
             // Same height as the account card next to it.
-            "flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-border/60 bg-muted/50 text-foreground transition-colors md:hidden",
+            "flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-border/60 bg-muted/50 text-foreground transition-colors lg:hidden",
             "hover:border-border hover:bg-secondary active:bg-secondary",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           )}
