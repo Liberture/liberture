@@ -4,6 +4,7 @@
  *   public/protocols/images/[habits/]<slug>.svg   — the source
  *   public/protocols/images/[habits/]<slug>.png   — share image, sitemap, MCP imageUrl
  *   public/protocols/images/[habits/]<slug>.webp  — what the pages show
+ *   public/protocols/images/readers/<slug>.webp — decorative reader banner
  *
  * 1200×630. Each one carries the protocol's pillar colours, a contour field
  * seeded by its slug (so no two look alike), an icon for what it is, its
@@ -210,11 +211,12 @@ function scheduleLabel(protocol: CatalogProtocol, i: number): string {
 
 // ---------------------------------------------------------------- the picture
 
-export function protocolSvg(protocol: CatalogProtocol, label: "PROTOCOL" | "HABIT" = "PROTOCOL"): string {
+export function protocolSvg(protocol: CatalogProtocol, label: "PROTOCOL" | "HABIT" | "READER" = "PROTOCOL"): string {
   const random = rng(protocol.slug)
   const color = PILLAR_HEX[protocol.pillar]
   const icon = iconInner(ICON_BY_SLUG[protocol.slug] ?? PILLAR_FALLBACK_ICON[protocol.pillar])
-  const art = { cx: 930, cy: 300 }
+  const height = label === "READER" ? 320 : H
+  const art = label === "READER" ? { cx: W / 2, cy: height / 2 } : { cx: 930, cy: 300 }
 
   const title = wrap(protocol.name, 64, 600, 2, true)
   const titleSize = title.length > 1 || textWidth(protocol.name, 64, true) > 560 ? 58 : 64
@@ -261,7 +263,7 @@ export function protocolSvg(protocol: CatalogProtocol, label: "PROTOCOL" | "HABI
   const pillarLabel = `${PILLAR_LABELS[protocol.pillar].toUpperCase()} ${label}`
   const meta = [protocol.difficulty, protocol.duration].filter(Boolean).join(" · ")
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Inter, 'Helvetica Neue', Arial, sans-serif" role="img" aria-labelledby="t d">
+  const artwork = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${height}" viewBox="0 0 ${W} ${height}" font-family="Inter, 'Helvetica Neue', Arial, sans-serif" role="img" aria-labelledby="t d">
 <title id="t">${esc(protocol.name)} — ${esc(PILLAR_LABELS[protocol.pillar])} ${label.toLowerCase()}</title>
 <desc id="d">${esc(protocol.tagline)}</desc>
 <defs>
@@ -281,13 +283,16 @@ export function protocolSvg(protocol: CatalogProtocol, label: "PROTOCOL" | "HABI
   <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter>
   <filter id="halo" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="22"/></filter>
 </defs>
-<rect width="${W}" height="${H}" fill="url(#bg)"/>
-<rect width="${W}" height="${H}" fill="url(#glow)"/>
+<rect width="${W}" height="${height}" fill="url(#bg)"/>
+<rect width="${W}" height="${height}" fill="url(#glow)"/>
 ${contourField(random, art.cx, art.cy, color)}
 <circle cx="${art.cx}" cy="${art.cy}" r="120" fill="${color}" fill-opacity="0.35" filter="url(#halo)"/>
 <rect x="${art.cx - 112}" y="${art.cy - 112}" width="224" height="224" rx="48" fill="url(#tile)" stroke="${color}" stroke-opacity="0.55" stroke-width="2"/>
 <g transform="translate(${art.cx - 72} ${art.cy - 72}) scale(6)" fill="none" stroke="${color}" stroke-linecap="round" stroke-linejoin="round">${icon}</g>
-${orbit}
+${orbit}`
+  if (label === "READER") return `${artwork}</svg>`
+
+  return `${artwork}
 ${logo}
 <text x="122" y="90" font-size="26" font-weight="700" fill="#ffffff">Liberture</text>
 <rect x="72" y="118" width="${Math.ceil(textWidth(pillarLabel, 15, true) + pillarLabel.length * 1.2 + 52)}" height="32" rx="16" fill="${color}" fill-opacity="0.14" stroke="${color}" stroke-opacity="0.5"/>
@@ -319,6 +324,14 @@ async function render(svg: string, base: string): Promise<number> {
 
 async function main() {
   await mkdir(path.join(OUT, "habits"), { recursive: true })
+  const readerDir = path.join(OUT, "readers")
+  await mkdir(readerDir, { recursive: true })
+  for (const protocol of CATALOG_PROTOCOLS) {
+    await sharp(Buffer.from(protocolSvg(protocol, "READER")))
+      .webp({ quality: 84 })
+      .toFile(path.join(readerDir, `${protocol.slug}.webp`))
+  }
+  if (process.argv.includes("--reader-only")) return
   let bytes = 0
   for (const protocol of CATALOG_PROTOCOLS) bytes += await render(protocolSvg(protocol), path.join(OUT, protocol.slug))
   // Catalog habits that belong to no protocol get their own (protocol habits use their protocol's).

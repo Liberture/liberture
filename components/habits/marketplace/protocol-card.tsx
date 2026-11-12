@@ -82,7 +82,9 @@ export function ProtocolCard({ protocol, adopted, onRead, onAdopt }: ProtocolCar
         <button
           type="button"
           onClick={onRead}
-          className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+          aria-haspopup="dialog"
+          aria-label={`${t.read} · ${protocol.name}`}
+          className="after:absolute after:inset-0 after:cursor-pointer after:rounded-xl focus-visible:after:ring-2 focus-visible:after:ring-ring inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
         >
           <BookOpen className="h-4 w-4" aria-hidden />
           {t.read}
@@ -92,7 +94,7 @@ export function ProtocolCard({ protocol, adopted, onRead, onAdopt }: ProtocolCar
           onClick={onAdopt}
           disabled={adopted}
           className={cn(
-            "inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+            "relative z-10 inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
             adopted
               ? cn("cursor-default border", styles.border, styles.background, styles.text)
               : "bg-primary text-primary-foreground hover:bg-primary/90"
