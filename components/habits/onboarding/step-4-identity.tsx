@@ -149,10 +149,10 @@ export function Step4Identity({ onNext, onBack, habitCategory ="personal" }: Ste
       <Card className="p-6 bg-exercise/10 border-exercise/30">
         <div className="space-y-3">
           <p className="text-exercise font-medium">
-            {formatMessage(t.thinkOfYourself, { identity: identityCopy.identity })}
+            {formatMessage(t.thinkOfYourself, { identity: identityCopy.identityPhrase })}
           </p>
           <p className="text-sm text-exercise">
-            {t.youWillSay} <strong>{formatMessage(t.iAmQuote, { identity: identityCopy.identity })}</strong>
+            {t.youWillSay} <strong>{formatMessage(t.iAmQuote, { identity: identityCopy.identityPhrase })}</strong>
             <br />
             {t.eachRepetition}
           </p>
@@ -176,7 +176,7 @@ export function Step4Identity({ onNext, onBack, habitCategory ="personal" }: Ste
         </Button>
       </div>
 
-      <div className="flex items-center justify-between pt-4">
+      <div className="onboarding-actions pt-4">
         <Button
           variant="ghost"
           onClick={onBack}

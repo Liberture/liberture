@@ -110,11 +110,11 @@ export function Step5FirstCompletion({ onNext, onBack, habitData }: Step5FirstCo
             </Card>
           </div>
 
-          <div className="flex items-center justify-center">
+          <div className="onboarding-actions">
             <Button
               onClick={handleComplete}
               size="lg"
-              className="bg-gradient-to-r from-nutrition/10 to-nutrition/10 hover:from-nutrition/10 hover:to-nutrition/10 text-lg px-8 py-6"
+              className="bg-gradient-to-r from-nutrition/10 to-nutrition/10 hover:from-nutrition/10 hover:to-nutrition/10"
             >
               <CheckCircle2 className="h-6 w-6 mr-2" />
               {t.iDidIt}
@@ -199,7 +199,7 @@ export function Step5FirstCompletion({ onNext, onBack, habitData }: Step5FirstCo
             </div>
           </Card>
 
-          <div className="flex items-center justify-between pt-4">
+          <div className="onboarding-actions pt-4">
             <Button
               variant="ghost"
               onClick={onBack}

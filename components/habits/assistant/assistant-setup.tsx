@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react"
 import { Check, CheckCircle2, Copy } from "lucide-react"
 import { ChatGPTLogo, ClaudeLogo } from "@/components/habits/brand-logos"
-import { Button } from "@/components/habits/ui/button"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useTranslations } from "@/components/i18n/locale-provider"
 
 export type AssistantPlatform = "claude" | "chatgpt"
@@ -49,38 +49,39 @@ export function AssistantSetup({ platform, onSelect, connected, chatgptAlternati
   const selected = assistants.find(({ kind }) => kind === platform)!
 
   return (
-    <div className="space-y-4">
-      <div role="group" aria-label={t.platformLabel} className="mx-auto flex w-fit gap-1 rounded-xl border border-border bg-background/60 p-1">
+    <Tabs value={platform} onValueChange={value => onSelect(value as AssistantPlatform)}
+      className="mx-auto w-full max-w-md gap-0 overflow-hidden rounded-xl border border-border bg-background/60">
+      <TabsList aria-label={t.platformLabel} className="h-10 w-full rounded-none bg-muted/40 p-0">
         {assistants.map(({ kind, name, Logo }) => (
-          <Button key={kind} type="button" size="sm" variant={platform === kind ? "secondary" : "ghost"}
-            aria-pressed={platform === kind} onClick={() => onSelect(kind)} className="gap-2">
+          <TabsTrigger key={kind} value={kind}
+            className="h-full gap-2 rounded-none border-0 border-b-2 border-border text-muted-foreground focus-visible:ring-inset data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none dark:data-[state=active]:border-primary dark:data-[state=active]:bg-transparent">
             <Logo className="h-4 w-4" /> {name}
             {connected.includes(kind) && <CheckCircle2 aria-label={t.connected} className="h-4 w-4 text-success" />}
-          </Button>
+          </TabsTrigger>
         ))}
-      </div>
-
-      {platform === "chatgpt" && chatgptAlternative ? chatgptAlternative : (
-        <>
-          <div className="mx-auto flex w-fit max-w-full items-center rounded-lg border border-border bg-background pl-3 pr-1">
-            <input readOnly value={mcpUrl} size={mcpUrl.length} aria-label={t.urlLabel}
-              className="min-w-0 bg-transparent py-2 font-mono text-sm text-foreground" />
-            <Button type="button" size="icon" variant="ghost" onClick={copy}
-              aria-label={copied ? t.copied : t.copy} title={copied ? t.copied : t.copy} className="shrink-0">
-              {copied ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
-            </Button>
-          </div>
-
-          <ol className="mx-auto max-w-md space-y-2 rounded-xl border border-border bg-background/60 p-4">
+      </TabsList>
+      <TabsContent value={platform} className="space-y-2 p-4 text-left">
+        {platform === "chatgpt" && chatgptAlternative ? chatgptAlternative : (
+          <ol className="space-y-2">
             {selected.steps.map((step, i) => (
               <li key={step} className="flex gap-2 text-sm text-muted-foreground">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs text-primary">{i + 1}</span>
-                {step}
+                <div className="min-w-0">
+                  {step}
+                  {i === 1 && origin && (
+                    <button type="button" onClick={copy} aria-label={`${copied ? t.copied : t.copy} · ${t.urlLabel}`}
+                      title={copied ? t.copied : t.copy}
+                      className="mt-1 flex max-w-full items-center gap-2 rounded py-1 text-left text-foreground hover:text-primary focus-visible:outline-primary">
+                      <code className="min-w-0 break-all">{mcpUrl}</code>
+                      {copied ? <Check className="h-4 w-4 shrink-0 text-success" /> : <Copy className="h-4 w-4 shrink-0" />}
+                    </button>
+                  )}
+                </div>
               </li>
             ))}
           </ol>
-        </>
-      )}
-    </div>
+        )}
+      </TabsContent>
+    </Tabs>
   )
 }

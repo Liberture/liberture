@@ -1157,8 +1157,9 @@ const habitsEn = {
     },
     // E
     onboardingStep1: {
-      title: "Which habits do you want to build?",
-      subtitle: "Select one or more. You’ll personalize your first choice next.",
+      title: "Which areas do you want to focus on?",
+      subtitle: "Choose up to two areas. You can add more later.",
+      startTracking: "Start tracking",
       chooseDifferent: "Choose Different",
       continue: "Continue",
       customizeLater: "Don't worry, you can customize everything in the next steps",
@@ -1197,35 +1198,48 @@ const habitsEn = {
     },
     // E
     onboardingStep2: {
-      title: "Start Ridiculously Small",
-      subtitle: "The tiny version is what you'll do every day at first",
-      whyTitle: "Why start tiny? (BJ Fogg's Research)",
-      whyBody: "Starting with a tiny habit makes it impossible to fail. Once the habit is automatic, your brain will naturally want to do more. This is how you build real, lasting change.",
-      tinyLabel: "Tiny Version (So easy you can't say no)",
-      tinyExamples: "Examples: \"1 pushup\", \"Read 1 page\", \"3 deep breaths\"",
-      fullLabel: "Full Version (Your ultimate goal)",
-      fullExamples: "Examples: \"30-minute workout\", \"Read 30 minutes\", \"20-minute meditation\"",
-      pathLabel: "Your path:",
-      pathBody: "Start with the tiny version daily. After 21 days of consistency, we'll help you level up to the full version. Trust the process!",
+      title: "Choose your habits",
+      reviewTitle: "Your starting plan",
+      paceTitle: "Choose your pace",
+      paceBody: "Choose how many days a week you’ll practice each habit. Over the next three weeks, you’ll build up from the tiny version to the full habit.",
+      frequencyLabel: "Days per week",
+      planSummary: "For each habit, move to the middle step after {medium} check-ins and the full version after {full}. If you miss a day, pick up where you left off.",
+      chosenLabel: "Chosen habit",
+      tinyLabel: "Start with",
+      whyBody: "The tiny version is a shorter way to practice the same habit. Start there on busy days and build up when you have more time.",
       back: "Back",
-      continue: "Continue",
-      examples: {
-        exercise: {
-          tiny: "1 pushup",
-          full: "30-minute workout",
-        },
-        reading: {
-          tiny: "Read 1 page",
-          full: "Read 30 minutes",
-        },
-        meditation: {
-          tiny: "Take 3 deep breaths",
-          full: "Meditate 20 minutes",
-        },
-        default: {
-          tiny: "Do it for 1 minute",
-          full: "Do it for 30 minutes",
-        },
+      continueText: "Continue",
+      choices: {
+        exercise: [
+          { full: "Walk for 20 minutes", tiny: "Take a five-minute walk", medium: "Walk for 10 minutes" },
+          { full: "Do a strength workout", tiny: "Do one set of an exercise you know", medium: "Do two sets of an exercise you know" },
+          { full: "Stretch for 10 minutes", tiny: "Spend two minutes on your usual stretches", medium: "Stretch for five minutes" },
+        ],
+        reading: [
+          { full: "Read a chapter", tiny: "Read two pages", medium: "Read half a chapter" },
+          { full: "Listen to an audiobook for 20 minutes", tiny: "Listen for five minutes", medium: "Listen to an audiobook for 10 minutes" },
+          { full: "Write reading notes", tiny: "Write down one idea you want to remember", medium: "Write two notes about what you read" },
+        ],
+        meditation: [
+          { full: "Meditate for 10 minutes", tiny: "Spend two minutes following your breath", medium: "Meditate for five minutes" },
+          { full: "Practice a body scan", tiny: "Slowly notice how your feet, legs and hips feel", medium: "Scan from your feet up to your shoulders" },
+          { full: "Take a mindful walk", tiny: "Walk for two minutes, paying attention to each step", medium: "Take a five-minute mindful walk" },
+        ],
+        health: [
+          { full: "Drink water with each meal", tiny: "Have a glass of water with one meal", medium: "Have water with two meals" },
+          { foodFocused: true, full: "Include vegetables with lunch", tiny: "Add a few slices of a vegetable you like to your lunch", medium: "Add a small side of vegetables to lunch" },
+          { full: "Take an afternoon screen break", tiny: "Step away from your screen for two minutes this afternoon", medium: "Take a five-minute screen break" },
+        ],
+        morning_routine: [
+          { full: "Write a morning journal entry", tiny: "Write a couple of lines about what’s on your mind this morning", medium: "Write a short paragraph in your journal" },
+          { full: "Plan the day", tiny: "Write down your top priority and when you’ll start", medium: "Plan your two main tasks" },
+          { full: "Tidy your room", tiny: "Clear one surface, like your nightstand", medium: "Tidy one corner of your room" },
+        ],
+        personal: [
+          { full: "Practice a language for 15 minutes", tiny: "Practice introducing yourself in two sentences", medium: "Practice a language for seven minutes" },
+          { full: "Work on a creative project", tiny: "Spend five minutes on one small part of your project", medium: "Work on your project for 10 minutes" },
+          { full: "Practice an instrument for 20 minutes", tiny: "Play a few bars of a familiar tune", medium: "Practice an instrument for 10 minutes" },
+        ],
       },
     },
     // E
@@ -1265,17 +1279,19 @@ const habitsEn = {
       researchTitle: "Identity-Based Habits (James Clear, Atomic Habits)",
       researchBody: "True behavior change is identity change. Don't focus on what you want to achieve, focus on who you wish to become. Every action is a vote for the type of person you want to be.",
       journeyTitle: "Your Identity Journey",
-      thinkOfYourself: "From now on, think of yourself as a {identity}.",
+      thinkOfYourself: "From now on, think of yourself as {identity}.",
       youWillSay: "When you complete your habit, you'll say:",
-      iAmQuote: "\"I am a {identity}\"",
+      iAmQuote: "“I am {identity}”",
       eachRepetition: "Each repetition reinforces your new identity.",
       accepted: "✓ I Accept This Identity",
       acceptButton: "I Am a {identity}",
       back: "Back",
       continue: "Continue",
+      foodIdentity: { identity: "gastronome", identityPhrase: "a gastronome" },
       identities: {
         exercise: {
           identity: "athlete",
+          identityPhrase: "an athlete",
           identityTitle: "Athlete",
           description: "Someone who moves their body and values physical strength",
           milestones: [
@@ -1286,40 +1302,44 @@ const habitsEn = {
           ],
         },
         reading: {
-          identity: "reader",
-          identityTitle: "Reader",
+          identity: "scholar",
+          identityPhrase: "a scholar",
+          identityTitle: "Scholar",
           description: "Someone who values knowledge and feeds their mind",
           milestones: [
             "Day 3: You're cultivating curiosity",
-            "Day 7: Readers make time for growth",
+            "Day 7: Scholars make time for growth",
             "Day 21: Your mind is expanding",
-            "Day 66: You've become a reader",
+            "Day 66: You've become a scholar",
           ],
         },
         meditation: {
-          identity: "meditator",
-          identityTitle: "Meditator",
+          identity: "yogi",
+          identityPhrase: "a yogi",
+          identityTitle: "Yogi",
           description: "Someone who values inner peace and mental clarity",
           milestones: [
             "Day 3: You're learning to be present",
-            "Day 7: Meditators prioritize calm",
+            "Day 7: Yogis prioritize calm",
             "Day 21: Your mind is quieting",
-            "Day 66: You've become a meditator",
+            "Day 66: You've become a yogi",
           ],
         },
         health: {
-          identity: "healthy person",
-          identityTitle: "Healthy Person",
+          identity: "biohacker",
+          identityPhrase: "a biohacker",
+          identityTitle: "Biohacker",
           description: "Someone who takes care of their wellbeing",
           milestones: [
             "Day 3: You're honoring your body",
-            "Day 7: Healthy people make it a priority",
+            "Day 7: Biohackers make time for their health",
             "Day 21: Health is becoming your norm",
-            "Day 66: You've become a healthy person",
+            "Day 66: You've become a biohacker",
           ],
         },
         morning_routine: {
           identity: "morning person",
+          identityPhrase: "a morning person",
           identityTitle: "Morning Person",
           description: "Someone who owns their mornings and starts with intention",
           milestones: [
@@ -1331,6 +1351,7 @@ const habitsEn = {
         },
         personal: {
           identity: "dedicated person",
+          identityPhrase: "a dedicated person",
           identityTitle: "Dedicated Person",
           description: "Someone who commits and follows through",
           milestones: [
@@ -1386,13 +1407,12 @@ const habitsEn = {
       connected: "Connected",
       claudeSteps: [
         "Claude → Settings → Connectors → Add custom connector.",
-        "Paste the URL above, press Add, then Connect and approve.",
+        "Paste this URL, press Add, then Connect and approve.",
       ],
       chatgptSteps: [
         "ChatGPT → Settings → Apps → Advanced: turn on developer mode, then Create.",
-        "Paste the URL above, choose OAuth, create and approve.",
+        "Paste this URL, choose OAuth, create and approve.",
       ],
-      waiting: "Waiting for approval in {platform}…",
       continue: "Continue",
       skipForNow: "Skip for now",
       connectLater: "You can always connect later in Settings → Voice assistants.",
@@ -1607,12 +1627,17 @@ const habitsEn = {
       description: "Evidence-backed protocols from named researchers and practitioners. Every entry shows what it costs and what it's based on — read the research, then add one. Everything you adopt becomes an ordinary habit you can edit, reschedule, or delete.",
       searchPlaceholder: "Search protocols, authors, equipment…",
       searchAria: "Search the marketplace",
+      showResults: "Show results",
       sortAria: "Sort protocols",
       all: "All",
       cost: "Cost",
       any: "Any",
       effort: "Effort",
-      noAuthors: "No matching authors",
+      vertical: "Vertical",
+      authors: "Authors",
+      protocols: "Protocols",
+      removeAuthor: "Remove author filter",
+      noSuggestions: "No matching authors or protocols",
       authorAria: "Filter by author",
       allAuthors: "All authors",
       clear: "Clear {count}",
@@ -2199,6 +2224,10 @@ const habitsEn = {
     },
     // C
     habitDialog: {
+      tabs: { details: "Details", schedule: "Schedule", tracking: "Tracking", analytics: "Analytics" },
+      progressTitle: "Path to your full habit", stageNames: ["Tiny", "Build up", "Full habit"],
+      progressCount: "{done} of {goal} check-ins", dayUnit: { one: "{count} day", other: "{count} days" }, weekUnit: { one: "{count} week", other: "{count} weeks" },
+      totalCheckIns: "Total check-ins", currentStreak: "Current streak", noCheckIns: "Check in when you complete this habit to start its history.",
       titleCreate: "New habit",
       titleEdit: "Edit habit",
       close: "Close",
@@ -2871,6 +2900,14 @@ const habitsEn = {
       },
     },
     // B
+    habitsTour: {
+      summary: "Your habits at a glance", summaryBody: "These numbers show how many habits you track, your best streak and how often you check in.",
+      pace: "Practice {times} days per week. Each completed day counts toward your goal.",
+      stages: ["Start", "After {count}", "After {count}"],
+      dates: "Your daily check-ins", datesBody: "The count shows how many of today’s habits you’ve completed. Use the calendar to look back at an earlier day.",
+      start: "Try one today", startBody: "Try today’s task, then tap the circle on its card to check in.",
+      next: "Next", skip: "Skip tour", finish: "Try this habit",
+    },
     dailyTracker: {
       timeFilters: {
         allDay: "All day",
@@ -2939,6 +2976,7 @@ const habitsEn = {
     },
     // A
     habitTracker: {
+      showTutorial: "Show tutorial",
       homeLink: "Liberture home",
       loadingStatistics: "Loading statistics…",
       loadingHelix: "Spinning up the helix…",
@@ -4109,8 +4147,9 @@ const habitsEs: HabitsDictionary = {
     },
     // E
     onboardingStep1: {
-      title: "¿Qué hábitos querés construir?",
-      subtitle: "Elegí uno o más. Después vas a personalizar el primero que elijas.",
+      title: "¿En qué áreas querés enfocarte?",
+      subtitle: "Elegí hasta dos áreas. Podés agregar más después.",
+      startTracking: "Empezar a registrar",
       chooseDifferent: "Elegir otro",
       continue: "Continuar",
       customizeLater: "Tranqui, en los próximos pasos podés personalizar todo",
@@ -4149,35 +4188,48 @@ const habitsEs: HabitsDictionary = {
     },
     // E
     onboardingStep2: {
-      title: "Empezá ridículamente chico",
-      subtitle: "La versión mínima es lo que vas a hacer todos los días al principio",
-      whyTitle: "¿Por qué empezar chiquito? (investigación de BJ Fogg)",
-      whyBody: "Empezar con un hábito mínimo hace que sea imposible fallar. Cuando el hábito se vuelve automático, tu cerebro va a querer hacer más solo. Así se construye un cambio real y duradero.",
-      tinyLabel: "Versión mínima (tan fácil que no podés decir que no)",
-      tinyExamples: "Ejemplos: \"1 flexión\", \"Leer 1 página\", \"3 respiraciones profundas\"",
-      fullLabel: "Versión completa (tu meta final)",
-      fullExamples: "Ejemplos: \"30 minutos de entrenamiento\", \"Leer 30 minutos\", \"20 minutos de meditación\"",
-      pathLabel: "Tu camino:",
-      pathBody: "Hacé la versión mínima todos los días. Después de 21 días de constancia, te ayudamos a subir a la versión completa. ¡Confiá en el proceso!",
+      title: "Elegí tus hábitos",
+      reviewTitle: "Tu plan para empezar",
+      paceTitle: "Elegí tu ritmo",
+      paceBody: "Elegí cuántos días por semana vas a practicar cada hábito. Durante las próximas tres semanas, vas a pasar de la versión mínima al hábito completo.",
+      frequencyLabel: "Días por semana",
+      planSummary: "En cada hábito, pasás al paso intermedio tras {medium} registros y a la versión completa tras {full}. Si salteás un día, retomás donde dejaste.",
+      chosenLabel: "Hábito elegido",
+      tinyLabel: "Empezá con",
+      whyBody: "La versión mínima es una forma más breve de practicar el mismo hábito. Empezá por ahí en los días ocupados y hacé más cuando tengas tiempo.",
       back: "Volver",
-      continue: "Continuar",
-      examples: {
-        exercise: {
-          tiny: "1 flexión",
-          full: "30 minutos de entrenamiento",
-        },
-        reading: {
-          tiny: "Leer 1 página",
-          full: "Leer 30 minutos",
-        },
-        meditation: {
-          tiny: "Respirar hondo 3 veces",
-          full: "Meditar 20 minutos",
-        },
-        default: {
-          tiny: "Hacerlo 1 minuto",
-          full: "Hacerlo 30 minutos",
-        },
+      continueText: "Continuar",
+      choices: {
+        exercise: [
+          { full: "Caminar 20 minutos", tiny: "Salí a caminar cinco minutos", medium: "Caminá diez minutos" },
+          { full: "Hacer una rutina de fuerza", tiny: "Hacé una serie de un ejercicio que conozcas", medium: "Hacé dos series de un ejercicio que conozcas" },
+          { full: "Estirar durante 10 minutos", tiny: "Dedicá dos minutos a tus estiramientos habituales", medium: "Estirá durante cinco minutos" },
+        ],
+        reading: [
+          { full: "Leer un capítulo", tiny: "Leé dos páginas", medium: "Leé medio capítulo" },
+          { full: "Escuchar un audiolibro 20 minutos", tiny: "Escuchá cinco minutos", medium: "Escuchá un audiolibro diez minutos" },
+          { full: "Tomar notas de lectura", tiny: "Anotá una idea que quieras recordar", medium: "Anotá dos ideas de tu lectura" },
+        ],
+        meditation: [
+          { full: "Meditar 10 minutos", tiny: "Dedicá dos minutos a prestar atención a tu respiración", medium: "Meditá cinco minutos" },
+          { full: "Hacer un escaneo corporal", tiny: "Recorré con atención los pies, las piernas y las caderas", medium: "Recorré con atención desde los pies hasta los hombros" },
+          { full: "Caminar con atención plena", tiny: "Caminá dos minutos prestando atención a cada paso", medium: "Caminá cinco minutos con atención plena" },
+        ],
+        health: [
+          { full: "Tomar agua con cada comida", tiny: "Tomá un vaso de agua con una comida", medium: "Tomá agua con dos comidas" },
+          { foodFocused: true, full: "Comer verduras en el almuerzo", tiny: "Sumale al almuerzo unas rodajas de una verdura que te guste", medium: "Sumá una guarnición chica de verduras al almuerzo" },
+          { full: "Descansar de las pantallas por la tarde", tiny: "Alejate de la pantalla dos minutos esta tarde", medium: "Alejate de las pantallas cinco minutos" },
+        ],
+        morning_routine: [
+          { full: "Escribir en tu diario por la mañana", tiny: "Escribí un par de líneas sobre lo que tenés en mente esta mañana", medium: "Escribí un párrafo corto en tu diario" },
+          { full: "Planificar el día", tiny: "Anotá tu prioridad del día y a qué hora vas a empezar", medium: "Planificá tus dos tareas principales" },
+          { full: "Ordenar tu habitación", tiny: "Despejá una superficie, como la mesa de luz", medium: "Ordená un rincón de tu habitación" },
+        ],
+        personal: [
+          { full: "Practicar un idioma 15 minutos", tiny: "Practicá cómo presentarte en dos frases", medium: "Practicá un idioma siete minutos" },
+          { full: "Trabajar en un proyecto creativo", tiny: "Dedicá cinco minutos a una parte chica de tu proyecto", medium: "Trabajá diez minutos en tu proyecto" },
+          { full: "Practicar un instrumento 20 minutos", tiny: "Tocá unos compases de una melodía que conozcas", medium: "Practicá un instrumento diez minutos" },
+        ],
       },
     },
     // E
@@ -4225,9 +4277,11 @@ const habitsEs: HabitsDictionary = {
       acceptButton: "Soy {identity}",
       back: "Volver",
       continue: "Continuar",
+      foodIdentity: { identity: "gastrónomo", identityPhrase: "gastrónomo" },
       identities: {
         exercise: {
           identity: "atleta",
+          identityPhrase: "atleta",
           identityTitle: "atleta",
           description: "Alguien que mueve el cuerpo y valora la fuerza física",
           milestones: [
@@ -4238,40 +4292,44 @@ const habitsEs: HabitsDictionary = {
           ],
         },
         reading: {
-          identity: "lector",
-          identityTitle: "lector",
+          identity: "erudito",
+          identityPhrase: "erudito",
+          identityTitle: "erudito",
           description: "Alguien que valora el conocimiento y alimenta su mente",
           milestones: [
             "Día 3: Estás cultivando la curiosidad",
-            "Día 7: Los lectores se hacen tiempo para crecer",
+            "Día 7: Los eruditos se hacen tiempo para crecer",
             "Día 21: Tu mente se está expandiendo",
-            "Día 66: Ya sos lector",
+            "Día 66: Ya sos erudito",
           ],
         },
         meditation: {
-          identity: "meditador",
-          identityTitle: "meditador",
+          identity: "yogui",
+          identityPhrase: "yogui",
+          identityTitle: "yogui",
           description: "Alguien que valora la paz interior y la claridad mental",
           milestones: [
             "Día 3: Estás aprendiendo a estar presente",
-            "Día 7: Los meditadores priorizan la calma",
+            "Día 7: Los yoguis priorizan la calma",
             "Día 21: Tu mente se está aquietando",
-            "Día 66: Ya sos meditador",
+            "Día 66: Ya sos yogui",
           ],
         },
         health: {
-          identity: "una persona saludable",
-          identityTitle: "una persona saludable",
+          identity: "biohacker",
+          identityPhrase: "biohacker",
+          identityTitle: "biohacker",
           description: "Alguien que cuida su bienestar",
           milestones: [
             "Día 3: Estás honrando tu cuerpo",
-            "Día 7: Las personas saludables lo hacen prioridad",
+            "Día 7: Los biohackers priorizan su salud",
             "Día 21: La salud se está volviendo tu norma",
-            "Día 66: Ya sos una persona saludable",
+            "Día 66: Ya sos biohacker",
           ],
         },
         morning_routine: {
           identity: "una persona madrugadora",
+          identityPhrase: "una persona madrugadora",
           identityTitle: "una persona madrugadora",
           description: "Alguien que se adueña de sus mañanas y arranca con intención",
           milestones: [
@@ -4283,6 +4341,7 @@ const habitsEs: HabitsDictionary = {
         },
         personal: {
           identity: "una persona comprometida",
+          identityPhrase: "una persona comprometida",
           identityTitle: "una persona comprometida",
           description: "Alguien que se compromete y cumple",
           milestones: [
@@ -4338,13 +4397,12 @@ const habitsEs: HabitsDictionary = {
       connected: "Conectado",
       claudeSteps: [
         "Claude → Configuración → Conectores → Agregar conector personalizado.",
-        "Pegá la URL de arriba, tocá Agregar, después Conectar y aprobá.",
+        "Pegá esta URL, tocá Agregar, después Conectar y aprobá.",
       ],
       chatgptSteps: [
         "ChatGPT → Configuración → Apps → Avanzado: activá el modo desarrollador y después Crear.",
-        "Pegá la URL de arriba, elegí OAuth, creá y aprobá.",
+        "Pegá esta URL, elegí OAuth, creá y aprobá.",
       ],
-      waiting: "Esperando que apruebes en {platform}…",
       continue: "Continuar",
       skipForNow: "Saltar por ahora",
       connectLater: "Siempre podés conectarlo después en Ajustes → Asistentes de voz.",
@@ -4559,12 +4617,17 @@ const habitsEs: HabitsDictionary = {
       description: "Protocolos respaldados por evidencia, de investigadores y profesionales con nombre y apellido. Cada uno muestra cuánto cuesta y en qué se basa — leé la investigación y después agregalo. Todo lo que adoptes se vuelve un hábito común que podés editar, reprogramar o borrar.",
       searchPlaceholder: "Buscá protocolos, autores, equipamiento…",
       searchAria: "Buscar en el catálogo",
+      showResults: "Ver resultados",
       sortAria: "Ordenar protocolos",
       all: "Todos",
       cost: "Costo",
       any: "Cualquiera",
       effort: "Esfuerzo",
-      noAuthors: "No hay autores que coincidan",
+      vertical: "Vertical",
+      authors: "Autores",
+      protocols: "Protocolos",
+      removeAuthor: "Quitar filtro de autor",
+      noSuggestions: "No hay autores ni protocolos que coincidan",
       authorAria: "Filtrar por autor",
       allAuthors: "Todos los autores",
       clear: "Limpiar {count}",
@@ -5151,6 +5214,10 @@ const habitsEs: HabitsDictionary = {
     },
     // C
     habitDialog: {
+      tabs: { details: "Detalles", schedule: "Horario", tracking: "Registro", analytics: "Estadísticas" },
+      progressTitle: "Camino al hábito completo", stageNames: ["Inicio", "Paso intermedio", "Hábito completo"],
+      progressCount: "{done} de {goal} registros", dayUnit: { one: "{count} día", other: "{count} días" }, weekUnit: { one: "{count} semana", other: "{count} semanas" },
+      totalCheckIns: "Registros totales", currentStreak: "Racha actual", noCheckIns: "Registrá este hábito cuando lo completes para empezar su historial.",
       titleCreate: "Nuevo hábito",
       titleEdit: "Editar hábito",
       close: "Cerrar",
@@ -5823,6 +5890,14 @@ const habitsEs: HabitsDictionary = {
       },
     },
     // B
+    habitsTour: {
+      summary: "Tus hábitos de un vistazo", summaryBody: "Acá ves cuántos hábitos seguís, tu mejor racha y con qué frecuencia los completás.",
+      pace: "Practicá {times} días por semana. Cada día completado te acerca a la meta.",
+      stages: ["Inicio", "Tras {count}", "Tras {count}"],
+      dates: "Tus registros del día", datesBody: "El contador muestra cuántos hábitos completaste hoy. Usá el calendario para ver un día anterior.",
+      start: "Probá uno hoy", startBody: "Probá la tarea de hoy y tocá el círculo de la tarjeta cuando termines.",
+      next: "Seguir", skip: "Omitir guía", finish: "Probar este hábito",
+    },
     dailyTracker: {
       timeFilters: {
         allDay: "Todo el día",
@@ -5891,6 +5966,7 @@ const habitsEs: HabitsDictionary = {
     },
     // A
     habitTracker: {
+      showTutorial: "Ver tutorial",
       homeLink: "Inicio de Liberture",
       loadingStatistics: "Cargando estadísticas…",
       loadingHelix: "Armando la hélice…",

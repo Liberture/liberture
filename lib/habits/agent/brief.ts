@@ -67,7 +67,7 @@ function describeHabit(habit: Habit, completions: HabitCompletion[], weekStartsO
   if (habit.tinyHabit && habit.tinyHabit.currentLevel !== "full") {
     // Worth knowing: they have already made this one easier, so "try a smaller
     // version" is advice they have taken.
-    lines.push(`- scaled down to the ${habit.tinyHabit.currentLevel} version ("${habit.tinyHabit.tinyVersion}")`)
+    lines.push(`- scaled down to the ${habit.tinyHabit.currentLevel} version ("${habit.tinyHabit.currentLevel === "medium" ? habit.tinyHabit.mediumVersion ?? habit.tinyHabit.tinyVersion : habit.tinyHabit.tinyVersion}")`)
   }
   return lines.join("\n")
 }

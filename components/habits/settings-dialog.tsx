@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useCallback, useEffect, useId, useRef, useState } from "react"
+import { useCallback, useEffect, useId, useState } from "react"
 import { Bell, Code2, Database, Mic, SlidersHorizontal, UserRound, X } from "lucide-react"
 
 import { AssistantConnectSection, DeveloperSection } from "@/components/habits/assistant-access-section"
@@ -14,7 +14,7 @@ import { AppDialog } from "@/components/habits/ui/app-dialog"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import type { Habit, UserPreferences, UserProfile } from "@/lib/habits/types"
 import { DEFAULT_PREFERENCES } from "@/lib/habits/types"
-import { cn } from "@/lib/utils"
+import { DialogTabs } from "./ui/dialog-tabs"
 
 export type { SettingsTab } from "@/components/habits/settings/settings-tabs"
 export type { BackupImport } from "@/components/habits/settings/data-tab"
@@ -84,7 +84,6 @@ export function SettingsDialog({
   const t = useTranslations().habits.app.settingsDialog
   const idBase = useId()
   const [tab, setTab] = useState<SettingsTab>(initialTab ?? "profile")
-  const tabRefs = useRef<Partial<Record<SettingsTab, HTMLButtonElement | null>>>({})
 
   // Reopen on the tab used last unless the caller asked for one; a
   // convenience, so storage failures are ignored.
@@ -96,31 +95,11 @@ export function SettingsDialog({
     } catch {}
   }, [initialTab])
 
-  const chooseTab = (next: SettingsTab, focus = false) => {
+  const chooseTab = (next: SettingsTab) => {
     setTab(next)
-    if (focus) tabRefs.current[next]?.focus()
     try {
       localStorage.setItem(TAB_STORAGE, next)
     } catch {}
-  }
-
-  // Arrow keys move between tabs (WAI-ARIA tabs pattern, automatic activation).
-  const onTabKeyDown = (event: React.KeyboardEvent) => {
-    const index = SETTINGS_TABS.indexOf(tab)
-    const last = SETTINGS_TABS.length - 1
-    const next =
-      event.key === "ArrowRight" || event.key === "ArrowDown"
-        ? SETTINGS_TABS[index === last ? 0 : index + 1]
-        : event.key === "ArrowLeft" || event.key === "ArrowUp"
-          ? SETTINGS_TABS[index === 0 ? last : index - 1]
-          : event.key === "Home"
-            ? SETTINGS_TABS[0]
-            : event.key === "End"
-              ? SETTINGS_TABS[last]
-              : null
-    if (!next) return
-    event.preventDefault()
-    chooseTab(next, true)
   }
 
   // A confirm or preview dialog opened from a tab sits on top of this one and
@@ -146,41 +125,8 @@ export function SettingsDialog({
           <X className="h-4 w-4" />
         </button>
       </div>
-      <div
-        role="tablist"
-        aria-label={t.sections}
-        aria-orientation="horizontal"
-        onKeyDown={onTabKeyDown}
-        className="custom-scrollbar -mx-1 flex gap-1 overflow-x-auto px-1 pb-2"
-      >
-        {SETTINGS_TABS.map((id) => {
-          const Icon = TAB_ICONS[id]
-          const selected = tab === id
-          return (
-            <button
-              key={id}
-              ref={(el) => {
-                tabRefs.current[id] = el
-              }}
-              id={tabId(id)}
-              type="button"
-              role="tab"
-              aria-selected={selected}
-              aria-controls={selected ? panelId(id) : undefined}
-              tabIndex={selected ? 0 : -1}
-              onClick={() => chooseTab(id)}
-              className={cn(
-                "flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                selected ? "bg-primary/15 text-primary" : "text-muted-foreground hover:bg-secondary/60 hover:text-foreground"
-              )}
-            >
-              <Icon className="h-4 w-4" />
-              {t.tabs[id]}
-            </button>
-          )
-        })}
-      </div>
+      <DialogTabs ids={SETTINGS_TABS} tab={tab} onChange={chooseTab} icons={TAB_ICONS}
+        labels={t.tabs} label={t.sections} idBase={idBase} />
     </div>
   )
 

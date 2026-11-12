@@ -1,12 +1,14 @@
 "use client"
 
-import { useRef, useState, type ReactNode } from "react"
+import { useId, useRef, useState, type ReactNode } from "react"
 import {
   Archive,
   ArchiveRestore,
   Bell,
   Brain,
   CalendarDays,
+  ChartColumn,
+  ListChecks,
   ChevronDown,
   Minus,
   NotebookPen,
@@ -15,11 +17,12 @@ import {
   Trash2,
   X,
 } from "lucide-react"
+import { DialogTabs } from "./ui/dialog-tabs"
 import { AppDialog } from "@/components/habits/ui/app-dialog"
 import { notify } from "@/components/habits/ui/toast"
-import type { DataEntryField, Habit, HabitTag, ImplementationIntention } from "@/lib/habits/types"
+import type { DataEntryField, Habit, HabitCompletion, HabitTag, ImplementationIntention } from "@/lib/habits/types"
 import { HABIT_TAGS } from "@/lib/habits/motivational-messages"
-import { formatScheduleLabel, inferTimeOfDay } from "@/lib/habits/habit-utils"
+import { calculateStreak, calculateSuccessCounts, formatScheduleLabel, inferTimeOfDay } from "@/lib/habits/habit-utils"
 import {
   PILLAR_HEX,
   PILLAR_ICON_MAP,
@@ -34,7 +37,8 @@ import { Switch } from "@/components/habits/ui/switch"
 import { Textarea } from "@/components/habits/ui/textarea"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "@/components/i18n/locale-provider"
-import { formatMessage } from "@/lib/i18n-format"
+import { habitMilestones } from "@/lib/habits/starter-progression"
+import { formatMessage, plural } from "@/lib/i18n-format"
 
 type HabitDialogMode = "create" | "edit"
 
@@ -43,6 +47,8 @@ type HabitDialogStrings = ReturnType<typeof useTranslations>["habits"]["app"]["h
 interface HabitDialogProps {
   mode: HabitDialogMode
   habit?: Habit
+  completions?: HabitCompletion[]
+  weekStartsOn?: 0 | 1
   onCreate?: (habitData: Partial<Habit>) => void
   onUpdate?: (habitId: string, updates: Partial<Habit>) => void
   onDelete?: (habitId: string) => void
@@ -69,6 +75,9 @@ const DEFAULT_COLOR = "#6366f1"
 
 /** Colours the user never chose deliberately, so switching area may repaint them. */
 const AUTO_COLORS = new Set<string>([DEFAULT_COLOR, ...PILLAR_IDS.map((p) => PILLAR_HEX[p])])
+
+const EDIT_TABS = ["details", "schedule", "tracking", "analytics"] as const
+const EDIT_ICONS = { details: NotebookPen, schedule: CalendarDays, tracking: ListChecks, analytics: ChartColumn }
 
 const DESCRIPTION_MAX = 500
 
@@ -159,9 +168,11 @@ function Choice<T extends string | number>({
   )
 }
 
-export function HabitDialog({ mode, habit, onCreate, onUpdate, onDelete, onArchive, onUnarchive, onClose, defaultTime }: HabitDialogProps) {
+export function HabitDialog({ mode, habit, completions = [], weekStartsOn = 1, onCreate, onUpdate, onDelete, onArchive, onUnarchive, onClose, defaultTime }: HabitDialogProps) {
   const translations = useTranslations().habits.app
   const t = translations.habitDialog
+  const idBase = useId()
+  const [tab, setTab] = useState<(typeof EDIT_TABS)[number]>("details")
   const common = translations.common
   const COMMON_TRIGGERS = t.triggers
   const frequencyOptions = FREQUENCIES.map((value) => ({ value, label: t.frequencies[value] }))
@@ -222,8 +233,7 @@ export function HabitDialog({ mode, habit, onCreate, onUpdate, onDelete, onArchi
 
   const selectArea = (next: PillarId) => {
     setArea(next)
-    // Only repaint a colour the user never picked themselves.
-    if (!customColor) setColor(PILLAR_HEX[next])
+    if (mode === "edit" || !customColor) setColor(PILLAR_HEX[next])
   }
 
   const resetColor = () => {
@@ -338,6 +348,308 @@ export function HabitDialog({ mode, habit, onCreate, onUpdate, onDelete, onArchi
     .filter(Boolean)
     .join(" · ")
 
+  const detailsPanel = (
+    <Section icon={<NotebookPen className="h-4 w-4 text-primary" />} title={t.sections.habit} hint={t.sections.habitHint}>
+      <div>
+        <FieldLabel htmlFor="habit-name">{t.name}</FieldLabel>
+        <Input
+          id="habit-name"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          placeholder={t.namePlaceholder}
+          className="h-11 text-base"
+          required
+          aria-required="true"
+          data-autofocus=""
+        />
+      </div>
+      <div>
+        <FieldLabel htmlFor="habit-description" hint={formatMessage(t.descriptionHint, { count: description.length, max: DESCRIPTION_MAX })}>
+          {t.description}
+        </FieldLabel>
+        <Textarea
+          id="habit-description"
+          value={description}
+          onChange={(event) => setDescription(event.target.value.slice(0, DESCRIPTION_MAX))}
+          placeholder={t.descriptionPlaceholder}
+          rows={3}
+          className="resize-none"
+        />
+      </div>
+      <div>
+        <FieldLabel hint={area ? t.pillarDescriptions[area] : t.areaHint}>{t.area}</FieldLabel>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {PILLAR_IDS.map((pillar) => {
+            const Icon = PILLAR_ICON_MAP[pillar]
+            const selected = area === pillar
+            return (
+              <button
+                key={pillar}
+                type="button"
+                onClick={() => selectArea(pillar)}
+                aria-pressed={selected}
+                className={cn(
+                  "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
+                  selected ? "text-foreground" : "border-border bg-card text-muted-foreground hover:text-foreground"
+                )}
+                style={selected ? { borderColor: PILLAR_HEX[pillar], backgroundColor: `${PILLAR_HEX[pillar]}22` } : undefined}
+              >
+                <Icon className="h-4 w-4 shrink-0" style={{ color: PILLAR_HEX[pillar] }} />
+                {t.pillars[pillar]}
+              </button>
+            )
+          })}
+        </div>
+        {mode === "create" && (
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <label className="relative inline-flex h-8 cursor-pointer items-center gap-2 rounded-full border border-border bg-card px-3 text-xs text-muted-foreground hover:text-foreground">
+              <input
+                type="color"
+                value={color}
+                onChange={(event) => {
+                  setColor(event.target.value)
+                  setCustomColor(true)
+                }}
+                className="h-5 w-5 cursor-pointer rounded-full border-0 bg-transparent p-0"
+              />
+              {t.customColor}
+            </label>
+            {customColor ? (
+              <button type="button" onClick={resetColor} className="text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline">
+                {t.useAreaColor}
+              </button>
+            ) : null}
+          </div>
+        )}
+      </div>
+    </Section>
+  )
+
+  const schedulePanel = (
+    <Section icon={<CalendarDays className="h-4 w-4 text-primary" />} title={t.sections.when} hint={t.sections.whenHint}>
+      <div>
+        <FieldLabel>{t.howOften}</FieldLabel>
+        <Choice label={t.howOften} options={frequencyOptions} value={scheduleType} onChange={setScheduleType} columns="grid-cols-3" />
+      </div>
+
+      {scheduleType === "specific_days" && (
+        <div>
+          <FieldLabel hint={daysInvalid ? <span className="text-exercise">{t.pickOneDay}</span> : undefined}>{t.whichDays}</FieldLabel>
+          <div className="grid grid-cols-7 gap-1.5">
+            {DAYS.map((day) => {
+              const selected = selectedDays.includes(day.value)
+              return (
+                <button
+                  key={day.value}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => toggleDay(day.value)}
+                  className={cn(
+                    "rounded-lg border py-2 text-xs font-semibold transition-colors",
+                    selected ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  {t.daysShort[day.value]}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {scheduleType === "times_per_week" && (
+        <div>
+          <FieldLabel hint={t.timesPerWeekHint}>{t.timesPerWeek}</FieldLabel>
+          <div className="flex items-center gap-3">
+            <Button type="button" variant="secondary" size="sm" className="h-9 w-9 p-0" aria-label={t.fewer} onClick={() => setTimesPerWeek((n) => Math.max(1, n - 1))}>
+              <Minus className="h-4 w-4" />
+            </Button>
+            <span className="w-24 text-center text-sm font-semibold text-foreground">{formatMessage(t.timesPerWeekValue, { count: timesPerWeek })}</span>
+            <Button type="button" variant="secondary" size="sm" className="h-9 w-9 p-0" aria-label={t.more} onClick={() => setTimesPerWeek((n) => Math.min(7, n + 1))}>
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <FieldLabel hint={t.timeHint}>{t.time}</FieldLabel>
+          <SmartTimePicker value={time} onChange={changeTime} />
+        </div>
+        <div>
+          <FieldLabel hint={t.partOfDayHint}>{t.partOfDay}</FieldLabel>
+          <Choice
+            label={t.partOfDay}
+            options={partOfDayOptions}
+            value={timeOfDay}
+            onChange={(value) => {
+              setTimeOfDay(value)
+              setTimeOfDayTouched(true)
+            }}
+            columns="grid-cols-2"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-card px-3 py-2.5">
+        <label htmlFor="habit-nudges" className="min-w-0 cursor-pointer">
+          <span className="flex items-center gap-2 text-sm font-medium text-foreground">
+            <Bell className="h-4 w-4 text-primary" />
+            {t.nudges}
+          </span>
+          <span className="block text-xs text-muted-foreground">{t.nudgesHint}</span>
+        </label>
+        <Switch id="habit-nudges" checked={randomRemindersEnabled} onCheckedChange={setRandomRemindersEnabled} />
+      </div>
+    </Section>
+  )
+
+  const priorityAndTagsPanel = (
+    <Section icon={<Sparkles className="h-4 w-4 text-primary" />} title={t.sections.look}>
+      <div>
+        <FieldLabel hint={t.priorityHint}>{t.priority}</FieldLabel>
+        <Choice label={t.priority} options={priorityOptions} value={priority} onChange={setPriority} columns="grid-cols-3 sm:grid-cols-5" />
+      </div>
+      <div>
+        <FieldLabel hint={t.tagsHint}>{t.tags}</FieldLabel>
+        <div className="flex flex-wrap gap-2">
+          {HABIT_TAGS.map((tag) => (
+            <button
+              key={tag.value}
+              type="button"
+              aria-pressed={selectedTags.includes(tag.value)}
+              onClick={() => toggleTag(tag.value)}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                selectedTags.includes(tag.value)
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-card text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <span>{tag.emoji}</span>
+              <span>{t.tagLabels[tag.value] ?? tag.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </Section>
+  )
+
+  const dataEntryPanel = (
+    <Section icon={<NotebookPen className="h-4 w-4 text-primary" />} title={t.sections.data} hint={t.sections.dataHint}>
+      <div className="flex items-center justify-between gap-4">
+        <label htmlFor="habit-data" className="cursor-pointer text-sm font-medium text-foreground">{t.askOnComplete}</label>
+        <Switch id="habit-data" checked={dataEntryEnabled} onCheckedChange={setDataEntryEnabled} />
+      </div>
+      {dataEntryEnabled && (
+        <div className="space-y-3">
+          {dataFields.map((field) => (
+            <div key={field.id} className="space-y-3 rounded-lg border border-border bg-card p-3">
+              <div className="flex items-center gap-2">
+                <Choice
+                  label={t.fieldType}
+                  options={[{ value: "number", label: t.fieldTypeNumber }, { value: "text", label: t.fieldTypeText }]}
+                  value={field.type}
+                  onChange={(type) => updateDataField(field.id, { type })}
+                  columns="grid-cols-2 flex-1"
+                />
+                <Button type="button" variant="secondary" size="sm" onClick={() => removeDataField(field.id)} className="h-9 w-9 shrink-0 p-0" aria-label={t.removeField}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className={cn("grid gap-2", field.type === "number" ? "grid-cols-[minmax(0,1fr)_80px_80px]" : "grid-cols-1")}>
+                <div>
+                  <label htmlFor={`${field.id}-label`} className="mb-1 block text-xs text-muted-foreground">{t.fieldLabel}</label>
+                  <Input id={`${field.id}-label`} value={field.label} onChange={(event) => updateDataField(field.id, { label: event.target.value })} placeholder={t.fieldLabelPlaceholder} />
+                </div>
+                {field.type === "number" && (
+                  <>
+                    <div>
+                      <label htmlFor={`${field.id}-unit`} className="mb-1 block text-xs text-muted-foreground">{t.fieldUnit}</label>
+                      <Input id={`${field.id}-unit`} value={field.unit ?? ""} onChange={(event) => updateDataField(field.id, { unit: event.target.value })} placeholder={t.fieldUnitPlaceholder} />
+                    </div>
+                    <div>
+                      <label htmlFor={`${field.id}-goal`} className="mb-1 block text-xs text-muted-foreground">{t.fieldGoal}</label>
+                      <Input id={`${field.id}-goal`} type="number" value={field.goalValue ?? ""} onChange={(event) => updateDataField(field.id, { goalValue: event.target.value ? Number(event.target.value) : undefined })} placeholder="5" />
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          ))}
+          <Button type="button" variant="secondary" size="sm" onClick={() => setDataFields((current) => [...current, newDataField("number", t)])} className="gap-2">
+            <Plus className="h-4 w-4" />
+            {t.addField}
+          </Button>
+        </div>
+      )}
+    </Section>
+  )
+
+  const intentionPanel = (
+    <Section icon={<Brain className="h-4 w-4 text-primary" />} title={t.sections.intention} hint={t.sections.intentionHint}>
+      <div className="flex items-center justify-between gap-4">
+        <label htmlFor="habit-intention" className="cursor-pointer text-sm font-medium text-foreground">{t.useIntention}</label>
+        <Switch id="habit-intention" checked={showIntention} onCheckedChange={setShowIntention} />
+      </div>
+      {showIntention && (
+        <div className="space-y-3">
+          <div>
+            <FieldLabel>{t.when}</FieldLabel>
+            <div role="radiogroup" aria-label={t.when} className="flex flex-wrap gap-2">
+              {[...COMMON_TRIGGERS.map((trigger) => ({ value: trigger, label: trigger })), { value: "custom", label: t.somethingElse }].map((option) => {
+                const selected = intentionTrigger === option.value
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => setIntentionTrigger(selected ? "" : option.value)}
+                    className={cn(
+                      "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                      selected
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                )
+              })}
+            </div>
+            {intentionTrigger === "custom" && (
+              <Input className="mt-2" aria-label={t.customTriggerPlaceholder} value={intentionCustomTrigger} onChange={(event) => setIntentionCustomTrigger(event.target.value)} placeholder={t.customTriggerPlaceholder} />
+            )}
+          </div>
+          <div>
+            <FieldLabel htmlFor="habit-behavior">{t.iWill}</FieldLabel>
+            <Input id="habit-behavior" value={intentionBehavior} onChange={(event) => setIntentionBehavior(event.target.value)} placeholder={t.behaviorPlaceholder} />
+          </div>
+          <div className="space-y-2">
+            <span className="block text-sm font-medium text-foreground">{t.obstaclesTitle}</span>
+            {intentionObstacles.map((item, index) => (
+              <div key={index} className="grid gap-2 rounded-lg border border-border bg-card p-3">
+                <Input value={item.obstacle} onChange={(event) => updateObstacle(index, { obstacle: event.target.value })} placeholder={t.obstaclePlaceholder} />
+                <div className="flex gap-2">
+                  <Input value={item.strategy} onChange={(event) => updateObstacle(index, { strategy: event.target.value })} placeholder={t.strategyPlaceholder} />
+                  <Button type="button" variant="secondary" size="sm" onClick={() => setIntentionObstacles((current) => current.filter((_, i) => i !== index))} className="h-9 w-9 shrink-0 p-0" aria-label={t.remove}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+            <Button type="button" variant="secondary" size="sm" onClick={() => setIntentionObstacles((current) => [...current, { obstacle: "", strategy: "" }])} className="gap-2">
+              <Plus className="h-4 w-4" />
+              {t.addBackupPlan}
+            </Button>
+          </div>
+        </div>
+      )}
+    </Section>
+  )
+
   return (
     <AppDialog
       open
@@ -345,25 +657,33 @@ export function HabitDialog({ mode, habit, onCreate, onUpdate, onDelete, onArchi
       dirty={dirty}
       title={mode === "edit" ? t.titleEdit : t.titleCreate}
       header={
-        <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <div className="flex min-w-0 items-center gap-3">
-            <span className="h-9 w-2 shrink-0 rounded-full" style={{ backgroundColor: color }} aria-hidden />
-            <div className="min-w-0">
-              <h2 className="truncate text-lg font-bold text-foreground" aria-hidden>
-                {mode === "edit" ? t.titleEdit : t.titleCreate}
-              </h2>
-              <p className="truncate text-xs text-muted-foreground">{summary}</p>
+        <>
+          <div className="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
+            <div className="flex min-w-0 items-center gap-3">
+              <span className="h-9 w-2 shrink-0 rounded-full" style={{ backgroundColor: color }} aria-hidden />
+              <div className="min-w-0">
+                <h2 className="truncate text-lg font-bold text-foreground" aria-hidden>
+                  {mode === "edit" ? t.titleEdit : t.titleCreate}
+                </h2>
+                <p className="truncate text-xs text-muted-foreground">{summary}</p>
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={closeWithGuard}
+              aria-label={t.close}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-secondary text-secondary-foreground transition-colors hover:bg-secondary/70"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={closeWithGuard}
-            aria-label={t.close}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-secondary text-secondary-foreground transition-colors hover:bg-secondary/70"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
+          {mode === "edit" && (
+            <div className="px-4 sm:px-6">
+              <DialogTabs ids={EDIT_TABS} tab={tab} onChange={setTab} icons={EDIT_ICONS}
+                labels={t.tabs} label={t.titleEdit} idBase={idBase} />
+            </div>
+          )}
+        </>
       }
       footer={(
         <div className="flex w-full flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -392,319 +712,85 @@ export function HabitDialog({ mode, habit, onCreate, onUpdate, onDelete, onArchi
         </div>
       )}
     >
-      <div className="space-y-4">
-            <Section icon={<NotebookPen className="h-4 w-4 text-primary" />} title={t.sections.habit} hint={t.sections.habitHint}>
-              <div>
-                <FieldLabel htmlFor="habit-name">{t.name}</FieldLabel>
-                <Input
-                  id="habit-name"
-                  value={name}
-                  onChange={(event) => setName(event.target.value)}
-                  placeholder={t.namePlaceholder}
-                  className="h-11 text-base"
-                  required
-                  aria-required="true"
-                  data-autofocus=""
-                />
-              </div>
-              <div>
-                <FieldLabel htmlFor="habit-description" hint={formatMessage(t.descriptionHint, { count: description.length, max: DESCRIPTION_MAX })}>
-                  {t.description}
-                </FieldLabel>
-                <Textarea
-                  id="habit-description"
-                  value={description}
-                  onChange={(event) => setDescription(event.target.value.slice(0, DESCRIPTION_MAX))}
-                  placeholder={t.descriptionPlaceholder}
-                  rows={3}
-                  className="resize-none"
-                />
-              </div>
-              <div>
-                <FieldLabel hint={area ? t.pillarDescriptions[area] : t.areaHint}>{t.area}</FieldLabel>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {PILLAR_IDS.map((pillar) => {
-                    const Icon = PILLAR_ICON_MAP[pillar]
-                    const selected = area === pillar
-                    return (
-                      <button
-                        key={pillar}
-                        type="button"
-                        onClick={() => selectArea(pillar)}
-                        aria-pressed={selected}
-                        className={cn(
-                          "flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-colors",
-                          selected ? "text-foreground" : "border-border bg-card text-muted-foreground hover:text-foreground"
-                        )}
-                        style={selected ? { borderColor: PILLAR_HEX[pillar], backgroundColor: `${PILLAR_HEX[pillar]}22` } : undefined}
-                      >
-                        <Icon className="h-4 w-4 shrink-0" style={{ color: PILLAR_HEX[pillar] }} />
-                        {t.pillars[pillar]}
-                      </button>
-                    )
-                  })}
-                </div>
-                {/* Colour follows the area; this is only the escape hatch. */}
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <label className="relative inline-flex h-8 cursor-pointer items-center gap-2 rounded-full border border-border bg-card px-3 text-xs text-muted-foreground hover:text-foreground">
-                    <input
-                      type="color"
-                      value={color}
-                      onChange={(event) => {
-                        setColor(event.target.value)
-                        setCustomColor(true)
-                      }}
-                      className="h-5 w-5 cursor-pointer rounded-full border-0 bg-transparent p-0"
-                    />
-                    {t.customColor}
-                  </label>
-                  {customColor ? (
-                    <button type="button" onClick={resetColor} className="text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline">
-                      {t.useAreaColor}
-                    </button>
-                  ) : null}
-                </div>
-              </div>
-            </Section>
-
-            <Section icon={<CalendarDays className="h-4 w-4 text-primary" />} title={t.sections.when} hint={t.sections.whenHint}>
-              <div>
-                <FieldLabel>{t.howOften}</FieldLabel>
-                <Choice label={t.howOften} options={frequencyOptions} value={scheduleType} onChange={setScheduleType} columns="grid-cols-3" />
-              </div>
-
-              {scheduleType === "specific_days" && (
-                <div>
-                  <FieldLabel hint={daysInvalid ? <span className="text-exercise">{t.pickOneDay}</span> : undefined}>{t.whichDays}</FieldLabel>
-                  <div className="grid grid-cols-7 gap-1.5">
-                    {DAYS.map((day) => {
-                      const selected = selectedDays.includes(day.value)
-                      return (
-                        <button
-                          key={day.value}
-                          type="button"
-                          aria-pressed={selected}
-                          onClick={() => toggleDay(day.value)}
-                          className={cn(
-                            "rounded-lg border py-2 text-xs font-semibold transition-colors",
-                            selected ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground hover:text-foreground"
-                          )}
-                        >
-                          {t.daysShort[day.value]}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {scheduleType === "times_per_week" && (
-                <div>
-                  <FieldLabel hint={t.timesPerWeekHint}>{t.timesPerWeek}</FieldLabel>
-                  <div className="flex items-center gap-3">
-                    <Button type="button" variant="secondary" size="sm" className="h-9 w-9 p-0" aria-label={t.fewer} onClick={() => setTimesPerWeek((n) => Math.max(1, n - 1))}>
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                    <span className="w-24 text-center text-sm font-semibold text-foreground">{formatMessage(t.timesPerWeekValue, { count: timesPerWeek })}</span>
-                    <Button type="button" variant="secondary" size="sm" className="h-9 w-9 p-0" aria-label={t.more} onClick={() => setTimesPerWeek((n) => Math.min(7, n + 1))}>
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <FieldLabel hint={t.timeHint}>{t.time}</FieldLabel>
-                  <SmartTimePicker value={time} onChange={changeTime} />
-                </div>
-                <div>
-                  <FieldLabel hint={t.partOfDayHint}>{t.partOfDay}</FieldLabel>
-                  <Choice
-                    label={t.partOfDay}
-                    options={partOfDayOptions}
-                    value={timeOfDay}
-                    onChange={(value) => {
-                      setTimeOfDay(value)
-                      setTimeOfDayTouched(true)
-                    }}
-                    columns="grid-cols-2"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-card px-3 py-2.5">
-                <label htmlFor="habit-nudges" className="min-w-0 cursor-pointer">
-                  <span className="flex items-center gap-2 text-sm font-medium text-foreground">
-                    <Bell className="h-4 w-4 text-primary" />
-                    {t.nudges}
-                  </span>
-                  <span className="block text-xs text-muted-foreground">{t.nudgesHint}</span>
-                </label>
-                <Switch id="habit-nudges" checked={randomRemindersEnabled} onCheckedChange={setRandomRemindersEnabled} />
-              </div>
-            </Section>
-
-            {/* ---------- Extras ---------- */}
-            <button
-              type="button"
-              onClick={() => setShowMore((open) => !open)}
-              aria-expanded={showMore}
-              className="flex w-full items-center justify-between rounded-xl border border-border bg-secondary/60 px-4 py-3 text-left transition-colors hover:bg-secondary"
-            >
-              <span>
-                <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  {t.moreOptions}
-                </span>
-                <span className="block text-xs text-muted-foreground">{t.moreOptionsHint}</span>
+      {mode === "edit" && habit ? (
+        <div role="tabpanel" id={`${idBase}-panel-${tab}`} aria-labelledby={`${idBase}-tab-${tab}`} tabIndex={0} className="space-y-4 outline-none">
+          {tab === "details" && detailsPanel}
+          {tab === "schedule" && schedulePanel}
+          {tab === "tracking" && <>{priorityAndTagsPanel}{dataEntryPanel}{intentionPanel}</>}
+          {tab === "analytics" && <HabitAnalytics habit={habit} completions={completions} weekStartsOn={weekStartsOn} />}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {detailsPanel}
+          {schedulePanel}
+          <button
+            type="button"
+            onClick={() => setShowMore((open) => !open)}
+            aria-expanded={showMore}
+            className="flex w-full items-center justify-between rounded-xl border border-border bg-secondary/60 px-4 py-3 text-left transition-colors hover:bg-secondary"
+          >
+            <span>
+              <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <Sparkles className="h-4 w-4 text-primary" />
+                {t.moreOptions}
               </span>
-              <ChevronDown className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform", showMore && "rotate-180")} />
-            </button>
-
-            {showMore && (
-              <>
-                <Section icon={<Sparkles className="h-4 w-4 text-primary" />} title={t.sections.look}>
-                  <div>
-                    <FieldLabel hint={t.priorityHint}>{t.priority}</FieldLabel>
-                    <Choice label={t.priority} options={priorityOptions} value={priority} onChange={setPriority} columns="grid-cols-3 sm:grid-cols-5" />
-                  </div>
-                  <div>
-                    <FieldLabel hint={t.tagsHint}>{t.tags}</FieldLabel>
-                    <div className="flex flex-wrap gap-2">
-                      {HABIT_TAGS.map((tag) => (
-                        <button
-                          key={tag.value}
-                          type="button"
-                          aria-pressed={selectedTags.includes(tag.value)}
-                          onClick={() => toggleTag(tag.value)}
-                          className={cn(
-                            "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-                            selectedTags.includes(tag.value)
-                              ? "border-primary bg-primary text-primary-foreground"
-                              : "border-border bg-card text-muted-foreground hover:text-foreground"
-                          )}
-                        >
-                          <span>{tag.emoji}</span>
-                          <span>{t.tagLabels[tag.value] ?? tag.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </Section>
-
-                <Section icon={<NotebookPen className="h-4 w-4 text-primary" />} title={t.sections.data} hint={t.sections.dataHint}>
-                  <div className="flex items-center justify-between gap-4">
-                    <label htmlFor="habit-data" className="cursor-pointer text-sm font-medium text-foreground">{t.askOnComplete}</label>
-                    <Switch id="habit-data" checked={dataEntryEnabled} onCheckedChange={setDataEntryEnabled} />
-                  </div>
-                  {dataEntryEnabled && (
-                    <div className="space-y-3">
-                      {dataFields.map((field) => (
-                        <div key={field.id} className="space-y-3 rounded-lg border border-border bg-card p-3">
-                          <div className="flex items-center gap-2">
-                            <Choice
-                              label={t.fieldType}
-                              options={[{ value: "number", label: t.fieldTypeNumber }, { value: "text", label: t.fieldTypeText }]}
-                              value={field.type}
-                              onChange={(type) => updateDataField(field.id, { type })}
-                              columns="grid-cols-2 flex-1"
-                            />
-                            <Button type="button" variant="secondary" size="sm" onClick={() => removeDataField(field.id)} className="h-9 w-9 shrink-0 p-0" aria-label={t.removeField}>
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          <div className={cn("grid gap-2", field.type === "number" ? "grid-cols-[minmax(0,1fr)_80px_80px]" : "grid-cols-1")}>
-                            <div>
-                              <label htmlFor={`${field.id}-label`} className="mb-1 block text-xs text-muted-foreground">{t.fieldLabel}</label>
-                              <Input id={`${field.id}-label`} value={field.label} onChange={(event) => updateDataField(field.id, { label: event.target.value })} placeholder={t.fieldLabelPlaceholder} />
-                            </div>
-                            {field.type === "number" && (
-                              <>
-                                <div>
-                                  <label htmlFor={`${field.id}-unit`} className="mb-1 block text-xs text-muted-foreground">{t.fieldUnit}</label>
-                                  <Input id={`${field.id}-unit`} value={field.unit ?? ""} onChange={(event) => updateDataField(field.id, { unit: event.target.value })} placeholder={t.fieldUnitPlaceholder} />
-                                </div>
-                                <div>
-                                  <label htmlFor={`${field.id}-goal`} className="mb-1 block text-xs text-muted-foreground">{t.fieldGoal}</label>
-                                  <Input id={`${field.id}-goal`} type="number" value={field.goalValue ?? ""} onChange={(event) => updateDataField(field.id, { goalValue: event.target.value ? Number(event.target.value) : undefined })} placeholder="5" />
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                      <Button type="button" variant="secondary" size="sm" onClick={() => setDataFields((current) => [...current, newDataField("number", t)])} className="gap-2">
-                        <Plus className="h-4 w-4" />
-                        {t.addField}
-                      </Button>
-                    </div>
-                  )}
-                </Section>
-
-                <Section icon={<Brain className="h-4 w-4 text-primary" />} title={t.sections.intention} hint={t.sections.intentionHint}>
-                  <div className="flex items-center justify-between gap-4">
-                    <label htmlFor="habit-intention" className="cursor-pointer text-sm font-medium text-foreground">{t.useIntention}</label>
-                    <Switch id="habit-intention" checked={showIntention} onCheckedChange={setShowIntention} />
-                  </div>
-                  {showIntention && (
-                    <div className="space-y-3">
-                      <div>
-                        <FieldLabel>{t.when}</FieldLabel>
-                        <div role="radiogroup" aria-label={t.when} className="flex flex-wrap gap-2">
-                          {[...COMMON_TRIGGERS.map((trigger) => ({ value: trigger, label: trigger })), { value: "custom", label: t.somethingElse }].map((option) => {
-                            const selected = intentionTrigger === option.value
-                            return (
-                              <button
-                                key={option.value}
-                                type="button"
-                                role="radio"
-                                aria-checked={selected}
-                                onClick={() => setIntentionTrigger(selected ? "" : option.value)}
-                                className={cn(
-                                  "rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-                                  selected
-                                    ? "border-primary bg-primary text-primary-foreground"
-                                    : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-foreground"
-                                )}
-                              >
-                                {option.label}
-                              </button>
-                            )
-                          })}
-                        </div>
-                        {intentionTrigger === "custom" && (
-                          <Input className="mt-2" aria-label={t.customTriggerPlaceholder} value={intentionCustomTrigger} onChange={(event) => setIntentionCustomTrigger(event.target.value)} placeholder={t.customTriggerPlaceholder} />
-                        )}
-                      </div>
-                      <div>
-                        <FieldLabel htmlFor="habit-behavior">{t.iWill}</FieldLabel>
-                        <Input id="habit-behavior" value={intentionBehavior} onChange={(event) => setIntentionBehavior(event.target.value)} placeholder={t.behaviorPlaceholder} />
-                      </div>
-                      <div className="space-y-2">
-                        <span className="block text-sm font-medium text-foreground">{t.obstaclesTitle}</span>
-                        {intentionObstacles.map((item, index) => (
-                          <div key={index} className="grid gap-2 rounded-lg border border-border bg-card p-3">
-                            <Input value={item.obstacle} onChange={(event) => updateObstacle(index, { obstacle: event.target.value })} placeholder={t.obstaclePlaceholder} />
-                            <div className="flex gap-2">
-                              <Input value={item.strategy} onChange={(event) => updateObstacle(index, { strategy: event.target.value })} placeholder={t.strategyPlaceholder} />
-                              <Button type="button" variant="secondary" size="sm" onClick={() => setIntentionObstacles((current) => current.filter((_, i) => i !== index))} className="h-9 w-9 shrink-0 p-0" aria-label={t.remove}>
-                                <X className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                        <Button type="button" variant="secondary" size="sm" onClick={() => setIntentionObstacles((current) => [...current, { obstacle: "", strategy: "" }])} className="gap-2">
-                          <Plus className="h-4 w-4" />
-                          {t.addBackupPlan}
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </Section>
-              </>
-            )}
-      </div>
+              <span className="block text-xs text-muted-foreground">{t.moreOptionsHint}</span>
+            </span>
+            <ChevronDown className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform", showMore && "rotate-180")} />
+          </button>
+          {showMore && <>{priorityAndTagsPanel}{dataEntryPanel}{intentionPanel}</>}
+        </div>
+      )}
     </AppDialog>
+  )
+}
+
+function HabitAnalytics({ habit, completions, weekStartsOn }: { habit: Habit; completions: HabitCompletion[]; weekStartsOn: 0 | 1 }) {
+  const app = useTranslations().habits.app
+  const history = completions.filter(entry => entry.habitId === habit.id)
+  const total = new Set(history.filter(entry => entry.completed).map(entry => entry.date)).size
+  const today = new Date()
+  const streak = calculateStreak(habit.id, history, habit.streakData, habit, today, weekStartsOn)
+  const units = streak.unit === "weeks" ? app.habitDialog.weekUnit : app.habitDialog.dayUnit
+  const { done, expected } = calculateSuccessCounts(habit, history, 7, today, weekStartsOn)
+  const plan = habit.tinyHabit
+  const milestones = habitMilestones(habit)
+  const metrics = [
+    [app.habitDialog.totalCheckIns, total],
+    [app.habitDialog.currentStreak, plural(units, streak.current)],
+    [app.dailyTracker.statBestStreak, plural(units, streak.longest)],
+    [app.dailyTracker.stat7DayRate, expected ? Math.round(100 * done / expected) + "%" : "—"],
+  ]
+  return (
+    <div className="space-y-3">
+      <dl className="grid gap-2 sm:grid-cols-2">
+        {metrics.map(([label, value]) => (
+          <div key={label} className="rounded-xl border border-border bg-background/60 p-4">
+            <dt className="text-sm text-muted-foreground">{label}</dt>
+            <dd className="mt-1 font-semibold">{value}</dd>
+          </div>
+        ))}
+      </dl>
+      {plan?.progression === "starter" && plan.mediumVersion && (
+        <figure className="rounded-xl border border-border bg-background/60 p-4">
+          <figcaption className="font-semibold">{app.habitDialog.progressTitle}</figcaption>
+          <p className="mt-1 text-sm text-muted-foreground">{formatMessage(app.habitDialog.progressCount, { done: Math.min(total, milestones.full), goal: milestones.full })}</p>
+          <ol className="mt-4">
+            {[plan.tinyVersion, plan.mediumVersion, plan.fullVersion].map((task, index) => {
+              const threshold = [0, milestones.medium, milestones.full][index]
+              const reached = total >= threshold
+              return (
+                <li key={index} className="relative ml-2 border-l-2 border-border pb-4 pl-5 last:border-transparent last:pb-0">
+                  <span aria-hidden="true" className={cn("absolute -left-[7px] top-1 size-3 rounded-full border-2 bg-card", reached ? "border-primary bg-primary" : "border-border")} />
+                  <p className="text-sm font-medium">{app.habitDialog.stageNames[index]} · {formatMessage(app.habitsTour.stages[index], { count: threshold })}</p>
+                  <p className="text-sm text-muted-foreground">{task}</p>
+                </li>
+              )
+            })}
+          </ol>
+        </figure>
+      )}
+      {total === 0 && <p className="text-sm text-muted-foreground">{app.habitDialog.noCheckIns}</p>}
+    </div>
   )
 }

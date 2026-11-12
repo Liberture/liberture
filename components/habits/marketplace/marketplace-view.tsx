@@ -2,10 +2,11 @@
 
 import { FieldSelect, FieldOption } from "@/components/ui/select"
 import { memo, useCallback, useMemo, useState } from "react"
-import { ArrowDownUp, Search, Store, X } from "lucide-react"
+import { ArrowDownUp, Store, X } from "lucide-react"
 
-import { PILLAR_ICON_MAP, PILLAR_IDS, PILLAR_STYLES, type PillarId } from "@/lib/habits/pillars"
+import { PILLAR_IDS, type PillarId } from "@/lib/habits/pillars"
 import {
+  CATALOG_AUTHORS,
   CATALOG_PROTOCOLS,
   DIFFICULTY_ORDER,
   STANDALONE_HABITS,
@@ -24,13 +25,12 @@ import {
 } from "@/lib/habits/protocols/filter"
 import { adoptedProtocolSlugs, adoptedSlugs } from "@/lib/habits/protocols/adopt"
 import type { Habit } from "@/lib/habits/types"
-import { cn } from "@/lib/utils"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage } from "@/lib/i18n-format"
 
 import { useCatalogLabels } from "./pillar-tag"
 import { CatalogHabitCard, ProtocolCard } from "./protocol-card"
-import { AuthorFilter } from "./author-filter"
+import { MarketplaceSearch } from "./marketplace-search"
 import { ProtocolReader } from "./protocol-reader"
 
 interface MarketplaceViewProps {
@@ -48,6 +48,7 @@ export const MarketplaceView = memo(function MarketplaceView({ habits, onAdoptPr
   const t = useTranslations().habits.app.marketplaceView
   const labels = useCatalogLabels()
   const [filter, setFilter] = useState<CatalogFilter>(DEFAULT_FILTER)
+  const [draft, setDraft] = useState("")
   const [readingSlug, setReadingSlug] = useState<string | null>(null)
 
   const habitSlugs = useMemo(() => adoptedSlugs(habits), [habits])
@@ -56,6 +57,7 @@ export const MarketplaceView = memo(function MarketplaceView({ habits, onAdoptPr
   const protocols = useMemo(() => filterProtocols(CATALOG_PROTOCOLS, filter), [filter])
   const standalone = useMemo(() => filterCatalogHabits(STANDALONE_HABITS, filter), [filter])
 
+  const author = CATALOG_AUTHORS.find(author => author.id === filter.authorId)
   const reading = readingSlug ? CATALOG_PROTOCOLS.find((p) => p.slug === readingSlug) : undefined
   const activeCount = activeFilterCount(filter)
 
@@ -67,67 +69,40 @@ export const MarketplaceView = memo(function MarketplaceView({ habits, onAdoptPr
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
-      <header className="space-y-2">
-        <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground">
+      <header className="space-y-2 text-center">
+        <h2 className="flex items-center justify-center gap-2 text-xl font-bold tracking-tight text-foreground">
           <Store aria-hidden className="size-5 text-primary" /> {t.title}
         </h2>
-        <p className="max-w-2xl text-sm text-muted-foreground">{t.description}</p>
+        <p className="mx-auto max-w-2xl text-sm text-muted-foreground">{t.description}</p>
       </header>
 
-      {/* Search and filters */}
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_auto_auto] sm:items-center" data-no-swipe>
-        <div className="relative col-span-2 sm:col-span-1">
-          <Search
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden
-          />
-          <input
-            type="search"
-            value={filter.query}
-            onChange={(e) => update("query", e.target.value)}
-            placeholder={t.searchPlaceholder}
-            aria-label={t.searchAria}
-            className="w-full rounded-lg border border-border bg-card/60 py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-          />
-        </div>
-        <AuthorFilter value={filter.authorId} onChange={value => update("authorId", value)} />
-        <FieldSelect value={filter.maxCost} aria-label={t.cost} prefix={t.cost} className="w-full sm:w-auto" onValueChange={value => update("maxCost", value as CatalogFilter["maxCost"])}>
+      <MarketplaceSearch query={draft} onQuery={setDraft} author={author}
+        onSearch={() => update("query", draft.trim())}
+        onRemoveAuthor={() => update("authorId", "all")}
+        onAuthor={authorId => {
+          setDraft("")
+          setFilter(current => ({ ...DEFAULT_FILTER, sort: current.sort, authorId }))
+        }}
+        onProtocol={setReadingSlug} />
+      <div data-no-swipe className="flex flex-wrap items-center justify-center gap-2">
+        <FieldSelect value={filter.pillar} prefix={t.vertical} aria-label={t.vertical} className="w-auto max-w-full" onValueChange={value => update("pillar", value as PillarId | "all")}>
+          <FieldOption value="all">{t.all}</FieldOption>
+          {PILLAR_IDS.map(pillar => <FieldOption key={pillar} value={pillar}>{labels.pillar[pillar]}</FieldOption>)}
+        </FieldSelect>
+        <FieldSelect value={filter.maxCost} aria-label={t.cost} prefix={t.cost} className="w-auto max-w-full" onValueChange={value => update("maxCost", value as CatalogFilter["maxCost"])}>
           <FieldOption value="any">{t.any}</FieldOption>
           {COST_TIER_ORDER.map(tier => <FieldOption key={tier} value={tier} title={labels.costBlurb[tier]}>{labels.costTier[tier]}</FieldOption>)}
         </FieldSelect>
-        <FieldSelect value={filter.difficulty} aria-label={t.effort} prefix={t.effort} className="w-full sm:w-auto" onValueChange={value => update("difficulty", value as CatalogFilter["difficulty"])}>
+        <FieldSelect value={filter.difficulty} aria-label={t.effort} prefix={t.effort} className="w-auto max-w-full" onValueChange={value => update("difficulty", value as CatalogFilter["difficulty"])}>
           <FieldOption value="all">{t.any}</FieldOption>
           {DIFFICULTY_ORDER.map(level => <FieldOption key={level} value={level}>{labels.difficulty[level]}</FieldOption>)}
         </FieldSelect>
       </div>
 
-      {/* Pillar filter */}
-      <div data-no-swipe className="custom-scrollbar lb-scroll-x -mx-1 flex gap-2 px-1 pb-1">
-        <FilterChip active={filter.pillar === "all"} onClick={() => update("pillar", "all")}>
-          {t.all}
-        </FilterChip>
-        {PILLAR_IDS.map((pillar) => {
-          const Icon = PILLAR_ICON_MAP[pillar]
-          const styles = PILLAR_STYLES[pillar]
-          const active = filter.pillar === pillar
-          return (
-            <FilterChip
-              key={pillar}
-              active={active}
-              className={active ? cn(styles.border, styles.background, styles.text) : undefined}
-              onClick={() => update("pillar", pillar as PillarId)}
-            >
-              <Icon className="h-4 w-4" aria-hidden />
-              {labels.pillar[pillar]}
-            </FilterChip>
-          )
-        })}
-      </div>
-
       {activeCount > 0 ? (
         <button
           type="button"
-          onClick={() => setFilter(DEFAULT_FILTER)}
+          onClick={() => { setDraft(""); setFilter(DEFAULT_FILTER) }}
           className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
         >
           <X className="h-3 w-3" aria-hidden />
@@ -207,38 +182,6 @@ export const MarketplaceView = memo(function MarketplaceView({ habits, onAdoptPr
     </div>
   )
 })
-
-function FilterChip({
-  active,
-  className,
-  onClick,
-  title,
-  children,
-}: {
-  active: boolean
-  className?: string
-  onClick: () => void
-  title?: string
-  children: React.ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      title={title}
-      className={cn(
-        "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
-        active
-          ? "border-primary/40 bg-primary/10 text-primary"
-          : "border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-        className
-      )}
-    >
-      {children}
-    </button>
-  )
-}
 
 function EmptyShelf({ children }: { children: React.ReactNode }) {
   return (

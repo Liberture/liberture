@@ -29,8 +29,7 @@ interface ImportResult {
 }
 
 interface MergeHistoryDialogProps {
-  /** The parsed backup file, or null when closed. */
-  backup: { fileName: string; data: unknown } | null
+  backup: { fileName: string; data: unknown }
   habits: Habit[]
   apiKey?: string
   onClose: () => void
@@ -60,7 +59,6 @@ export function MergeHistoryDialog({ backup, habits, apiKey, onClose }: MergeHis
 
   const send = useCallback(
     async (dryRun: boolean, mapping: Record<string, string>): Promise<ImportResult | null> => {
-      if (!backup) return null
       const response = await fetch("/api/import/habit-history", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}) },
@@ -79,11 +77,6 @@ export function MergeHistoryDialog({ backup, habits, apiKey, onClose }: MergeHis
   )
 
   useEffect(() => {
-    if (!backup) {
-      setResult(null)
-      setChoices({})
-      return
-    }
     let cancelled = false
     setLoading(true)
     send(true, choices)
@@ -105,8 +98,7 @@ export function MergeHistoryDialog({ backup, habits, apiKey, onClose }: MergeHis
       cancelled = true
     }
     // Re-preview whenever the user changes a match.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [backup, choices])
+  }, [send, choices, onClose, t.invalid, t.failed])
 
   const confirm = async () => {
     setSaving(true)
@@ -139,10 +131,10 @@ export function MergeHistoryDialog({ backup, habits, apiKey, onClose }: MergeHis
 
   return (
     <AppDialog
-      open={backup !== null}
+      open
       onClose={onClose}
       title={t.title}
-      description={backup?.fileName}
+      description={backup.fileName}
       size="md"
       footer={
         <>
