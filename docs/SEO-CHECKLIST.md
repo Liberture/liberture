@@ -154,8 +154,7 @@ git commit -m "Add: [description] - SEO optimized"
 # 2. Push
 git push origin master
 
-# 3. Restart app
-pm2 restart liberture
+# GitHub Actions builds and activates the release.
 ```
 
 ### Post-Deploy
@@ -227,13 +226,10 @@ curl -I https://liberture.com/knowledge/[new-slug]
 
 ```bash
 # 1. Check sitemap.ts exists
-ls -la /root/liberture/app/sitemap.ts
+ls -la app/sitemap.ts
 
-# 2. Rebuild
-cd /root/liberture && npm run build
-
-# 3. Restart
-pm2 restart liberture
+# 2. Verify the build locally, then deploy the tracked changes via master.
+pnpm build
 
 # 4. Verify
 curl -s https://liberture.com/sitemap.xml | head -30

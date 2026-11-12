@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Installed root-owned as the forced command on the Liberture deployment key.
+set -euo pipefail
+umask 027
+base=/srv/liberture
+exec 9>"$base/.deploy.lock"
+flock -w 300 9
+previous=$(readlink -f "$base/current")
+release=$(mktemp -d "$base/releases/release-XXXXXXXX")
+chmod 750 "$release"
+activate() {
+  ln -sfn "$1" "$base/current.new"
+  mv -Tf "$base/current.new" "$base/current"
+}
+cleanup() {
+  status=$?
+  trap - EXIT
+  if (( status != 0 )); then
+    if [[ $(readlink -f "$base/current") == "$release" ]]; then
+      activate "$previous"
+      sudo -n /usr/bin/systemctl restart liberture.service
+    fi
+    rm -rf -- "$release"
+  fi
+  exit "$status"
+}
+trap cleanup EXIT
+tar --extract --gzip --no-same-owner --no-same-permissions --directory "$release"
+cd "$release"
+test -s .next/BUILD_ID
+test ! -e .env
+CI=true /usr/bin/pnpm install --frozen-lockfile
+mkdir -p .next/cache
+chmod 2770 .next/cache
+ln -sfn "$release" "$base/staged"
+sudo -n /usr/bin/systemctl start liberture-prepare.service
+activate "$release"
+sudo -n /usr/bin/systemctl restart liberture.service
+for attempt in {1..30}; do
+  if curl --fail --silent --max-time 4 --output /dev/null http://127.0.0.1:3033/api/books; then
+    # Keep the previous release for rollback.
+    find "$base/releases" -mindepth 1 -maxdepth 1 -type d -name 'release-*' ! -path "$previous" ! -path "$release" -exec rm -rf -- {} +
+    exit 0
+  fi
+  sleep 1
+done
+echo 'Database-backed application health check failed.' >&2
+exit 1

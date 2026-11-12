@@ -1,86 +1,46 @@
 name: Deploy to Prod
-
 on:
   push:
-    branches:
-      - master
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: liberture-production
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 10
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Write .env from secret
-        run: |
-          umask 077
-          echo "${{ secrets.ENV_PRODUCTION }}" > .env
-          # Web Push keys have their own secrets (docs/REMINDERS.md). Never rotate them:
-          # new keys cut off every subscribed device.
-          echo "VAPID_PUBLIC_KEY=${{ secrets.VAPID_PUBLIC_KEY }}" >> .env
-          echo "VAPID_PRIVATE_KEY=${{ secrets.VAPID_PRIVATE_KEY }}" >> .env
-          echo "VAPID_SUBJECT=${{ secrets.VAPID_SUBJECT }}" >> .env
-
-      - name: Generate Prisma client
-        run: pnpm exec prisma generate
-
-      - name: Build Next.js app
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - run: pnpm build
         env:
-          NEXT_DISABLE_TURBOPACK: "1"
-        run: pnpm run build
-
-      - name: Upload production files via SCP
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY}}
-          source: ".next,public,next.config.mjs,package.json,pnpm-lock.yaml,pnpm-workspace.yaml,.env,prisma,data,scripts,lib,tsconfig.json"
-          target: /var/www/liberture
-          overwrite: true
-
-      - name: Restart app via SSH
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            set -e
-            export CI=true
-            cd /var/www/liberture
-            npm i -g pnpm@10 || true
-            pnpm install --frozen-lockfile
-            pnpm exec prisma generate
-            # No --accept-data-loss and no `|| true`: a schema change that would
-            # drop data stops the deploy here, before the app restarts.
-            pnpm exec prisma db push --skip-generate
-            pnpm exec tsx scripts/seed-directory-quick.ts || true
-            pnpm exec tsx scripts/seed-marketplace-protocols.ts || true
-            export PORT=3033
-            pm2 delete liberture || true
-            pm2 start "pnpm run start" --name liberture
-            pm2 save
-            for i in $(seq 1 15); do
-              sleep 2
-              curl -sf -o /dev/null http://localhost:3033/ && echo "App is serving" && exit 0
-            done
-            echo "App failed to serve after restart:"
-            pm2 logs liberture --lines 50 --nostream
-            exit 1
+          DATABASE_URL: postgresql://build:build@127.0.0.1:1/build
+          RESEND_API_KEY: re_localbuild
+          NEXT_TELEMETRY_DISABLED: '1'
+      - name: Deploy Liberture release
+        env:
+          DEPLOY_KEY: ${{ secrets.LIBERTURE_DEPLOY_KEY }}
+          KNOWN_HOSTS: ${{ secrets.LIBERTURE_KNOWN_HOSTS }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: |
+          set -euo pipefail
+          umask 077
+          sshdir=$(mktemp -d)
+          trap 'rm -rf "$sshdir"' EXIT
+          printf '%s\n' "$DEPLOY_KEY" > "$sshdir/key"
+          printf '%s\n' "$KNOWN_HOSTS" > "$sshdir/known_hosts"
+          unset DEPLOY_KEY
+          tar --exclude=.next/cache -czf - .next public next.config.mjs package.json pnpm-lock.yaml pnpm-workspace.yaml prisma/schema.prisma data scripts/seed-directory-quick.ts scripts/seed-marketplace-protocols.ts lib tsconfig.json |
+            ssh -T -i "$sshdir/key" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o HostKeyAlias=liberture-production -o UserKnownHostsFile="$sshdir/known_hosts" "liberture-deploy@$SSH_HOST"

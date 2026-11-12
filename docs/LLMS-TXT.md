@@ -137,13 +137,7 @@ Comprehensive list of relevant terms for semantic understanding:
 ### File Management
 ```bash
 # Edit the file
-vim /root/liberture/public/llms.txt
-
-# Restart server to reflect changes
-pm2 restart liberture
-
-# Verify accessibility
-curl https://liberture.com/llms.txt
+vim public/llms.txt
 
 # Commit changes
 git add public/llms.txt
