@@ -138,7 +138,7 @@ export default function MarketplaceEditModal({ item, onClose, onSave }: Props) {
                   setFormData({ ...formData, pillar: value })
                 }
               >
-                <SelectTrigger className="bg-slate-800/50 border-slate-700">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -157,7 +157,7 @@ export default function MarketplaceEditModal({ item, onClose, onSave }: Props) {
                 value={formData.type}
                 onValueChange={(value) => setFormData({ ...formData, type: value })}
               >
-                <SelectTrigger className="bg-slate-800/50 border-slate-700">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

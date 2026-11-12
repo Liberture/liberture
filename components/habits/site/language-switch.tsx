@@ -2,7 +2,8 @@
 
 import { useRouter } from "next/navigation"
 import { useTransition } from "react"
-import { Languages } from "lucide-react"
+import { FieldSelect, FieldOption } from "@/components/ui/select"
+import { useTranslations } from "@/components/i18n/locale-provider"
 
 import { LOCALE_COOKIE, LOCALES, type Locale } from "@/lib/habits/i18n"
 import { cn } from "@/lib/utils"
@@ -13,9 +14,10 @@ interface LanguageSwitchProps {
   className?: string
 }
 
-/** EN/ES toggle. Stores the choice in a cookie and re-renders the server page. */
+/** Stores the selected locale in a cookie and refreshes the server page. */
 export function LanguageSwitch({ locale, label, className }: LanguageSwitchProps) {
   const router = useRouter()
+  const names = useTranslations().habits.app.settingsDialog.prefs.languageNames
   const [pending, startTransition] = useTransition()
 
   const choose = (next: Locale) => {
@@ -25,26 +27,17 @@ export function LanguageSwitch({ locale, label, className }: LanguageSwitchProps
   }
 
   return (
-    <div
-      role="group"
-      aria-label={label}
-      className={cn("inline-flex items-center gap-0.5 rounded-lg border border-white/10 p-0.5", pending && "opacity-60", className)}
+    <FieldSelect
+      value={locale}
+      onValueChange={next => choose(next as Locale)}
+      disabled={pending}
+      aria-label={`${label} · ${names[locale]}`}
+      displayValue={locale.toUpperCase()}
+      className={cn("h-8 w-fit px-2 text-xs font-semibold", className)}
     >
-      <Languages className="mx-1 h-3.5 w-3.5 text-muted-foreground" aria-hidden />
-      {LOCALES.map((l) => (
-        <button
-          key={l}
-          type="button"
-          onClick={() => choose(l)}
-          aria-pressed={l === locale}
-          className={cn(
-            "rounded-md px-2 py-1 text-xs font-semibold uppercase transition-colors",
-            l === locale ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"
-          )}
-        >
-          {l}
-        </button>
+      {LOCALES.filter(option => option !== locale).map(option => (
+        <FieldOption key={option} value={option} lang={option}>{names[option]}</FieldOption>
       ))}
-    </div>
+    </FieldSelect>
   )
 }

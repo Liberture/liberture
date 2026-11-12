@@ -1,5 +1,6 @@
 "use client";
 
+import { FieldSelect, FieldOption } from "@/components/ui/select"
 import { useState, useEffect } from "react";
 import { Search, Plus, Edit, Trash2, Sparkles, ExternalLink, Zap, Loader2, X, Save } from "lucide-react";
 import { EditPersonModal } from "./edit-person-modal";
@@ -614,11 +615,11 @@ function EditDirectoryItemModal({
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label className={labelClass}>Difficulty</label>
-                  <select value={formData.difficulty || "beginner"} onChange={(e) => set("difficulty", e.target.value)} className={inputClass}>
-                    <option value="beginner">Beginner</option>
-                    <option value="intermediate">Intermediate</option>
-                    <option value="advanced">Advanced</option>
-                  </select>
+                  <FieldSelect value={formData.difficulty || "beginner"} onValueChange={(value) => set("difficulty", value)} aria-label="Difficulty">
+                    <FieldOption value="beginner">Beginner</FieldOption>
+                    <FieldOption value="intermediate">Intermediate</FieldOption>
+                    <FieldOption value="advanced">Advanced</FieldOption>
+                  </FieldSelect>
                 </div>
                 <div>
                   <label className={labelClass}>Duration</label>
@@ -862,11 +863,11 @@ function AddItemModal({
                 </div>
                 <div>
                   <label className={labelClass}>Difficulty</label>
-                  <select value={formData.difficulty || "beginner"} onChange={(e) => set("difficulty", e.target.value)} className={inputClass}>
-                    <option value="beginner">Beginner</option>
-                    <option value="intermediate">Intermediate</option>
-                    <option value="advanced">Advanced</option>
-                  </select>
+                  <FieldSelect value={formData.difficulty || "beginner"} onValueChange={(value) => set("difficulty", value)} aria-label="Difficulty">
+                    <FieldOption value="beginner">Beginner</FieldOption>
+                    <FieldOption value="intermediate">Intermediate</FieldOption>
+                    <FieldOption value="advanced">Advanced</FieldOption>
+                  </FieldSelect>
                 </div>
                 <div>
                   <label className={labelClass}>Duration</label>

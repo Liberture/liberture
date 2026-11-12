@@ -2942,14 +2942,14 @@ const habitsEn = {
         todos: "Todos",
         calendar: "Calendar",
         stats: "Stats",
-        discover: "Discover",
+        discover: "Marketplace",
       },
       viewTitles: {
         habits: "Habits",
         todos: "Todo List",
         calendar: "Calendar",
         stats: "Statistics",
-        discover: "Discover",
+        discover: "Marketplace",
       },
       layouts: {
         day: "Day",
@@ -2978,7 +2978,7 @@ const habitsEn = {
       addedPartial: "Added {added} from {name} — {skipped} already tracked",
     },
     discoverView: {
-      tabsLabel: "Discover",
+      tabsLabel: "Marketplace",
       tabs: {
         catalog: "Catalog",
         coach: "Coach",
@@ -5888,14 +5888,14 @@ const habitsEs: HabitsDictionary = {
         todos: "Tareas",
         calendar: "Calendario",
         stats: "Estadísticas",
-        discover: "Descubrir",
+        discover: "Mercado",
       },
       viewTitles: {
         habits: "Hábitos",
         todos: "Lista de tareas",
         calendar: "Calendario",
         stats: "Estadísticas",
-        discover: "Descubrir",
+        discover: "Mercado",
       },
       layouts: {
         day: "Día",
@@ -5924,7 +5924,7 @@ const habitsEs: HabitsDictionary = {
       addedPartial: "Se añadieron {added} de {name} — {skipped} ya estaban",
     },
     discoverView: {
-      tabsLabel: "Descubrir",
+      tabsLabel: "Mercado",
       tabs: {
         catalog: "Catálogo",
         coach: "Coach",

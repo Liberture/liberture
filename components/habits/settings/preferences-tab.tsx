@@ -1,5 +1,6 @@
 "use client"
 
+import { FieldSelect, FieldOption } from "@/components/ui/select"
 import { useEffect, useMemo, useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
@@ -101,19 +102,19 @@ export function PreferencesTab({ preferences, onPreferencesChange }: Preferences
               {t.timeZone}
             </label>
             <div className="flex flex-wrap items-center gap-2">
-              <select
+              <FieldSelect
                 id="pref-timezone"
                 value={timeZone}
                 aria-describedby="pref-timezone-hint"
-                onChange={(event) => onPreferencesChange({ timeZone: event.target.value })}
+                onValueChange={(value) => onPreferencesChange({ timeZone: value })}
                 className={cn(settingsInputClass, "min-w-0 flex-1 w-full")}
               >
                 {zones.map((zone) => (
-                  <option key={zone} value={zone}>
+                  <FieldOption key={zone} value={zone}>
                     {zone.replace(/_/g, " ")}
-                  </option>
+                  </FieldOption>
                 ))}
-              </select>
+              </FieldSelect>
               {deviceZone && timeZone !== deviceZone ? (
                 <button type="button" onClick={() => onPreferencesChange({ timeZone: deviceZone })} className={cn(settingsButtonClass(), "max-w-full h-auto min-h-9")}>
                   {formatMessage(t.useDeviceTimeZone, { zone: deviceZone.replace(/_/g, " ") })}

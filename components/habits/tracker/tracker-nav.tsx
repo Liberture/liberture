@@ -12,11 +12,11 @@ interface NavProps {
   className?: string
 }
 
-/** Desktop: segmented control in the header. Hidden below `md`. */
+/** Desktop: segmented control in the header. Hidden below `lg`. */
 export function DesktopNav({ activeView, onSelect, status, className }: NavProps) {
   const t = useTranslations().habits.app.habitTracker
   return (
-    <nav aria-label={t.navLabel} className={cn("hidden items-center gap-1 rounded-xl bg-muted/50 p-1 md:flex", className)}>
+    <nav aria-label={t.navLabel} className={cn("hidden items-center gap-1 rounded-xl bg-muted/50 p-1 lg:flex", className)}>
       {VIEWS.map(({ id, icon: Icon }) => (
         <button
           key={id}
@@ -40,7 +40,7 @@ export function DesktopNav({ activeView, onSelect, status, className }: NavProps
 
 /**
  * Phone: bottom bar with every view (five slots — Discover holds both the
- * catalog and the coach). Hidden from `md` up.
+ * catalog and the coach). Hidden from `lg` up.
  */
 export function MobileNav({ activeView, onSelect, status, className }: NavProps) {
   const t = useTranslations().habits.app.habitTracker
@@ -48,7 +48,7 @@ export function MobileNav({ activeView, onSelect, status, className }: NavProps)
   return (
     <nav
       aria-label={t.navLabel}
-      className={cn("fixed bottom-0 left-0 right-0 border-t border-border bg-card pb-[env(safe-area-inset-bottom)] shadow-lg md:hidden", className)}
+      className={cn("fixed bottom-0 left-0 right-0 border-t border-border bg-card pb-[env(safe-area-inset-bottom)] shadow-lg lg:hidden", className)}
     >
       <div className="relative grid gap-1.5 p-3" style={{ gridTemplateColumns: `repeat(${VIEWS.length}, minmax(0, 1fr))` }}>
         {/* Sliding pill. Width is one column; the offset is that width per slot. */}

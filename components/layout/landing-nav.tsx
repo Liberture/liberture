@@ -74,7 +74,7 @@ export function LandingNav() {
 
             {pillarsDropdownOpen && (
               <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 w-72">
-                <div className="bg-background border border-border/50 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="lb-dropdown overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="p-2">
                   {pillars.map((pillar) => {
                     const Icon = PILLAR_ICON_MAP[pillar.id as keyof typeof PILLAR_ICON_MAP]
@@ -116,8 +116,6 @@ export function LandingNav() {
             </Link>
           ))}
 
-          <LanguageSwitch locale={locale} label={t.habits.site.language} />
-
           {/* Auth Button / User Menu */}
           {isSignedIn ? (
             <div
@@ -135,7 +133,7 @@ export function LandingNav() {
 
               {userMenuOpen && (
                 <div className="absolute top-full right-0 pt-2 w-48">
-                  <div className="bg-background border border-border/50 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="lb-dropdown overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="p-2">
                       <Link
                         href="/tracker"
@@ -175,6 +173,7 @@ export function LandingNav() {
               {nav.signIn}
             </Button>
           )}
+          <LanguageSwitch locale={locale} label={t.habits.site.language} />
         </div>
 
         {/* Mobile Menu Button */}
@@ -227,52 +226,51 @@ export function LandingNav() {
                 </Link>
               ))}
 
-              <div className="px-4 py-2">
-                <LanguageSwitch locale={locale} label={t.habits.site.language} />
-              </div>
-
-              <div className="border-t border-border/50 mt-2 pt-2">
-                {isSignedIn ? (
-                  <>
-                    <Link href="/tracker" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="ghost" size="sm" className="w-full justify-start gap-2">
-                        <User className="h-4 w-4" />
-                        {nav.tracker}
-                      </Button>
-                    </Link>
-                    {isAdmin && (
-                      <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
-                        <Button variant="ghost" size="sm" className="w-full justify-start gap-2 text-violet-400">
-                          <Shield className="h-4 w-4" />
-                          {nav.admin}
+              <div className="mt-2 grid grid-cols-[1fr_auto] items-start gap-2 border-t border-border/50 pt-2">
+                <div>
+                  {isSignedIn ? (
+                    <>
+                      <Link href="/tracker" onClick={() => setMobileMenuOpen(false)}>
+                        <Button variant="ghost" size="sm" className="w-full justify-start gap-2">
+                          <User className="h-4 w-4" />
+                          {nav.tracker}
                         </Button>
                       </Link>
-                    )}
+                      {isAdmin && (
+                        <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
+                          <Button variant="ghost" size="sm" className="w-full justify-start gap-2 text-violet-400">
+                            <Shield className="h-4 w-4" />
+                            {nav.admin}
+                          </Button>
+                        </Link>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          logout()
+                          setMobileMenuOpen(false)
+                        }}
+                        className="gap-2 w-full justify-start text-red-500 hover:text-red-600"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        {nav.signOut}
+                      </Button>
+                    </>
+                  ) : (
                     <Button
-                      variant="ghost"
                       size="sm"
+                      className="w-full bg-primary hover:bg-primary/90"
                       onClick={() => {
-                        logout()
                         setMobileMenuOpen(false)
+                        openSignIn()
                       }}
-                      className="gap-2 w-full justify-start text-red-500 hover:text-red-600"
                     >
-                      <LogOut className="h-4 w-4" />
-                      {nav.signOut}
+                      {nav.signIn}
                     </Button>
-                  </>
-                ) : (
-                  <Button
-                    size="sm"
-                    className="w-full bg-primary hover:bg-primary/90"
-                    onClick={() => {
-                      setMobileMenuOpen(false)
-                      openSignIn()
-                    }}
-                  >
-                    {nav.signIn}
-                  </Button>
-                )}
+                  )}
+                </div>
+                <LanguageSwitch locale={locale} label={t.habits.site.language} />
               </div>
             </div>
           </div>

@@ -1,5 +1,6 @@
 "use client"
 
+import { FieldSelect, FieldOption } from "@/components/ui/select"
 import { useCallback, useEffect, useState } from "react"
 import { GitMerge } from "lucide-react"
 
@@ -185,20 +186,20 @@ export function MergeHistoryDialog({ backup, habits, apiKey, onClose }: MergeHis
                         {m.status === "ambiguous" && !(m.oldHabitId in choices) ? ` · ${t.needsConfirming}` : ""}
                       </span>
                     </label>
-                    <select
+                    <FieldSelect
                       id={id}
                       value={value}
                       disabled={loading || saving}
-                      onChange={(event) => setChoices((prev) => ({ ...prev, [m.oldHabitId]: event.target.value }))}
+                      onValueChange={(value) => setChoices((prev) => ({ ...prev, [m.oldHabitId]: value }))}
                       className={`${settingsInputClass} sm:w-56`}
                     >
-                      <option value="">{t.leavePending}</option>
+                      <FieldOption value="">{t.leavePending}</FieldOption>
                       {sortedHabits.map((h) => (
-                        <option key={h.id} value={h.id}>
+                        <FieldOption key={h.id} value={h.id}>
                           {h.name}
-                        </option>
+                        </FieldOption>
                       ))}
-                    </select>
+                    </FieldSelect>
                   </li>
                 )
               })}
