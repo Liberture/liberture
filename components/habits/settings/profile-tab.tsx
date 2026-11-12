@@ -5,7 +5,7 @@ import { BadgeCheck, Check, Copy } from "lucide-react"
 
 import { Avatar } from "@/components/habits/account-header"
 import { NostrMigrationCard } from "@/components/habits/nostr-migration-card"
-import { SettingRow, SettingsCard, settingsButtonClass, settingsInputClass } from "@/components/habits/settings/settings-ui"
+import { SettingRow, SettingsCard, settingsInputClass } from "@/components/habits/settings/settings-ui"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage } from "@/lib/i18n-format"
 import { hexToNpub, shortenNpub } from "@/lib/habits/nostr/crypto"
@@ -45,6 +45,9 @@ export function ProfileTab({
   const [name, setName] = useState(profile?.name ?? "")
   const [mission, setMission] = useState(profile?.missionStatement ?? "")
   const npub = pubkey && /^[0-9a-f]{64}$/.test(pubkey) ? hexToNpub(pubkey) : null
+  const shortNpub = npub ? shortenNpub(npub, 10) : ""
+  const npubInput = useRef<HTMLInputElement>(null)
+  const [npubFocused, setNpubFocused] = useState(false)
   const shownName = nostrProfile?.name ?? (name.trim() || (isNostrAuth ? t.nostrAccount : t.yourAccount))
 
   // Pending text edits, flushed after a pause and when the tab closes.
@@ -80,7 +83,8 @@ export function ProfileTab({
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch {
-      // Clipboard blocked; the npub is on screen to select by hand.
+      npubInput.current?.focus()
+      requestAnimationFrame(() => npubInput.current?.select())
     }
   }
 
@@ -107,20 +111,31 @@ export function ProfileTab({
             ) : (
               <p className="text-sm text-muted-foreground">{isNostrAuth ? t.signedInWithNostr : t.signedInWithApiKey}</p>
             )}
+            {npub && (
+              <div className="mt-1.5 flex w-fit max-w-full items-center rounded-md border border-border bg-card pl-2">
+                <input
+                  ref={npubInput}
+                  readOnly
+                  aria-label="npub"
+                  value={npubFocused ? npub : shortNpub}
+                  size={shortNpub.length}
+                  onFocus={() => setNpubFocused(true)}
+                  onBlur={() => setNpubFocused(false)}
+                  className="min-w-0 bg-transparent font-mono text-xs text-muted-foreground"
+                />
+                <button
+                  type="button"
+                  onClick={copyNpub}
+                  aria-label={copied ? t.copied : t.copyNpub}
+                  title={copied ? t.copied : t.copyNpub}
+                  className="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {copied ? <Check aria-hidden className="size-3.5 text-nutrition" /> : <Copy aria-hidden className="size-3.5" />}
+                </button>
+              </div>
+            )}
           </div>
         </div>
-
-        {npub ? (
-          <div className="flex items-center gap-2">
-            <code className="min-w-0 flex-1 overflow-hidden whitespace-nowrap rounded-lg border border-border bg-card px-3 py-2 font-mono text-xs text-muted-foreground">
-              {shortenNpub(npub, 10)}
-            </code>
-            <button type="button" onClick={copyNpub} className={settingsButtonClass()}>
-              {copied ? <Check className="h-4 w-4 text-nutrition" /> : <Copy className="h-4 w-4" />}
-              {copied ? t.copied : t.copyNpub}
-            </button>
-          </div>
-        ) : null}
       </SettingsCard>
 
       <SettingsCard title={t.profile.title} description={t.profile.description}>
