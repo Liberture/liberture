@@ -33,7 +33,8 @@ interface RemindersTabProps {
 
 export function RemindersTab({ enabled, onToggle, receipts, onReceiptsToggle }: RemindersTabProps) {
   const t = useTranslations().habits.app.settingsDialog
-  const [permission, setPermission] = useState<Permission>("default")
+  const [permission, setPermission] = useState<Permission | null>(null)
+  const [requesting, setRequesting] = useState(false)
   const [swRegistered, setSwRegistered] = useState<boolean | null>(null)
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null)
   const [showDiagnostics, setShowDiagnostics] = useState(false)
@@ -122,7 +123,27 @@ export function RemindersTab({ enabled, onToggle, receipts, onReceiptsToggle }: 
   }
 
   useEffect(() => {
-    setPermission("Notification" in window ? Notification.permission : "unsupported")
+    const refresh = () => setPermission("Notification" in window ? Notification.permission : "unsupported")
+    refresh()
+    window.addEventListener("focus", refresh)
+    document.addEventListener("visibilitychange", refresh)
+    let disposed = false
+    let status: PermissionStatus | undefined
+    navigator.permissions?.query({ name: "notifications" }).then(result => {
+      if (disposed) return
+      status = result
+      status.addEventListener("change", refresh)
+      refresh()
+    }).catch(() => {})
+    return () => {
+      disposed = true
+      status?.removeEventListener("change", refresh)
+      window.removeEventListener("focus", refresh)
+      document.removeEventListener("visibilitychange", refresh)
+    }
+  }, [])
+
+  useEffect(() => {
     // Whether a service worker is registered decides whether reminders can
     // reach Android at all, so it's surfaced rather than left to the console.
     if (!("serviceWorker" in navigator)) return setSwRegistered(false)
@@ -134,9 +155,17 @@ export function RemindersTab({ enabled, onToggle, receipts, onReceiptsToggle }: 
 
   const requestPermission = async (): Promise<Permission> => {
     if (!("Notification" in window)) return "unsupported"
-    const result = Notification.permission === "default" ? await Notification.requestPermission() : Notification.permission
-    setPermission(result)
-    return result
+    setRequesting(true)
+    try {
+      const result = Notification.permission === "default" ? await Notification.requestPermission() : Notification.permission
+      setPermission(result)
+      return result
+    } catch {
+      setPermission(Notification.permission)
+      return Notification.permission
+    } finally {
+      setRequesting(false)
+    }
   }
 
   const toggle = async (next: boolean) => {
@@ -178,7 +207,7 @@ export function RemindersTab({ enabled, onToggle, receipts, onReceiptsToggle }: 
           htmlFor="reminders-switch"
           title={t.remindMe}
           description={enabled ? t.remindersOn : t.remindersOff}
-          action={<Switch id="reminders-switch" checked={enabled} disabled={permission === "unsupported"} onCheckedChange={toggle} />}
+          action={<Switch id="reminders-switch" checked={enabled} disabled={!permission || requesting || permission === "unsupported"} onCheckedChange={toggle} />}
         />
         <SettingsDivider />
         <SettingRow
@@ -191,25 +220,20 @@ export function RemindersTab({ enabled, onToggle, receipts, onReceiptsToggle }: 
                   ? t.remindersUnsupported
                   : permission === "granted"
                     ? t.permissionGrantedHint
-                    : t.permissionDefaultHint}
+                    : permission === "default" ? t.permissionDefaultHint : null}
             </span>
           }
           action={
-            permission === "default" ? (
-              <button type="button" onClick={() => void requestPermission()} className={settingsButtonClass("primary")}>
-                <BellRing className="h-4 w-4" />
-                {t.allowNotifications}
-              </button>
-            ) : (
-              <span
-                className={cn(
-                  "text-sm font-semibold capitalize",
-                  permission === "granted" ? "text-nutrition" : blocked ? "text-destructive" : "text-exercise"
-                )}
-              >
-                {t.permissionStates[permission]}
+            <div className="flex flex-wrap items-center gap-2">
+              <span role="status" className={cn("text-sm font-medium capitalize", permission === "granted" ? "text-nutrition" : blocked ? "text-destructive" : "text-muted-foreground")}>
+                {requesting ? t.requestingPermission : permission ? t.permissionStates[permission] : t.checking}
               </span>
-            )
+              {permission === "default" && (
+                <button type="button" disabled={requesting} onClick={() => void requestPermission()} className={settingsButtonClass()}>
+                  <BellRing className="h-4 w-4" aria-hidden /> {t.requestPermission}
+                </button>
+              )}
+            </div>
           }
         />
         <SettingsDivider />
@@ -257,7 +281,7 @@ export function RemindersTab({ enabled, onToggle, receipts, onReceiptsToggle }: 
             <Switch
               id="closed-app-switch"
               checked={subscribed && pushState === "ready"}
-              disabled={pushState !== "ready" || pushBusy || !enabled || permission === "denied"}
+              disabled={pushState !== "ready" || pushBusy || requesting || !permission || !enabled || blocked}
               onCheckedChange={(next) => void togglePush(next)}
             />
           }
@@ -343,7 +367,7 @@ export function RemindersTab({ enabled, onToggle, receipts, onReceiptsToggle }: 
               <div className="rounded-xl border border-border bg-card p-3">
                 <p className="text-xs text-muted-foreground">{t.browserPermission}</p>
                 <p className={cn("mt-1 text-sm font-semibold capitalize", permission === "granted" ? "text-nutrition" : blocked ? "text-destructive" : "text-exercise")}>
-                  {t.permissionStates[permission]}
+                  {permission ? t.permissionStates[permission] : t.checking}
                 </p>
               </div>
               <div className="rounded-xl border border-border bg-card p-3">
