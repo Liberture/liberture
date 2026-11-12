@@ -1,5 +1,6 @@
 import { endOfDay, format, isAfter, isBefore, isToday, isTomorrow, isValid, parseISO, startOfDay } from "date-fns"
 import type { Locale as DateLocale } from "date-fns"
+import { isHabitActiveOnDate, isHabitScheduledOnDate } from "@/lib/habits/habit-utils"
 import type { CalendarEvent, Habit } from "@/lib/habits/types"
 import type { useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage } from "@/lib/i18n-format"
@@ -93,10 +94,7 @@ export function eventIntersectsDay(event: CalendarEvent, day: Date) {
   return !isAfter(start, endOfDay(day)) && !isBefore(end, startOfDay(day))
 }
 
-export function habitRunsOnDate(habit: Habit, day: Date, completed: boolean) {
-  if (completed) return true
-  if (!habit.schedule || habit.schedule.type === "daily") return true
-  if (habit.schedule.type === "specific_days") return habit.schedule.days?.includes(day.getDay()) ?? false
-  // times_per_week: any day can count toward the target, as on the board.
-  return true
+export function habitRunsOnDate(habit: Habit, day: Date, completed: boolean, accountStart?: number) {
+  if (accountStart !== undefined && day.getTime() < accountStart) return false
+  return completed ? isHabitActiveOnDate(habit, day) : isHabitScheduledOnDate(habit, day)
 }

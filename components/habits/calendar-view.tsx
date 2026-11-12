@@ -52,6 +52,7 @@ interface CalendarViewProps {
   events: CalendarEvent[]
   todos: Todo[]
   habits: Habit[]
+  accountCreatedAt: string | null
   completions: HabitCompletion[]
   onAddEvent: (event: EventDraft) => void
   onRemoveEvent: (id: string) => void
@@ -99,6 +100,7 @@ export const CalendarView = memo(function CalendarView({
   events,
   todos,
   habits,
+  accountCreatedAt,
   completions,
   onAddEvent,
   onRemoveEvent,
@@ -130,6 +132,7 @@ export const CalendarView = memo(function CalendarView({
 
   const now = Date.now()
   const upcomingEvents = sortedEvents.filter((event) => new Date(event.endsAt).getTime() >= now)
+  const accountStart = accountCreatedAt ? startOfDay(new Date(accountCreatedAt)).getTime() : undefined
   const selectedKey = dateKey(selectedDay)
   const selectedEvents = sortedEvents.filter((event) => eventIntersectsDay(event, selectedDay))
   const selectedTodos = todos
@@ -141,7 +144,7 @@ export const CalendarView = memo(function CalendarView({
   const selectedHabits = habits
     .filter((habit) => !habit.archived)
     .map((habit) => ({ habit, completion: completionByDayAndHabit.get(selectedKey + ":" + habit.id) }))
-    .filter(({ habit, completion }) => habitRunsOnDate(habit, selectedDay, Boolean(completion?.completed)))
+    .filter(({ habit, completion }) => habitRunsOnDate(habit, selectedDay, Boolean(completion?.completed), accountStart))
     .sort((a, b) => (a.habit.time || "00:00").localeCompare(b.habit.time || "00:00"))
 
   /** Day click / panel arrows: select the day and bring the board along. */
@@ -237,6 +240,7 @@ export const CalendarView = memo(function CalendarView({
           events={events}
           todos={todos}
           habits={habits}
+          accountStart={accountStart}
           completions={completions}
           showTodos={showTodos}
           showHabits={showHabits}
