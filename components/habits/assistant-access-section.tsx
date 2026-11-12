@@ -276,42 +276,44 @@ export function AssistantConnectSection({ apiKey, isNostrAuth }: AssistantAccess
         )}
       </SettingsCard>
 
-      <SettingsCard title={t.permissionsTitle} description={t.permissionsDescription}>
-        {permissions ? (
-          API_SCOPES.map((scope) => (
-            <SettingRow
-              key={scope}
-              htmlFor={`scope-${scope}`}
-              title={
-                <span className="flex items-center gap-2">
-                  {SCOPE_COPY[scope].label}
-                  {DEFAULT_OFF.has(scope) ? (
-                    <span className="rounded-full border border-destructive/30 bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-destructive">
-                      {t.offByDefault}
-                    </span>
-                  ) : null}
-                </span>
-              }
-              description={SCOPE_COPY[scope].hint}
-              action={
-                <Switch
-                  id={`scope-${scope}`}
-                  checked={permissions[scope]}
-                  disabled={savingScope !== null}
-                  onCheckedChange={(checked) => {
-                    if (checked && DEFAULT_OFF.has(scope) && !confirm(formatMessage(t.enableDestructiveConfirm, { action: SCOPE_COPY[scope].label.toLowerCase() }))) return
-                    toggleScope(scope, checked)
-                  }}
-                />
-              }
-            />
-          ))
-        ) : (
-          <p className="flex items-center gap-2 text-sm text-muted-foreground">
-            <RefreshCw className="h-3 w-3 animate-spin" /> {t.loadingPermissions}
-          </p>
-        )}
-      </SettingsCard>
+      {connections && connections.length > 0 && (
+        <SettingsCard title={t.permissionsTitle} description={t.permissionsDescription}>
+          {permissions ? (
+            API_SCOPES.map((scope) => (
+              <SettingRow
+                key={scope}
+                htmlFor={`scope-${scope}`}
+                title={
+                  <span className="flex items-center gap-2">
+                    {SCOPE_COPY[scope].label}
+                    {DEFAULT_OFF.has(scope) ? (
+                      <span className="rounded-full border border-destructive/30 bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-destructive">
+                        {t.offByDefault}
+                      </span>
+                    ) : null}
+                  </span>
+                }
+                description={SCOPE_COPY[scope].hint}
+                action={
+                  <Switch
+                    id={`scope-${scope}`}
+                    checked={permissions[scope]}
+                    disabled={savingScope !== null}
+                    onCheckedChange={(checked) => {
+                      if (checked && DEFAULT_OFF.has(scope) && !confirm(formatMessage(t.enableDestructiveConfirm, { action: SCOPE_COPY[scope].label.toLowerCase() }))) return
+                      toggleScope(scope, checked)
+                    }}
+                  />
+                }
+              />
+            ))
+          ) : (
+            <p className="flex items-center gap-2 text-sm text-muted-foreground">
+              <RefreshCw className="h-3 w-3 animate-spin" /> {t.loadingPermissions}
+            </p>
+          )}
+        </SettingsCard>
+      )}
     </>
   )
 }
