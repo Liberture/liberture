@@ -1,7 +1,7 @@
 "use client"
 
 import { memo, useCallback, useMemo, useState } from "react"
-import { Search, Store, X } from "lucide-react"
+import { Search, X } from "lucide-react"
 
 import { PILLAR_ICON_MAP, PILLAR_IDS, PILLAR_STYLES, type PillarId } from "@/lib/habits/pillars"
 import {
@@ -67,15 +67,7 @@ export const MarketplaceView = memo(function MarketplaceView({ habits, onAdoptPr
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
-      <header className="space-y-2">
-        <div className="flex items-center gap-2">
-          <Store className="h-5 w-5 text-primary" aria-hidden />
-          <h2 className="text-xl font-bold tracking-tight text-foreground">{t.title}</h2>
-        </div>
-        <p className="max-w-2xl text-sm text-muted-foreground">
-          {t.description}
-        </p>
-      </header>
+      <p className="max-w-2xl text-sm text-muted-foreground">{t.description}</p>
 
       {/* Search + sort */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center" data-no-swipe>

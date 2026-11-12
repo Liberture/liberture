@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { BarChart3, CalendarCheck, CalendarDays, Compass, ListTodo } from "lucide-react"
+import { BarChart3, CalendarCheck, CalendarDays, Store, ListTodo } from "lucide-react"
 
 export type ActiveView = "habits" | "todos" | "calendar" | "stats" | "discover"
 export type DiscoverTab = "catalog" | "coach"
@@ -16,7 +16,7 @@ export const VIEWS: Array<{ id: ActiveView; icon: typeof CalendarCheck }> = [
   { id: "todos", icon: ListTodo },
   { id: "calendar", icon: CalendarDays },
   { id: "stats", icon: BarChart3 },
-  { id: "discover", icon: Compass },
+  { id: "discover", icon: Store },
 ]
 
 const VIEW_ORDER: ActiveView[] = VIEWS.map((v) => v.id)

@@ -524,18 +524,20 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
       <header className="flex-shrink-0 border-b border-border/50 bg-background px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top))] md:bg-background/80 md:px-6 md:py-5 md:backdrop-blur-xl">
         {/* Fixed geometry on phones: the name truncates and the action buttons
             keep a constant size, so nothing reflows as views or filters change. */}
-        <div className="flex h-12 items-center justify-between gap-2 md:h-auto md:gap-4">
+        <div className="flex h-12 items-center justify-between gap-2 md:grid md:h-auto md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:gap-2">
           <h1 className="sr-only">{t.views[activeView]}</h1>
           <span role="status" className="sr-only">{statusKind && statusLabel}</span>
-          <DesktopNav activeView={activeView} onSelect={selectView} status={saveStatus} />
-          <AccountHeader
-            compact={isMobile}
-            pubkey={nostrPubkey}
-            fallbackName={storageData?.profile?.name}
-            onOpenSettings={openSettings}
-            onExport={actions.exportData}
-            onLogout={onLogout}
-          />
+          <DesktopNav className="md:col-start-2" activeView={activeView} onSelect={selectView} status={saveStatus} />
+          <div className="min-w-0 w-full md:w-auto md:justify-self-end md:max-w-full">
+            <AccountHeader
+              compact={isMobile}
+              pubkey={nostrPubkey}
+              fallbackName={storageData?.profile?.name}
+              onOpenSettings={openSettings}
+              onExport={actions.exportData}
+              onLogout={onLogout}
+            />
+          </div>
         </div>
       </header>
 
