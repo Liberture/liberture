@@ -63,6 +63,6 @@ prisma/dev.db-journal
 # deploy secrets
 .env.liberture-habits
 
-# local security incident notes (never commit)
-SECURITY-LEAKED-KEYS.md
+# Private operator notes
+SECURITY-*-KEYS*.md
 image.png
