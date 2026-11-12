@@ -157,7 +157,9 @@ export const CATALOG_PROTOCOLS: CatalogProtocol[] = libraryProtocols
 export const CATALOG_AUTHORS: Author[] = (() => {
   const seen = new Map<string, Author>()
   for (const p of CATALOG_PROTOCOLS) {
-    if (p.author?.kind === "person") seen.set(p.author.id, p.author)
+    for (const author of [p.author, ...p.coAuthors]) {
+      if (author?.kind === "person") seen.set(author.id, author)
+    }
   }
   return [...seen.values()].sort((a, b) => a.name.localeCompare(b.name))
 })()

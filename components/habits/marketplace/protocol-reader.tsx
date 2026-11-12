@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage, plural } from "@/lib/i18n-format"
 
+import { ProtocolArtwork } from "./protocol-artwork"
 import { DifficultyTag, PillarTag, useCatalogLabels } from "./pillar-tag"
 
 interface ProtocolReaderProps {
@@ -67,7 +68,7 @@ export function ProtocolReader({ protocol, adopted, onAdopt, onClose }: Protocol
           <X className="size-5" aria-hidden />
         </button>
         <div className="custom-scrollbar min-h-0 flex-1 space-y-5 overflow-y-auto rounded-t-2xl p-4 sm:p-5">
-          <img src={`/protocols/images/readers/${protocol.slug}.webp`} alt="" width={1200} height={320} className="block h-auto w-full rounded-xl border border-border" />
+          <ProtocolArtwork slug={protocol.slug} className="rounded-xl border border-border" />
           <header className="space-y-1">
             <h2 className="text-balance text-lg font-bold leading-tight text-foreground sm:text-xl">{protocol.name}</h2>
             <p className="text-sm text-muted-foreground">{protocol.tagline}</p>

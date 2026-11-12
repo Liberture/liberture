@@ -80,7 +80,7 @@ export function filterProtocols(all: CatalogProtocol[], filter: CatalogFilter): 
       if (filter.pillar !== "all" && p.pillar !== filter.pillar) return false
       if (filter.maxCost !== "any" && !costWithinTier(p.costTier, filter.maxCost)) return false
       if (filter.difficulty !== "all" && p.difficulty !== filter.difficulty) return false
-      if (filter.authorId !== "all" && p.author?.id !== filter.authorId) return false
+      if (filter.authorId !== "all" && p.author?.id !== filter.authorId && !p.coAuthors.some(author => author.id === filter.authorId)) return false
       if (query && !p.searchText.includes(query)) return false
       return true
     })
