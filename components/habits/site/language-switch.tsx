@@ -2,7 +2,9 @@
 
 import { useRouter } from "next/navigation"
 import { useTransition } from "react"
-import { Languages } from "lucide-react"
+import { ChevronDown } from "lucide-react"
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
+import { useTranslations } from "@/components/i18n/locale-provider"
 
 import { LOCALE_COOKIE, LOCALES, type Locale } from "@/lib/habits/i18n"
 import { cn } from "@/lib/utils"
@@ -13,9 +15,10 @@ interface LanguageSwitchProps {
   className?: string
 }
 
-/** EN/ES toggle. Stores the choice in a cookie and re-renders the server page. */
+/** Stores the selected locale in a cookie and refreshes the server page. */
 export function LanguageSwitch({ locale, label, className }: LanguageSwitchProps) {
   const router = useRouter()
+  const names = useTranslations().habits.app.settingsDialog.prefs.languageNames
   const [pending, startTransition] = useTransition()
 
   const choose = (next: Locale) => {
@@ -25,26 +28,32 @@ export function LanguageSwitch({ locale, label, className }: LanguageSwitchProps
   }
 
   return (
-    <div
-      role="group"
-      aria-label={label}
-      className={cn("inline-flex items-center gap-0.5 rounded-lg border border-white/10 p-0.5", pending && "opacity-60", className)}
-    >
-      <Languages className="mx-1 h-3.5 w-3.5 text-muted-foreground" aria-hidden />
-      {LOCALES.map((l) => (
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger asChild>
         <button
-          key={l}
           type="button"
-          onClick={() => choose(l)}
-          aria-pressed={l === locale}
-          className={cn(
-            "rounded-md px-2 py-1 text-xs font-semibold uppercase transition-colors",
-            l === locale ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"
-          )}
+          disabled={pending}
+          aria-label={`${label} · ${names[locale]}`}
+          className={cn("inline-flex h-8 items-center gap-1 rounded-lg border border-border px-2 text-xs font-semibold uppercase text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60", className)}
         >
-          {l}
+          {locale}
+          <ChevronDown className="size-3" aria-hidden />
         </button>
-      ))}
-    </div>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content align="end" sideOffset={4} aria-label={label} className="z-[70] min-w-28 rounded-lg border border-border bg-card p-1 shadow-lg">
+          {LOCALES.filter(option => option !== locale).map(option => (
+            <DropdownMenu.Item
+              key={option}
+              lang={option}
+              onSelect={() => choose(option)}
+              className="cursor-pointer rounded-md px-3 py-2 text-sm text-foreground outline-none data-[highlighted]:bg-secondary"
+            >
+              {names[option]}
+            </DropdownMenu.Item>
+          ))}
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
   )
 }
