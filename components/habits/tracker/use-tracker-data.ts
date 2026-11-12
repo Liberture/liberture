@@ -113,6 +113,13 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
   const [projects, setProjects] = useState<Project[]>([])
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [saveResult, setSaveResult] = useState<{ kind: "saved" | "error" } | null>(null)
+  useEffect(() => {
+    if (!saveResult) return
+    const timer = window.setTimeout(() => setSaveResult(null), 3000)
+    return () => window.clearTimeout(timer)
+  }, [saveResult])
+
   const [isSaving, setIsSaving] = useState(false)
   const [saveFailed, setSaveFailed] = useState(false)
   const [cachedLocally, setCachedLocally] = useState(false)
@@ -453,6 +460,7 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
     const cachedDraft = readUnsavedDraft()
     const sentDraftVersion = cachedDraft?.owner === draftOwner() ? cachedDraft.cachedAt : null
 
+    setSaveResult(null)
     setIsSaving(true)
     try {
       const baseData = storageData ? { ...storageData } : {}
@@ -495,6 +503,7 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
           setSaveFailed(false)
           localStorage.removeItem(UNSAVED_DRAFT_KEY)
           setCachedLocally(false)
+          setSaveResult({ kind: "error" })
           notify.info(accountResetMessage)
           return
         }
@@ -504,6 +513,7 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
           setSaveFailed(false)
           localStorage.removeItem(UNSAVED_DRAFT_KEY)
           setCachedLocally(false)
+          setSaveResult({ kind: "error" })
           notify.error(staleCopyMessage)
           return
         }
@@ -522,6 +532,7 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
         metaVersionRef.current === sentMetaVersion
 
       if (stateUnchanged) {
+        setSaveResult({ kind: "saved" })
         // The response echoes what we just sent, as fresh objects. Adopting
         // them unconditionally hands every list a new identity, which
         // invalidates each useMemo and re-renders the whole tree about two
@@ -569,6 +580,7 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
         )
       }
     } catch (error) {
+      setSaveResult({ kind: "error" })
       console.error("Failed to save data:", error)
       setSaveFailed(true)
     } finally {
@@ -703,7 +715,7 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
     calendarEvents, setCalendarEvents,
     storageData, setStorageData,
     onboardingState, setOnboardingState,
-    isLoading, isSaving, isDirty, saveFailed, cachedLocally,
+    isLoading, isSaving, isDirty, saveFailed, cachedLocally, saveResult,
     markDirty,
     habitsRef,
     projectTombstonesRef,

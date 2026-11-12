@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { format, subDays, startOfDay } from "date-fns"
-import { Loader2, Sparkles, Archive, Rows3, LayoutGrid, CalendarRange } from "lucide-react"
+import { Check, CircleAlert, Loader2, Sparkles, Archive, Rows3, LayoutGrid, CalendarRange } from "lucide-react"
 
 import { HabitGrid } from "@/components/habits/habit-grid"
 import { AddHabitDialog } from "@/components/habits/add-habit-dialog"
@@ -74,7 +74,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
   const actions = useTrackerActions(data)
   const {
     habits, completions, todos, projects, calendarEvents, storageData, onboardingState,
-    isLoading, isSaving, isDirty, saveFailed, cachedLocally,
+    isLoading, isSaving, isDirty, saveFailed, cachedLocally, saveResult,
     preferences, updatePreferences, updateProfile, habitsRef,
   } = data
   const isMobile = useMobile()
@@ -339,21 +339,15 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
     )
   }
 
-  const pendingSaveMessage = saveFailed
-    ? cachedLocally ? t.saveFailedCached : t.saveFailedKeepOpen
-    : cachedLocally ? t.savedLocallySyncing : t.unsavedChanges
-
-  const saveStatus = (
-    <>
-      {isSaving && (
-        <span className="inline-flex items-center gap-1 text-primary">
-          <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
-          {t.saving}
-        </span>
-      )}
-      {!isSaving && isDirty && <span className="text-exercise">{pendingSaveMessage}</span>}
-      {!isSaving && !isDirty && <span>{t.saved}</span>}
-    </>
+  const pending = isSaving || (isDirty && !saveFailed)
+  const statusKind = pending ? "saving" : saveResult?.kind
+  const StatusIcon = statusKind === "saving" ? Loader2 : statusKind === "saved" ? Check : CircleAlert
+  const statusLabel = statusKind === "saving" ? t.saving : statusKind === "saved" ? t.saved
+    : isDirty ? (cachedLocally ? t.saveFailedCached : t.saveFailedKeepOpen) : t.saveFailed
+  const saveStatus = statusKind && (
+    <span title={statusLabel} className="inline-flex size-full" aria-hidden>
+      <StatusIcon className={cn("size-full", pending && "animate-spin")} />
+    </span>
   )
 
   const editingHabit = editingHabitForDialog ? habits.find((h) => h.id === editingHabitForDialog) : undefined
@@ -530,13 +524,9 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
         {/* Fixed geometry on phones: the name truncates and the action buttons
             keep a constant size, so nothing reflows as views or filters change. */}
         <div className="flex h-12 items-center justify-between gap-2 md:h-auto md:gap-4">
-          <div className="hidden min-w-0 items-center gap-4 md:flex">
-            <DesktopNav activeView={activeView} onSelect={selectView} />
-            <div className="min-w-0 border-l border-border pl-4">
-              <h1 className="truncate text-xl font-bold tracking-tight text-foreground">{t.viewTitles[activeView]}</h1>
-              <p className="mt-0.5 text-xs text-muted-foreground" aria-live="polite">{saveStatus}</p>
-            </div>
-          </div>
+          <h1 className="sr-only">{t.views[activeView]}</h1>
+          <span role="status" className="sr-only">{statusKind && statusLabel}</span>
+          <DesktopNav activeView={activeView} onSelect={selectView} status={saveStatus} />
           <AccountHeader
             compact={isMobile}
             pubkey={nostrPubkey}
@@ -545,10 +535,6 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
             onExport={actions.exportData}
             onLogout={onLogout}
           />
-        </div>
-        <div className="mt-2 flex h-7 items-baseline justify-between gap-3 md:hidden">
-          <h1 className="min-w-0 truncate text-xl font-bold text-foreground">{t.views[activeView]}</h1>
-          <p className="shrink-0 text-xs text-muted-foreground" aria-live="polite">{saveStatus}</p>
         </div>
       </header>
 
@@ -561,7 +547,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
         renderView={renderView}
       />
 
-      <MobileNav activeView={activeView} onSelect={selectView} />
+      <MobileNav activeView={activeView} onSelect={selectView} status={saveStatus} />
 
       {showAddDialog && (
         <AddHabitDialog
