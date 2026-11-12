@@ -78,115 +78,120 @@ export function CoachSection({ preferences, onPreferencesChange }: CoachSectionP
 
   return (
     <SettingsCard title={t.title} description={t.description}>
-      {dailyCheckIn("morning", t.morning, t.morningHint)}
-      <SettingsDivider />
-      {dailyCheckIn("afternoon", t.afternoon, t.afternoonHint)}
-      <SettingsDivider />
-      <SettingRow
-        htmlFor="coach-weekly"
-        title={t.weekly}
-        description={t.weeklyHint}
-        action={
-          <div className="flex flex-wrap items-center gap-2">
-            {weekly ? (
-              <>
-                <select
-                  aria-label={`${t.weekly}: ${t.weeklyDay}`}
-                  value={weekly.day}
-                  onChange={(event) => saveCheckIns({ weekly: { ...weekly, day: Number(event.target.value) } })}
-                  className={cn(settingsInputClass, "w-36")}
-                >
-                  {t.days.map((name, day) => (
-                    <option key={name} value={day}>
-                      {name}
-                    </option>
-                  ))}
-                </select>
-                {timeInput("coach-weekly-time", weekly.time, (time) => saveCheckIns({ weekly: { ...weekly, time } }), `${t.weekly}: ${t.time}`)}
-              </>
-            ) : null}
-            <Switch
-              id="coach-weekly"
-              aria-label={`${t.weekly}: ${t.enable}`}
-              checked={Boolean(weekly)}
-              onCheckedChange={(on) => saveCheckIns({ weekly: on ? { ...DEFAULT_TIMES.weekly } : undefined })}
-            />
-          </div>
-        }
-      />
-      <SettingsDivider />
-      <SettingRow
-        htmlFor="coach-missed-logging"
-        title={t.missedLogging}
-        description={t.missedLoggingHint}
-        action={
-          <Switch
-            id="coach-missed-logging"
-            checked={coach.missedLogging ?? DEFAULT_COACH_PREFERENCES.missedLogging}
-            onCheckedChange={(missedLogging) => save({ missedLogging })}
+      <div className="grid items-start gap-4 md:grid-cols-2 md:gap-6">
+        <div className="min-w-0 space-y-3">
+          {dailyCheckIn("morning", t.morning, t.morningHint)}
+          <SettingsDivider />
+          {dailyCheckIn("afternoon", t.afternoon, t.afternoonHint)}
+          <SettingsDivider />
+          <SettingRow
+            htmlFor="coach-weekly"
+            title={t.weekly}
+            description={t.weeklyHint}
+            action={
+              <div className="flex flex-wrap items-center gap-2">
+                {weekly ? (
+                  <>
+                    <select
+                      aria-label={`${t.weekly}: ${t.weeklyDay}`}
+                      value={weekly.day}
+                      onChange={(event) => saveCheckIns({ weekly: { ...weekly, day: Number(event.target.value) } })}
+                      className={cn(settingsInputClass, "w-36")}
+                    >
+                      {t.days.map((name, day) => (
+                        <option key={name} value={day}>
+                          {name}
+                        </option>
+                      ))}
+                    </select>
+                    {timeInput("coach-weekly-time", weekly.time, (time) => saveCheckIns({ weekly: { ...weekly, time } }), `${t.weekly}: ${t.time}`)}
+                  </>
+                ) : null}
+                <Switch
+                  id="coach-weekly"
+                  aria-label={`${t.weekly}: ${t.enable}`}
+                  checked={Boolean(weekly)}
+                  onCheckedChange={(on) => saveCheckIns({ weekly: on ? { ...DEFAULT_TIMES.weekly } : undefined })}
+                />
+              </div>
+            }
           />
-        }
-      />
-      <SettingsDivider />
-      <SettingRow
-        htmlFor="coach-pulses"
-        title={t.pulses}
-        description={
-          <>
-            {t.pulsesHint}
-            {pulses > 0 && dailyMessages > max ? (
-              <span className="mt-1 block text-destructive">{formatMessage(t.pulsesOverCap, { max })}</span>
-            ) : null}
-          </>
-        }
-        action={
-          <select
-            id="coach-pulses"
-            value={pulses}
-            onChange={(event) => save({ pulsesPerDay: Number(event.target.value) })}
-            className={cn(settingsInputClass, "w-32")}
-          >
-            {PULSE_OPTIONS.map((n) => (
-              <option key={n} value={n}>
-                {n === 0 ? t.pulsesOff : formatMessage(t.pulsesCount, { count: n })}
-              </option>
-            ))}
-          </select>
-        }
-      />
-      <SettingsDivider />
-      <SettingRow
-        title={t.quietHours}
-        description={t.quietHoursHint}
-        action={
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>{t.quietFrom}</span>
-            {timeInput("coach-quiet-start", quiet.start, (start) => save({ quietHours: { ...quiet, start } }), `${t.quietHours}: ${t.quietFrom}`)}
-            <span>{t.quietTo}</span>
-            {timeInput("coach-quiet-end", quiet.end, (end) => save({ quietHours: { ...quiet, end } }), `${t.quietHours}: ${t.quietTo}`)}
-          </div>
-        }
-      />
-      <SettingsDivider />
-      <SettingRow
-        htmlFor="coach-max"
-        title={t.maxPerDay}
-        description={t.maxPerDayHint}
-        action={
-          <select
-            id="coach-max"
-            value={max}
-            onChange={(event) => save({ maxNudgesPerDay: Number(event.target.value) })}
-            className={cn(settingsInputClass, "w-20")}
-          >
-            {MAX_OPTIONS.map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
-        }
-      />
+        </div>
+        <div className="min-w-0 space-y-3 border-t border-border pt-4 md:border-l md:border-t-0 md:pl-5 md:pt-0">
+          <SettingRow
+            htmlFor="coach-missed-logging"
+            title={t.missedLogging}
+            description={t.missedLoggingHint}
+            action={
+              <Switch
+                id="coach-missed-logging"
+                checked={coach.missedLogging ?? DEFAULT_COACH_PREFERENCES.missedLogging}
+                onCheckedChange={(missedLogging) => save({ missedLogging })}
+              />
+            }
+          />
+          <SettingsDivider />
+          <SettingRow
+            htmlFor="coach-pulses"
+            title={t.pulses}
+            description={
+              <>
+                {t.pulsesHint}
+                {pulses > 0 && dailyMessages > max ? (
+                  <span className="mt-1 block text-destructive">{formatMessage(t.pulsesOverCap, { max })}</span>
+                ) : null}
+              </>
+            }
+            action={
+              <select
+                id="coach-pulses"
+                value={pulses}
+                onChange={(event) => save({ pulsesPerDay: Number(event.target.value) })}
+                className={cn(settingsInputClass, "w-32")}
+              >
+                {PULSE_OPTIONS.map((n) => (
+                  <option key={n} value={n}>
+                    {n === 0 ? t.pulsesOff : formatMessage(t.pulsesCount, { count: n })}
+                  </option>
+                ))}
+              </select>
+            }
+          />
+          <SettingsDivider />
+          <SettingRow
+            title={t.quietHours}
+            description={t.quietHoursHint}
+            action={
+              <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                <span>{t.quietFrom}</span>
+                {timeInput("coach-quiet-start", quiet.start, (start) => save({ quietHours: { ...quiet, start } }), `${t.quietHours}: ${t.quietFrom}`)}
+                <span>{t.quietTo}</span>
+                {timeInput("coach-quiet-end", quiet.end, (end) => save({ quietHours: { ...quiet, end } }), `${t.quietHours}: ${t.quietTo}`)}
+              </div>
+            }
+          />
+          <SettingsDivider />
+          <SettingRow
+            htmlFor="coach-max"
+            title={t.maxPerDay}
+            description={t.maxPerDayHint}
+            action={
+              <select
+                id="coach-max"
+                value={max}
+                onChange={(event) => save({ maxNudgesPerDay: Number(event.target.value) })}
+                className={cn(settingsInputClass, "w-20")}
+              >
+                {MAX_OPTIONS.map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+            }
+          />
+        </div>
+      </div>
     </SettingsCard>
   )
 }

@@ -78,146 +78,148 @@ export function PreferencesTab({ preferences, onPreferencesChange }: Preferences
 
   return (
     <>
-      <SettingsCard title={t.languageTitle}>
-        <SettingRow
-          title={t.language}
-          description={t.languageHint}
-          action={
-            <div className={cn(languagePending && "opacity-60")}>
-              <SettingsSegmented
-                label={t.language}
-                value={locale}
-                options={LOCALES.map((l) => ({ value: l, label: t.languageNames[l] }))}
-                onChange={chooseLanguage}
-                disabled={languagePending}
-              />
-            </div>
-          }
-        />
-        <SettingsDivider />
-        <div className="space-y-1.5">
-          <label htmlFor="pref-timezone" className="block text-sm font-medium text-foreground">
-            {t.timeZone}
-          </label>
-          <div className="flex flex-wrap items-center gap-2">
-            <select
-              id="pref-timezone"
-              value={timeZone}
-              aria-describedby="pref-timezone-hint"
-              onChange={(event) => onPreferencesChange({ timeZone: event.target.value })}
-              className={cn(settingsInputClass, "min-w-0 flex-1 sm:max-w-xs")}
-            >
-              {zones.map((zone) => (
-                <option key={zone} value={zone}>
-                  {zone.replace(/_/g, " ")}
-                </option>
-              ))}
-            </select>
-            {deviceZone && timeZone !== deviceZone ? (
-              <button type="button" onClick={() => onPreferencesChange({ timeZone: deviceZone })} className={settingsButtonClass()}>
-                {formatMessage(t.useDeviceTimeZone, { zone: deviceZone.replace(/_/g, " ") })}
-              </button>
-            ) : null}
-          </div>
-          <p id="pref-timezone-hint" className="text-xs text-muted-foreground">
-            {t.timeZoneHint}
-          </p>
-        </div>
-        <SettingsDivider />
-        <SettingRow
-          title={t.weekStart}
-          action={
-            <SettingsSegmented
-              label={t.weekStart}
-              value={String(prefs.weekStartsOn) as "0" | "1"}
-              options={[
-                { value: "1", label: t.monday },
-                { value: "0", label: t.sunday },
-              ]}
-              onChange={(value) => onPreferencesChange({ weekStartsOn: value === "0" ? 0 : 1 })}
-            />
-          }
-        />
-        <SettingRow
-          title={t.timeFormat}
-          action={
-            <SettingsSegmented
-              label={t.timeFormat}
-              value={prefs.timeFormat}
-              options={[
-                { value: "24h", label: t.time24h },
-                { value: "12h", label: t.time12h },
-              ]}
-              onChange={(timeFormat) => onPreferencesChange({ timeFormat })}
-            />
-          }
-        />
-      </SettingsCard>
-
-      <SettingsCard title={t.appearanceTitle}>
-        <SettingRow
-          title={t.theme}
-          description={AVAILABLE_THEMES.length === 1 ? t.themeOnlyDark : undefined}
-          action={
-            <SettingsSegmented
-              label={t.theme}
-              value={theme}
-              options={AVAILABLE_THEMES.map((value) => ({ value, label: t.themeNames[value] }))}
-              onChange={chooseTheme}
-            />
-          }
-        />
-      </SettingsCard>
-
-      <SettingsCard title={t.habitsTitle}>
-        <SettingRow
-          title={t.defaultLayout}
-          description={t.defaultLayoutHint}
-          action={
-            <SettingsSegmented
-              label={t.defaultLayout}
-              value={prefs.habitsLayout}
-              options={(["day", "week", "matrix"] as const).map((value) => ({ value, label: t.layouts[value] }))}
-              onChange={(habitsLayout) => onPreferencesChange({ habitsLayout })}
-            />
-          }
-        />
-        <SettingsDivider />
-        <SettingRow
-          htmlFor="pref-morning-dashboard"
-          title={t.morningDashboard}
-          description={t.morningDashboardHint}
-          action={
-            <Switch
-              id="pref-morning-dashboard"
-              checked={prefs.morningDashboard}
-              onCheckedChange={(morningDashboard) => onPreferencesChange({ morningDashboard })}
-            />
-          }
-        />
-        <SettingsDivider />
-        <SettingRow
-          htmlFor="pref-reminder-time"
-          title={t.defaultReminderTime}
-          description={t.defaultReminderTimeHint}
-          action={
-            <div className="flex items-center gap-2">
-              <input
-                id="pref-reminder-time"
-                type="time"
-                value={prefs.defaultReminderTime}
-                onChange={(event) => onPreferencesChange({ defaultReminderTime: event.target.value })}
-                className={cn(settingsInputClass, "w-32")}
-              />
-              {prefs.defaultReminderTime ? (
-                <button type="button" onClick={() => onPreferencesChange({ defaultReminderTime: "" })} className={settingsButtonClass()}>
-                  {t.clearTime}
+      <div className="grid items-start gap-3 md:grid-cols-2">
+        <SettingsCard title={t.languageTitle}>
+          <SettingRow
+            title={t.language}
+            description={t.languageHint}
+            action={
+              <div className={cn(languagePending && "opacity-60")}>
+                <SettingsSegmented
+                  label={t.language}
+                  value={locale}
+                  options={LOCALES.map((l) => ({ value: l, label: t.languageNames[l] }))}
+                  onChange={chooseLanguage}
+                  disabled={languagePending}
+                />
+              </div>
+            }
+          />
+          <SettingsDivider />
+          <div className="space-y-1.5">
+            <label htmlFor="pref-timezone" className="block text-sm font-medium text-foreground">
+              {t.timeZone}
+            </label>
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                id="pref-timezone"
+                value={timeZone}
+                aria-describedby="pref-timezone-hint"
+                onChange={(event) => onPreferencesChange({ timeZone: event.target.value })}
+                className={cn(settingsInputClass, "min-w-0 flex-1 w-full")}
+              >
+                {zones.map((zone) => (
+                  <option key={zone} value={zone}>
+                    {zone.replace(/_/g, " ")}
+                  </option>
+                ))}
+              </select>
+              {deviceZone && timeZone !== deviceZone ? (
+                <button type="button" onClick={() => onPreferencesChange({ timeZone: deviceZone })} className={cn(settingsButtonClass(), "max-w-full h-auto min-h-9")}>
+                  {formatMessage(t.useDeviceTimeZone, { zone: deviceZone.replace(/_/g, " ") })}
                 </button>
               ) : null}
             </div>
-          }
-        />
-      </SettingsCard>
+            <p id="pref-timezone-hint" className="text-xs text-muted-foreground">
+              {t.timeZoneHint}
+            </p>
+          </div>
+          <SettingsDivider />
+          <SettingRow
+            title={t.weekStart}
+            action={
+              <SettingsSegmented
+                label={t.weekStart}
+                value={String(prefs.weekStartsOn) as "0" | "1"}
+                options={[
+                  { value: "1", label: t.monday },
+                  { value: "0", label: t.sunday },
+                ]}
+                onChange={(value) => onPreferencesChange({ weekStartsOn: value === "0" ? 0 : 1 })}
+              />
+            }
+          />
+          <SettingRow
+            title={t.timeFormat}
+            action={
+              <SettingsSegmented
+                label={t.timeFormat}
+                value={prefs.timeFormat}
+                options={[
+                  { value: "24h", label: t.time24h },
+                  { value: "12h", label: t.time12h },
+                ]}
+                onChange={(timeFormat) => onPreferencesChange({ timeFormat })}
+              />
+            }
+          />
+        </SettingsCard>
+        <div className="min-w-0 space-y-3">
+          <SettingsCard title={t.habitsTitle}>
+            <SettingRow
+              title={t.defaultLayout}
+              description={t.defaultLayoutHint}
+              action={
+                <SettingsSegmented
+                  label={t.defaultLayout}
+                  value={prefs.habitsLayout}
+                  options={(["day", "week", "matrix"] as const).map((value) => ({ value, label: t.layouts[value] }))}
+                  onChange={(habitsLayout) => onPreferencesChange({ habitsLayout })}
+                />
+              }
+            />
+            <SettingsDivider />
+            <SettingRow
+              htmlFor="pref-morning-dashboard"
+              title={t.morningDashboard}
+              description={t.morningDashboardHint}
+              action={
+                <Switch
+                  id="pref-morning-dashboard"
+                  checked={prefs.morningDashboard}
+                  onCheckedChange={(morningDashboard) => onPreferencesChange({ morningDashboard })}
+                />
+              }
+            />
+            <SettingsDivider />
+            <SettingRow
+              htmlFor="pref-reminder-time"
+              title={t.defaultReminderTime}
+              description={t.defaultReminderTimeHint}
+              action={
+                <div className="flex items-center gap-2">
+                  <input
+                    id="pref-reminder-time"
+                    type="time"
+                    value={prefs.defaultReminderTime}
+                    onChange={(event) => onPreferencesChange({ defaultReminderTime: event.target.value })}
+                    className={cn(settingsInputClass, "w-32")}
+                  />
+                  {prefs.defaultReminderTime ? (
+                    <button type="button" onClick={() => onPreferencesChange({ defaultReminderTime: "" })} className={settingsButtonClass()}>
+                      {t.clearTime}
+                    </button>
+                  ) : null}
+                </div>
+              }
+            />
+          </SettingsCard>
+          <SettingsCard title={t.appearanceTitle}>
+            <SettingRow
+              title={t.theme}
+              description={AVAILABLE_THEMES.length === 1 ? t.themeOnlyDark : undefined}
+              action={
+                <SettingsSegmented
+                  label={t.theme}
+                  value={theme}
+                  options={AVAILABLE_THEMES.map((value) => ({ value, label: t.themeNames[value] }))}
+                  onChange={chooseTheme}
+                />
+              }
+            />
+          </SettingsCard>
+        </div>
+      </div>
 
       <CoachSection preferences={preferences} onPreferencesChange={onPreferencesChange} />
     </>
