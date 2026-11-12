@@ -12,7 +12,6 @@ import { useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage, plural } from "@/lib/i18n-format"
 
 import { DifficultyTag, PillarTag, useCatalogLabels } from "./pillar-tag"
-import { ProtocolPicture } from "@/components/protocols/protocol-picture"
 
 interface ProtocolReaderProps {
   protocol: CatalogProtocol
@@ -52,27 +51,23 @@ export function ProtocolReader({ protocol, adopted, onAdopt, onClose }: Protocol
         tabIndex={-1}
       />
 
-      {/*
-        A flex column rather than one tall scroll container with sticky children.
-        The sticky version let the header grow without bound — it only had to
-        hold a title, and once it also held the description and the author card
-        it was eating most of a phone screen and squeezing the actual content
-        into a sliver. Here the header and footer take what they need, and the
-        body gets everything left over and scrolls.
-      */}
       <div
         role="dialog"
         aria-modal="true"
         aria-label={protocol.name}
         className="relative flex max-h-[92dvh] w-full max-w-2xl flex-col rounded-t-2xl border border-border bg-card shadow-2xl sm:max-h-[88dvh] sm:rounded-2xl"
       >
-        <header
-          className={cn(
-            "flex shrink-0 items-start gap-3 border-b border-border p-4 sm:p-5",
-            styles.background
-          )}
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={t.close}
+          className="absolute right-3 top-3 z-10 rounded-lg border border-border bg-card p-2 text-muted-foreground hover:text-foreground"
         >
-          <div className="min-w-0 flex-1 space-y-2">
+          <X className="size-5" aria-hidden />
+        </button>
+        <div className="custom-scrollbar min-h-0 flex-1 space-y-5 overflow-y-auto rounded-t-2xl p-4 sm:p-5">
+          <img src={`/protocols/images/readers/${protocol.slug}.webp`} alt="" width={1200} height={320} className="block h-auto w-full rounded-xl border border-border" />
+          <header className="space-y-2">
             <div className="flex flex-wrap items-center gap-1.5">
               <PillarTag pillar={protocol.pillar} />
               <DifficultyTag difficulty={protocol.difficulty} />
@@ -84,20 +79,8 @@ export function ProtocolReader({ protocol, adopted, onAdopt, onClose }: Protocol
             <h2 className="text-balance text-lg font-bold leading-tight text-foreground sm:text-xl">
               {protocol.name}
             </h2>
-          </div>
-
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label={t.close}
-            className="shrink-0 rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-          >
-            <X className="h-5 w-5" aria-hidden />
-          </button>
-        </header>
-
-        <div className="custom-scrollbar min-h-0 flex-1 space-y-6 overflow-y-auto p-4 sm:p-5">
-          <ProtocolPicture slug={protocol.slug} loading="eager" className="rounded-xl border border-border" />
+          </header>
+          <p className="text-sm font-medium text-foreground">{protocol.tagline}</p>
           <p className="text-sm leading-relaxed text-muted-foreground">{protocol.description}</p>
 
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
