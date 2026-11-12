@@ -7,6 +7,7 @@ import { ChatGPTLogo, ClaudeLogo } from "@/components/habits/brand-logos"
 import { Button } from "@/components/habits/ui/button"
 import { AssistantStartButtons } from "@/components/habits/assistant/assistant-start"
 import { assistantKind, useAssistantConnections } from "@/components/habits/assistant/use-assistant-connections"
+import { formatMessage } from "@/lib/i18n-format"
 import { useTranslations } from "@/components/i18n/locale-provider"
 
 interface StepConnectAssistantProps {
@@ -22,6 +23,7 @@ interface StepConnectAssistantProps {
  */
 export function StepConnectAssistant({ apiKey, isNostrAuth, onNext }: StepConnectAssistantProps) {
   const t = useTranslations().habits.app.onboardingConnectAssistant
+  const [platform, setPlatform] = useState<"claude" | "chatgpt">("claude")
   const [origin, setOrigin] = useState("")
   const [copied, setCopied] = useState(false)
   const connections = useAssistantConnections(apiKey, true)
@@ -54,6 +56,8 @@ export function StepConnectAssistant({ apiKey, isNostrAuth, onNext }: StepConnec
     },
   ]
 
+  const selected = assistants.find(({ kind }) => kind === platform)!
+
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -63,46 +67,33 @@ export function StepConnectAssistant({ apiKey, isNostrAuth, onNext }: StepConnec
         </p>
       </div>
 
-      <div className="flex items-center gap-2">
-        <code className="min-w-0 flex-1 overflow-x-auto whitespace-nowrap rounded-lg border border-border bg-background px-3 py-2.5 font-mono text-sm text-foreground">
-          {mcpUrl}
-        </code>
-        <Button type="button" variant="secondary" onClick={copy} className="shrink-0 gap-2 border border-border">
-          {copied ? <Check className="h-4 w-4 text-nutrition" /> : <Copy className="h-4 w-4" />}
-          {copied ? t.copied : t.copy}
+      <div role="group" aria-label={t.platformLabel} className="mx-auto flex w-fit gap-1 rounded-xl border border-border bg-background/60 p-1">
+        {assistants.map(({ kind, name, Logo }) => (
+          <Button key={kind} type="button" size="sm" variant={platform === kind ? "secondary" : "ghost"}
+            aria-pressed={platform === kind} onClick={() => setPlatform(kind)} className="gap-2">
+            <Logo className="h-4 w-4" /> {name}
+            {connected.includes(kind) && <CheckCircle2 aria-label={t.connected} className="h-4 w-4 text-success" />}
+          </Button>
+        ))}
+      </div>
+
+      <div className="mx-auto flex w-fit max-w-full items-center rounded-lg border border-border bg-background pl-3 pr-1">
+        <input readOnly value={mcpUrl} size={mcpUrl.length} aria-label={t.urlLabel}
+          className="min-w-0 bg-transparent py-2 font-mono text-sm text-foreground" />
+        <Button type="button" size="icon" variant="ghost" onClick={copy}
+          aria-label={copied ? t.copied : t.copy} title={copied ? t.copied : t.copy} className="shrink-0">
+          {copied ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
         </Button>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        {assistants.map(({ kind, name, Logo, steps }) => {
-          const isConnected = connected.includes(kind)
-          return (
-            <div key={name} className="rounded-xl border border-border bg-background/60 p-4">
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card">
-                    <Logo className="h-5 w-5 text-foreground" />
-                  </span>
-                  <span className="font-semibold text-foreground">{name}</span>
-                </div>
-                {isConnected ? (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-success/15 px-2 py-1 text-xs font-semibold text-success">
-                    <CheckCircle2 className="h-3.5 w-3.5" /> {t.connected}
-                  </span>
-                ) : null}
-              </div>
-              <ol className="mt-3 space-y-2">
-                {steps.map((step, i) => (
-                  <li key={step} className="flex gap-2 text-sm text-muted-foreground">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-[11px] font-semibold text-primary">{i + 1}</span>
-                    <span className="leading-relaxed">{step}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          )
-        })}
-      </div>
+      <ol className="mx-auto max-w-md space-y-2 rounded-xl border border-border bg-background/60 p-4">
+        {selected.steps.map((step, i) => (
+          <li key={step} className="flex gap-2 text-sm text-muted-foreground">
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs text-primary">{i + 1}</span>
+            {step}
+          </li>
+        ))}
+      </ol>
 
       {anyConnected ? (
         // Connected: the assistant takes over setup. Its first chat runs the
@@ -118,7 +109,7 @@ export function StepConnectAssistant({ apiKey, isNostrAuth, onNext }: StepConnec
       ) : (
         <div className="flex flex-col items-center gap-3">
           <p className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t.waiting}
+            <Loader2 className="h-3.5 w-3.5 animate-spin" /> {formatMessage(t.waiting, { platform: selected.name })}
           </p>
           <Button type="button" onClick={onNext} className="w-full sm:w-auto sm:min-w-48">
             {t.skipForNow}

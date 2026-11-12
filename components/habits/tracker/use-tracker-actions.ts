@@ -60,11 +60,13 @@ export function useTrackerActions(data: TrackerData) {
     showCelebration(getCompletionCelebration(habit, streak + 1))
   }
 
-  const handleOnboardingComplete = (habit: Habit, onboarding: OnboardingState) => {
+  const handleOnboardingComplete = (selected: Habit[], onboarding: OnboardingState) => {
     // Add the habit created during onboarding. Append, never replace: an
     // assistant connected before the tracker was first opened may already
     // have created habits, and those must survive finishing the wizard.
-    setHabits((list) => (list.some((h) => h.id === habit.id) ? list : [...list, habit]))
+    const [habit] = selected
+    if (!habit) return
+    setHabits(list => [...list, ...selected.filter(choice => !list.some(existing => existing.id === choice.id))])
 
     // Create first completion if user did it during onboarding
     const today = format(new Date(), "yyyy-MM-dd")

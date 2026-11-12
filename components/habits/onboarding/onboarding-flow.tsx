@@ -17,7 +17,7 @@ import { useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage } from "@/lib/i18n-format"
 
 interface OnboardingFlowProps {
-  onComplete: (habit: Habit, onboardingData: OnboardingState) => void
+  onComplete: (habits: Habit[], onboardingData: OnboardingState) => void
   onSkip: () => void
   /** Owner auth, for the connect step's live "Connected" check. */
   apiKey: string
@@ -40,6 +40,8 @@ export function OnboardingFlow({ onComplete, onSkip, apiKey, isNostrAuth }: Onbo
     color: "#8B5CF6",
     schedule: { type: "daily" }
   })
+
+  const [selectedHabits, setSelectedHabits] = useState<Habit[]>([])
 
   const totalSteps = 6
   const progress = (currentStep / totalSteps) * 100
@@ -80,7 +82,7 @@ export function OnboardingFlow({ onComplete, onSkip, apiKey, isNostrAuth }: Onbo
         }
       }
 
-      onComplete(completeHabit, { ...onboardingData, completed: true, currentStep: totalSteps })
+      onComplete([completeHabit, ...selectedHabits.slice(1)], { ...onboardingData, completed: true, currentStep: totalSteps })
     } else {
       setCurrentStep(currentStep + 1)
     }
@@ -131,7 +133,12 @@ export function OnboardingFlow({ onComplete, onSkip, apiKey, isNostrAuth }: Onbo
               <StepConnectAssistant apiKey={apiKey} isNostrAuth={isNostrAuth} onNext={() => handleNext({})} />
             )}
             {currentStep === 2 && (
-              <Step1Emotional onNext={handleNext} />
+              <Step1Emotional initialSelection={selectedHabits.map(habit => habit.category!)} onNext={(habits, story) => {
+                setSelectedHabits(habits)
+                setHabitData(habits[0])
+                setOnboardingData({ ...onboardingData, currentStep: 3, emotionalConnection: { category: habits[0].category!, story } })
+                setCurrentStep(3)
+              }} />
             )}
             {currentStep === 3 && (
               <Step2TinyGoals onNext={handleNext} onBack={handleBack} habitName={habitData.name} />

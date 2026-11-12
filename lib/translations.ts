@@ -1157,8 +1157,8 @@ const habitsEn = {
     },
     // E
     onboardingStep1: {
-      title: "What habit do you want to build?",
-      subtitle: "Choose what matters most to you right now",
+      title: "Which habits do you want to build?",
+      subtitle: "Select one or more. You’ll personalize your first choice next.",
       chooseDifferent: "Choose Different",
       continue: "Continue",
       customizeLater: "Don't worry, you can customize everything in the next steps",
@@ -1377,7 +1377,9 @@ const habitsEn = {
     },
     // E
     onboardingConnectAssistant: {
-      title: "Connect your assistant",
+      title: "Connect your AI assistant",
+      platformLabel: "AI platform",
+      urlLabel: "MCP server URL",
       subtitle: "Talk to your habits from Claude or ChatGPT, by chat or voice. Connect once and it stays connected.",
       copy: "Copy",
       copied: "Copied",
@@ -1388,9 +1390,9 @@ const habitsEn = {
       ],
       chatgptSteps: [
         "ChatGPT → Settings → Apps → Advanced: turn on developer mode, then Create.",
-        "Paste the same URL, choose OAuth, create and approve.",
+        "Paste the URL above, choose OAuth, create and approve.",
       ],
-      waiting: "Waiting for you to approve in Claude or ChatGPT…",
+      waiting: "Waiting for approval in {platform}…",
       continue: "Continue",
       skipForNow: "Skip for now",
       connectLater: "You can always connect later in Settings → Voice assistants.",
@@ -2114,7 +2116,7 @@ const habitsEn = {
       chatGptStep1Middle: ", turn on developer mode, then ",
       chatGptStep1Create: "Create",
       chatGptStep1After: ".",
-      chatGptStep2Before: "Paste the same URL, choose ",
+      chatGptStep2Before: "Paste the URL above, choose ",
       chatGptStep2After: ", create, and approve.",
       connectedTitle: "Connected",
       connectedDescription: "Each assistant has its own access. Disconnecting one doesn't affect the others.",
@@ -4099,8 +4101,8 @@ const habitsEs: HabitsDictionary = {
     },
     // E
     onboardingStep1: {
-      title: "¿Qué hábito querés construir?",
-      subtitle: "Elegí lo que más te importa ahora",
+      title: "¿Qué hábitos querés construir?",
+      subtitle: "Elegí uno o más. Después vas a personalizar el primero que elijas.",
       chooseDifferent: "Elegir otro",
       continue: "Continuar",
       customizeLater: "Tranqui, en los próximos pasos podés personalizar todo",
@@ -4319,7 +4321,9 @@ const habitsEs: HabitsDictionary = {
     },
     // E
     onboardingConnectAssistant: {
-      title: "Conectá tu asistente",
+      title: "Conectá tu asistente de IA",
+      platformLabel: "Plataforma de IA",
+      urlLabel: "URL del servidor MCP",
       subtitle: "Hablale a tus hábitos desde Claude o ChatGPT, por chat o por voz. Conectalo una vez y queda conectado.",
       copy: "Copiar",
       copied: "Copiado",
@@ -4330,9 +4334,9 @@ const habitsEs: HabitsDictionary = {
       ],
       chatgptSteps: [
         "ChatGPT → Configuración → Apps → Avanzado: activá el modo desarrollador y después Crear.",
-        "Pegá la misma URL, elegí OAuth, creá y aprobá.",
+        "Pegá la URL de arriba, elegí OAuth, creá y aprobá.",
       ],
-      waiting: "Esperando que apruebes en Claude o ChatGPT…",
+      waiting: "Esperando que apruebes en {platform}…",
       continue: "Continuar",
       skipForNow: "Saltar por ahora",
       connectLater: "Siempre podés conectarlo después en Ajustes → Asistentes de voz.",
@@ -5056,7 +5060,7 @@ const habitsEs: HabitsDictionary = {
       chatGptStep1Middle: ", activá el modo desarrollador y después ",
       chatGptStep1Create: "Create",
       chatGptStep1After: ".",
-      chatGptStep2Before: "Pegá la misma URL, elegí ",
+      chatGptStep2Before: "Pegá la URL de arriba, elegí ",
       chatGptStep2After: ", crealo y aprobá.",
       connectedTitle: "Conectados",
       connectedDescription: "Cada asistente tiene su propio acceso. Desconectar uno no afecta a los demás.",
