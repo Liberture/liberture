@@ -591,3 +591,16 @@
   white-space: normal;
   line-height: 1.15;
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  .habit-layout-content[data-slide="up"] { --slide-from: 2rem; }
+  .habit-layout-content[data-slide="down"] { --slide-from: -2rem; }
+  .habit-layout-content:is([data-slide="up"], [data-slide="down"]) {
+    animation: habit-layout-enter 320ms cubic-bezier(.22, 1, .36, 1);
+  }
+}
+
+@keyframes habit-layout-enter {
+  from { opacity: .2; transform: translateY(var(--slide-from)); }
+  to { opacity: 1; transform: translateY(0); }
+}

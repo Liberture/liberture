@@ -382,7 +382,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
     if (view === "habits") {
       return (
         <Tabs value={effectiveLayout} orientation="vertical" variant="embedded"
-          className="grid grid-cols-[3rem_minmax(0,1fr)] items-start gap-2 pb-12 sm:gap-4 xl:grid-cols-[8rem_minmax(0,1fr)]"
+          className={cn("grid min-h-full grid-cols-[2.5rem_minmax(0,1fr)] items-start gap-1.5 sm:gap-3", effectiveLayout === "day" && "xl:grid-cols-[8rem_minmax(0,1fr)]")}
           onValueChange={value => {
             const next = LAYOUTS.findIndex(layout => layout.id === value)
             if (next < 0) return
@@ -390,12 +390,12 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
             updatePreferences({ habitsLayout: LAYOUTS[next].id })
           }}>
           <TabsList aria-label={t.layoutLabel}
-            className="group sticky top-0 z-10 mb-0 w-12 max-w-none flex-col items-stretch overflow-hidden rounded-xl border border-border bg-card p-1 shadow-sm transition-[width] duration-200 hover:w-32 has-[:focus-visible]:w-32 motion-reduce:transition-none xl:w-32">
+            className={cn("group sticky top-1/2 -translate-y-1/2 z-10 mb-0 w-10 max-w-none flex-col items-stretch overflow-hidden rounded-xl border border-border bg-card p-1 shadow-sm transition-[width] duration-200 hover:w-32 has-[:focus-visible]:w-32 motion-reduce:transition-none", effectiveLayout === "day" && "xl:w-32")}>
             {LAYOUTS.filter(layout => !layout.desktopOnly || !isMobile).map(({ id, icon: Icon }) => (
               <TabsTrigger key={id} value={id} aria-label={t.layouts[id]}
-                className="h-10 justify-start gap-2.5 overflow-hidden rounded-lg px-2.5 data-[state=active]:border-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                className="h-8 justify-start gap-2 overflow-hidden rounded-lg px-1.5 data-[state=active]:border-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Icon aria-hidden className="shrink-0" />
-                <span className="opacity-0 transition-opacity group-hover:opacity-100 group-has-[:focus-visible]:opacity-100 motion-reduce:transition-none xl:opacity-100">{t.layouts[id]}</span>
+                <span className={cn("opacity-0 transition-opacity group-hover:opacity-100 group-has-[:focus-visible]:opacity-100 motion-reduce:transition-none", effectiveLayout === "day" && "xl:opacity-100")}>{t.layouts[id]}</span>
               </TabsTrigger>
             ))}
           </TabsList>
@@ -406,63 +406,61 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
 
             <BackupReminder habits={habits} lastBackupAt={storageData?.lastBackupAt} onExport={actions.exportData} />
 
-            <TabsContent key={effectiveLayout} value={effectiveLayout} className={cn("space-y-4 md:space-y-6",
-              slideDirection && "motion-safe:animate-in motion-safe:fade-in motion-safe:duration-200",
-              slideDirection === "up" && "motion-safe:slide-in-from-bottom-4",
-              slideDirection === "down" && "motion-safe:slide-in-from-top-4",
-            )}>
-              {effectiveLayout === "day" ? (
-                <DailyTracker key={tourIds !== null ? "tour" : "tracker"}
-                  habits={habits}
-                  completions={completions}
-                  displayName={storageData?.profile?.name}
-                  onToggleCompletion={toggleOrLogForDay}
-                  onLogData={openHabitData}
-                  onEditHabit={openHabitEditor}
-                  onAddHabit={openAddDialog}
-                  onBrowse={openDiscover}
-                  timeOfDayFilter={timeOfDayFilter}
-                  onTimeOfDayFilterChange={setTimeOfDayFilter}
-                  weekStartsOn={preferences.weekStartsOn}
-                />
-              ) : effectiveLayout === "matrix" ? (
-                <HabitMatrix
-                  habits={sortedHabitsViewHabits}
-                  completions={completions}
-                  // Not the plain toggle: a habit with data fields or a reading
-                  // passage has to open its modal here too, the same as the day view.
-                  onToggleCompletion={toggleOrLogForDay}
-                  weekStartsOn={preferences.weekStartsOn}
-                />
-              ) : (
-                <HabitGrid
-                  habits={sortedHabitsViewHabits}
-                  dates={dates}
-                  completions={completions}
-                  onCellClick={toggleOrLogForDay}
-                  onAddHabit={openAddDialog}
-                  onEditHabit={openHabitEditor}
-                  onUnarchiveHabit={actions.unarchiveHabit}
-                  weekStartsOn={preferences.weekStartsOn}
-                />
-              )}
+            <TabsContent value={effectiveLayout}>
+              <div key={effectiveLayout} data-slide={slideDirection} className="habit-layout-content space-y-4 md:space-y-6">
+                {effectiveLayout === "day" ? (
+                  <DailyTracker key={tourIds !== null ? "tour" : "tracker"}
+                    habits={habits}
+                    completions={completions}
+                    displayName={storageData?.profile?.name}
+                    onToggleCompletion={toggleOrLogForDay}
+                    onLogData={openHabitData}
+                    onEditHabit={openHabitEditor}
+                    onAddHabit={openAddDialog}
+                    onBrowse={openDiscover}
+                    timeOfDayFilter={timeOfDayFilter}
+                    onTimeOfDayFilterChange={setTimeOfDayFilter}
+                    weekStartsOn={preferences.weekStartsOn}
+                  />
+                ) : effectiveLayout === "matrix" ? (
+                  <HabitMatrix
+                    habits={sortedHabitsViewHabits}
+                    completions={completions}
+                    // Not the plain toggle: a habit with data fields or a reading
+                    // passage has to open its modal here too, the same as the day view.
+                    onToggleCompletion={toggleOrLogForDay}
+                    weekStartsOn={preferences.weekStartsOn}
+                  />
+                ) : (
+                  <HabitGrid
+                    habits={sortedHabitsViewHabits}
+                    dates={dates}
+                    completions={completions}
+                    onCellClick={toggleOrLogForDay}
+                    onAddHabit={openAddDialog}
+                    onEditHabit={openHabitEditor}
+                    onUnarchiveHabit={actions.unarchiveHabit}
+                    weekStartsOn={preferences.weekStartsOn}
+                  />
+                )}
 
-              {archivedCount > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setShowArchived(!showArchived)}
-                  aria-pressed={showArchived}
-                  className="flex items-center gap-2 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground md:text-sm"
-                >
-                  <Archive className="h-3.5 w-3.5 md:h-4 md:w-4" aria-hidden />
-                  <span className="md:hidden">
-                    {formatMessage(showArchived ? t.hideArchivedShort : t.showArchivedShort, { count: archivedCount })}
-                  </span>
-                  <span className="hidden md:inline">
-                    {formatMessage(showArchived ? t.hideArchived : t.showArchived, { count: archivedCount })}
-                  </span>
-                </button>
-              )}
+                {archivedCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowArchived(!showArchived)}
+                    aria-pressed={showArchived}
+                    className="flex items-center gap-2 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground md:text-sm"
+                  >
+                    <Archive className="h-3.5 w-3.5 md:h-4 md:w-4" aria-hidden />
+                    <span className="md:hidden">
+                      {formatMessage(showArchived ? t.hideArchivedShort : t.showArchivedShort, { count: archivedCount })}
+                    </span>
+                    <span className="hidden md:inline">
+                      {formatMessage(showArchived ? t.hideArchived : t.showArchived, { count: archivedCount })}
+                    </span>
+                  </button>
+                )}
+              </div>
             </TabsContent>
           </div>
         </Tabs>

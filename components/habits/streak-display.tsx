@@ -11,10 +11,11 @@ import { formatMessage } from "@/lib/i18n-format"
 
 interface StreakDisplayProps {
   streakData: StreakData
+  compact?: boolean
   showFreezesCompact?: boolean
 }
 
-export function StreakDisplay({ streakData, showFreezesCompact = false }: StreakDisplayProps) {
+export function StreakDisplay({ streakData, compact = false }: StreakDisplayProps) {
   const t = useTranslations().habits.app.streakDisplay
   const { current, longest, freezesAvailable } = streakData
   // Times-per-week habits count weeks that met the target; milestones count days.
@@ -25,7 +26,7 @@ export function StreakDisplay({ streakData, showFreezesCompact = false }: Streak
     cn("font-semibold leading-tight text-foreground tabular-nums", value >= 100 ? "text-base" : "text-lg")
 
   return (
-    <div className="grid max-w-full grid-cols-[minmax(64px,auto)_1px_minmax(58px,auto)_1px_minmax(58px,auto)] items-center gap-x-3 overflow-hidden">
+    <div className={cn("flex max-w-full flex-wrap items-center gap-y-1", compact ? "justify-center gap-x-2 [&>.w-px]:hidden [&_svg]:size-4" : "gap-x-3")}>
       {/* Current Streak */}
       <div className="flex min-w-0 items-center gap-2">
         <div className="relative flex-shrink-0">

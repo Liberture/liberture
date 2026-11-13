@@ -133,35 +133,34 @@ const PILLAR_RANK = new Map(PILLAR_IDS.map((pillar, index) => [pillar, index]))
 type InfoColKey = "habit" | "actions" | "time" | "schedule" | "streak"
 
 const INFO_COLS: Array<{ key: InfoColKey; min: number; default: number }> = [
-  { key: "habit", min: 140, default: 280 },
+  { key: "habit", min: 140, default: 210 },
   { key: "actions", min: 56, default: 96 },
-  { key: "time", min: 56, default: 88 },
+  { key: "time", min: 56, default: 76 },
   { key: "schedule", min: 70, default: 112 },
-  // StreakDisplay's grid needs 64+58+58 plus two dividers and four 12px gaps —
-  // 230px of content, 262px with the cell padding. Under the old auto table
-  // layout the column just grew to fit; table-fixed means the default has to
-  // reserve it up front or three-digit streaks get clipped.
-  { key: "streak", min: 180, default: 264 },
+  { key: "streak", min: 100, default: 158 },
 ]
 
-const DAY_COL_WIDTH = 88
+const DAY_COL_WIDTH = 46
 
 type ColWidths = Record<InfoColKey, number>
 
 const DEFAULT_WIDTHS = Object.fromEntries(INFO_COLS.map((c) => [c.key, c.default])) as ColWidths
 
-const WIDTHS_STORAGE_KEY = "habit-grid:info-col-widths"
+const PREVIOUS_DEFAULTS: Partial<ColWidths> = { habit: 280, time: 88, streak: 264 }
+
+const WIDTHS_STORAGE_KEY = "habit-grid:info-col-widths:v2"
 
 function loadWidths(): ColWidths {
   if (typeof window === "undefined") return DEFAULT_WIDTHS
   try {
-    const raw = window.localStorage.getItem(WIDTHS_STORAGE_KEY)
+    const saved = window.localStorage.getItem(WIDTHS_STORAGE_KEY)
+    const raw = saved ?? window.localStorage.getItem("habit-grid:info-col-widths")
     if (!raw) return DEFAULT_WIDTHS
     const parsed = JSON.parse(raw) as Partial<Record<InfoColKey, unknown>>
     const next = { ...DEFAULT_WIDTHS }
     for (const col of INFO_COLS) {
       const value = parsed[col.key]
-      if (typeof value === "number" && Number.isFinite(value)) {
+      if (typeof value === "number" && Number.isFinite(value) && (saved !== null || value !== PREVIOUS_DEFAULTS[col.key])) {
         next[col.key] = Math.max(col.min, Math.round(value))
       }
     }
@@ -274,7 +273,7 @@ const MobileHabitCard = memo(function MobileHabitCard({
         />
       </div>
 
-      <div data-no-swipe className="flex gap-2 overflow-x-auto snap-x custom-scrollbar horizontal-touch-scroll pb-2 -mx-1 px-1">
+      <div data-no-swipe className="grid grid-flow-col auto-cols-[minmax(2.5rem,1fr)] gap-1 overflow-x-auto snap-x snap-mandatory motion-safe:scroll-smooth custom-scrollbar horizontal-touch-scroll pb-2 -mx-1 px-1">
         {dateInfos.map((di) => {
           const completion = completionsForHabit?.get(di.dateStr)
           const completed = completion?.completed === true
@@ -288,7 +287,7 @@ const MobileHabitCard = memo(function MobileHabitCard({
               onClick={() => scheduled && onCellClick(habit, di.date)}
               disabled={!scheduled}
               className={cn(
-                "flex min-h-[76px] min-w-[64px] snap-start flex-col items-center justify-center gap-1 rounded-lg border-2 p-2.5 transition-all flex-shrink-0 relative overflow-hidden",
+                "flex min-h-14 w-full snap-start flex-col items-center justify-center gap-1 rounded-lg border p-1 transition-colors flex-shrink-0 relative overflow-hidden",
                 !scheduled && "opacity-30 cursor-not-allowed",
                 scheduled && !completed && !hasData && !hasPartialProgress && "border-border bg-secondary/50 active:scale-95",
                 scheduled && !completed && (hasData || hasPartialProgress) && "border-primary/40 bg-primary/5 active:scale-95",
@@ -429,9 +428,9 @@ const DesktopHabitRow = memo(function DesktopHabitRow({
       <td className="overflow-hidden truncate whitespace-nowrap px-4 py-3">
         <span className="text-xs text-muted-foreground">{scheduleText}</span>
       </td>
-      <td className="overflow-hidden px-4 py-3">
+      <td className="overflow-hidden px-1 py-3">
         <div className="flex flex-col items-center">
-          <StreakDisplay
+          <StreakDisplay compact
             streakData={{
               current,
               // calculateStreak already folds in the stored longest when its unit matches.
@@ -458,7 +457,7 @@ const DesktopHabitRow = memo(function DesktopHabitRow({
             onClick={() => scheduled && onCellClick(habit, di.date)}
             disabled={!scheduled}
             className={cn(
-              "mx-auto flex h-10 w-10 items-center justify-center rounded-lg border-2 transition-all duration-200 relative overflow-hidden",
+              "mx-auto flex size-8 items-center justify-center rounded-lg border-2 transition-all duration-200 relative overflow-hidden",
               !scheduled && "cursor-not-allowed opacity-30 border-border/50 bg-muted/20 hover:scale-100",
               scheduled && !completed && hasData && "hover:scale-110 active:scale-95 border-primary/50 bg-primary/10",
               scheduled && !completed && !hasData && "hover:scale-110 active:scale-95",
@@ -506,7 +505,7 @@ const DesktopHabitRow = memo(function DesktopHabitRow({
         )
 
         return (
-          <td key={di.iso} className={cn("px-3 py-3", di.isTodayFlag && "bg-muted/40")}>
+          <td key={di.iso} className={cn("px-1 py-2", di.isTodayFlag && "bg-muted/40")}>
             {hasData ? (
               <HabitDataTooltip completion={completion!} habit={habit}>
                 {cellButton}
@@ -788,23 +787,15 @@ export function HabitGrid({
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+    <div className="mx-auto w-full overflow-hidden rounded-xl border border-border bg-card shadow-sm" style={{ maxWidth: tableWidth + 2 }}>
       <div data-no-swipe className="overflow-x-auto custom-scrollbar horizontal-touch-scroll">
-        {/* Fixed layout so the colgroup actually governs the widths. The table
-            floors at `tableWidth` (which keeps day columns at DAY_COL_WIDTH and
-            scrolls when it must) but stretches to fill a wider screen — and
-            since only the info columns declare a width, all that slack lands on
-            the day columns. Shrinking an info column feeds the days directly. */}
-        <table
-          className="w-full table-fixed border-separate border-spacing-0"
-          style={{ minWidth: tableWidth }}
-        >
+        <table className="table-fixed border-separate border-spacing-0" style={{ width: tableWidth }}>
           <colgroup>
             {INFO_COLS.map((col) => (
               <col key={col.key} style={{ width: colWidths[col.key] }} />
             ))}
             {dateInfos.map((di) => (
-              <col key={di.iso} />
+              <col key={di.iso} style={{ width: DAY_COL_WIDTH }} />
             ))}
           </colgroup>
           <thead>
@@ -839,7 +830,7 @@ export function HabitGrid({
                 {resizeHandle(INFO_COLS[4])}
               </th>
               {dateInfos.map((di) => (
-                <th key={di.iso} className={cn("px-3 py-3 text-center text-sm font-medium", di.isTodayFlag && "bg-muted/70")}>
+                <th key={di.iso} className={cn("px-1 py-2 text-center text-xs font-medium", di.isTodayFlag && "bg-muted/70")}>
                   <div className={cn("text-muted-foreground font-medium", di.isTodayFlag && "text-primary font-bold")}>
                     {di.dayShort}
                   </div>
@@ -849,7 +840,7 @@ export function HabitGrid({
                       di.isTodayFlag && "text-primary font-semibold",
                     )}
                   >
-                    {di.monthDay}
+                    {di.dayNum}
                   </div>
                 </th>
               ))}
