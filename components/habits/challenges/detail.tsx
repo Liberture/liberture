@@ -1,5 +1,6 @@
 "use client"
 
+import { CashewMatch } from "./cashew-match"
 import { useEffect, useState } from "react"
 import { useLocale, useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
@@ -143,6 +144,7 @@ export function ChallengeDetail({
           {t(c.stage)} · {t("yourRole", { role: t(me) })}
         </p>
         <h1 className="text-2xl font-semibold">{c.title}</h1>
+        <CashewMatch challenge={c} />
         <p className="whitespace-pre-wrap">{c.rules}</p>
         <p>
           {t("satsEach", { amount: c.stake })} · {t("duration", { days: c.durationDays })}

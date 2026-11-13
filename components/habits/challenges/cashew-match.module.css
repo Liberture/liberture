@@ -1,0 +1,28 @@
+.scene {
+  overflow: hidden;
+  border-radius: .8rem;
+  padding: .65rem .5rem;
+  background: radial-gradient(ellipse at bottom, #ffd28518, transparent 70%), var(--muted);
+}
+.ring { display: block; width: 100%; max-width: 360px; margin: auto; }
+.names { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 240px; margin: auto; text-align: center; font-size: .75rem; font-weight: 600; }
+.names span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 .2rem; }
+.fighter { --team: #6edac9; transform-origin: 0 72px; }
+.fighter[data-side="player"] { --team: #fa886e; }
+.arm { transform-origin: 15px 36px; }
+@media (prefers-reduced-motion: no-preference) {
+  .scene[data-mode="spar"] .fighter { animation: spar 1.25s ease-in-out 3; }
+  .scene[data-mode="spar"] .arm { animation: jab 1.25s ease-in-out 3; }
+  .scene[data-mode="spar"] .fighter[data-side="player"],
+  .scene[data-mode="spar"] .fighter[data-side="player"] .arm { animation-delay: .55s; }
+  .scene[data-mode="victory"] .fighter[data-winner="true"] { animation: jig .7s ease-in-out 6; }
+  .scene[data-mode="victory"] .fighter[data-winner="true"] .arm { animation: wave .7s ease-in-out 6; }
+  .spark { animation: twinkle .7s ease-in-out 6; }
+  .scene[data-mode="draw"] .arm, .clasp { animation: shake .65s ease-in-out 4; }
+}
+@keyframes spar { 25% { transform: translate(-3px,-3px) rotate(-4deg); } 48% { transform: translate(11px,0) rotate(7deg); } }
+@keyframes jab { 45% { transform: rotate(25deg) scaleX(1.45); } }
+@keyframes jig { 23% { transform: translate(-3px,-8px) rotate(-11deg); } 70% { transform: translate(4px,-5px) rotate(10deg); } }
+@keyframes wave { 50% { transform: rotate(-44deg); } }
+@keyframes twinkle { 50% { opacity: .35; } }
+@keyframes shake { 50% { transform: translateY(-3px); } }
