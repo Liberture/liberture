@@ -1,8 +1,9 @@
+import { getTranslations as getUiCopy } from "next-intl/server"
 import { getContent } from "@/lib/seo/public-records"
 import { detailMetadata } from "@/lib/seo/detail-metadata"
 import { BreadcrumbSchema } from "@/components/seo/JsonLd"
 import { notFound } from "next/navigation"
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -17,6 +18,8 @@ export async function generateMetadata({params}: Props) {
   return detailMetadata(`/content/${id}`,content.title,content.description,"website")
 }
 export default async function ContentPage({params}: Props) {
+  const uiCopy = await getUiCopy("publicCopy.content")
+
   const {id} = await params
   const content = await getContent(id)
   if (!content) notFound()
@@ -29,9 +32,7 @@ export default async function ContentPage({params}: Props) {
       <BreadcrumbSchema items={[{name:"Liberture",url:"https://liberture.com"},{name:content.title,url:`https://liberture.com/content/${id}`}]} />
       <Link href="/protocols">
         <Button variant="ghost" className="mb-6">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Protocols
-        </Button>
+          <ArrowLeft className="mr-2 h-4 w-4" />{uiCopy("backToProtocols")}</Button>
       </Link>
 
       {/* Header */}
@@ -50,7 +51,7 @@ export default async function ContentPage({params}: Props) {
             <div className="flex items-center gap-1">
               <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
               <span className="font-semibold">{content.rating}</span>
-              <span className="text-muted-foreground text-sm">({content.reviews} reviews)</span>
+              <span className="text-muted-foreground text-sm">({content.reviews} {uiCopy("reviews")}</span>
             </div>
             <div className="flex items-center gap-1 text-muted-foreground">
               <Clock className="h-4 w-4" />
@@ -65,11 +66,9 @@ export default async function ContentPage({params}: Props) {
 
         <div className="text-center p-6 rounded-xl bg-card border">
           <div className="text-3xl font-bold mb-2">
-            {content.price === 0 ? 'Free' : `$${content.price}`}
+            {content.price === 0 ? uiCopy("free") : `$${content.price}`}
           </div>
-          <Button size="lg" className="w-full">
-            Get Access
-          </Button>
+          <Button size="lg" className="w-full">{uiCopy("getAccess")}</Button>
         </div>
       </div>
 
@@ -80,7 +79,7 @@ export default async function ContentPage({params}: Props) {
           {content.outcomes && content.outcomes.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle>What You'll Learn</CardTitle>
+                <CardTitle>{uiCopy("whatYouLlLearn")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
@@ -99,7 +98,7 @@ export default async function ContentPage({params}: Props) {
           {content.tags && content.tags.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle>Topics Covered</CardTitle>
+                <CardTitle>{uiCopy("topicsCovered")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-2">
@@ -116,20 +115,20 @@ export default async function ContentPage({params}: Props) {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Details</CardTitle>
+              <CardTitle>{uiCopy("details")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div>
-                <div className="text-sm text-muted-foreground">Difficulty</div>
+                <div className="text-sm text-muted-foreground">{uiCopy("difficulty")}</div>
                 <div className="font-medium">{content.difficulty}</div>
               </div>
               <div>
-                <div className="text-sm text-muted-foreground">Duration</div>
+                <div className="text-sm text-muted-foreground">{uiCopy("duration")}</div>
                 <div className="font-medium">{content.duration}</div>
               </div>
               {content.lessonCount && (
                 <div>
-                  <div className="text-sm text-muted-foreground">Lessons</div>
+                  <div className="text-sm text-muted-foreground">{uiCopy("lessons")}</div>
                   <div className="font-medium">{content.lessonCount}</div>
                 </div>
               )}

@@ -1,3 +1,5 @@
+import createNextIntlPlugin from 'next-intl/plugin'
+
 const isProduction = process.env.NODE_ENV === 'production'
 
 /**
@@ -35,6 +37,8 @@ const securityHeaders = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Keep loopback origins intact so localized internal rewrites stay inside the router.
+  skipProxyUrlNormalize: true,
   // Self-contained server bundle for the Docker image (Dockerfile sets NEXT_OUTPUT);
   // the liberture.com deploy runs `next start` and needs the regular output.
   output: process.env.NEXT_OUTPUT === 'standalone' ? 'standalone' : undefined,
@@ -77,4 +81,4 @@ const nextConfig = {
   },
 }
 
-export default nextConfig
+export default createNextIntlPlugin('./i18n/request.ts')(nextConfig)

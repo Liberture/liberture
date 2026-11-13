@@ -1,14 +1,16 @@
+import { translatedAlternates } from "@/lib/seo/translated-routes"
+import { getTranslations as getUiCopy } from "next-intl/server"
 import { BookCard } from "@/components/directory/book-card"
 import { OrganizationCard } from "@/components/directory/org-card"
-import { getDictionary } from "@/lib/habits/i18n"
+import { getSiteMessages } from "@/lib/i18n/messages.server"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { PersonCard } from "@/components/people/person-card"
 import { notFound } from 'next/navigation'
-import { prisma } from '@/lib/prisma'
+import { directoryPrisma as prisma } from '@/lib/i18n/directory-records.server'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { BookOpen, TrendingUp, Users, Building2, Zap, FileText, ArrowRight, Clock } from 'lucide-react'
-import Link from 'next/link'
+import Link from '@/components/i18n/localized-link'
 import { MotionContainer, MotionItem, MotionStats, MotionSection, AnimatedArticleGrid, AnimatedOtherPillars } from '@/components/animations'
 import { PillarIcon } from '@/components/pillars/PillarIcon'
 import type { Metadata } from 'next'
@@ -18,54 +20,47 @@ export const dynamic = 'force-dynamic'
 const VALID_PILLARS = ['work', 'sleep', 'nutrition', 'mind', 'exercise', 'finance'] as const
 type Pillar = (typeof VALID_PILLARS)[number]
 
-const pillarConfig: Record<Pillar, { title: string; description: string; color: string; tagline: string }> = {
-  work: { title: 'Work & Cognition', description: 'Optimize your brain for focus, memory, learning, and peak mental performance.', color: 'from-work/20 to-work/5', tagline: 'Think Sharper' },
-  sleep: { title: 'Sleep & Recovery', description: 'Master sleep, stress management, and active recovery for sustainable performance.', color: 'from-sleep/20 to-sleep/5', tagline: 'Rest Better' },
-  nutrition: { title: 'Nutrition & Fueling', description: 'Nutrition strategies for energy, longevity, and metabolic health.', color: 'from-nutrition/20 to-nutrition/5', tagline: 'Eat Smarter' },
-  mind: { title: 'Mind & Mental Health', description: 'Build resilience, emotional intelligence, and psychological strength.', color: 'from-mind/20 to-mind/5', tagline: 'Feel Stronger' },
-  exercise: { title: 'Exercise & Physicality', description: 'Training, movement, and body optimization for functional longevity.', color: 'from-exercise/20 to-exercise/5', tagline: 'Move Better' },
-  finance: { title: 'Finance & Wealth', description: 'Financial independence, passive income, and wealth-building strategies.', color: 'from-finance/20 to-finance/5', tagline: 'Build Wealth' },
+const pillarColors: Record<Pillar, string> = {
+  work: 'from-work/20 to-work/5',
+  sleep: 'from-sleep/20 to-sleep/5',
+  nutrition: 'from-nutrition/20 to-nutrition/5',
+  mind: 'from-mind/20 to-mind/5',
+  exercise: 'from-exercise/20 to-exercise/5',
+  finance: 'from-finance/20 to-finance/5',
 }
 
 interface PageProps {
   params: Promise<{ pillar: string }>
 }
 
+async function getTranslationsForPillar(pillar: Pillar) {
+  const t = await getUiCopy("publicCopy.pillars")
+  return { title: t(pillar + "Title"), description: t(pillar + "Description"), color: pillarColors[pillar], tagline: t(pillar + "Tagline") }
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { pillar: pillarParam } = await params
   const pillar = VALID_PILLARS.find(p => p === pillarParam)
   
-  if (!pillar) {
-    return {
-      title: 'Pillar Not Found | Liberture',
-    }
-  }
-
-  const config = pillarConfig[pillar]
-  
+  if (!pillar) notFound()
+  const locale = await getRequestLocale()
+  const config = await getTranslationsForPillar(pillar)
+  const alternates = translatedAlternates("/pillars/" + pillar, locale)
   return {
-    title: `${config.title} | Liberture`,
-    description: config.description,
-    openGraph: {
-      title: `${config.title} | Liberture`,
-      description: config.description,
-      url: `https://liberture.com/pillars/${pillar}`,
-      type: 'website',
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: `${config.title} | Liberture`,
-      description: config.description,
-    },
+    title: config.title, description: config.description, alternates,
+    openGraph: { type: "website", title: config.title, description: config.description, url: alternates.canonical, locale: locale === "es" ? "es_ES" : "en_US" },
+    twitter: { card: "summary_large_image", title: config.title, description: config.description },
   }
 }
 
 export default async function PillarPage({ params }: PageProps) {
+  const uiCopy = await getUiCopy("publicCopy.pillar")
+
   const { pillar: pillarParam } = await params
   const pillar = VALID_PILLARS.find(p => p === pillarParam)
   if (!pillar) notFound()
 
-  const config = pillarConfig[pillar]
+  const config = await getTranslationsForPillar(pillar)
 
   let articles: any[] = []
   let people: any[] = []
@@ -110,9 +105,9 @@ export default async function PillarPage({ params }: PageProps) {
     // Database unavailable
   }
 
-  const directoryCopy = getDictionary(await getRequestLocale()).app.directoryProfiles
+  const directoryCopy = (await getSiteMessages()).habits.app.directoryProfiles
   const totalItems = articles.length + people.length + books.length + organizations.length + protocols.length
-  const otherPillars = VALID_PILLARS.filter(p => p !== pillar).map(p => ({ id: p, config: pillarConfig[p] }))
+  const otherPillars = await Promise.all(VALID_PILLARS.filter(p => p !== pillar).map(async p => ({ id: p, config: await getTranslationsForPillar(p) })))
 
   return (
     <div className="min-h-screen">
@@ -134,10 +129,10 @@ export default async function PillarPage({ params }: PageProps) {
             <MotionStats
               className="flex items-center justify-center gap-8 pt-6"
               stats={[
-                { value: people.length, label: 'People' },
-                { value: books.length, label: 'Books' },
-                { value: protocols.length, label: 'Protocols' },
-                { value: totalItems, label: 'Total' },
+                { value: people.length, label: uiCopy('people') },
+                { value: books.length, label: uiCopy('books') },
+                { value: protocols.length, label: uiCopy('protocols') },
+                { value: totalItems, label: uiCopy('total') },
               ]}
             />
           </MotionContainer>
@@ -152,16 +147,15 @@ export default async function PillarPage({ params }: PageProps) {
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-2">
                   <Users className="h-6 w-6 text-purple-400" />
-                  <h2 className="text-3xl font-bold">People</h2>
+                  <h2 className="text-3xl font-bold">{uiCopy("people")}</h2>
                   <span className="text-sm text-muted-foreground">({people.length})</span>
                 </div>
-                <Link href="/people" className="text-sm text-primary hover:underline flex items-center gap-1">
-                  View All <ArrowRight className="h-3 w-3" />
+                <Link href="/people" className="text-sm text-primary hover:underline flex items-center gap-1">{uiCopy("viewAll")} <ArrowRight className="h-3 w-3" />
                 </Link>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {people.slice(0, 6).map((person: any) => (
-                  <PersonCard key={person.id} featuredLabel="Featured" person={person} />
+                  <PersonCard key={person.id} featuredLabel={uiCopy("featured")} person={person} />
                 ))}
               </div>
             </div>
@@ -177,11 +171,10 @@ export default async function PillarPage({ params }: PageProps) {
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-2">
                   <BookOpen className="h-6 w-6 text-orange-400" />
-                  <h2 className="text-3xl font-bold">Books</h2>
+                  <h2 className="text-3xl font-bold">{uiCopy("books")}</h2>
                   <span className="text-sm text-muted-foreground">({books.length})</span>
                 </div>
-                <Link href="/books" className="text-sm text-primary hover:underline flex items-center gap-1">
-                  View All <ArrowRight className="h-3 w-3" />
+                <Link href="/books" className="text-sm text-primary hover:underline flex items-center gap-1">{uiCopy("viewAll")} <ArrowRight className="h-3 w-3" />
                 </Link>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -200,11 +193,10 @@ export default async function PillarPage({ params }: PageProps) {
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-2">
                   <Zap className="h-6 w-6 text-green-400" />
-                  <h2 className="text-3xl font-bold">Protocols</h2>
+                  <h2 className="text-3xl font-bold">{uiCopy("protocols")}</h2>
                   <span className="text-sm text-muted-foreground">({protocols.length})</span>
                 </div>
-                <Link href="/protocols" className="text-sm text-primary hover:underline flex items-center gap-1">
-                  View All <ArrowRight className="h-3 w-3" />
+                <Link href="/protocols" className="text-sm text-primary hover:underline flex items-center gap-1">{uiCopy("viewAll")} <ArrowRight className="h-3 w-3" />
                 </Link>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -212,7 +204,7 @@ export default async function PillarPage({ params }: PageProps) {
                   <Link key={protocol.id} href={`/protocols/${protocol.slug}`}>
                     <Card className="h-full hover:border-green-500/50 transition-colors">
                       <CardContent className="p-5">
-                        {protocol.featured && <Badge className="mb-2 bg-green-500/20 text-green-400 border-green-500/30">Featured</Badge>}
+                        {protocol.featured && <Badge className="mb-2 bg-green-500/20 text-green-400 border-green-500/30">{uiCopy("featured")}</Badge>}
                         <h3 className="font-semibold mb-1">{protocol.name}</h3>
                         <div className="flex items-center gap-3 mb-2">
                           <Badge variant="outline" className="text-xs">{protocol.difficulty}</Badge>
@@ -241,7 +233,7 @@ export default async function PillarPage({ params }: PageProps) {
           <div className="container mx-auto max-w-6xl px-4">
             <div className="mb-8 flex items-center justify-between">
               <h2 className="text-3xl font-bold">{directoryCopy[section]} <span className="text-sm text-muted-foreground">({rows.length})</span></h2>
-              <Link href={`/${section}`}>View All <ArrowRight className="inline size-3" /></Link>
+              <Link href={`/${section}`}>{uiCopy("viewAll")} <ArrowRight className="inline size-3" /></Link>
             </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{rows.slice(0, 6).map(org => <OrganizationCard key={org.id} org={org} />)}</div>
           </div>
@@ -256,11 +248,10 @@ export default async function PillarPage({ params }: PageProps) {
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-2">
                   <FileText className="h-6 w-6 text-blue-400" />
-                  <h2 className="text-3xl font-bold">Articles</h2>
+                  <h2 className="text-3xl font-bold">{uiCopy("articles")}</h2>
                   <span className="text-sm text-muted-foreground">({articles.length})</span>
                 </div>
-                <Link href="/articles" className="text-sm text-primary hover:underline flex items-center gap-1">
-                  View All <ArrowRight className="h-3 w-3" />
+                <Link href="/articles" className="text-sm text-primary hover:underline flex items-center gap-1">{uiCopy("viewAll")} <ArrowRight className="h-3 w-3" />
                 </Link>
               </div>
               <AnimatedArticleGrid articles={articles} pillar={pillar} />
@@ -276,7 +267,7 @@ export default async function PillarPage({ params }: PageProps) {
             <div className="max-w-6xl mx-auto">
               <Card>
                 <CardContent className="py-12 text-center">
-                  <p className="text-muted-foreground">No content yet in this pillar. Check back soon!</p>
+                  <p className="text-muted-foreground">{uiCopy("noContentYetInThisPillarCheckBack")}</p>
                 </CardContent>
               </Card>
             </div>
@@ -288,8 +279,8 @@ export default async function PillarPage({ params }: PageProps) {
         <section className="py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center space-y-6">
-              <h3 className="text-2xl font-bold">Explore Other Pillars</h3>
-              <p className="text-muted-foreground">Liberture is built on 6 interconnected pillars of human optimization</p>
+              <h3 className="text-2xl font-bold">{uiCopy("exploreOtherPillars")}</h3>
+              <p className="text-muted-foreground">{uiCopy("libertureIsBuiltOn6InterconnectedPillarsOf")}</p>
               <AnimatedOtherPillars pillars={otherPillars} />
             </div>
           </div>

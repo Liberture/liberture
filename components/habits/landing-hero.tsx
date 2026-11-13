@@ -1,7 +1,7 @@
 "use client"
 
 import type { ReactNode } from "react"
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import { useRouter } from "next/navigation"
 import { ArrowRight, Bot, Check, ExternalLink, Github, KeyRound, Mic, Zap } from "lucide-react"
 
@@ -14,7 +14,8 @@ import { AppPreview } from "@/components/habits/landing/app-preview"
 import { FoldedDrift, IslandRidge, MicroterrainRidge, RippleBloom, TriadBasins, VortexShell } from "@/components/habits/patterns"
 import { AssistantsArt, ControlArt, ConversationArt, RecommendationsArt, SunriseArt } from "@/components/habits/landing/section-art"
 import { useHabitsSession } from "@/components/habits/session-provider"
-import { getDictionary, type Locale } from "@/lib/habits/i18n"
+import type { Locale } from "@/lib/translations"
+import { useTranslations } from "@/components/i18n/locale-provider"
 import { PILLAR_HEX, PILLAR_IDS } from "@/lib/habits/pillars"
 import { POST_LOGIN_INTENT } from "@/lib/habits/post-login-intent"
 import { cn } from "@/lib/utils"
@@ -27,7 +28,7 @@ import { cn } from "@/lib/utils"
  */
 
 export function LandingHero({ locale, origin }: { locale: Locale; origin: string }) {
-  const dict = getDictionary(locale)
+  const dict = useTranslations().habits
   const t = dict.landing
   const router = useRouter()
   const { isSignedIn, openSignIn } = useHabitsSession()

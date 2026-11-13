@@ -1,3 +1,5 @@
+import { LocalizedLinksProvider } from "@/components/i18n/localized-link"
+import { getEntitySlugMap } from "@/lib/i18n/entity-slugs.server"
 import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup"
 import { captchaSiteKey } from "@/lib/newsletter/captcha"
 import { SiteBreadcrumbs } from "@/components/seo/site-breadcrumbs"
@@ -10,7 +12,10 @@ import { AnimatedBackground } from "@/components/illustrations/AnimatedBackgroun
 // import { PageTransition } from "@/components/animations/PageTransition"
 
 export default async function SiteLayout({ children }: { children: ReactNode }) {
+  const locale = await getRequestLocale()
+  const slugs = locale === "es" ? await getEntitySlugMap() : new Map<string, string>()
   return (
+    <LocalizedLinksProvider slugs={slugs}>
     <div className="relative min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 flex flex-col">
       <AnimatedBackground />
       <LandingNav />
@@ -19,7 +24,8 @@ export default async function SiteLayout({ children }: { children: ReactNode }) 
         {children}
       </main>
       <NewsletterSignup siteKey={captchaSiteKey} />
-      <LandingFooter locale={await getRequestLocale()} />
+      <LandingFooter />
     </div>
+    </LocalizedLinksProvider>
   )
 }

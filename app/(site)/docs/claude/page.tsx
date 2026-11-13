@@ -1,9 +1,9 @@
 import { docsMetadata } from "@/lib/seo/localized-metadata"
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 
 import { CopyBlock } from "@/components/habits/docs/copy-block"
 import { DocsCallout, DocsSection, DocsSteps, DocsTitle } from "@/components/habits/docs/docs-parts"
-import { getDictionary } from "@/lib/habits/i18n"
+import { getSiteMessages } from "@/lib/i18n/messages.server"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { getServerOrigin } from "@/lib/habits/request-origin"
 import { DocsScreenshot } from "@/components/habits/docs/docs-screenshot"
@@ -11,7 +11,7 @@ import { DocsScreenshot } from "@/components/habits/docs/docs-screenshot"
 
 export default async function ClaudeDocsPage() {
   const [locale, origin] = await Promise.all([getRequestLocale(), getServerOrigin()])
-  const dict = getDictionary(locale)
+  const dict = (await getSiteMessages()).habits
   const t = dict.docs.claude
   const copy = { copyLabel: dict.docs.copy, copiedLabel: dict.docs.copied }
 

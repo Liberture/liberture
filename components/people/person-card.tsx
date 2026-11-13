@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import { ArrowUpRight } from "lucide-react"
 import { ProfilePortrait } from "./profile-portrait"
 import { ProfileMarkdown } from "./profile-markdown"

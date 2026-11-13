@@ -1,3 +1,4 @@
+import { directoryApiClient } from "@/lib/i18n/directory-records.server"
 import { randomUUID } from "node:crypto"
 import { NextResponse } from "next/server"
 import type { Prisma } from "@prisma/client"
@@ -57,8 +58,8 @@ async function saveLinks(tx: Prisma.TransactionClient, profileId: string, kind: 
   }
 }
 
-export async function listProfiles(kind: Kind) {
-  const records = await prisma.organization.findMany({ where: { directoryKind: kind }, include: profileRelations, orderBy: { name: "asc" } })
+export async function listProfiles(kind: Kind, request: Request) {
+  const records = await directoryApiClient(request).organization.findMany({ where: { directoryKind: kind }, include: profileRelations, orderBy: { name: "asc" } })
   return NextResponse.json({ [kind + "s"]: records })
 }
 

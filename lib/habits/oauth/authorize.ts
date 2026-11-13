@@ -14,7 +14,7 @@ export interface AuthorizeParams {
 export type AuthorizeCheck =
   | { ok: true; client: OAuthClient; redirectUri: string; codeChallenge: string; state: string | null; scope: string | null }
   /** Can't trust redirect_uri: show the error on our page, never redirect. */
-  | { ok: false; redirect: null; message: string }
+  | { ok: false; redirect: null; reason: "unknownClient" | "invalidAddress"; message: string }
   /** redirect_uri is trusted: send the error back to the client, per RFC 6749. */
   | { ok: false; redirect: string; message: string }
 
@@ -28,12 +28,12 @@ export function errorRedirect(redirectUri: string, error: string, state: string 
 
 export async function checkAuthorizeRequest(p: AuthorizeParams): Promise<AuthorizeCheck> {
   const client = p.client_id ? await getClient(p.client_id) : null
-  if (!client) return { ok: false, redirect: null, message: "This app isn't registered. Remove the connector and add it again." }
+  if (!client) return { ok: false, redirect: null, reason: "unknownClient", message: "This app isn't registered. Remove the connector and add it again." }
 
   // A client with a single registered URI may omit it.
   const redirectUri = p.redirect_uri ?? (client.redirectUris.length === 1 ? client.redirectUris[0] : null)
   if (!redirectUri || !redirectAllowed(redirectUri, client.redirectUris, client.redirectPrefixes)) {
-    return { ok: false, redirect: null, message: "The app asked to return to an address it didn't register." }
+    return { ok: false, redirect: null, reason: "invalidAddress", message: "The app asked to return to an address it didn't register." }
   }
 
   const state = p.state ?? null

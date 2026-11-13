@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import { useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import { useTranslations } from "@/components/i18n/locale-provider"

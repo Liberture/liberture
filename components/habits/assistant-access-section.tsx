@@ -2,7 +2,7 @@
 
 import { AssistantSetup, type AssistantPlatform } from "@/components/habits/assistant/assistant-setup"
 import { useCallback, useEffect, useState } from "react"
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import { BookOpen, Check, Copy, Download, ExternalLink, FileCode2, Key, RefreshCw, Trash2, Unplug } from "lucide-react"
 
 import { Switch } from "@/components/habits/ui/switch"
@@ -42,9 +42,9 @@ function ToolsLine({ tools, t }: { tools: Connection["tools"]; t: AssistantAcces
       {tools.newTools.length
         ? formatMessage(tools.newTools.length === 1 ? t.toolsNewOne : t.toolsNewMany, { count: tools.newTools.length, date: day })
         : formatMessage(t.toolsChanged, { date: day })}{" "}
-      <a href="/guides/refresh-your-assistant-connector" target="_blank" rel="noreferrer" className="font-medium underline underline-offset-2">
+      <Link href="/guides/refresh-your-assistant-connector" target="_blank" rel="noreferrer" className="font-medium underline underline-offset-2">
         {t.toolsHowToRefresh}
-      </a>
+      </Link>
     </p>
   )
 }

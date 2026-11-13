@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations as useUiCopy } from "next-intl"
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,8 @@ type MarketplaceItem = {
 };
 
 export default function MarketplaceAdmin() {
+  const uiCopy = useUiCopy("publicCopy.marketAdmin")
+
   const [items, setItems] = useState<MarketplaceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -45,7 +48,7 @@ export default function MarketplaceAdmin() {
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this item?")) return;
+    if (!confirm(uiCopy("confirmDelete"))) return;
 
     try {
       const res = await fetch(`/api/admin/marketplace/${id}`, {
@@ -82,7 +85,7 @@ export default function MarketplaceAdmin() {
   );
 
   if (loading) {
-    return <div className="text-center py-8">Loading...</div>;
+    return <div className="text-center py-8">{uiCopy("loading")}</div>;
   }
 
   return (
@@ -91,16 +94,14 @@ export default function MarketplaceAdmin() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
-            placeholder="Search marketplace items..."
+            placeholder={uiCopy("searchMarketplaceItems")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10 bg-slate-800/50 border-slate-700"
           />
         </div>
         <Button onClick={handleAdd} className="bg-purple-600 hover:bg-purple-700">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Item
-        </Button>
+          <Plus className="h-4 w-4 mr-2" />{uiCopy("addItem")}</Button>
       </div>
 
       <div className="bg-slate-800/30 border border-slate-700 rounded-lg overflow-hidden">
@@ -108,13 +109,13 @@ export default function MarketplaceAdmin() {
           <table className="w-full">
             <thead className="bg-slate-800/50 border-b border-slate-700">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Title</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Pillar</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Type</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Author</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Price</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Rating</th>
-                <th className="px-4 py-3 text-right text-sm font-semibold">Actions</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">{uiCopy("title")}</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">{uiCopy("pillar")}</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">{uiCopy("type")}</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">{uiCopy("author")}</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">{uiCopy("price")}</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">{uiCopy("rating")}</th>
+                <th className="px-4 py-3 text-right text-sm font-semibold">{uiCopy("actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700">
@@ -161,7 +162,7 @@ export default function MarketplaceAdmin() {
 
       {filteredItems.length === 0 && (
         <div className="text-center py-8 text-slate-400">
-          {search ? "No items match your search" : "No items found"}
+          {search ? uiCopy("noResults") : uiCopy("empty")}
         </div>
       )}
 

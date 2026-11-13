@@ -1,17 +1,20 @@
+import { getTranslations } from "next-intl/server"
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { ShieldAlert } from "lucide-react"
 
 import { ConsentScreen } from "@/components/habits/oauth/consent-screen"
-import { getDictionary } from "@/lib/habits/i18n"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { getSiteMessages } from "@/lib/i18n/messages.server"
 import { checkAuthorizeRequest } from "@/lib/habits/oauth/authorize"
 import { redirectHost } from "@/lib/habits/oauth/pkce"
 
-export const metadata: Metadata = {
-  title: "Connect · Liberture",
-  robots: { index: false, follow: false },
-  referrer: "no-referrer",
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("publicCopy.titles")
+  return {
+    title: t("connect"),
+    robots: { index: false, follow: false },
+    referrer: "no-referrer",
+  }
 }
 
 interface AuthorizePageProps {
@@ -35,8 +38,8 @@ export default async function AuthorizePage({ searchParams }: AuthorizePageProps
     state: one("state"),
     scope: one("scope"),
   }
-  const [locale, check] = await Promise.all([getRequestLocale(), checkAuthorizeRequest(params)])
-  const dict = getDictionary(locale)
+  const [errors, check] = await Promise.all([getTranslations("publicCopy.oauthErrors"), checkAuthorizeRequest(params)])
+  const dict = (await getSiteMessages()).habits
 
   if (!check.ok && check.redirect) redirect(check.redirect)
 
@@ -54,7 +57,7 @@ export default async function AuthorizePage({ searchParams }: AuthorizePageProps
           <div className="rounded-2xl border border-exercise/30 bg-exercise/10 p-6 text-center">
             <ShieldAlert className="mx-auto h-8 w-8 text-exercise" aria-hidden />
             <h1 className="mt-3 text-xl font-bold text-foreground">{dict.oauth.errorTitle}</h1>
-            <p className="mt-2 text-sm text-muted-foreground">{check.message}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{"reason" in check ? errors(check.reason) : dict.oauth.errorTitle}</p>
           </div>
         )}
       </main>

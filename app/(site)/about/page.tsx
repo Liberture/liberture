@@ -1,6 +1,7 @@
 "use client"
+import { useTranslations as useUiCopy } from "next-intl"
 
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import { motion } from "framer-motion"
 import { LandingSection } from "../(landing)/landing-section"
 import { BrandMark, SocialIcon } from "@/components/ui/social-icon"
@@ -8,8 +9,10 @@ import { Globe, Github, Linkedin, Instagram, Brain, Code, Zap, Target, Heart, Sp
 import { stagger } from "@/lib/animations"
 
 export default function AboutPage() {
+  const uiCopy = useUiCopy("publicCopy.about")
+
   // /tracker opens sign-in for visitors who don't have an account yet.
-  const entry = { href: "/get-started", label: "Get Started Free" }
+  const entry = { href: "/get-started", label: uiCopy("getStarted") }
   const founders = [
     {
       name: "Leon Acosta",
@@ -19,11 +22,11 @@ export default function AboutPage() {
         { label: "LinkedIn · Leon Acosta", href: "https://linkedin.com/in/leonacosta", icon: <Linkedin /> },
         { label: "X · @leonacosta_", href: "https://x.com/leonacosta_", icon: <BrandMark brand="x" /> },
       ],
-      role: "Co-Founder & CEO",
-      bio: "Biohacker, consciousness explorer, and builder. Leon combines deep knowledge of human optimization with entrepreneurial vision. He's tested every protocol on the platform personally.",
+      role: uiCopy("leonRole"),
+      bio: uiCopy("leonBio"),
       icon: Brain,
       color: "#8B5CF6", // Purple
-      focus: "Vision & Strategy",
+      focus: uiCopy("leonFocus"),
     },
     {
       name: "Fabricio Acosta",
@@ -33,28 +36,28 @@ export default function AboutPage() {
         { label: "LinkedIn · Fabricio Acosta", href: "https://www.linkedin.com/in/fabricio-acosta-ok/", icon: <Linkedin /> },
         { label: "Instagram · @lord._.fabri", href: "https://www.instagram.com/lord._.fabri/", icon: <Instagram /> },
       ],
-      role: "Co-Founder & CTO",
-      bio: "Engineer and systems thinker. Fabricio architected the platform to handle the complexity of tracking human biology with the simplicity of a consumer app.",
+      role: uiCopy("fabricioRole"),
+      bio: uiCopy("fabricioBio"),
       icon: Code,
       color: "#06B6D4", // Cyan
-      focus: "Technology & Engineering",
+      focus: uiCopy("fabricioFocus"),
     },
   ]
 
   const values = [
     {
-      title: "Radical Self-Ownership",
-      description: "Your biology is yours. We give you the tools—you decide how to use them.",
+      title: uiCopy("autonomy"),
+      description: uiCopy("autonomyDetails"),
       icon: Target,
     },
     {
-      title: "Evidence-First",
-      description: "Every protocol, every claim backed by research or real-world results.",
+      title: uiCopy("evidence"),
+      description: uiCopy("evidenceDetails"),
       icon: Zap,
     },
     {
-      title: "Open Access",
-      description: "Health optimization shouldn't cost $10k/year. We keep the best tools free.",
+      title: uiCopy("access"),
+      description: uiCopy("accessDetails"),
       icon: Heart,
     },
   ]
@@ -68,17 +71,9 @@ export default function AboutPage() {
           animate="animate"
           variants={stagger.container()}
         >
-          <motion.h1 className="text-5xl md:text-6xl font-bold mb-6" variants={stagger.item}>
-            Building the{" "}
-            <span className="bg-gradient-to-r from-primary via-cyan-400 to-green-400 bg-clip-text text-transparent">
-              Operating System
-            </span>{" "}
-            for Human Biology
-          </motion.h1>
-          <motion.p className="text-xl text-muted-foreground max-w-2xl mx-auto" variants={stagger.item}>
-            Liberture started with a simple question: What if optimizing your body was as easy as optimizing your
-            computer?
-          </motion.p>
+          <motion.h1 className="text-5xl md:text-6xl font-bold mb-6" variants={stagger.item}>{uiCopy("buildingThe")}{" "}
+            <span className="bg-gradient-to-r from-primary via-cyan-400 to-green-400 bg-clip-text text-transparent">{uiCopy("operatingSystem")}</span>{" "}{uiCopy("forHumanBiology")}</motion.h1>
+          <motion.p className="text-xl text-muted-foreground max-w-2xl mx-auto" variants={stagger.item}>{uiCopy("libertureStartedWithASimpleQuestionWhatIf")}</motion.p>
         </motion.div>
 
         {/* Mission */}
@@ -89,18 +84,14 @@ export default function AboutPage() {
           transition={{ delay: 0.4 }}
         >
           <div className="p-8 md:p-12 rounded-2xl bg-gradient-to-br from-primary/10 to-cyan-400/10 border border-primary/20">
-            <h2 className="text-2xl font-bold mb-4">Our Mission</h2>
-            <p className="text-lg text-muted-foreground leading-relaxed">
-              We're building the unified platform for human optimization. A place where you can track your biology,
-              discover protocols that work, connect with experts, and unlock peak performance across all six pillars of
-              health: Cognition, Recovery, Fueling, Mental, Physicality, and Finance.
-            </p>
+            <h2 className="text-2xl font-bold mb-4">{uiCopy("ourMission")}</h2>
+            <p className="text-lg text-muted-foreground leading-relaxed">{uiCopy("weReBuildingTheUnifiedPlatformForHuman")}</p>
           </div>
         </motion.div>
 
         {/* Founders */}
         <div className="max-w-6xl mx-auto mb-20">
-          <h2 className="text-3xl font-bold text-center mb-12">Meet the Founders</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">{uiCopy("meetTheFounders")}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {founders.map((founder, index) => {
               const Icon = founder.icon
@@ -142,7 +133,7 @@ export default function AboutPage() {
 
         {/* Values */}
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Our Values</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">{uiCopy("ourValues")}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {values.map((value, index) => {
               const Icon = value.icon
@@ -170,10 +161,8 @@ export default function AboutPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5 }}
         >
-          <h2 className="text-3xl font-bold mb-4">Join the Movement</h2>
-          <p className="text-muted-foreground mb-6">
-            We're just getting started. Join thousands of people taking control of their biology.
-          </p>
+          <h2 className="text-3xl font-bold mb-4">{uiCopy("joinTheMovement")}</h2>
+          <p className="text-muted-foreground mb-6">{uiCopy("weReJustGettingStartedJoinThousandsOf")}</p>
           <Link
             href={entry.href}
             className="inline-flex items-center gap-2 px-8 py-3 rounded-lg bg-primary hover:bg-primary/90 text-white font-semibold transition-colors"

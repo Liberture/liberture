@@ -1,4 +1,5 @@
-import { hasTranslatedContent, languageAlternates } from "@/lib/seo/translated-routes"
+import { languageAlternates } from "@/lib/seo/translated-routes"
+import { getEntitySlugMap } from "@/lib/i18n/entity-slugs.server"
 import { profilePath } from "@/lib/directory/profile-path"
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
@@ -98,17 +99,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     safe("content", () => prisma.content.findMany({select:{id:true,updatedAt:true}})),
   ]);
 
-  return [
-    ...staticEntries.flatMap(entry => {
-      const path = new URL(entry.url).pathname
-      if (!hasTranslatedContent(path)) return [entry]
-      const languages = languageAlternates(path)
-      return [{ ...entry, url: languages["x-default"] }, ...(["en", "es"] as const).map(locale => ({
-        ...entry,
-        url: languages[locale],
-        images: entry.images?.map(image => image.replace("/screenshots/en/", `/screenshots/${locale}/`)),
-      }))].map(item => ({ ...item, alternates: { languages } }))
-    }),
+  const entries: MetadataRoute.Sitemap = [
+    ...staticEntries,
     ...content.map(item => ({url:`${baseUrl}/content/${encodeURIComponent(item.id)}`,lastModified:item.updatedAt})),
 
     ...articles.map((article) => ({
@@ -151,4 +143,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
     }),
   ];
+  const slugs = await getEntitySlugMap()
+  return entries.flatMap(entry => {
+    const path = new URL(entry.url).pathname
+    const languages = languageAlternates(path, slugs.get(path))
+    return (["en", "es"] as const).map(locale => ({
+      ...entry,
+      url: languages[locale],
+      alternates: { languages },
+      images: entry.images?.map(image => image.replace("/screenshots/en/", `/screenshots/${locale}/`)),
+    }))
+  })
 }

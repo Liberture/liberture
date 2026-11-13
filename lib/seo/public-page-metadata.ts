@@ -1,0 +1,17 @@
+import type { Metadata } from "next"
+import { getTranslations } from "next-intl/server"
+import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { translatedAlternates } from "./translated-routes"
+
+export async function publicPageMetadata(path: string, key: string): Promise<Metadata> {
+  const [locale, t] = await Promise.all([getRequestLocale(), getTranslations("publicCopy.metadata")])
+  const title = t(key + ".title")
+  const description = t(key + ".description")
+  const alternates = translatedAlternates(path, locale)
+  const images = ["/og-image.jpg"]
+  return {
+    title, description, alternates,
+    openGraph: { type: "website", siteName: "Liberture", url: alternates.canonical, locale: locale === "es" ? "es_ES" : "en_US", title, description, images },
+    twitter: { card: "summary_large_image", title, description, images },
+  }
+}

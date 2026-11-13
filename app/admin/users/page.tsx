@@ -1,8 +1,7 @@
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { headers } from "next/headers"
-import { getDictionary } from "@/lib/habits/i18n"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { getSiteMessages } from "@/lib/i18n/messages.server"
 import { identity } from "@/lib/identity/server"
 import { managedAuthEnabled } from "@/lib/identity/config"
 import { Button } from "@/components/ui/button"
@@ -15,7 +14,7 @@ export default async function Users({ searchParams }: { searchParams: Promise<{ 
   const requestHeaders = await headers()
   const session = await identity().api.getSession({ headers: requestHeaders })
   if (session?.user.role !== "admin" || session.session.impersonatedBy) redirect("/")
-  const t = getDictionary(await getRequestLocale()).app.adminUsers
+  const t = (await getSiteMessages()).habits.app.adminUsers
   const params = await searchParams
   const q = (params.q ?? "").trim().slice(0, 128)
   const page = Math.max(1, Math.min(100000, parseInt(params.page ?? "1", 10) || 1))

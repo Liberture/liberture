@@ -2,7 +2,7 @@ import { translatedAlternates } from "@/lib/seo/translated-routes"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
 import type { Metadata } from "next"
 import { BreadcrumbSchema, JsonLd } from "@/components/seo/JsonLd"
-import { translations } from "@/lib/translations"
+import { getSiteMessages } from "@/lib/i18n/messages.server"
 
 const path = "/how-it-works"
 
@@ -17,7 +17,7 @@ const ogImage = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
-  const t = translations[locale].habits
+  const t = (await getSiteMessages()).habits
   const title = t.landing.how.heading
   const description = t.docs.overview.lead
   const alternates = translatedAlternates(path, locale)
@@ -51,7 +51,7 @@ export default async function HowItWorksLayout({
   children: React.ReactNode
 }) {
   const locale = await getRequestLocale()
-  const t = translations[locale].habits
+  const t = (await getSiteMessages()).habits
   const url = translatedAlternates(path, locale).canonical
   // Mirrors the three setup steps rendered on the page (translations → habits.docs.overview.steps).
   const howToSchema = {

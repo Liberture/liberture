@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "@/components/i18n/localized-link"
 import { motion } from "framer-motion"
 
 import { FoldedDrift, RippleBloom } from "@/components/habits/patterns"
@@ -91,7 +92,7 @@ export function HeroPillarButtons() {
         const Icon = PILLAR_ICON_MAP[pillar]
         const color = PILLAR_HEX[pillar]
         return (
-          <a key={pillar} href={`/pillars/${pillar}`}>
+          <Link key={pillar} href={`/pillars/${pillar}`}>
             <motion.div
               className="group flex cursor-pointer flex-col items-center gap-2"
               initial={{ opacity: 0, y: 20 }}
@@ -115,7 +116,7 @@ export function HeroPillarButtons() {
               </motion.div>
               <span className="text-xs text-muted-foreground transition-colors">{PILLAR_LABELS[pillar]}</span>
             </motion.div>
-          </a>
+          </Link>
         )
       })}
     </motion.div>

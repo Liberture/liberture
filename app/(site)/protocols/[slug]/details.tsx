@@ -1,4 +1,5 @@
-import Link from "next/link"
+import { localizedPageUrl } from "@/lib/i18n/page-url.server"
+import Link from "@/components/i18n/localized-link"
 import { DirectoryLayout } from "@/components/directory/layout"
 import { DirectoryProtocol } from "@/components/directory/protocol-card"
 import { CardCarousel } from "@/components/ui/card-carousel"
@@ -10,10 +11,10 @@ import { ProtocolArtwork } from "@/components/habits/marketplace/protocol-artwor
 import { SourceLink } from "@/components/habits/marketplace/source-link"
 import { normalizeSource } from "@/lib/habits/protocols/sources"
 import { ProtocolFacts, ProtocolHabits } from "@/components/habits/marketplace/protocol-facts"
-import { findProtocol } from "@/lib/habits/protocols/catalog"
+import { catalogProtocols } from "@/lib/habits/protocols/localized-catalog"
 import type { Author } from "@/lib/habits/protocols/authors"
 import { protocolImage } from "@/lib/habits/protocols/images"
-import { getDictionary } from "@/lib/habits/i18n"
+import { getSiteMessages } from "@/lib/i18n/messages.server"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
 
 type RelatedProtocol = {
@@ -59,7 +60,7 @@ export default async function ProtocolDetails({ protocol }: { protocol: Protocol
   const risks = parseList(protocol.risks);
   const equipment = parseList(protocol.equipment);
   const references = parseList(protocol.references);
-  const { protocolDetails: copy, protocolReader } = getDictionary(await getRequestLocale()).app
+  const { protocolDetails: copy, protocolReader } = (await getSiteMessages()).habits.app
   const related = new Map<string, RelatedProtocol[]>()
   for (const relation of protocol.related ?? []) {
     if (relation.protocol.slug === protocol.slug) continue
@@ -67,7 +68,8 @@ export default async function ProtocolDetails({ protocol }: { protocol: Protocol
     group.push(relation)
     related.set(relation.protocol.slug, group)
   }
-  const catalog = findProtocol(protocol.slug)
+  const locale = await getRequestLocale()
+  const catalog = catalogProtocols(locale).find(p => p.slug === protocol.slug)
   const credits = [catalog?.author, ...(catalog?.coAuthors ?? [])].filter((author): author is Author => Boolean(author))
   const authors = credits.filter(author => author.kind === "person").map(author => ({
     "@type":"Person" as const, name:author.name, sameAs:author.url,
@@ -81,7 +83,7 @@ export default async function ProtocolDetails({ protocol }: { protocol: Protocol
       <ArticleSchema
         title={protocol.name}
         description={protocol.description}
-        url={`https://liberture.com/protocols/${protocol.slug}`}
+        url={await localizedPageUrl(`/protocols/${protocol.slug}`, locale)}
         author={credits.length ? 'Liberture' : protocol.creator || 'Liberture'}
         authors={authors}
         citations={citations}

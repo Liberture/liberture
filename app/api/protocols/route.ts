@@ -1,3 +1,4 @@
+import { directoryApiClient } from "@/lib/i18n/directory-records.server"
 import { NextResponse } from "next/server"
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest) {
   const all = request.nextUrl.searchParams.get("all") === "true"
 
   try {
-    const dbProtocols = await prisma.protocol.findMany({
+    const dbProtocols = await directoryApiClient(request).protocol.findMany({
       where: {
         ...(!all && { published: true }),
         ...(pillar && { pillar }),

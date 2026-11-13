@@ -3,7 +3,7 @@
 import { motion } from "framer-motion"
 import { stagger, transition, hover, loop } from "@/lib/animations"
 import { Card, CardContent } from "@/components/ui/card"
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
 import type { PillarId } from "@/lib/translations"
 import type { PillarWithConfig } from "@/types"

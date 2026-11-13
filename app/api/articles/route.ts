@@ -1,3 +1,4 @@
+import { directoryApiClient } from "@/lib/i18n/directory-records.server"
 import { articleTags } from "@/lib/article-tags"
 import { NextResponse } from "next/server"
 import { NextRequest } from "next/server"
@@ -84,7 +85,7 @@ export async function GET(request: NextRequest) {
       ]
     }
 
-    const articles = await prisma.article.findMany({
+    const articles = await directoryApiClient(request).article.findMany({
       where,
       select: {
         id: true,

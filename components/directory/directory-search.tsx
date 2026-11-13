@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import Link, { useLocalizedHref } from "@/components/i18n/localized-link"
 import { Search } from "lucide-react"
 import { useEffect, useId, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -18,6 +18,7 @@ export function DirectorySearch({ entries, initialQuery = "", pillar, sort, sect
   const inputId = useId()
   const searchLabel = placeholder ?? copy.search
   const router = useRouter()
+  const localize = useLocalizedHref()
   const [query, setQuery] = useState(initialQuery)
   const [term, setTerm] = useState("")
   const [focused, setFocused] = useState(false)
@@ -46,9 +47,9 @@ export function DirectorySearch({ entries, initialQuery = "", pillar, sort, sect
   ]
   const items = groups.flatMap(group => group.items)
   const open = items.length > 0
-  return <form action={"/" + section} role="search" className="relative" onSubmit={event => {
+  return <form action={localize("/" + section)} role="search" className="relative" onSubmit={event => {
     event.preventDefault()
-    router.push(open && items[active] ? items[active].href : resultsUrl(query))
+    router.push(localize(open && items[active] ? items[active].href : resultsUrl(query)))
     setFocused(false)
   }}>
     <label htmlFor={inputId} className="sr-only">{searchLabel}</label>

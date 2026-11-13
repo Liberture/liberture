@@ -1,5 +1,5 @@
 import { cache } from "react"
-import { prisma } from "@/lib/prisma"
+import { directoryPrisma as prisma } from "@/lib/i18n/directory-records.server"
 import { protocolBylines } from "./protocol-credits"
 import { CATALOG_PROTOCOLS } from "@/lib/habits/protocols/catalog"
 

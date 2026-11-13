@@ -5,7 +5,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { format, subDays, startOfDay } from "date-fns"
 import { Check, CircleAlert, Loader2, Sparkles, Archive, Rows3, LayoutGrid, CalendarRange } from "lucide-react"
 
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import { LibertureLogoStatic } from "@/components/branding"
 import { HabitGrid } from "@/components/habits/habit-grid"
 import { AddHabitDialog } from "@/components/habits/add-habit-dialog"

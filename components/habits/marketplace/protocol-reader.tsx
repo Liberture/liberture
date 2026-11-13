@@ -1,6 +1,7 @@
 "use client"
+import { useTranslations as useUiCopy } from "next-intl"
 
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useEffect, useState } from "react"
 import { ArrowRight, AlertTriangle, Check, Download, Share2, ExternalLink, Plus, X } from "lucide-react"
@@ -34,6 +35,8 @@ interface ProtocolReaderProps {
  * decides with evidence in front of them, not from a title.
  */
 export function ProtocolReader({ protocol, adopted, onAdopt, onClose, shareable }: ProtocolReaderProps) {
+  const uiCopy = useUiCopy("publicCopy.protocolReader")
+
   const t = useTranslations().habits.app.protocolReader
   const labels = useCatalogLabels()
   const styles = PILLAR_STYLES[protocol.pillar]
@@ -324,14 +327,10 @@ export function ProtocolReader({ protocol, adopted, onAdopt, onClose, shareable 
                   >
                     {shared ? (
                       <>
-                        <Check className="h-4 w-4" aria-hidden />
-                        Link copied
-                      </>
+                        <Check className="h-4 w-4" aria-hidden />{uiCopy("linkCopied")}</>
                     ) : (
                       <>
-                        <Share2 className="h-4 w-4" aria-hidden />
-                        Share
-                      </>
+                        <Share2 className="h-4 w-4" aria-hidden />{uiCopy("share")}</>
                     )}
                   </button>
                   <button

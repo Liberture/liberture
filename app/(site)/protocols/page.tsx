@@ -1,10 +1,11 @@
 import type { Metadata } from "next"
 
 import { getRequestLocale } from "@/lib/habits/i18n/server"
-import { getDictionary } from "@/lib/habits/i18n"
+import { getTranslations } from "next-intl/server"
 import { translatedAlternates } from "@/lib/seo/translated-routes"
-import { prisma } from "@/lib/prisma"
-import { CATALOG_PROTOCOLS, findProtocol, type CatalogProtocol } from "@/lib/habits/protocols/catalog"
+import { directoryPrisma as prisma } from "@/lib/i18n/directory-records.server"
+import { catalogProtocols } from "@/lib/habits/protocols/localized-catalog"
+import { type CatalogProtocol } from "@/lib/habits/protocols/catalog"
 import { normalizeSources } from "@/lib/habits/protocols/sources"
 import type { PillarId } from "@/lib/translations"
 
@@ -12,7 +13,10 @@ import { ProtocolsBrowser } from "./protocols-browser"
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
-  const { seoTitle: title, description, imageAlt } = getDictionary(locale).protocolLibrary
+  const t = await getTranslations("habits.protocolLibrary")
+  const title = t("seoTitle")
+  const description = t("description")
+  const imageAlt = t("imageAlt")
   const alternates = translatedAlternates("/protocols", locale)
   const images = [{ url: "/og-image.jpg", width: 1200, height: 630, alt: imageAlt }]
   return {
@@ -47,19 +51,21 @@ const DIFFICULTY: Record<string, CatalogProtocol["difficulty"]> = {
  * catalog by slug — the same source the seeder writes from.
  */
 async function loadProtocols(): Promise<CatalogProtocol[]> {
+  const bundled = catalogProtocols(await getRequestLocale())
   try {
     const rows = await prisma.protocol.findMany({
       where: { published: true },
       orderBy: [{ featured: "desc" }, { name: "asc" }],
     })
-    if (rows.length === 0) return CATALOG_PROTOCOLS
+    if (rows.length === 0) return bundled
 
     const trackable = rows.flatMap(row => {
-      const catalog = findProtocol(row.slug)
+      const catalog = bundled.find(p => p.slug === row.slug)
       if (!catalog) return []
       return [{
         ...catalog,
         name: row.name,
+        searchText: [row.name, row.description, row.why, catalog.searchText].filter(Boolean).join(" ").toLowerCase(),
         description: row.description,
         why: row.why ?? catalog.why,
         pillar: row.pillar as PillarId,
@@ -70,10 +76,10 @@ async function loadProtocols(): Promise<CatalogProtocol[]> {
         evidence: row.references ? normalizeSources(parseList(row.references)) : catalog.evidence,
       }]
     })
-    return trackable.length ? trackable : CATALOG_PROTOCOLS
+    return trackable.length ? trackable : bundled
   } catch (error) {
     console.error("protocols: database unavailable, using bundled catalog", error)
-    return CATALOG_PROTOCOLS
+    return bundled
   }
 }
 

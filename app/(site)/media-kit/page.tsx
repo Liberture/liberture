@@ -1,4 +1,5 @@
 "use client"
+import { useTranslations as useUiCopy } from "next-intl"
 
 import { HelpTooltip } from "@/components/ui/tooltip"
 import { useState, useCallback } from 'react'
@@ -21,31 +22,31 @@ const PILLAR_COLORS = [
 ]
 
 const BRAND_COLORS = [
-  { name: 'Background', hex: '#0a0a0a', rgb: '10, 10, 10', use: 'Main background color' },
-  { name: 'Card', hex: '#0f0f0f', rgb: '15, 15, 15', use: 'Card backgrounds' },
-  { name: 'Border', hex: '#1a1a1a', rgb: '26, 26, 26', use: 'Borders and dividers' },
-  { name: 'Text Primary', hex: '#ffffff', rgb: '255, 255, 255', use: 'Main text' },
-  { name: 'Text Muted', hex: '#999999', rgb: '153, 153, 153', use: 'Secondary text' },
+  { nameKey: 'assetBackground', hex: '#0a0a0a', rgb: '10, 10, 10', useKey: 'assetMainBackgroundColor' },
+  { nameKey: 'assetCard', hex: '#0f0f0f', rgb: '15, 15, 15', useKey: 'assetCardBackgrounds' },
+  { nameKey: 'assetBorder', hex: '#1a1a1a', rgb: '26, 26, 26', useKey: 'assetBordersAndDividers' },
+  { nameKey: 'assetTextPrimary', hex: '#ffffff', rgb: '255, 255, 255', useKey: 'assetMainText' },
+  { nameKey: 'assetTextMuted', hex: '#999999', rgb: '153, 153, 153', useKey: 'assetSecondaryText' },
 ]
 
 const LOGO_SIZES = [
-  { size: 32, label: '32px', desc: 'Favicon' },
-  { size: 48, label: '48px', desc: 'Small' },
-  { size: 64, label: '64px', desc: 'Medium' },
-  { size: 128, label: '128px', desc: 'Large' },
-  { size: 256, label: '256px', desc: 'XL' },
-  { size: 512, label: '512px', desc: 'Print' },
+  { size: 32, label: '32px', descKey: 'assetFavicon' },
+  { size: 48, label: '48px', descKey: 'assetSmall' },
+  { size: 64, label: '64px', descKey: 'assetMedium' },
+  { size: 128, label: '128px', descKey: 'assetLarge' },
+  { size: 256, label: '256px', descKey: 'assetXl' },
+  { size: 512, label: '512px', descKey: 'assetPrint' },
 ]
 
 const BANNER_CONFIGS = [
-  { id: 'og', name: 'Open Graph', width: 1200, height: 630, desc: 'Link previews (Facebook, Discord, Slack)' },
-  { id: 'twitter', name: 'Twitter / X Banner', width: 1500, height: 500, desc: 'Profile header banner' },
-  { id: 'linkedin', name: 'LinkedIn Banner', width: 1584, height: 396, desc: 'Company page cover' },
-  { id: 'instagram', name: 'Instagram Post', width: 1080, height: 1080, desc: 'Square post format' },
-  { id: 'youtube', name: 'YouTube Banner', width: 2560, height: 1440, desc: 'Channel art / banner' },
-  { id: 'facebook', name: 'Facebook Cover', width: 820, height: 312, desc: 'Page cover photo' },
-  { id: 'pinterest', name: 'Pinterest Pin', width: 1000, height: 1500, desc: 'Standard pin format' },
-  { id: 'discord', name: 'Discord Banner', width: 960, height: 540, desc: 'Server banner image' },
+  { id: 'og', nameKey: 'assetOpenGraph', width: 1200, height: 630, descKey: 'assetLinkPreviewsFacebookDiscordSlack' },
+  { id: 'twitter', nameKey: 'assetTwitterXBanner', width: 1500, height: 500, descKey: 'assetProfileHeaderBanner' },
+  { id: 'linkedin', nameKey: 'assetLinkedinBanner', width: 1584, height: 396, descKey: 'assetCompanyPageCover' },
+  { id: 'instagram', nameKey: 'assetInstagramPost', width: 1080, height: 1080, descKey: 'assetSquarePostFormat' },
+  { id: 'youtube', nameKey: 'assetYoutubeBanner', width: 2560, height: 1440, descKey: 'assetChannelArtBanner' },
+  { id: 'facebook', nameKey: 'assetFacebookCover', width: 820, height: 312, descKey: 'assetPageCoverPhoto' },
+  { id: 'pinterest', nameKey: 'assetPinterestPin', width: 1000, height: 1500, descKey: 'assetStandardPinFormat' },
+  { id: 'discord', nameKey: 'assetDiscordBanner', width: 960, height: 540, descKey: 'assetServerBannerImage' },
 ]
 
 // Ids and names follow PillarId; colors are the --work..--finance tokens from
@@ -61,15 +62,15 @@ const PILLAR_ICON_DATA = [
 ]
 
 const STATIC_ASSETS = [
-  { name: 'Logo (transparent)', file: '/media-kit/logos/liberture-logo-static.svg', dims: '512 x 512', w: 512, h: 512 },
-  { name: 'Logo (dark bg)', file: '/media-kit/logos/liberture-logo-dark-bg.svg', dims: '512 x 512', w: 512, h: 512 },
-  { name: 'Wordmark White', file: '/media-kit/wordmarks/liberture-wordmark-white.svg', dims: '400 x 80', w: 400, h: 80 },
-  { name: 'Wordmark Gradient', file: '/media-kit/wordmarks/liberture-wordmark-gradient.svg', dims: '400 x 80', w: 400, h: 80 },
-  { name: 'Lockup Horizontal', file: '/media-kit/lockups/liberture-lockup-horizontal.svg', dims: '460 x 100', w: 460, h: 100 },
-  { name: 'Lockup Vertical', file: '/media-kit/lockups/liberture-lockup-vertical.svg', dims: '240 x 220', w: 240, h: 220 },
-  { name: 'App Icon', file: '/media-kit/icons/liberture-icon-512.svg', dims: '512 x 512', w: 512, h: 512 },
-  { name: 'Pillars Overview', file: '/media-kit/pillars/liberture-pillars-overview.svg', dims: '1200 x 320', w: 1200, h: 320 },
-  { name: 'Design Tokens', file: '/media-kit/liberture-design-tokens.json', dims: 'JSON', w: 0, h: 0 },
+  { nameKey: 'assetLogoTransparent', file: '/media-kit/logos/liberture-logo-static.svg', dims: '512 x 512', w: 512, h: 512 },
+  { nameKey: 'assetLogoDarkBg', file: '/media-kit/logos/liberture-logo-dark-bg.svg', dims: '512 x 512', w: 512, h: 512 },
+  { nameKey: 'assetWordmarkWhite', file: '/media-kit/wordmarks/liberture-wordmark-white.svg', dims: '400 x 80', w: 400, h: 80 },
+  { nameKey: 'assetWordmarkGradient', file: '/media-kit/wordmarks/liberture-wordmark-gradient.svg', dims: '400 x 80', w: 400, h: 80 },
+  { nameKey: 'assetLockupHorizontal', file: '/media-kit/lockups/liberture-lockup-horizontal.svg', dims: '460 x 100', w: 460, h: 100 },
+  { nameKey: 'assetLockupVertical', file: '/media-kit/lockups/liberture-lockup-vertical.svg', dims: '240 x 220', w: 240, h: 220 },
+  { nameKey: 'assetAppIcon', file: '/media-kit/icons/liberture-icon-512.svg', dims: '512 x 512', w: 512, h: 512 },
+  { nameKey: 'assetPillarsOverview', file: '/media-kit/pillars/liberture-pillars-overview.svg', dims: '1200 x 320', w: 1200, h: 320 },
+  { nameKey: 'assetDesignTokens', file: '/media-kit/liberture-design-tokens.json', dims: 'JSON', w: 0, h: 0 },
 ]
 
 const ICON_SIZES = [
@@ -83,11 +84,7 @@ const ICON_SIZES = [
   { size: 1024, name: 'icon-1024' },
 ]
 
-const BOILERPLATE = {
-  tagline: 'Master your biology. Unlock your potential.',
-  oneLiner: 'Liberture is the Biological Operating System — a unified platform for evidence-based human optimization across six pillars: Work, Sleep, Nutrition, Mind, Exercise, and Finance.',
-  press: `Liberture is a free, open-access platform for human optimization. Built around six core pillars — Work, Sleep, Nutrition, Mind, Exercise, and Finance — Liberture provides science-backed protocols, a curated directory of experts and organizations, and a growing knowledge base. Founded by Leon Acosta (CEO) and Fabricio Acosta (CTO), Liberture is committed to radical self-ownership, evidence-first health optimization, and open access for all.`,
-}
+
 
 // ---------------------------------------------------------------------------
 // SVG Generators
@@ -408,6 +405,9 @@ function SVGPreview({ svg, className = '' }: { svg: string; className?: string }
 // ---------------------------------------------------------------------------
 
 export default function MediaKitPage() {
+  const uiCopy = useUiCopy("publicCopy.mediaKit")
+
+  const pillarCopy = useUiCopy("publicCopy.pillars")
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
   const copyToClipboard = useCallback((text: string, id: string) => {
@@ -433,13 +433,9 @@ export default function MediaKitPage() {
           {/* Header */}
           <div className="text-center mb-16">
             <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-primary via-cyan-400 to-green-400 bg-clip-text text-transparent">
-                Media Kit
-              </span>
+              <span className="bg-gradient-to-r from-primary via-cyan-400 to-green-400 bg-clip-text text-transparent">{uiCopy("mediaKit")}</span>
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-              Brand assets, colors, and usage guidelines for Liberture
-            </p>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">{uiCopy("brandAssetsColorsAndUsageGuidelinesForLiberture")}</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
                 size="lg"
@@ -463,9 +459,7 @@ export default function MediaKitPage() {
                   })
                 }}
               >
-                <Package className="h-5 w-5" />
-                Download All SVG
-              </Button>
+                <Package className="h-5 w-5" />{uiCopy("downloadAllSvg")}</Button>
               <Button
                 size="lg"
                 variant="outline"
@@ -488,9 +482,7 @@ export default function MediaKitPage() {
                   })
                 }}
               >
-                <Package className="h-5 w-5" />
-                Download All PNG
-              </Button>
+                <Package className="h-5 w-5" />{uiCopy("downloadAllPng")}</Button>
             </div>
           </div>
 
@@ -498,23 +490,19 @@ export default function MediaKitPage() {
           {/* 1. LOGO                                                       */}
           {/* ============================================================= */}
           <section className="mb-20">
-            <SectionTitle icon={Image} title="Logo" />
+            <SectionTitle icon={Image} title={uiCopy("logo")} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
               {/* Animated Logo */}
               <div className="p-8 rounded-2xl bg-card border border-border/50">
-                <h3 className="text-lg font-semibold mb-6">Animated Logo</h3>
+                <h3 className="text-lg font-semibold mb-6">{uiCopy("animatedLogo")}</h3>
                 <div className="flex justify-center items-center h-48 bg-background rounded-xl mb-6">
                   <LibertureLogo size={120} animate={true} />
                 </div>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Continuous orbit animation. 6 dots representing our 6 pillars.
-                </p>
-                <p className="text-xs text-muted-foreground mb-4">
-                  The animated version is a React component. Download the static SVG for non-web use.
-                </p>
+                <p className="text-sm text-muted-foreground mb-4">{uiCopy("continuousOrbitAnimation6DotsRepresentingOur6")}</p>
+                <p className="text-xs text-muted-foreground mb-4">{uiCopy("theAnimatedVersionIsAReactComponentDownload")}</p>
                 <DownloadButton
-                  label="Download Static Logo"
+                  label={uiCopy("downloadStaticLogo")}
                   variant="svg"
                   onClick={() => downloadSVG(generateLogoSVG(512), 'liberture-logo-512.svg')}
                 />
@@ -522,13 +510,11 @@ export default function MediaKitPage() {
 
               {/* Static Logo */}
               <div className="p-8 rounded-2xl bg-card border border-border/50">
-                <h3 className="text-lg font-semibold mb-6">Static Logo</h3>
+                <h3 className="text-lg font-semibold mb-6">{uiCopy("staticLogo")}</h3>
                 <div className="flex justify-center items-center h-48 bg-background rounded-xl mb-6">
                   <LibertureLogoStatic size={120} />
                 </div>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Static vertical alignment. Use when animation isn&apos;t suitable.
-                </p>
+                <p className="text-sm text-muted-foreground mb-4">{uiCopy("staticVerticalAlignmentUseWhenAnimationIsnT")}</p>
                 <div className="flex gap-3">
                   <DownloadButton
                     label="SVG"
@@ -541,7 +527,7 @@ export default function MediaKitPage() {
                     onClick={() => downloadPNG(generateLogoSVG(512), 'liberture-logo-static.png', 512, 512)}
                   />
                   <DownloadButton
-                    label="With Background"
+                    label={uiCopy("withBackground")}
                     variant="png"
                     onClick={() => downloadPNG(generateLogoSVG(512, true), 'liberture-logo-bg.png', 512, 512)}
                   />
@@ -551,10 +537,10 @@ export default function MediaKitPage() {
 
             {/* Logo Sizes */}
             <div className="p-8 rounded-2xl bg-card border border-border/50 mb-8">
-              <h3 className="text-lg font-semibold mb-6">Logo Sizes</h3>
+              <h3 className="text-lg font-semibold mb-6">{uiCopy("logoSizes")}</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 text-center">
-                {LOGO_SIZES.map(({ size, label, desc }) => (
-                  <HelpTooltip key={size} label={`Download ${label} PNG`}><button
+                {LOGO_SIZES.map(({ size, label, descKey }) => (
+                  <HelpTooltip key={size} label={uiCopy("downloadSize", { size: label })}><button
                     onClick={() => downloadPNG(generateLogoSVG(size), `liberture-logo-${size}.png`, size, size)}
                     className="group cursor-pointer"
                   >
@@ -562,29 +548,29 @@ export default function MediaKitPage() {
                       <LibertureLogoStatic size={Math.min(size, 64)} />
                     </div>
                     <p className="text-sm font-medium">{label}</p>
-                    <p className="text-xs text-muted-foreground">{desc}</p>
+                    <p className="text-xs text-muted-foreground">{uiCopy(descKey)}</p>
                     <Download className="h-3 w-3 mx-auto mt-1 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                   </button></HelpTooltip>
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground mt-4 text-center">Click any size to download as PNG (2x retina)</p>
+              <p className="text-xs text-muted-foreground mt-4 text-center">{uiCopy("clickAnySizeToDownloadAsPng2X")}</p>
             </div>
 
             {/* Usage Guidelines */}
             <div className="p-8 rounded-2xl bg-card border border-border/50">
-              <h3 className="text-lg font-semibold mb-6">Usage Guidelines</h3>
+              <h3 className="text-lg font-semibold mb-6">{uiCopy("usageGuidelines")}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   {[
-                    'Use the logo on dark backgrounds (#0a0a0a or darker)',
-                    'Maintain minimum spacing around the logo (equal to dot height)',
-                    'Use the static version for print materials',
-                    'Use the version with background for light surfaces',
+                    uiCopy("useTheLogoOnDarkBackgrounds0A0A0AOrDarker"),
+                    uiCopy("maintainMinimumSpacingAroundTheLogoEqualToDotHeight"),
+                    uiCopy("useTheStaticVersionForPrintMaterials"),
+                    uiCopy("useTheVersionWithBackgroundForLightSurfaces"),
                   ].map((text, i) => (
                     <div key={i} className="flex items-start gap-3">
                       <div className="w-2 h-2 rounded-full bg-green-500 mt-2 shrink-0" />
                       <div>
-                        <p className="font-medium text-green-500">DO</p>
+                        <p className="font-medium text-green-500">{uiCopy("do")}</p>
                         <p className="text-sm text-muted-foreground">{text}</p>
                       </div>
                     </div>
@@ -592,15 +578,15 @@ export default function MediaKitPage() {
                 </div>
                 <div className="space-y-4">
                   {[
-                    'Change the colors of individual dots',
-                    'Distort or skew the logo proportions',
-                    'Place on light backgrounds without the dark background version',
-                    'Add drop shadows or effects beyond the built-in glow',
+                    uiCopy("changeTheColorsOfIndividualDots"),
+                    uiCopy("distortOrSkewTheLogoProportions"),
+                    uiCopy("placeOnLightBackgroundsWithoutTheDarkBackgroundVersion"),
+                    uiCopy("addDropShadowsOrEffectsBeyondTheBuiltInGlow"),
                   ].map((text, i) => (
                     <div key={i} className="flex items-start gap-3">
                       <div className="w-2 h-2 rounded-full bg-red-500 mt-2 shrink-0" />
                       <div>
-                        <p className="font-medium text-red-500">DON&apos;T</p>
+                        <p className="font-medium text-red-500">{uiCopy("donT")}</p>
                         <p className="text-sm text-muted-foreground">{text}</p>
                       </div>
                     </div>
@@ -614,12 +600,12 @@ export default function MediaKitPage() {
           {/* 2. WORDMARK & LOCKUPS                                         */}
           {/* ============================================================= */}
           <section className="mb-20">
-            <SectionTitle icon={Type} title="Wordmark & Lockups" />
+            <SectionTitle icon={Type} title={uiCopy("wordmarkLockups")} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
               {/* Wordmark White */}
               <div className="p-8 rounded-2xl bg-card border border-border/50">
-                <h3 className="text-lg font-semibold mb-6">Wordmark — White</h3>
+                <h3 className="text-lg font-semibold mb-6">{uiCopy("wordmarkWhite")}</h3>
                 <SVGPreview svg={generateWordmarkSVG('white')} className="h-32 p-4 mb-4" />
                 <div className="flex gap-3">
                   <DownloadButton label="SVG" variant="svg" onClick={() => downloadSVG(generateWordmarkSVG('white'), 'liberture-wordmark-white.svg')} />
@@ -629,7 +615,7 @@ export default function MediaKitPage() {
 
               {/* Wordmark Gradient */}
               <div className="p-8 rounded-2xl bg-card border border-border/50">
-                <h3 className="text-lg font-semibold mb-6">Wordmark — Gradient</h3>
+                <h3 className="text-lg font-semibold mb-6">{uiCopy("wordmarkGradient")}</h3>
                 <SVGPreview svg={generateWordmarkSVG('gradient')} className="h-32 p-4 mb-4" />
                 <div className="flex gap-3">
                   <DownloadButton label="SVG" variant="svg" onClick={() => downloadSVG(generateWordmarkSVG('gradient'), 'liberture-wordmark-gradient.svg')} />
@@ -641,7 +627,7 @@ export default function MediaKitPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {/* Horizontal Lockup */}
               <div className="p-8 rounded-2xl bg-card border border-border/50">
-                <h3 className="text-lg font-semibold mb-6">Lockup — Horizontal</h3>
+                <h3 className="text-lg font-semibold mb-6">{uiCopy("lockupHorizontal")}</h3>
                 <SVGPreview svg={generateLockupSVG('horizontal')} className="h-36 p-4 mb-4" />
                 <div className="flex gap-3">
                   <DownloadButton label="SVG" variant="svg" onClick={() => downloadSVG(generateLockupSVG('horizontal'), 'liberture-lockup-horizontal.svg')} />
@@ -651,7 +637,7 @@ export default function MediaKitPage() {
 
               {/* Vertical Lockup */}
               <div className="p-8 rounded-2xl bg-card border border-border/50">
-                <h3 className="text-lg font-semibold mb-6">Lockup — Vertical</h3>
+                <h3 className="text-lg font-semibold mb-6">{uiCopy("lockupVertical")}</h3>
                 <SVGPreview svg={generateLockupSVG('vertical')} className="h-56 p-4 mb-4" />
                 <div className="flex gap-3">
                   <DownloadButton label="SVG" variant="svg" onClick={() => downloadSVG(generateLockupSVG('vertical'), 'liberture-lockup-vertical.svg')} />
@@ -665,10 +651,8 @@ export default function MediaKitPage() {
           {/* 3. BANNERS                                                    */}
           {/* ============================================================= */}
           <section className="mb-20">
-            <SectionTitle icon={Monitor} title="Social Banners" />
-            <p className="text-muted-foreground mb-8 -mt-4">
-              Ready-to-use banners for social media profiles and link previews.
-            </p>
+            <SectionTitle icon={Monitor} title={uiCopy("socialBanners")} />
+            <p className="text-muted-foreground mb-8 -mt-4">{uiCopy("readyToUseBannersForSocialMediaProfiles")}</p>
 
             <div className="space-y-8">
               {BANNER_CONFIGS.map((banner) => {
@@ -678,9 +662,9 @@ export default function MediaKitPage() {
                   <div key={banner.id} className="p-8 rounded-2xl bg-card border border-border/50">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
                       <div>
-                        <h3 className="text-lg font-semibold">{banner.name}</h3>
+                        <h3 className="text-lg font-semibold">{uiCopy(banner.nameKey)}</h3>
                         <p className="text-sm text-muted-foreground">
-                          {banner.width} x {banner.height}px — {banner.desc}
+                          {banner.width} {uiCopy("x")} {banner.height}px — {uiCopy(banner.descKey)}
                         </p>
                       </div>
                       <div className="flex gap-3 shrink-0">
@@ -720,15 +704,13 @@ export default function MediaKitPage() {
           {/* 4. APP ICONS                                                  */}
           {/* ============================================================= */}
           <section className="mb-20">
-            <SectionTitle icon={Image} title="App Icons" />
-            <p className="text-muted-foreground mb-8 -mt-4">
-              Rounded square icons with dark background for favicons, app stores, and PWA manifests.
-            </p>
+            <SectionTitle icon={Image} title={uiCopy("appIcons")} />
+            <p className="text-muted-foreground mb-8 -mt-4">{uiCopy("roundedSquareIconsWithDarkBackgroundForFavicons")}</p>
 
             <div className="p-8 rounded-2xl bg-card border border-border/50">
               <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-6 text-center">
                 {ICON_SIZES.map(({ size, name }) => (
-                  <HelpTooltip key={size} label={`Download ${size}x${size} PNG`}><button
+                  <HelpTooltip key={size} label={uiCopy("downloadSize", { size: `${size}×${size}` })}><button
                     onClick={() => downloadPNG(generateIconSVG(size), `${name}.png`, size, size, size <= 64 ? 1 : 2)}
                     className="group cursor-pointer"
                   >
@@ -740,7 +722,7 @@ export default function MediaKitPage() {
                   </button></HelpTooltip>
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground mt-4 text-center">Click any size to download as PNG</p>
+              <p className="text-xs text-muted-foreground mt-4 text-center">{uiCopy("clickAnySizeToDownloadAsPng")}</p>
             </div>
           </section>
 
@@ -748,10 +730,8 @@ export default function MediaKitPage() {
           {/* 5a. PILLARS OVERVIEW                                          */}
           {/* ============================================================= */}
           <section className="mb-20">
-            <SectionTitle icon={Layers} title="Pillars Overview" />
-            <p className="text-muted-foreground mb-8 -mt-4">
-              The 6 pillars of Liberture — a single graphic showing all categories at a glance.
-            </p>
+            <SectionTitle icon={Layers} title={uiCopy("pillarsOverview")} />
+            <p className="text-muted-foreground mb-8 -mt-4">{uiCopy("the6PillarsOfLibertureASingleGraphic")}</p>
 
             <div className="p-8 rounded-2xl bg-card border border-border/50">
               <div className="w-full rounded-xl overflow-hidden mb-6" style={{ aspectRatio: '1200 / 320' }}>
@@ -784,10 +764,8 @@ export default function MediaKitPage() {
           {/* 5b. PILLAR ICONS                                              */}
           {/* ============================================================= */}
           <section className="mb-20">
-            <SectionTitle icon={Layers} title="Pillar Icons" />
-            <p className="text-muted-foreground mb-8 -mt-4">
-              Individual icons for each of the 6 pillars. 256 x 256px SVG with glow effect.
-            </p>
+            <SectionTitle icon={Layers} title={uiCopy("pillarIcons")} />
+            <p className="text-muted-foreground mb-8 -mt-4">{uiCopy("individualIconsForEachOfThe6Pillars")}</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {PILLAR_ICON_DATA.map((pillar) => (
@@ -806,7 +784,7 @@ export default function MediaKitPage() {
                     </div>
                   </div>
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-semibold">{pillar.name}</h3>
+                    <h3 className="text-lg font-semibold">{pillarCopy(pillar.id + "Name")}</h3>
                     <span className="text-xs font-mono text-muted-foreground">{pillar.color}</span>
                   </div>
                   <div className="flex gap-2">
@@ -835,10 +813,8 @@ export default function MediaKitPage() {
           {/* 6. STATIC FILE DOWNLOADS                                      */}
           {/* ============================================================= */}
           <section className="mb-20">
-            <SectionTitle icon={FileJson} title="Static Assets & Tokens" />
-            <p className="text-muted-foreground mb-8 -mt-4">
-              Pre-built SVG files and design tokens for direct use in your projects.
-            </p>
+            <SectionTitle icon={FileJson} title={uiCopy("staticAssetsTokens")} />
+            <p className="text-muted-foreground mb-8 -mt-4">{uiCopy("preBuiltSvgFilesAndDesignTokensFor")}</p>
 
             <div className="p-8 rounded-2xl bg-card border border-border/50">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -846,7 +822,7 @@ export default function MediaKitPage() {
                   <DownloadLink
                     key={asset.file}
                     href={asset.file}
-                    label={asset.name}
+                    label={uiCopy(asset.nameKey)}
                     dims={asset.dims}
                     onPNG={asset.w > 0 ? () => downloadStaticSVGAsPNG(
                       asset.file,
@@ -864,7 +840,7 @@ export default function MediaKitPage() {
           {/* 7. PILLAR COLORS                                              */}
           {/* ============================================================= */}
           <section className="mb-20">
-            <SectionTitle icon={Palette} title="Pillar Colors" />
+            <SectionTitle icon={Palette} title={uiCopy("pillarColors")} />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {PILLAR_COLORS.map((color) => (
                 <div key={color.id} className="p-6 rounded-2xl bg-card border border-border/50">
@@ -872,7 +848,7 @@ export default function MediaKitPage() {
                     className="h-24 rounded-xl mb-4"
                     style={{ backgroundColor: color.hex }}
                   />
-                  <h3 className="text-lg font-semibold mb-2">{color.name}</h3>
+                  <h3 className="text-lg font-semibold mb-2">{pillarCopy(color.id + "Name")}</h3>
                   <div className="space-y-2">
                     <CopyBtn text={color.hex} id={`${color.id}-hex`} />
                     <CopyBtn text={`rgb(${color.rgb})`} id={`${color.id}-rgb`} />
@@ -886,7 +862,7 @@ export default function MediaKitPage() {
           {/* 6. BRAND COLORS                                               */}
           {/* ============================================================= */}
           <section className="mb-20">
-            <SectionTitle icon={Palette} title="Brand Colors" />
+            <SectionTitle icon={Palette} title={uiCopy("brandColors")} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {BRAND_COLORS.map((color, index) => (
                 <div key={index} className="p-6 rounded-2xl bg-card border border-border/50">
@@ -896,8 +872,8 @@ export default function MediaKitPage() {
                       style={{ backgroundColor: color.hex }}
                     />
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold mb-1">{color.name}</h3>
-                      <p className="text-sm text-muted-foreground">{color.use}</p>
+                      <h3 className="text-lg font-semibold mb-1">{uiCopy(color.nameKey)}</h3>
+                      <p className="text-sm text-muted-foreground">{uiCopy(color.useKey)}</p>
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -913,41 +889,39 @@ export default function MediaKitPage() {
           {/* 7. TYPOGRAPHY                                                 */}
           {/* ============================================================= */}
           <section className="mb-20">
-            <SectionTitle icon={Type} title="Typography" />
+            <SectionTitle icon={Type} title={uiCopy("typography")} />
             <div className="p-8 rounded-2xl bg-card border border-border/50">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                   <div>
-                    <p className="text-sm text-muted-foreground mb-2">Primary Font</p>
+                    <p className="text-sm text-muted-foreground mb-2">{uiCopy("primaryFont")}</p>
                     <h3 className="text-4xl font-bold mb-2">Inter</h3>
-                    <p className="text-muted-foreground mb-3">Used for all UI text, headings, and body copy</p>
+                    <p className="text-muted-foreground mb-3">{uiCopy("usedForAllUiTextHeadingsAndBody")}</p>
                     <Button variant="outline" size="sm" asChild>
                       <a href="https://fonts.google.com/specimen/Inter" target="_blank" rel="noopener noreferrer" className="gap-2">
-                        <Download className="h-3 w-3" />
-                        Download from Google Fonts
-                      </a>
+                        <Download className="h-3 w-3" />{uiCopy("downloadFromGoogleFonts")}</a>
                     </Button>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground mb-2">Weights Used</p>
+                    <p className="text-sm text-muted-foreground mb-2">{uiCopy("weightsUsed")}</p>
                     <div className="space-y-2">
-                      <p className="font-normal">400 — Regular (Body text)</p>
-                      <p className="font-medium">500 — Medium (UI elements)</p>
-                      <p className="font-semibold">600 — Semibold (Subheadings)</p>
-                      <p className="font-bold">700 — Bold (Headings)</p>
+                      <p className="font-normal">{uiCopy("label400regularbodytext")}</p>
+                      <p className="font-medium">{uiCopy("label500mediumuielements")}</p>
+                      <p className="font-semibold">{uiCopy("label600semiboldsubheadings")}</p>
+                      <p className="font-bold">{uiCopy("label700boldheadings")}</p>
                     </div>
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground mb-2">Type Scale</p>
-                  <p className="text-5xl font-bold">Heading 1</p>
-                  <p className="text-4xl font-bold">Heading 2</p>
-                  <p className="text-3xl font-bold">Heading 3</p>
-                  <p className="text-2xl font-semibold">Heading 4</p>
-                  <p className="text-xl font-semibold">Heading 5</p>
-                  <p className="text-lg font-medium">Heading 6</p>
-                  <p className="text-base">Body text — The quick brown fox jumps over the lazy dog.</p>
-                  <p className="text-sm text-muted-foreground">Caption text — Secondary information and metadata.</p>
+                  <p className="text-sm text-muted-foreground mb-2">{uiCopy("typeScale")}</p>
+                  <p className="text-5xl font-bold">{uiCopy("heading1")}</p>
+                  <p className="text-4xl font-bold">{uiCopy("heading2")}</p>
+                  <p className="text-3xl font-bold">{uiCopy("heading3")}</p>
+                  <p className="text-2xl font-semibold">{uiCopy("heading4")}</p>
+                  <p className="text-xl font-semibold">{uiCopy("heading5")}</p>
+                  <p className="text-lg font-medium">{uiCopy("heading6")}</p>
+                  <p className="text-base">{uiCopy("bodyTextTheQuickBrownFoxJumpsOver")}</p>
+                  <p className="text-sm text-muted-foreground">{uiCopy("captionTextSecondaryInformationAndMetadata")}</p>
                 </div>
               </div>
             </div>
@@ -957,34 +931,32 @@ export default function MediaKitPage() {
           {/* 8. BOILERPLATE & TAGLINES                                     */}
           {/* ============================================================= */}
           <section className="mb-20">
-            <SectionTitle icon={FileText} title="Boilerplate & Taglines" />
-            <p className="text-muted-foreground mb-8 -mt-4">
-              Ready-to-copy text for press releases, partner pages, and social media bios.
-            </p>
+            <SectionTitle icon={FileText} title={uiCopy("boilerplateTaglines")} />
+            <p className="text-muted-foreground mb-8 -mt-4">{uiCopy("readyToCopyTextForPressReleasesPartner")}</p>
 
             <div className="space-y-6">
               <div className="p-6 rounded-2xl bg-card border border-border/50">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Tagline</h3>
+                  <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{uiCopy("tagline")}</h3>
                 </div>
-                <p className="text-xl font-semibold mb-3">{BOILERPLATE.tagline}</p>
-                <CopyBtn text={BOILERPLATE.tagline} id="bp-tagline" mono={false} />
+                <p className="text-xl font-semibold mb-3">{uiCopy("pressCopyTagline")}</p>
+                <CopyBtn text={uiCopy("pressCopyTagline")} id="bp-tagline" mono={false} />
               </div>
 
               <div className="p-6 rounded-2xl bg-card border border-border/50">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">One-Liner</h3>
+                  <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{uiCopy("oneLiner")}</h3>
                 </div>
-                <p className="text-base mb-3">{BOILERPLATE.oneLiner}</p>
-                <CopyBtn text={BOILERPLATE.oneLiner} id="bp-oneliner" mono={false} />
+                <p className="text-base mb-3">{uiCopy("pressCopyOneliner")}</p>
+                <CopyBtn text={uiCopy("pressCopyOneliner")} id="bp-oneliner" mono={false} />
               </div>
 
               <div className="p-6 rounded-2xl bg-card border border-border/50">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Press Boilerplate</h3>
+                  <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{uiCopy("pressBoilerplate")}</h3>
                 </div>
-                <p className="text-base text-muted-foreground mb-3 leading-relaxed">{BOILERPLATE.press}</p>
-                <CopyBtn text={BOILERPLATE.press} id="bp-press" mono={false} />
+                <p className="text-base text-muted-foreground mb-3 leading-relaxed">{uiCopy("pressCopyPress")}</p>
+                <CopyBtn text={uiCopy("pressCopyPress")} id="bp-press" mono={false} />
               </div>
             </div>
           </section>
@@ -994,12 +966,10 @@ export default function MediaKitPage() {
           {/* ============================================================= */}
           <section>
             <div className="p-8 rounded-2xl bg-gradient-to-br from-primary/20 to-cyan-400/20 border border-primary/30 text-center">
-              <h2 className="text-2xl font-bold mb-4">Need More Assets?</h2>
-              <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-                For press inquiries, partnership requests, or custom assets, please contact our team.
-              </p>
+              <h2 className="text-2xl font-bold mb-4">{uiCopy("needMoreAssets")}</h2>
+              <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">{uiCopy("forPressInquiriesPartnershipRequestsOrCustomAssets")}</p>
               <Button asChild className="bg-primary hover:bg-primary/90">
-                <a href="/contact">Contact Us</a>
+                <a href="/contact">{uiCopy("contactUs")}</a>
               </Button>
             </div>
           </section>

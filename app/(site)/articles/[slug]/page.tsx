@@ -1,10 +1,11 @@
+import { getTranslations as getUiCopy } from "next-intl/server"
 import { CoverArtwork } from "@/components/habits/marketplace/protocol-artwork"
 import Markdown from "react-markdown"
 import { profilePillars } from "@/lib/pillars"
 import { articleTags } from "@/lib/article-tags"
 import { LanguageSwitch } from "@/components/habits/site/language-switch"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
-import { getDictionary } from "@/lib/habits/i18n"
+import { getSiteMessages } from "@/lib/i18n/messages.server"
 import { ArticleCard } from "@/components/directory/article-card"
 import { CardCarousel } from "@/components/ui/card-carousel"
 import { DirectorySearch } from "@/components/directory/directory-search"
@@ -12,12 +13,13 @@ import { ArticleTopicTags } from "@/components/directory/article-topic-tags"
 import { DirectoryLayout } from "@/components/directory/layout"
 import { sectionTrail } from "@/components/seo/section-breadcrumbs"
 import { notFound } from 'next/navigation'
-import { prisma } from '@/lib/prisma'
+import { directoryPrisma as prisma } from '@/lib/i18n/directory-records.server'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Clock, ExternalLink, Calendar, User } from 'lucide-react'
-import Link from 'next/link'
+import Link from '@/components/i18n/localized-link'
 import { ArticleSchema, BreadcrumbSchema } from '@/components/seo/JsonLd'
+import { currentPageAlternates } from "@/lib/i18n/route-metadata.server"
 import type { Metadata } from 'next'
 
 interface PageProps {
@@ -38,16 +40,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   if (!article) {
-    return { title: 'Article Not Found | Liberture' }
+    notFound()
   }
 
+  const [alternates, uiCopy] = await Promise.all([currentPageAlternates(), getUiCopy("publicCopy.article")])
+  const description = article.description || uiCopy("about", { title: article.title })
   return {
-    title: `${article.title} | Liberture`,
-    description: article.description || `Learn about ${article.title} from ${article.author} on Liberture.`,
+    alternates,
+    title: article.title,
+    description,
     openGraph: {
       title: article.title,
-      description: article.description || `Learn about ${article.title} from ${article.author}.`,
-      url: `https://liberture.com/articles/${slug}`,
+      description,
+      url: alternates?.canonical,
       type: 'article',
       images: [{ url: `/articles/images/${slug}.webp`, width: 1200, height: 420 }],
     },
@@ -55,12 +60,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       card: 'summary_large_image',
       images: [`/articles/images/${slug}.webp`],
       title: article.title,
-      description: article.description || `Learn about ${article.title}.`,
+      description,
     },
   }
 }
 
 export default async function ArticlePage({ params }: PageProps) {
+  const uiCopy = await getUiCopy("publicCopy.article")
+
   const { slug } = await params
 
   let article: Awaited<ReturnType<typeof prisma.article.findUnique<{ where: { slug: string }; select: { id: true; title: true; description: true; content: true; tags: true; author: true; readTime: true; url: true; publishedAt: true; updatedAt: true; pillar: true } }>>> = null
@@ -103,7 +110,7 @@ export default async function ArticlePage({ params }: PageProps) {
     }),
   ])
   const categories = [...new Set(entries.flatMap(entry => profilePillars(entry.pillar)))].sort()
-  const { articleReader: copy, pillarTag } = getDictionary(locale).app
+  const { articleReader: copy, pillarTag } = (await getSiteMessages()).habits.app
   const topicSet = new Set(tags.map(tag => tag.toLowerCase()))
   const currentPillar = article.pillar
   const related = candidates.map(candidate => ({
@@ -125,7 +132,7 @@ export default async function ArticlePage({ params }: PageProps) {
       // Legacy records can point to relative or retired directory routes.
     }
   }
-  const articleUrl = `https://liberture.com/articles/${slug}`
+  const articleUrl = (await currentPageAlternates())?.canonical ?? `https://liberture.com/articles/${slug}`
 
   return (
     <DirectoryLayout>
@@ -165,11 +172,11 @@ export default async function ArticlePage({ params }: PageProps) {
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                <span>{article.readTime} min read</span>
+                <span>{article.readTime} {uiCopy("minRead")}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                <span>{new Date(article.publishedAt).toLocaleDateString('en-US', {
+                <span>{new Date(article.publishedAt).toLocaleDateString(locale, {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'
@@ -186,9 +193,7 @@ export default async function ArticlePage({ params }: PageProps) {
                   <Markdown skipHtml>{markdown}</Markdown>
                 </div>
               ) : (
-                <p className="text-muted-foreground">
-                  Content not available. Please visit the source article.
-                </p>
+                <p className="text-muted-foreground">{uiCopy("contentNotAvailablePleaseVisitTheSourceArticle")}</p>
               )}
             </CardContent>
           </Card>
@@ -199,10 +204,8 @@ export default async function ArticlePage({ params }: PageProps) {
                 <div className="flex items-start gap-4">
                   <ExternalLink className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                   <div className="flex-1 space-y-2">
-                    <h3 className="font-semibold text-sm">Original Source</h3>
-                    <p className="text-sm text-muted-foreground">
-                      This article was originally published at:
-                    </p>
+                    <h3 className="font-semibold text-sm">{uiCopy("originalSource")}</h3>
+                    <p className="text-sm text-muted-foreground">{uiCopy("thisArticleWasOriginallyPublishedAt")}</p>
                     <a
                       href={externalSource}
                       target="_blank"
@@ -213,9 +216,7 @@ export default async function ArticlePage({ params }: PageProps) {
                     </a>
                   </div>
                   <Button variant="outline" size="sm" asChild>
-                    <a href={externalSource} target="_blank" rel="noopener noreferrer">
-                      Visit Source
-                    </a>
+                    <a href={externalSource} target="_blank" rel="noopener noreferrer">{uiCopy("visitSource")}</a>
                   </Button>
                 </div>
               </CardContent>
@@ -225,7 +226,7 @@ export default async function ArticlePage({ params }: PageProps) {
           {tags.length > 0 && (
             <Card>
               <CardContent className="p-6">
-                <h3 className="font-semibold mb-4 text-sm">Related Topics</h3>
+                <h3 className="font-semibold mb-4 text-sm">{uiCopy("relatedTopics")}</h3>
                 <div className="flex flex-wrap gap-2">
                   <ArticleTopicTags topics={tags} />
                 </div>

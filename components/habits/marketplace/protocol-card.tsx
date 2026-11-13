@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import { HelpTooltip } from "@/components/ui/tooltip"
 import { BookOpenCheck, Check, Clock, ListChecks, Plus, Wallet } from "lucide-react"
 

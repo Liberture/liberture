@@ -4,21 +4,17 @@ import { motion } from "framer-motion"
 import { Check } from "lucide-react"
 
 import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
-import { translations, type PillarId } from "@/lib/translations"
+import { useTranslations } from "@/components/i18n/locale-provider"
+import type { PillarId } from "@/lib/translations"
 import { cn } from "@/lib/utils"
 
-const PILLARS = translations.en.common.pillars
-
-export function pillarName(id: PillarId): string {
-  return PILLARS.find((p) => p.id === id)?.name ?? id
-}
-
-export function pillarDescription(id: PillarId): string {
-  return PILLARS.find((p) => p.id === id)?.description ?? ""
+function usePillar(id: PillarId) {
+  return useTranslations().common.pillars.find(pillar => pillar.id === id)
 }
 
 /** Small read-only pillar tag, used on protocol and habit cards. */
 export function PillarTag({ pillar, className }: { pillar: PillarId; className?: string }) {
+  const details = usePillar(pillar)
   const Icon = PILLAR_ICON_MAP[pillar]
   const styles = PILLAR_STYLES[pillar]
 
@@ -33,7 +29,7 @@ export function PillarTag({ pillar, className }: { pillar: PillarId; className?:
       )}
     >
       <Icon className="h-3.5 w-3.5" aria-hidden />
-      {pillarName(pillar)}
+      {details?.name ?? pillar}
     </span>
   )
 }
@@ -48,6 +44,7 @@ export function PillarChoice({
   selected: boolean
   onToggle: () => void
 }) {
+  const details = usePillar(pillar)
   const Icon = PILLAR_ICON_MAP[pillar]
   const styles = PILLAR_STYLES[pillar]
 
@@ -75,9 +72,9 @@ export function PillarChoice({
       </span>
 
       <span className={cn("font-semibold", selected ? styles.text : "text-foreground")}>
-        {pillarName(pillar)}
+        {details?.name ?? pillar}
       </span>
-      <span className="line-clamp-2 text-xs text-muted-foreground">{pillarDescription(pillar)}</span>
+      <span className="line-clamp-2 text-xs text-muted-foreground">{details?.description}</span>
 
       {selected ? (
         <motion.span

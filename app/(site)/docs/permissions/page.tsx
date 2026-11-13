@@ -1,14 +1,14 @@
 import { docsMetadata } from "@/lib/seo/localized-metadata"
 import { DocsList, DocsSection, DocsTitle } from "@/components/habits/docs/docs-parts"
 import { API_SCOPES } from "@/lib/habits/api-scopes"
-import { getDictionary } from "@/lib/habits/i18n"
+import { getSiteMessages } from "@/lib/i18n/messages.server"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { DocsScreenshot } from "@/components/habits/docs/docs-screenshot"
 
 
 export default async function PermissionsDocsPage() {
   const locale = await getRequestLocale()
-  const dict = getDictionary(locale)
+  const dict = (await getSiteMessages()).habits
   const t = dict.docs.permissions
 
   return (

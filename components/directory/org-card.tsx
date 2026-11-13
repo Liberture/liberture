@@ -1,11 +1,15 @@
+import { useTranslations as useUiCopy } from "next-intl"
 import { profilePath } from "@/lib/directory/profile-path"
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import { OrganizationLogo } from "./organization-logo"
 import { profilePillars } from "@/lib/pillars"
 import { PillarTag } from "@/components/habits/marketplace/pillar-tag"
 import type { Organization } from "@prisma/client"
 
 export function OrganizationCard({ org }: { org: Pick<Organization, "directoryKind" | "imageUrl" | "slug" | "name" | "type" | "description" | "pillars" | "featured" | "founded"> }) {
+  const uiCopy = useUiCopy("publicCopy.orgCard")
+
+  const terms = useUiCopy("directoryTerms")
   const pillars = profilePillars(org.pillars);
 
   return (
@@ -16,9 +20,7 @@ export function OrganizationCard({ org }: { org: Pick<Organization, "directoryKi
       <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
       <div className="relative">
         {org.featured && (
-          <div className="absolute top-0 right-0 bg-cyan-500 text-white text-xs px-2 py-1 rounded-bl-lg rounded-tr-lg">
-            Featured
-          </div>
+          <div className="absolute top-0 right-0 bg-cyan-500 text-white text-xs px-2 py-1 rounded-bl-lg rounded-tr-lg">{uiCopy("featured")}</div>
         )}
 
         <OrganizationLogo src={org.imageUrl} name={org.name} className="mb-4 h-12 max-w-[65%]" />
@@ -26,7 +28,7 @@ export function OrganizationCard({ org }: { org: Pick<Organization, "directoryKi
           {org.name}
         </h2>
 
-        <p className="text-cyan-400 text-sm mb-3 capitalize">{org.type}</p>
+        <p className="text-cyan-400 text-sm mb-3 capitalize">{terms.has(org.type) ? terms(org.type) : org.type}</p>
 
         <p className="text-slate-400 mb-4 line-clamp-3">{org.description}</p>
 
@@ -35,8 +37,7 @@ export function OrganizationCard({ org }: { org: Pick<Organization, "directoryKi
         </div>
 
         {org.founded && (
-          <div className="text-sm text-slate-500">
-            Founded: {org.founded}
+          <div className="text-sm text-slate-500">{uiCopy("founded")} {org.founded}
           </div>
         )}
       </div>

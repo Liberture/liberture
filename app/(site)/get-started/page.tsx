@@ -1,7 +1,7 @@
 import { translatedAlternates } from "@/lib/seo/translated-routes"
 import type { Metadata } from "next"
 import Image from "next/image"
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import { ArrowRight, BookOpen } from "lucide-react"
 
 import { FAQSchema } from "@/components/seo/JsonLd"
@@ -9,11 +9,11 @@ import { GetStartedActions } from "@/components/habits/get-started-actions"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { findProtocol } from "@/lib/habits/protocols/catalog"
 import { screenshotSize, screenshotSrc } from "@/lib/guides"
-import { translations } from "@/lib/translations"
+import { getSiteMessages } from "@/lib/i18n/messages.server"
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
-  const t = translations[locale].habits.getStarted
+  const t = (await getSiteMessages()).habits.getStarted
   const alternates = translatedAlternates("/get-started", locale)
   return {
     title: t.metaTitle,
@@ -36,7 +36,7 @@ const STARTERS = ["morning-sunlight-exposure", "daily-walking-baseline", "deep-w
 
 export default async function GetStartedPage() {
   const locale = await getRequestLocale()
-  const t = translations[locale].habits.getStarted
+  const t = (await getSiteMessages()).habits.getStarted
   const shot = screenshotSize("tracker-today")
   const starters = STARTERS.map((slug) => findProtocol(slug)).filter((p): p is NonNullable<typeof p> => Boolean(p))
 

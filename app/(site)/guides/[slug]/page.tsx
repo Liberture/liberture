@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Image from "next/image"
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import { notFound } from "next/navigation"
 import { ArrowLeft, ArrowRight, Clock } from "lucide-react"
 
@@ -127,7 +127,7 @@ export default async function GuidePage({ params }: GuidePageProps) {
       />
 
       <div className="relative z-10 mx-auto max-w-3xl">
-        <Link href={`/guides?lang=${locale}`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+        <Link href={`/guides`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" aria-hidden />
           {t.allGuides}
         </Link>
@@ -205,7 +205,7 @@ export default async function GuidePage({ params }: GuidePageProps) {
               {related.map((r) => (
                 <li key={r.slug}>
                   <Link
-                    href={`/guides/${r.slug}?lang=${locale}`}
+                    href={`/guides/${r.slug}`}
                     className="block h-full rounded-xl border border-white/10 bg-card/70 p-4 transition-colors hover:border-white/25"
                   >
                     <p className="font-semibold text-foreground">{r.title}</p>

@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link"
+import Link, { useLocalizedHref } from "@/components/i18n/localized-link"
 import { usePathname } from "next/navigation"
 
 import { cn } from "@/lib/utils"
@@ -11,10 +11,11 @@ interface DocsNavProps {
 
 export function DocsNav({ items }: DocsNavProps) {
   const pathname = usePathname()
+  const localize = useLocalizedHref()
   return (
     <nav className="custom-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 pb-2 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0">
       {items.map((item) => {
-        const active = pathname === item.href
+        const active = pathname === localize(item.href)
         return (
           <Link
             key={item.href}

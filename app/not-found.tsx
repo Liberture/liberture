@@ -1,4 +1,5 @@
 "use client"
+import { useTranslations as useUiCopy } from "next-intl"
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
@@ -7,6 +8,8 @@ import { Button } from '@/components/ui/button'
 import { LibertureLogo } from '@/components/branding/LibertureLogo'
 
 export default function NotFound() {
+  const uiCopy = useUiCopy("publicCopy.notFound")
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <div className="max-w-2xl w-full text-center">
@@ -30,13 +33,9 @@ export default function NotFound() {
             </span>
           </h1>
 
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Page Not Found
-          </h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">{uiCopy("pageNotFound")}</h2>
 
-          <p className="text-xl text-muted-foreground mb-8 max-w-lg mx-auto">
-            This page doesn't exist in our biological operating system. Perhaps it's been optimized away?
-          </p>
+          <p className="text-xl text-muted-foreground mb-8 max-w-lg mx-auto">{uiCopy("thisPageDoesnTExistInOurBiological")}</p>
         </motion.div>
 
         <motion.div
@@ -47,30 +46,22 @@ export default function NotFound() {
         >
           <Link href="/">
             <Button className="w-full gap-2 bg-primary hover:bg-primary/90">
-              <Home className="h-4 w-4" />
-              Go Home
-            </Button>
+              <Home className="h-4 w-4" />{uiCopy("goHome")}</Button>
           </Link>
 
           <Link href="/protocols">
             <Button variant="outline" className="w-full gap-2">
-              <ShoppingBag className="h-4 w-4" />
-              Protocols
-            </Button>
+              <ShoppingBag className="h-4 w-4" />{uiCopy("protocols")}</Button>
           </Link>
 
           <Link href="/articles">
             <Button variant="outline" className="w-full gap-2">
-              <BookOpen className="h-4 w-4" />
-              Articles
-            </Button>
+              <BookOpen className="h-4 w-4" />{uiCopy("articles")}</Button>
           </Link>
 
           <Link href="/directory">
             <Button variant="outline" className="w-full gap-2">
-              <Search className="h-4 w-4" />
-              Directory
-            </Button>
+              <Search className="h-4 w-4" />{uiCopy("directory")}</Button>
           </Link>
         </motion.div>
 
@@ -80,7 +71,7 @@ export default function NotFound() {
           transition={{ delay: 0.6, duration: 0.5 }}
           className="text-sm text-muted-foreground"
         >
-          <p>Lost? Try searching or explore our resources.</p>
+          <p>{uiCopy("lostTrySearchingOrExploreOurResources")}</p>
         </motion.div>
       </div>
     </div>

@@ -1,4 +1,5 @@
 'use client'
+import { useTranslations as useUiCopy } from "next-intl"
 
 import { useState } from 'react'
 import { Metadata } from 'next'
@@ -8,6 +9,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Mail, User, MessageSquare, Check, AlertCircle } from 'lucide-react'
 
 export default function ContactPage() {
+  const uiCopy = useUiCopy("publicCopy.contact")
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -32,15 +35,15 @@ export default function ContactPage() {
 
       if (res.ok) {
         setStatus('success')
-        setResponseMessage('Thank you! We\'ll get back to you soon.')
+        setResponseMessage(uiCopy("thanks"))
         setFormData({ name: '', email: '', subject: '', message: '' })
       } else {
         setStatus('error')
-        setResponseMessage(data.error || 'Something went wrong')
+        setResponseMessage(data.error || uiCopy("error"))
       }
     } catch (error) {
       setStatus('error')
-      setResponseMessage('Network error. Please try again.')
+      setResponseMessage(uiCopy("network"))
     }
   }
 
@@ -48,22 +51,18 @@ export default function ContactPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white">
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-5xl font-bold mb-4">Get in Touch</h1>
-          <p className="text-xl text-slate-300 mb-12">
-            Questions about biohacking? Want to contribute to the directory? We'd love to hear from you.
-          </p>
+          <h1 className="text-5xl font-bold mb-4">{uiCopy("getInTouch")}</h1>
+          <p className="text-xl text-slate-300 mb-12">{uiCopy("questionsAboutBiohackingWantToContributeToThe")}</p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label htmlFor="name" className="text-sm font-medium text-slate-300">
-                Name
-              </label>
+              <label htmlFor="name" className="text-sm font-medium text-slate-300">{uiCopy("name")}</label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                 <Input
                   id="name"
                   type="text"
-                  placeholder="Your name"
+                  placeholder={uiCopy("yourName")}
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
@@ -74,15 +73,13 @@ export default function ContactPage() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium text-slate-300">
-                Email
-              </label>
+              <label htmlFor="email" className="text-sm font-medium text-slate-300">{uiCopy("email")}</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                 <Input
                   id="email"
                   type="email"
-                  placeholder="your@email.com"
+                  placeholder={uiCopy("yourEmailCom")}
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
@@ -93,15 +90,13 @@ export default function ContactPage() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="subject" className="text-sm font-medium text-slate-300">
-                Subject
-              </label>
+              <label htmlFor="subject" className="text-sm font-medium text-slate-300">{uiCopy("subject")}</label>
               <div className="relative">
                 <MessageSquare className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                 <Input
                   id="subject"
                   type="text"
-                  placeholder="What's this about?"
+                  placeholder={uiCopy("whatSThisAbout")}
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                   disabled={status === 'loading'}
@@ -111,12 +106,10 @@ export default function ContactPage() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="message" className="text-sm font-medium text-slate-300">
-                Message
-              </label>
+              <label htmlFor="message" className="text-sm font-medium text-slate-300">{uiCopy("message")}</label>
               <Textarea
                 id="message"
-                placeholder="Tell us more..."
+                placeholder={uiCopy("tellUsMore")}
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 required
@@ -131,7 +124,7 @@ export default function ContactPage() {
               disabled={status === 'loading'}
               className="w-full bg-purple-600 hover:bg-purple-700 text-white text-lg py-6"
             >
-              {status === 'loading' ? 'Sending...' : 'Send Message'}
+              {status === 'loading' ? uiCopy("sending") : uiCopy("send")}
             </Button>
 
             {status === 'success' && (
@@ -150,11 +143,11 @@ export default function ContactPage() {
           </form>
 
           <div className="mt-12 p-6 rounded-2xl border border-slate-700 bg-slate-900/50">
-            <h2 className="text-xl font-bold mb-3">Other Ways to Connect</h2>
+            <h2 className="text-xl font-bold mb-3">{uiCopy("otherWaysToConnect")}</h2>
             <div className="space-y-2 text-slate-300">
-              <p>• Join our directory: Share biohacking resources and protocols</p>
-              <p>• Contribute research: Help us verify and expand content</p>
-              <p>• Report issues: Found incorrect information? Let us know</p>
+              <p>{uiCopy("joinOurDirectoryShareBiohackingResourcesAndProtocols")}</p>
+              <p>{uiCopy("contributeResearchHelpUsVerifyAndExpandContent")}</p>
+              <p>{uiCopy("reportIssuesFoundIncorrectInformationLetUsKnow")}</p>
             </div>
           </div>
         </div>

@@ -1,8 +1,10 @@
+import { getTranslations } from "next-intl/server"
+import { localizedPageUrl } from "@/lib/i18n/page-url.server"
 import type { getOrganization } from "@/lib/seo/public-records"
 import { PersonCard } from "@/components/people/person-card"
 import { RelatedProfiles } from "./related-profiles"
 import { profilePath, profileSection } from "@/lib/directory/profile-path"
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import { OrganizationLogo } from "@/components/directory/organization-logo"
 import { BookOpen, Building2, ExternalLink, Files, Users } from "lucide-react"
 import { DirectoryInfobox, DirectoryLayout } from "@/components/directory/layout"
@@ -27,7 +29,9 @@ function EntryList({ items }: { items: Entry[] }) {
   )}</ul>
 }
 
-export default function OrganizationDetails({ organization, locale }: { organization: NonNullable<Awaited<ReturnType<typeof getOrganization>>>; locale: Locale }) {
+export default async function OrganizationDetails({ organization, locale }: { organization: NonNullable<Awaited<ReturnType<typeof getOrganization>>>; locale: Locale }) {
+  const terms = await getTranslations("directoryTerms")
+  const term = (value: string) => terms.has(value) ? terms(value) : value
   const copy = getDictionary(locale).app
   const t = copy.organizationProfile
   const section = profileSection(organization.directoryKind)
@@ -36,12 +40,12 @@ export default function OrganizationDetails({ organization, locale }: { organiza
   const linkedPeople = new Map<string, { person: (typeof people)[number]["person"]; roles: string[] }>()
   for (const { person, role } of people) {
     const entry = linkedPeople.get(person.id)
-    if (entry) entry.roles.push(role)
-    else linkedPeople.set(person.id, { person, roles: [role] })
+    if (entry) entry.roles.push(term(role))
+    else linkedPeople.set(person.id, { person, roles: [term(role)] })
   }
   const connections = [
-    ...organization.projectOrganizations.map(link => ({ ...link, profile: link.organization })),
-    ...organization.organizationProjects.map(link => ({ ...link, profile: link.project, role: organization.name + " · " + link.role })),
+    ...organization.projectOrganizations.map(link => ({ ...link, profile: link.organization, role: term(link.role) })),
+    ...organization.organizationProjects.map(link => ({ ...link, profile: link.project, role: organization.name + " · " + term(link.role) })),
   ]
   const website = httpUrl(organization.website)
   const wikipedia = httpUrl(organization.wikipedia)
@@ -52,7 +56,7 @@ export default function OrganizationDetails({ organization, locale }: { organiza
     { id: "resources", title: t.resources, icon: Files, items: entries(organization.resources) },
     { id: "publications", title: t.publications, icon: BookOpen, items: entries(organization.publications) },
   ].filter(group => group.items.length || (group.id === "people" && people.length))
-  const url = `https://liberture.com${profilePath(organization)}`
+  const url = await localizedPageUrl(profilePath(organization), locale)
 
   return <DirectoryLayout>
     <JsonLd data={{
@@ -66,7 +70,7 @@ export default function OrganizationDetails({ organization, locale }: { organiza
       <DirectoryInfobox label={isProject ? copy.directoryProfiles.projectProfile : t.profile}>
         <OrganizationLogo src={image ?? null} name={organization.name} />
         <dl className="space-y-3 text-sm">
-          {organization.type && <div><dt className="text-muted-foreground">{t.type}</dt><dd className="capitalize">{organization.type}</dd></div>}
+          {organization.type && <div><dt className="text-muted-foreground">{t.type}</dt><dd className="capitalize">{term(organization.type)}</dd></div>}
           {organization.founded && <div><dt className="text-muted-foreground">{t.founded}</dt><dd>{organization.founded}</dd></div>}
           {website && <div><dt className="text-muted-foreground">{t.website}</dt><dd>
             <a href={website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 break-all text-primary hover:underline">{new URL(website).hostname.replace(/^www\./, "")}<ExternalLink className="size-3 shrink-0" aria-hidden /></a>

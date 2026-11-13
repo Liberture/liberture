@@ -1,7 +1,7 @@
 "use client"
 
 import { Suspense, useEffect } from "react"
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import { useSearchParams } from "next/navigation"
 import { KeyRound } from "lucide-react"
 

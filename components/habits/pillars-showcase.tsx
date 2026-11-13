@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "@/components/i18n/localized-link"
 import { motion, type TargetAndTransition, type Transition } from "framer-motion"
 
 import { PILLAR_ICON_MAP, PILLAR_IDS, PILLAR_LABELS, PILLAR_STYLES, type PillarId } from "@/lib/habits/pillars"
@@ -73,7 +74,7 @@ export function PillarsShowcase({ badge, heading, description, descriptions }: P
             const animation = PILLAR_ANIMATIONS[pillar]
 
             return (
-              <a key={pillar} href={`/pillars/${pillar}`}>
+              <Link key={pillar} href={`/pillars/${pillar}`}>
                 <motion.div
                   className={`p-6 rounded-2xl bg-gradient-to-b ${gradient} border ${border} cursor-pointer transition-all hover:shadow-lg`}
                   style={{ backgroundColor: "var(--card)" }}
@@ -88,7 +89,7 @@ export function PillarsShowcase({ badge, heading, description, descriptions }: P
                   <h3 className={`text-lg font-semibold mb-2 ${text}`}>{PILLAR_LABELS[pillar]}</h3>
                   <p className="text-sm text-muted-foreground">{descriptions[pillar]}</p>
                 </motion.div>
-              </a>
+              </Link>
             )
           })}
         </div>

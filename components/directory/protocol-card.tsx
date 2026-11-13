@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import { ProtocolCard } from "@/components/habits/marketplace/protocol-card"
 import { findProtocol } from "@/lib/habits/protocols/catalog"
 

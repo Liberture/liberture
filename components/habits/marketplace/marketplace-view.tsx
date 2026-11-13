@@ -9,9 +9,7 @@ import { ArrowDownUp, Store } from "lucide-react"
 import { PILLAR_IDS, type PillarId } from "@/lib/habits/pillars"
 import {
   CATALOG_AUTHORS,
-  CATALOG_PROTOCOLS,
   DIFFICULTY_ORDER,
-  STANDALONE_HABITS,
   type CatalogHabit,
   type CatalogProtocol,
 } from "@/lib/habits/protocols/catalog"
@@ -26,7 +24,8 @@ import {
 } from "@/lib/habits/protocols/filter"
 import { adoptedProtocolSlugs, adoptedSlugs } from "@/lib/habits/protocols/adopt"
 import type { Habit } from "@/lib/habits/types"
-import { useTranslations } from "@/components/i18n/locale-provider"
+import { catalogProtocols, standaloneHabits } from "@/lib/habits/protocols/localized-catalog"
+import { useLocale, useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage } from "@/lib/i18n-format"
 
 import { useCatalogLabels } from "./pillar-tag"
@@ -51,8 +50,10 @@ interface MarketplaceViewProps {
  */
 const EMPTY_HABITS: Habit[] = []
 
-export const MarketplaceView = memo(function MarketplaceView({ habits = EMPTY_HABITS, catalog = CATALOG_PROTOCOLS, heading, adopted, shareable, onAdoptProtocol, onAdoptHabit }: MarketplaceViewProps) {
+export const MarketplaceView = memo(function MarketplaceView({ habits = EMPTY_HABITS, catalog: suppliedCatalog, heading, adopted, shareable, onAdoptProtocol, onAdoptHabit }: MarketplaceViewProps) {
   const t = useTranslations().habits.app.marketplaceView
+  const locale = useLocale()
+  const catalog = suppliedCatalog ?? catalogProtocols(locale)
   const labels = useCatalogLabels()
   const [filter, setFilter] = useState<CatalogFilter>(DEFAULT_FILTER)
   const [draft, setDraft] = useState("")
@@ -62,7 +63,7 @@ export const MarketplaceView = memo(function MarketplaceView({ habits = EMPTY_HA
   const protocolSlugs = useMemo(() => adopted ?? adoptedProtocolSlugs(habits, catalog), [adopted, habits, catalog])
 
   const protocols = useMemo(() => filterProtocols(catalog, filter), [catalog, filter])
-  const standalone = useMemo(() => filterCatalogHabits(STANDALONE_HABITS, filter), [filter])
+  const standalone = useMemo(() => filterCatalogHabits(standaloneHabits(locale), filter), [filter, locale])
 
   const author = CATALOG_AUTHORS.find(author => author.id === filter.authorId)
   const reading = readingSlug ? catalog.find((p) => p.slug === readingSlug) : undefined

@@ -1,7 +1,9 @@
-import { ProfileIndex, type ProfileIndexProps } from "@/components/directory/profile-index"
-import { detailMetadata } from "@/lib/seo/detail-metadata"
+import { publicPageMetadata } from "@/lib/seo/public-page-metadata"
+export function generateMetadata() {
+  return publicPageMetadata("/organizations", "organizations")
+}
 
-export const metadata = detailMetadata("/organizations", "Organizations", "Companies and nonprofits behind directory projects.", "website")
+import { ProfileIndex, type ProfileIndexProps } from "@/components/directory/profile-index"
 
 export default function Page(props: ProfileIndexProps) {
   return ProfileIndex({ ...props, kind: "organization" })

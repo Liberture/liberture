@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { directoryApiClient } from '@/lib/i18n/directory-records.server'
 
 export async function GET(request: Request) {
   try {
@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const pillar = searchParams.get('pillar')
     const type = searchParams.get('type')
 
-    const items = await prisma.content.findMany({
+    const items = await directoryApiClient(request).content.findMany({
       where: {
         ...(pillar && pillar !== 'all' ? { pillar } : {}),
         ...(type ? { type } : {}),

@@ -1,35 +1,16 @@
-import Link from "next/link"
-type JsonLdProps = {
-  data: Record<string, any>;
-};
-
-/**
- * Renders structured data as a plain <script> tag so it lands in the
- * server-rendered HTML. next/script defers injection to the client, which
- * hides JSON-LD from crawlers that don't execute JavaScript, and dedupes by
- * `id` — so sibling schemas sharing an id silently drop.
- */
-export function JsonLd({ data }: JsonLdProps) {
-  // Escape `<` so DB-sourced strings can't break out of the script element.
-  const json = JSON.stringify(data).replace(/</g, '\\u003c');
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: json }}
-    />
-  );
-}
+import { JsonLd } from "./json-ld-script"
+export { JsonLd } from "./json-ld-script"
+export { BreadcrumbSchema } from "./breadcrumb-schema"
 
 // Organization Schema
-export function OrganizationSchema() {
+export function OrganizationSchema({ description }: { description: string }) {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'Liberture',
     url: 'https://liberture.com',
     logo: 'https://liberture.com/icon.svg',
-    description: 'The unified platform for human optimization and biohacking',
+    description,
     sameAs: [
       'https://twitter.com/liberture',
       'https://linkedin.com/company/liberture',
@@ -41,13 +22,14 @@ export function OrganizationSchema() {
 }
 
 // WebSite Schema
-export function WebSiteSchema() {
+export function WebSiteSchema({ description, locale }: { description: string; locale: string }) {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'Liberture',
     url: 'https://liberture.com',
-    description: 'Master your biology. Unlock your potential. The unified platform for human optimization.',
+    description,
+    inLanguage: locale,
     // No `potentialAction` / SearchAction until a real /search route exists —
     // declaring a sitelinks searchbox that 404s is an invalid markup signal.
   };
@@ -198,28 +180,6 @@ export function ArticleSchema({
   }
 
   return <JsonLd data={schema} />;
-}
-
-// Breadcrumb Schema
-export function BreadcrumbSchema({ items, compact = false, schemaOnly = false }: { schemaOnly?: boolean; compact?: boolean; items: Array<{ name: string; url: string }> }) {
-  const schema = {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: items.map((item, index) => ({
-      '@type': 'ListItem',
-      position: index + 1,
-      name: item.name,
-      item: item.url,
-    })),
-  };
-
-  if (schemaOnly) return <JsonLd data={schema} />
-
-  return <><nav aria-label="Breadcrumb" className={compact ? "text-xs text-muted-foreground" : "relative mx-auto w-full max-w-6xl px-4 pt-5 text-xs text-muted-foreground"}>
-    <ol className={compact ? "flex items-center gap-2" : "flex flex-wrap items-center gap-2"}>{items.map(({name,url},i) => <li key={url} className={compact && i === items.length-1 ? "flex min-w-0 items-center gap-2" : "flex shrink-0 items-center gap-2"}>
-      {i > 0 && <span aria-hidden>/</span>}{i === items.length-1 ? <span aria-current="page" className={compact ? "max-w-[30ch] truncate" : undefined} title={compact ? name : undefined}>{name}</span> : <Link className="hover:underline" href={new URL(url).pathname}>{name}</Link>}
-    </li>)}</ol>
-  </nav><JsonLd data={schema} /></>;
 }
 
 // WebApplication Schema (for games/interactive apps)

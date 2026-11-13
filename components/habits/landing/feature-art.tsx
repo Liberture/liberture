@@ -1,4 +1,5 @@
 "use client"
+import { useTranslations as useUiCopy } from "next-intl"
 
 import { useRef } from "react"
 import { motion, useInView, useReducedMotion } from "framer-motion"
@@ -36,10 +37,12 @@ const hex = (cx: number, cy: number, r: number, i: number) => {
 
 /** Six pillars: a hexagon of the six pillar colours, linked and slowly turning. */
 export function PillarsArt() {
+  const uiCopy = useUiCopy("publicCopy.featureArt")
+
   const { ref, play } = useAnimate()
   const pts = COLORS.map((_, i) => hex(80, 48, 32, i))
   return (
-    <Canvas svgRef={ref} label="Six connected pillars">
+    <Canvas svgRef={ref} label={uiCopy("sixConnectedPillars")}>
       <motion.g
         style={{ originX: 0.5, originY: 0.5 }}
         animate={play ? { rotate: 360 } : { rotate: 0 }}
@@ -70,9 +73,11 @@ export function PillarsArt() {
 
 /** Streaks and level-ups: a week of days filling in, then the flame grows. */
 export function StreakArt() {
+  const uiCopy = useUiCopy("publicCopy.featureArt")
+
   const { ref, play } = useAnimate()
   return (
-    <Canvas svgRef={ref} label="A streak filling day by day">
+    <Canvas svgRef={ref} label={uiCopy("aStreakFillingDayByDay")}>
       {Array.from({ length: 7 }, (_, i) => (
         <g key={i}>
           <rect x={12 + i * 18} y={58} width={14} height={14} rx={3} fill="white" fillOpacity={0.06} stroke="white" strokeOpacity={0.12} />
@@ -102,22 +107,22 @@ export function StreakArt() {
       <text x={12} y={40} fill="white" fillOpacity={0.85} fontSize={18} fontWeight={700} fontFamily="inherit">
         7
       </text>
-      <text x={26} y={40} fill="white" fillOpacity={0.5} fontSize={10} fontFamily="inherit">
-        days in a row
-      </text>
+      <text x={26} y={40} fill="white" fillOpacity={0.5} fontSize={10} fontFamily="inherit">{uiCopy("daysInARow")}</text>
     </Canvas>
   )
 }
 
 /** Pillar balance: a radar of the six pillars, its shape shifting as the week does. */
 export function BalanceArt() {
+  const uiCopy = useUiCopy("publicCopy.featureArt")
+
   const { ref, play } = useAnimate()
   const shape = (vals: number[]) => vals.map((v, i) => hex(80, 50, 38 * v, i)).map((p) => `${p.x},${p.y}`).join(" ")
   const a = shape([0.9, 0.5, 0.7, 0.4, 0.8, 0.6])
   const b = shape([0.6, 0.85, 0.5, 0.75, 0.55, 0.9])
   const c = shape([0.75, 0.7, 0.9, 0.6, 0.7, 0.45])
   return (
-    <Canvas svgRef={ref} label="Balance across the six pillars">
+    <Canvas svgRef={ref} label={uiCopy("balanceAcrossTheSixPillars")}>
       {[1, 0.66, 0.33].map((s) => (
         <polygon key={s} points={shape([s, s, s, s, s, s])} stroke="white" strokeOpacity={0.1} />
       ))}
@@ -141,9 +146,11 @@ export function BalanceArt() {
 
 /** Protocols: steps ticked off one after another. */
 export function ProtocolArt() {
+  const uiCopy = useUiCopy("publicCopy.featureArt")
+
   const { ref, play } = useAnimate()
   return (
-    <Canvas svgRef={ref} label="Protocol steps being checked off">
+    <Canvas svgRef={ref} label={uiCopy("protocolStepsBeingCheckedOff")}>
       {[0, 1, 2].map((i) => {
         const y = 18 + i * 26
         return (
@@ -170,9 +177,11 @@ export function ProtocolArt() {
 
 /** Voice check-ins: a mic, its sound bars, and the reply landing. */
 export function VoiceArt() {
+  const uiCopy = useUiCopy("publicCopy.featureArt")
+
   const { ref, play } = useAnimate()
   return (
-    <Canvas svgRef={ref} label="Talking to your assistant">
+    <Canvas svgRef={ref} label={uiCopy("talkingToYourAssistant")}>
       <rect x={18} y={24} width={16} height={28} rx={8} fill="#8B5CF6" style={{ filter: "drop-shadow(0 0 8px #8B5CF6)" }} />
       <path d="M12 44a14 14 0 0 0 28 0M26 58v8M18 66h16" stroke="white" strokeOpacity={0.6} strokeWidth={2} strokeLinecap="round" />
       {Array.from({ length: 7 }, (_, i) => (
@@ -203,13 +212,15 @@ export function VoiceArt() {
 
 /** Analytics: two trend lines drawing in over a grid. */
 export function AnalyticsArt() {
+  const uiCopy = useUiCopy("publicCopy.featureArt")
+
   const { ref, play } = useAnimate()
   const lines = [
     { d: "M10 74 L40 60 L70 64 L100 40 L130 34 L150 20", color: "#06B6D4" },
     { d: "M10 80 L40 76 L70 58 L100 62 L130 50 L150 46", color: "#EC4899" },
   ]
   return (
-    <Canvas svgRef={ref} label="Trends across your habits">
+    <Canvas svgRef={ref} label={uiCopy("trendsAcrossYourHabits")}>
       {[24, 44, 64, 84].map((y) => (
         <line key={y} x1={8} x2={152} y1={y} y2={y} stroke="white" strokeOpacity={0.07} />
       ))}

@@ -1,4 +1,4 @@
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 
 type BookCredit = { author: string; Person?: { name: string; slug: string } | null }
 

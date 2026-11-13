@@ -20,3 +20,19 @@ export async function ensureDirectoryRevisionSchema() {
     await tx.unsafe(migration)
   })
 }
+
+export async function ensureDirectoryTranslationSchema() {
+  const sql = getDb()
+  const [state] = await sql`
+    SELECT count(*)::int AS indexes FROM pg_indexes
+    WHERE schemaname = current_schema() AND indexname IN (
+      'Book_es_slug_key', 'Person_es_slug_key', 'Organization_es_slug_key',
+      'Protocol_es_slug_key', 'KnowledgeArticle_es_slug_key', 'Content_es_slug_key'
+    )`
+  if (state.indexes === 6) return
+  const migration = await readFile(join(process.cwd(), "prisma/migrations/20261113090000_directory_translations/migration.sql"), "utf8")
+  await sql.begin(async tx => {
+    await tx`SELECT pg_advisory_xact_lock(1519137567)`
+    await tx.unsafe(migration)
+  })
+}

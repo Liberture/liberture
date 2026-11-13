@@ -1,6 +1,5 @@
-import { prisma } from "@/lib/prisma"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
-import { getDictionary } from "@/lib/habits/i18n"
+import { directoryPrisma as prisma } from "@/lib/i18n/directory-records.server"
+import { getSiteMessages } from "@/lib/i18n/messages.server"
 import { profileSection } from "@/lib/directory/profile-path"
 import { DirectoryLayout, DirectoryHeader } from "./layout"
 import { DirectoryLibrary, type ListingPageProps } from "./directory-library"
@@ -9,7 +8,7 @@ export type ProfileIndexProps = ListingPageProps
 
 export async function ProfileIndex({ kind, searchParams }: ProfileIndexProps & { kind: "organization" | "project" }) {
   const section = profileSection(kind)
-  const t = getDictionary(await getRequestLocale()).app.directoryProfiles
+  const t = (await getSiteMessages()).habits.app.directoryProfiles
   const params = await searchParams
   const rows = await prisma.organization.findMany({
     where: { directoryKind: kind },

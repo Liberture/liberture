@@ -4,7 +4,10 @@ import { appendHabits } from "@/lib/habits/api/habit-writes"
 import { userToday } from "@/lib/habits/api/time-zone"
 import { verifyApiKey } from "@/lib/habits/integration-auth"
 import { adoptedProtocolSlugs, adoptedSlugs, catalogHabitToHabit } from "@/lib/habits/protocols/adopt"
-import { CATALOG_PROTOCOLS, findProtocol } from "@/lib/habits/protocols/catalog"
+import { isLocale } from "@/lib/habits/i18n"
+import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { catalogProtocols } from "@/lib/habits/protocols/localized-catalog"
+import { CATALOG_PROTOCOLS } from "@/lib/habits/protocols/catalog"
 
 /**
  * The public /protocols page's view of the signed-in user's tracker
@@ -23,12 +26,16 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   let slug: unknown
+  let requestedLocale: unknown
   try {
-    slug = (await request.json())?.slug
+    const body = await request.json()
+    slug = body?.slug
+    requestedLocale = body?.locale
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
   }
-  const protocol = typeof slug === "string" ? findProtocol(slug) : undefined
+  const locale = isLocale(requestedLocale) ? requestedLocale : await getRequestLocale()
+  const protocol = typeof slug === "string" ? catalogProtocols(locale).find(p => p.slug === slug) : undefined
   if (!protocol) return NextResponse.json({ error: "Unknown protocol" }, { status: 404 })
 
   const existing = adoptedSlugs(user.data.habits ?? [])

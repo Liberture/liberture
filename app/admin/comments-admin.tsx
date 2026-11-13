@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations as useUiCopy } from "next-intl"
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,8 @@ type Comment = {
 };
 
 export default function CommentsAdmin() {
+  const uiCopy = useUiCopy("publicCopy.commentsAdmin")
+
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -38,7 +41,7 @@ export default function CommentsAdmin() {
   }, []);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this comment?")) return;
+    if (!confirm(uiCopy("confirmDelete"))) return;
 
     try {
       const res = await fetch(`/api/admin/platform-comments/${id}`, {
@@ -60,7 +63,7 @@ export default function CommentsAdmin() {
   );
 
   if (loading) {
-    return <div className="text-center py-8">Loading...</div>;
+    return <div className="text-center py-8">{uiCopy("loading")}</div>;
   }
 
   return (
@@ -69,7 +72,7 @@ export default function CommentsAdmin() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
-            placeholder="Search comments..."
+            placeholder={uiCopy("searchComments")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10 bg-slate-800/50 border-slate-700"
@@ -82,12 +85,12 @@ export default function CommentsAdmin() {
           <table className="w-full">
             <thead className="bg-slate-800/50 border-b border-slate-700">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Content ID</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Author</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Comment</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Time</th>
-                <th className="px-4 py-3 text-left text-sm font-semibold">Engagement</th>
-                <th className="px-4 py-3 text-right text-sm font-semibold">Actions</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">{uiCopy("contentId")}</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">{uiCopy("author")}</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">{uiCopy("comment")}</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">{uiCopy("time")}</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">{uiCopy("engagement")}</th>
+                <th className="px-4 py-3 text-right text-sm font-semibold">{uiCopy("actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-700">
@@ -125,7 +128,7 @@ export default function CommentsAdmin() {
 
       {filteredComments.length === 0 && (
         <div className="text-center py-8 text-slate-400">
-          {search ? "No comments match your search" : "No comments found"}
+          {search ? uiCopy("noResults") : uiCopy("empty")}
         </div>
       )}
     </div>

@@ -1,10 +1,11 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { motion } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight } from "lucide-react"
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import { getPillarAnimation, transition, hover } from "@/lib/animations"
 import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
 import type { PillarData } from "@/types"
@@ -17,6 +18,7 @@ interface AnimatedPillarCardProps {
 }
 
 export function AnimatedPillarCard({ pillar, count, index }: AnimatedPillarCardProps) {
+  const t = useTranslations("publicCopy.pillars")
   const iconAnim = getPillarAnimation(pillar.slug)
   const Icon = PILLAR_ICON_MAP[pillar.slug as PillarId]
   const styles = PILLAR_STYLES[pillar.slug as PillarId]
@@ -41,7 +43,7 @@ export function AnimatedPillarCard({ pillar, count, index }: AnimatedPillarCardP
                 {Icon && <Icon className="h-14 w-14" />}
               </motion.div>
               <Badge variant="secondary" className="text-xs">
-                {count} {count === 1 ? "article" : "articles"}
+                {t("resourceCount", {count})}
               </Badge>
             </div>
 

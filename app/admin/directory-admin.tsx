@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations as useUiCopy } from "next-intl"
 
 import { HelpTooltip } from "@/components/ui/tooltip"
 import { FieldSelect, FieldOption } from "@/components/ui/select"
@@ -25,6 +26,7 @@ interface DirectoryItem {
 const DIRECTORY_TYPES: DirectoryType[] = Object.keys(editorGroups) as DirectoryType[];
 
 export default function DirectoryAdmin() {
+  const uiCopy = useUiCopy("publicCopy.directoryAdmin")
   const t = useTranslations().habits.app.directoryTable;
   const params = useSearchParams();
   const activeType = DIRECTORY_TYPES.find(type => type === params.get("type")) ?? "people";
@@ -64,7 +66,7 @@ export default function DirectoryAdmin() {
   }, [activeType, revision]);
 
   async function deleteItem(item: DirectoryItem) {
-    if (!confirm(`Delete ${item.name || item.title}? This cannot be undone.`)) return;
+    if (!confirm(uiCopy("confirmDelete", { name: item.name || item.title || "" }))) return;
 
     try {
       const response = await fetch(`/api/${activeType}/id/${item.id}`, {
@@ -76,7 +78,7 @@ export default function DirectoryAdmin() {
       setRevision(value => value + 1);
     } catch (error) {
       console.error("Delete error:", error);
-      alert("Failed to delete entry");
+      alert(uiCopy("deleteError"));
     }
   }
 
@@ -155,7 +157,7 @@ export default function DirectoryAdmin() {
               setShowAddModal(false);
               setRevision(value => value + 1);
             } catch (error: any) {
-              alert(`Failed: ${error.message}`);
+              alert(uiCopy("error", { message: error.message }));
             }
           }}
         />
@@ -173,6 +175,8 @@ function AddItemModal({
   onClose: () => void;
   onSave: (data: any) => Promise<void>;
 }) {
+  const uiCopy = useUiCopy("publicCopy.directoryAdmin")
+
   const t = useTranslations().habits.app.directoryEditor;
   const [relatedOrganizations, setRelatedOrganizations] = useState<DirectoryRelationship[]>([]);
   const [relatedPeople, setRelatedPeople] = useState<DirectoryRelationship[]>([]);
@@ -206,32 +210,32 @@ function AddItemModal({
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
       <div className="bg-slate-900 border border-slate-700 rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto my-8">
-        <h2 className="text-2xl font-bold mb-4 capitalize">Add New {type.slice(0, -1)}</h2>
+        <h2 className="text-2xl font-bold mb-4 capitalize">{uiCopy("addNew")} {type.slice(0, -1)}</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* ── People ── */}
           {type === "people" && (
             <>
               <div>
-                <label className={labelClass}>Name *</label>
+                <label className={labelClass}>{uiCopy("name")}</label>
                 <input type="text" required value={formData.name || ""} onChange={(e) => set("name", e.target.value)} className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>Bio</label>
+                <label className={labelClass}>{uiCopy("bio")}</label>
                 <textarea value={formData.bio || ""} onChange={(e) => set("bio", e.target.value)} rows={3} className={inputClass} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>Image URL</label>
+                  <label className={labelClass}>{uiCopy("imageUrl")}</label>
                   <input type="url" value={formData.imageUrl || ""} onChange={(e) => set("imageUrl", e.target.value)} className={inputClass} />
                 </div>
                 <div>
-                  <label className={labelClass}>Website</label>
+                  <label className={labelClass}>{uiCopy("website")}</label>
                   <input type="url" value={formData.website || ""} onChange={(e) => set("website", e.target.value)} className={inputClass} />
                 </div>
               </div>
               <div>
-                <label className={labelClass}>Pillars (comma-separated) *</label>
+                <label className={labelClass}>{uiCopy("pillarsCommaSeparated")}</label>
                 <input type="text" required value={formData.pillars || ""} onChange={(e) => set("pillars", e.target.value)} className={inputClass} placeholder="sleep, nutrition, mind" />
               </div>
             </>
@@ -241,39 +245,39 @@ function AddItemModal({
           {type === "articles" && (
             <>
               <div>
-                <label className={labelClass}>Title *</label>
+                <label className={labelClass}>{uiCopy("title")}</label>
                 <input type="text" required value={formData.title || ""} onChange={(e) => set("title", e.target.value)} className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>Description *</label>
+                <label className={labelClass}>{uiCopy("description")}</label>
                 <textarea required value={formData.description || ""} onChange={(e) => set("description", e.target.value)} rows={3} className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>Content (Markdown)</label>
+                <label className={labelClass}>{uiCopy("contentMarkdown")}</label>
                 <textarea value={formData.content || ""} onChange={(e) => set("content", e.target.value)} rows={6} className={`${inputClass} font-mono`} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>Author</label>
+                  <label className={labelClass}>{uiCopy("author")}</label>
                   <input type="text" value={formData.author || ""} onChange={(e) => set("author", e.target.value)} className={inputClass} />
                 </div>
                 <div>
-                  <label className={labelClass}>Read Time (min)</label>
+                  <label className={labelClass}>{uiCopy("readTimeMin")}</label>
                   <input type="number" value={formData.readTime || "5"} onChange={(e) => set("readTime", e.target.value)} className={inputClass} min="1" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>Pillar *</label>
+                  <label className={labelClass}>{uiCopy("pillar")}</label>
                   <input type="text" required value={formData.pillar || ""} onChange={(e) => set("pillar", e.target.value)} className={inputClass} placeholder="mind" />
                 </div>
                 <div>
-                  <label className={labelClass}>Tags (comma-separated)</label>
-                  <input type="text" value={formData.tags || ""} onChange={(e) => set("tags", e.target.value)} className={inputClass} placeholder="sleep, melatonin" />
+                  <label className={labelClass}>{uiCopy("tagsCommaSeparated")}</label>
+                  <input type="text" value={formData.tags || ""} onChange={(e) => set("tags", e.target.value)} className={inputClass} placeholder={uiCopy("sleepMelatonin")} />
                 </div>
               </div>
               <div>
-                <label className={labelClass}>URL (optional, auto-generated if empty)</label>
+                <label className={labelClass}>{uiCopy("urlOptionalAutoGeneratedIfEmpty")}</label>
                 <input type="text" value={formData.url || ""} onChange={(e) => set("url", e.target.value)} className={inputClass} />
               </div>
             </>
@@ -284,30 +288,30 @@ function AddItemModal({
             <>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>Title *</label>
+                  <label className={labelClass}>{uiCopy("title")}</label>
                   <input type="text" required value={formData.title || ""} onChange={(e) => set("title", e.target.value)} className={inputClass} />
                 </div>
                 <div>
-                  <label className={labelClass}>Author *</label>
+                  <label className={labelClass}>{uiCopy("authorAlt")}</label>
                   <input type="text" required value={formData.author || ""} onChange={(e) => set("author", e.target.value)} className={inputClass} />
                 </div>
               </div>
               <div>
-                <label className={labelClass}>Description</label>
+                <label className={labelClass}>{uiCopy("descriptionAlt")}</label>
                 <textarea value={formData.description || ""} onChange={(e) => set("description", e.target.value)} rows={3} className={inputClass} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>Image URL</label>
+                  <label className={labelClass}>{uiCopy("imageUrl")}</label>
                   <input type="url" value={formData.imageUrl || ""} onChange={(e) => set("imageUrl", e.target.value)} className={inputClass} />
                 </div>
                 <div>
-                  <label className={labelClass}>Year</label>
+                  <label className={labelClass}>{uiCopy("year")}</label>
                   <input type="number" value={formData.year || ""} onChange={(e) => set("year", e.target.value)} className={inputClass} />
                 </div>
               </div>
               <div>
-                <label className={labelClass}>Pillars (comma-separated) *</label>
+                <label className={labelClass}>{uiCopy("pillarsCommaSeparated")}</label>
                 <input type="text" required value={formData.pillars || ""} onChange={(e) => set("pillars", e.target.value)} className={inputClass} placeholder="sleep, nutrition, mind" />
               </div>
             </>
@@ -317,29 +321,29 @@ function AddItemModal({
           {(type === "organizations" || type === "projects") && (
             <>
               <div>
-                <label className={labelClass}>Name *</label>
+                <label className={labelClass}>{uiCopy("name")}</label>
                 <input type="text" required value={formData.name || ""} onChange={(e) => set("name", e.target.value)} className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>Description *</label>
+                <label className={labelClass}>{uiCopy("description")}</label>
                 <textarea required value={formData.description || ""} onChange={(e) => set("description", e.target.value)} rows={3} className={inputClass} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className={labelClass}>Type</label>
-                  <input type="text" value={formData.type || ""} onChange={(e) => set("type", e.target.value)} className={inputClass} placeholder="research, nonprofit..." />
+                  <label className={labelClass}>{uiCopy("type")}</label>
+                  <input type="text" value={formData.type || ""} onChange={(e) => set("type", e.target.value)} className={inputClass} placeholder={uiCopy("researchNonprofit")} />
                 </div>
                 <div>
-                  <label className={labelClass}>Website</label>
+                  <label className={labelClass}>{uiCopy("website")}</label>
                   <input type="url" value={formData.website || ""} onChange={(e) => set("website", e.target.value)} className={inputClass} />
                 </div>
               </div>
               <div>
-                <label className={labelClass}>Image URL</label>
+                <label className={labelClass}>{uiCopy("imageUrl")}</label>
                 <input type="url" value={formData.imageUrl || ""} onChange={(e) => set("imageUrl", e.target.value)} className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>Pillars (comma-separated) *</label>
+                <label className={labelClass}>{uiCopy("pillarsCommaSeparated")}</label>
                 <input type="text" required value={formData.pillars || ""} onChange={(e) => set("pillars", e.target.value)} className={inputClass} placeholder="sleep, nutrition, mind" />
               </div>
             </>
@@ -358,51 +362,49 @@ function AddItemModal({
           {type === "protocols" && (
             <>
               <div>
-                <label className={labelClass}>Name *</label>
+                <label className={labelClass}>{uiCopy("name")}</label>
                 <input type="text" required value={formData.name || ""} onChange={(e) => set("name", e.target.value)} className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>Description *</label>
+                <label className={labelClass}>{uiCopy("description")}</label>
                 <textarea required value={formData.description || ""} onChange={(e) => set("description", e.target.value)} rows={3} className={inputClass} />
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <label className={labelClass}>Pillar *</label>
+                  <label className={labelClass}>{uiCopy("pillar")}</label>
                   <input type="text" required value={formData.pillar || ""} onChange={(e) => set("pillar", e.target.value)} className={inputClass} placeholder="mind" />
                 </div>
                 <div>
-                  <label className={labelClass}>Difficulty</label>
-                  <FieldSelect value={formData.difficulty || "beginner"} onValueChange={(value) => set("difficulty", value)} aria-label="Difficulty">
-                    <FieldOption value="beginner">Beginner</FieldOption>
-                    <FieldOption value="intermediate">Intermediate</FieldOption>
-                    <FieldOption value="advanced">Advanced</FieldOption>
+                  <label className={labelClass}>{uiCopy("difficulty")}</label>
+                  <FieldSelect value={formData.difficulty || "beginner"} onValueChange={(value) => set("difficulty", value)} aria-label={uiCopy("difficulty")}>
+                    <FieldOption value="beginner">{uiCopy("beginner")}</FieldOption>
+                    <FieldOption value="intermediate">{uiCopy("intermediate")}</FieldOption>
+                    <FieldOption value="advanced">{uiCopy("advanced")}</FieldOption>
                   </FieldSelect>
                 </div>
                 <div>
-                  <label className={labelClass}>Duration</label>
-                  <input type="text" value={formData.duration || ""} onChange={(e) => set("duration", e.target.value)} className={inputClass} placeholder="e.g., 30 days" />
+                  <label className={labelClass}>{uiCopy("duration")}</label>
+                  <input type="text" value={formData.duration || ""} onChange={(e) => set("duration", e.target.value)} className={inputClass} placeholder={uiCopy("eG30Days")} />
                 </div>
               </div>
               <div>
-                <label className={labelClass}>Steps</label>
+                <label className={labelClass}>{uiCopy("steps")}</label>
                 <textarea value={formData.steps || ""} onChange={(e) => set("steps", e.target.value)} rows={3} className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>Benefits</label>
+                <label className={labelClass}>{uiCopy("benefits")}</label>
                 <textarea value={formData.benefits || ""} onChange={(e) => set("benefits", e.target.value)} rows={2} className={inputClass} />
               </div>
             </>
           )}
 
           <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
-              Cancel
-            </Button>
+            <Button type="button" variant="outline" onClick={onClose} className="flex-1">{uiCopy("cancel")}</Button>
             <Button type="submit" disabled={saving} className="flex-1 bg-purple-500 hover:bg-purple-600">
               {saving ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</>
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {uiCopy("saving")}</>
               ) : (
-                <><Plus className="w-4 h-4 mr-2" /> Save</>
+                <><Plus className="w-4 h-4 mr-2" /> {uiCopy("save")}</>
               )}
             </Button>
           </div>

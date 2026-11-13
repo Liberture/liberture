@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation'
 import { getAuthUser, isAdmin } from '@/lib/auth'
-import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { LandingFooter } from "@/components/layout/landing-footer"
 import { LandingNav } from "@/components/layout/landing-nav"
 import { AnimatedBackground } from "@/components/illustrations/AnimatedBackground"
@@ -34,7 +33,7 @@ export default async function AdminLayout({
         <AdminNavigation managed={managedAuthEnabled()} />
         <main className="min-w-0 rounded-xl border border-border bg-card p-4 sm:p-6">{children}</main>
       </div>
-      <LandingFooter locale={await getRequestLocale()} />
+      <LandingFooter />
     </div>
   )
 }

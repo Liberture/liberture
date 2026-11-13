@@ -1,41 +1,44 @@
-import type { Metadata } from "next"
-import Link from "next/link"
+import { publicPageMetadata } from "@/lib/seo/public-page-metadata"
+import { getTranslations as getUiCopy } from "next-intl/server"
+import Link from "@/components/i18n/localized-link"
 
 import { LegalPage } from "@/components/habits/site/legal-page"
 import { getSiteSetting } from "@/lib/habits/oauth/store"
-import { getDictionary } from "@/lib/habits/i18n"
+import { getSiteMessages } from "@/lib/i18n/messages.server"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
 
-export const metadata: Metadata = { title: "Support · Liberture" }
+export function generateMetadata() {
+  return publicPageMetadata("/support", "support")
+}
 
 export default async function SupportPage() {
+  const uiCopy = await getUiCopy("publicCopy.support")
+
   const [email, locale] = await Promise.all([getSiteSetting("contact_email").catch(() => null), getRequestLocale()])
-  const dict = getDictionary(locale)
+  const dict = (await getSiteMessages()).habits
   return (
-    <LegalPage locale={locale} dict={dict} title="Support">
+    <LegalPage locale={locale} dict={dict} title={uiCopy("support")}>
       <p>
         {email ? (
-          <>
-            Write to <a href={`mailto:${email}`}>{email}</a>. We usually answer within two working days.
-          </>
+          <>{uiCopy("writeTo")} <a href={`mailto:${email}`}>{email}</a>{uiCopy("weUsuallyAnswerWithinTwoWorkingDays")}</>
         ) : (
-          <>Contact details are being set up. In the meantime, the guide below covers setup and common problems.</>
+          <>{uiCopy("contactDetailsAreBeingSetUpInThe")}</>
         )}
       </p>
 
-      <h2>Setting up</h2>
+      <h2>{uiCopy("settingUp")}</h2>
       <ul>
-        <li><Link href="/docs">Overview</Link>: what your assistant can do.</li>
-        <li><Link href="/docs/claude">Connect Claude</Link> and <Link href="/docs/chatgpt">connect ChatGPT</Link>.</li>
-        <li><Link href="/docs/permissions">Permissions</Link>: what each switch allows.</li>
+        <li><Link href="/docs">{uiCopy("overview")}</Link>{uiCopy("whatYourAssistantCanDo")}</li>
+        <li><Link href="/docs/claude">{uiCopy("connectClaude")}</Link> {uiCopy("and")} <Link href="/docs/chatgpt">{uiCopy("connectChatgpt")}</Link>.</li>
+        <li><Link href="/docs/permissions">{uiCopy("permissions")}</Link>{uiCopy("whatEachSwitchAllows")}</li>
       </ul>
 
-      <h2>Common problems</h2>
+      <h2>{uiCopy("commonProblems")}</h2>
       <ul>
-        <li><strong>The assistant asks me to sign in again.</strong> It was disconnected in Settings, or you used a different account. Connect it again and approve.</li>
-        <li><strong>It says an action is switched off.</strong> Turn it back on in Settings → Voice assistants.</li>
-        <li><strong>It can&apos;t find a habit.</strong> Say the name as it appears in the app, or ask it to create the habit.</li>
-        <li><strong>I want to delete my data.</strong> Use Settings → Clear all data, or write to us to delete the account.</li>
+        <li><strong>{uiCopy("theAssistantAsksMeToSignInAgain")}</strong> {uiCopy("itWasDisconnectedInSettingsOrYouUsed")}</li>
+        <li><strong>{uiCopy("itSaysAnActionIsSwitchedOff")}</strong> {uiCopy("turnItBackOnInSettingsVoiceAssistants")}</li>
+        <li><strong>{uiCopy("itCanTFindAHabit")}</strong> {uiCopy("sayTheNameAsItAppearsInThe")}</li>
+        <li><strong>{uiCopy("iWantToDeleteMyData")}</strong> {uiCopy("useSettingsClearAllDataOrWriteTo")}</li>
       </ul>
     </LegalPage>
   )

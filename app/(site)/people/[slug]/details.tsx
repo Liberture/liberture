@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations as useUiCopy } from "next-intl"
 import { BookCard } from "@/components/directory/book-card"
 
 import { DirectoryLayout } from "@/components/directory/layout"
@@ -10,14 +11,13 @@ import { ProfilePortrait } from "@/components/people/profile-portrait";
 import { ProfileSocials } from "@/components/people/profile-socials";
 import { PillarTag } from "@/components/habits/marketplace/pillar-tag";
 import { profilePillars } from "@/lib/pillars"
-import Link from "next/link";
+import Link, { useLocalizedHref } from "@/components/i18n/localized-link";
 import { BookOpen, MessageSquare, Zap, User, Trophy, Library } from "lucide-react";
 import { PersonSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
 
 const sections = ["About", "Achievements", "Publications", "Speaking", "Protocols", "Books"] as const;
 type Section = typeof sections[number];
 const icons = { About: User, Achievements: Trophy, Publications: BookOpen, Speaking: MessageSquare, Protocols: Zap, Books: Library };
-const labels = { About: "About", Achievements: "Achievements", Publications: "Publications", Speaking: "Speaking", Protocols: "Protocols", Books: "Books" };
 
 type Book = {
   author: string;
@@ -70,6 +70,18 @@ type Person = {
 };
 
 export default function PersonDetails({ person, children }: { person: Person; children: React.ReactNode }) {
+  const localize = useLocalizedHref()
+  const uiCopy = useUiCopy("publicCopy.person")
+
+  const labels = {
+    About: uiCopy("about"),
+    Achievements: uiCopy("achievements"),
+    Publications: uiCopy("publications"),
+    Speaking: uiCopy("speaking"),
+    Protocols: uiCopy("protocols"),
+    Books: uiCopy("books"),
+  }
+
   const [selected, setSelected] = useState<Section>("About");
   const achievements = person.achievements ? JSON.parse(person.achievements) : [];
   const publications = person.publications ? JSON.parse(person.publications) : [];
@@ -86,7 +98,7 @@ export default function PersonDetails({ person, children }: { person: Person; ch
         name={person.name}
         title={person.title}
         bio={person.bio}
-        url={`https://liberture.com/people/${person.slug}`}
+        url={new URL(localize(`/people/${person.slug}`), "https://liberture.com").href}
         website={person.website || undefined}
         twitter={person.twitter || undefined}
         image={person.imageUrl || undefined}
@@ -105,14 +117,14 @@ export default function PersonDetails({ person, children }: { person: Person; ch
 
           <div className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             <Tabs value={tab} onValueChange={value => setSelected(value as Section)}>
-              <TabOptions ids={available} icons={icons} labels={labels} label="Profile sections" />
+              <TabOptions ids={available} icons={icons} labels={labels} label={uiCopy("profileSections")} />
               <TabsContent value="About">
-                <h2 className="text-2xl font-bold mb-4">About</h2>
+                <h2 className="text-2xl font-bold mb-4">{uiCopy("about")}</h2>
                 <ProfileMarkdown>{person.bio}</ProfileMarkdown>
               </TabsContent>
             {/* Achievements */}
               <TabsContent value="Achievements">
-                  <h2 className="text-2xl font-bold mb-4">Key Achievements</h2>
+                  <h2 className="text-2xl font-bold mb-4">{uiCopy("keyAchievements")}</h2>
                   <ul className="space-y-3">
                     {achievements.map((achievement: string, i: number) => (
                       <li key={i} className="flex items-start gap-3">
@@ -125,9 +137,7 @@ export default function PersonDetails({ person, children }: { person: Person; ch
             {/* Publications */}
               <TabsContent value="Publications">
                   <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                    <BookOpen className="w-6 h-6 text-green-400" />
-                    Publications & Research
-                  </h2>
+                    <BookOpen className="w-6 h-6 text-green-400" />{uiCopy("publicationsResearch")}</h2>
                   <ul className="space-y-3">
                     {publications.map((pub: string, i: number) => (
                       <li key={i} className="flex items-start gap-3">
@@ -140,9 +150,7 @@ export default function PersonDetails({ person, children }: { person: Person; ch
             {/* Speaking Events */}
               <TabsContent value="Speaking">
                   <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                    <MessageSquare className="w-6 h-6 text-cyan-400" />
-                    Speaking & Appearances
-                  </h2>
+                    <MessageSquare className="w-6 h-6 text-cyan-400" />{uiCopy("speakingAppearances")}</h2>
                   <ul className="space-y-3">
                     {speakingEvents.map((event: string, i: number) => (
                       <li key={i} className="flex items-start gap-3">
@@ -155,8 +163,7 @@ export default function PersonDetails({ person, children }: { person: Person; ch
             {/* Protocols */}
               <TabsContent value="Protocols">
                   <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                    <Zap className="w-6 h-6 text-green-400" />
-                    Protocols by {person.name}
+                    <Zap className="w-6 h-6 text-green-400" />{uiCopy("protocolsBy")} {person.name}
                   </h2>
                   <div className="space-y-4">
                     {person.Protocol?.map((protocol: Protocol) => (
@@ -200,18 +207,17 @@ export default function PersonDetails({ person, children }: { person: Person; ch
             {/* Books */}
               <TabsContent value="Books">
                   <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
-                    <BookOpen className="w-6 h-6 text-orange-400" />
-                    Books by {person.name}
+                    <BookOpen className="w-6 h-6 text-orange-400" />{uiCopy("booksBy")} {person.name}
                   </h2>
                   <div className="space-y-4">
                     {person.Book?.map(book => <BookCard key={book.id} book={book} />)}
                   </div>
                 </TabsContent>
             </Tabs>
-              <aside aria-label="Profile details" className="space-y-6">
+              <aside aria-label={uiCopy("profileDetails")} className="space-y-6">
                 {/* Pillars */}
                 <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                  <h3 className="text-xl font-bold mb-4">Focus Areas</h3>
+                  <h3 className="text-xl font-bold mb-4">{uiCopy("focusAreas")}</h3>
                   <div className="flex flex-wrap gap-2">
                     {pillars.map(id => <PillarTag key={id} pillar={id} />)}
                   </div>
@@ -219,7 +225,7 @@ export default function PersonDetails({ person, children }: { person: Person; ch
 
                 {/* Expertise */}
                 <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                  <h3 className="text-xl font-bold mb-3">Expertise</h3>
+                  <h3 className="text-xl font-bold mb-3">{uiCopy("expertise")}</h3>
                   <p className="text-slate-300">{person.expertise}</p>
                 </div>
 

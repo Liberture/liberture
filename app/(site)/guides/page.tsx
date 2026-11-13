@@ -1,18 +1,18 @@
 import { translatedAlternates } from "@/lib/seo/translated-routes"
 import type { Metadata } from "next"
 import Image from "next/image"
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import { ArrowRight, Clock } from "lucide-react"
 
 import { BreadcrumbSchema, JsonLd } from "@/components/seo/JsonLd"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { SITE_URL, guideOgImage, guidesFor, screenshotSize, screenshotSrc } from "@/lib/guides"
 import { formatMessage } from "@/lib/i18n-format"
-import { translations } from "@/lib/translations"
+import { getSiteMessages } from "@/lib/i18n/messages.server"
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getRequestLocale()
-  const t = translations[locale].habits.guides
+  const t = (await getSiteMessages()).habits.guides
   const alternates = translatedAlternates("/guides", locale)
   return {
     title: t.metaTitle,
@@ -75,7 +75,7 @@ export default async function GuidesPage() {
             return (
               <li key={article.slug}>
                 <Link
-                  href={`/guides/${article.slug}?lang=${locale}`}
+                  href={`/guides/${article.slug}`}
                   className="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-card/85 backdrop-blur-sm transition-colors hover:border-white/25"
                 >
                   <div className="relative aspect-[16/10] overflow-hidden border-b border-white/10 bg-background">

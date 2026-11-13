@@ -1,11 +1,11 @@
 import { Github, Instagram, Linkedin } from "lucide-react"
 import { BrandMark, SocialIcon } from "@/components/ui/social-icon"
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 
 import { MicroterrainRidge } from "@/components/patterns"
-import { translations } from "@/lib/translations"
+import { useMessages } from "next-intl"
+import type { Catalog } from "@/lib/translations"
 import { LibertureWordmark } from "@/components/branding/LibertureWordmark"
-import type { Locale } from "@/lib/translations"
 
 const linkClass = "text-sm text-muted-foreground hover:text-foreground transition-colors"
 
@@ -17,8 +17,8 @@ const SOCIAL = [
   { href: "https://instagram.com/liberture", label: "Instagram · @liberture", icon: <Instagram /> },
 ]
 
-export function LandingFooter({ locale }: { locale: Locale }) {
-  const t = translations[locale]
+export function LandingFooter() {
+  const t = useMessages() as unknown as Catalog
   const { brand } = t
   const { pillars } = t.common
   const f = t.habits.site.footer

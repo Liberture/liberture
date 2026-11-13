@@ -1,3 +1,4 @@
+import { directoryApiClient } from "@/lib/i18n/directory-records.server"
 import { NextResponse } from "next/server"
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
@@ -57,7 +58,7 @@ export async function GET(request: NextRequest) {
     // Influencers filtered view (requires migration to add influencerRank column)
     if (influencers === 'true') {
       try {
-        const dbPeople = await prisma.person.findMany({
+        const dbPeople = await directoryApiClient(request).person.findMany({
           where: { influencerRank: { not: null } },
           orderBy: { influencerRank: "asc" },
         })
@@ -67,7 +68,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const dbPeople = await prisma.person.findMany({
+    const dbPeople = await directoryApiClient(request).person.findMany({
       select: {
         id: true,
         name: true,

@@ -18,6 +18,7 @@ model BookSlugAlias {
 }
 
 model Book {
+  localized Json?
   aliases        BookSlugAlias[]
   id             String   @id
   slug           String   @unique
@@ -59,6 +60,7 @@ model ContactMessage {
 }
 
 model Content {
+  localized Json?
   id              String   @id
   title           String
   description     String
@@ -99,6 +101,7 @@ model EnrichmentLog {
 }
 
 model Article {
+  localized Json?
   id          String        @id
   title       String
   description String
@@ -161,6 +164,7 @@ model Newsletter {
 }
 
 model Organization {
+  localized Json?
   id           String   @id
   slug         String   @unique
   name         String
@@ -210,6 +214,7 @@ model ProfilePerson {
 }
 
 model Person {
+  localized Json?
   directoryProfiles ProfilePerson[]
   id             String   @id
   slug           String   @unique
@@ -253,6 +258,7 @@ model PlatformComment {
 }
 
 model Protocol {
+  localized Json?
   id            String             @id @default(uuid())
   slug          String             @unique
   name          String

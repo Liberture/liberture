@@ -1,7 +1,7 @@
 import { listProfiles, writeProfile } from "@/lib/directory/profile-api"
 
-export function GET() {
-  return listProfiles("organization")
+export function GET(request: Request) {
+  return listProfiles("organization", request)
 }
 
 export function POST(request: Request) {

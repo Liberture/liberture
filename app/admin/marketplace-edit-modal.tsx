@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations as useUiCopy } from "next-intl"
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -39,6 +40,8 @@ const PILLARS = ["Cognition", "Recovery", "Fueling", "Mental", "Physicality", "F
 const TYPES = ["premium", "opensource"];
 
 export default function MarketplaceEditModal({ item, onClose, onSave }: Props) {
+  const uiCopy = useUiCopy("publicCopy.marketEdit")
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -79,11 +82,11 @@ export default function MarketplaceEditModal({ item, onClose, onSave }: Props) {
       if (res.ok) {
         onSave();
       } else {
-        alert("Failed to save item");
+        alert(uiCopy("saveError"));
       }
     } catch (error) {
       console.error("Failed to save:", error);
-      alert("Failed to save item");
+      alert(uiCopy("saveError"));
     } finally {
       setSaving(false);
     }
@@ -94,7 +97,7 @@ export default function MarketplaceEditModal({ item, onClose, onSave }: Props) {
       <div className="bg-slate-900 border border-slate-700 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-slate-900 border-b border-slate-700 p-4 flex items-center justify-between">
           <h2 className="text-xl font-bold">
-            {item ? "Edit Item" : "Add New Item"}
+            {item ? uiCopy("edit") : uiCopy("add")}
           </h2>
           <Button
             variant="ghost"
@@ -108,7 +111,7 @@ export default function MarketplaceEditModal({ item, onClose, onSave }: Props) {
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <Label>Title</Label>
+            <Label>{uiCopy("title")}</Label>
             <Input
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -118,7 +121,7 @@ export default function MarketplaceEditModal({ item, onClose, onSave }: Props) {
           </div>
 
           <div>
-            <Label>Description</Label>
+            <Label>{uiCopy("description")}</Label>
             <Textarea
               value={formData.description}
               onChange={(e) =>
@@ -131,7 +134,7 @@ export default function MarketplaceEditModal({ item, onClose, onSave }: Props) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Pillar</Label>
+              <Label>{uiCopy("pillar")}</Label>
               <Select
                 value={formData.pillar}
                 onValueChange={(value) =>
@@ -152,7 +155,7 @@ export default function MarketplaceEditModal({ item, onClose, onSave }: Props) {
             </div>
 
             <div>
-              <Label>Type</Label>
+              <Label>{uiCopy("type")}</Label>
               <Select
                 value={formData.type}
                 onValueChange={(value) => setFormData({ ...formData, type: value })}
@@ -172,7 +175,7 @@ export default function MarketplaceEditModal({ item, onClose, onSave }: Props) {
           </div>
 
           <div>
-            <Label>Author</Label>
+            <Label>{uiCopy("author")}</Label>
             <Input
               value={formData.author}
               onChange={(e) => setFormData({ ...formData, author: e.target.value })}
@@ -183,7 +186,7 @@ export default function MarketplaceEditModal({ item, onClose, onSave }: Props) {
 
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <Label>Price ($)</Label>
+              <Label>{uiCopy("price")}</Label>
               <Input
                 type="number"
                 value={formData.price}
@@ -196,7 +199,7 @@ export default function MarketplaceEditModal({ item, onClose, onSave }: Props) {
             </div>
 
             <div>
-              <Label>Rating</Label>
+              <Label>{uiCopy("rating")}</Label>
               <Input
                 type="number"
                 step="0.1"
@@ -212,7 +215,7 @@ export default function MarketplaceEditModal({ item, onClose, onSave }: Props) {
             </div>
 
             <div>
-              <Label>Reviews</Label>
+              <Label>{uiCopy("reviews")}</Label>
               <Input
                 type="number"
                 value={formData.reviews}
@@ -226,13 +229,13 @@ export default function MarketplaceEditModal({ item, onClose, onSave }: Props) {
           </div>
 
           <div>
-            <Label>Duration</Label>
+            <Label>{uiCopy("duration")}</Label>
             <Input
               value={formData.duration}
               onChange={(e) =>
                 setFormData({ ...formData, duration: e.target.value })
               }
-              placeholder="e.g., 8 weeks, 30 days"
+              placeholder={uiCopy("eG8Weeks30Days")}
               className="bg-slate-800/50 border-slate-700"
               required
             />
@@ -240,7 +243,7 @@ export default function MarketplaceEditModal({ item, onClose, onSave }: Props) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Color (hex)</Label>
+              <Label>{uiCopy("colorHex")}</Label>
               <Input
                 value={formData.color}
                 onChange={(e) => setFormData({ ...formData, color: e.target.value })}
@@ -251,7 +254,7 @@ export default function MarketplaceEditModal({ item, onClose, onSave }: Props) {
             </div>
 
             <div>
-              <Label>Icon Color (hex)</Label>
+              <Label>{uiCopy("iconColorHex")}</Label>
               <Input
                 value={formData.iconColor}
                 onChange={(e) =>
@@ -270,16 +273,14 @@ export default function MarketplaceEditModal({ item, onClose, onSave }: Props) {
               disabled={saving}
               className="flex-1 bg-purple-600 hover:bg-purple-700"
             >
-              {saving ? "Saving..." : "Save"}
+              {saving ? uiCopy("saving") : uiCopy("save")}
             </Button>
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
               className="flex-1 border-slate-700 hover:bg-slate-800"
-            >
-              Cancel
-            </Button>
+            >{uiCopy("cancel")}</Button>
           </div>
         </form>
       </div>

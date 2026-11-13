@@ -1,0 +1,3778 @@
+{
+  "brand": {
+    "name": "Liberture",
+    "abbreviation": "L",
+    "tagline": "Tu sistema operativo biológico"
+  },
+  "navigation": {
+    "features": "Funciones",
+    "pillars": "Seis pilares",
+    "marketplace": "Protocolos",
+    "knowledge": "Biblioteca",
+    "howItWorks": "Cómo funciona",
+    "dashboard": "Panel",
+    "logout": "Cerrar sesión",
+    "signIn": "Iniciar sesión",
+    "getStarted": "Empezar",
+    "backHome": "Volver al inicio"
+  },
+  "common": {
+    "filters": {
+      "allDomains": "Todas las áreas",
+      "allTypes": "Todos los tipos"
+    },
+    "pillars": [
+      {
+        "id": "work",
+        "name": "Trabajo",
+        "description": "Mejorá tu productividad, tu concentración y tu entorno de trabajo para avanzar en tus objetivos profesionales."
+      },
+      {
+        "id": "sleep",
+        "name": "Sueño",
+        "description": "Conocé las fases del sueño, el ritmo circadiano y las rutinas que favorecen el descanso."
+      },
+      {
+        "id": "nutrition",
+        "name": "Nutrición",
+        "description": "Explorá la digestión, la microbiota, los macronutrientes y los suplementos para cuidar tu energía y tu salud metabólica."
+      },
+      {
+        "id": "mind",
+        "name": "Mente",
+        "description": "Explorá el funcionamiento del cerebro, los neurotransmisores, los nootrópicos y la resiliencia mental."
+      },
+      {
+        "id": "exercise",
+        "name": "Ejercicio",
+        "description": "Desarrollá fuerza, resistencia cardiovascular y movilidad con entrenamiento basado en evidencia."
+      },
+      {
+        "id": "finance",
+        "name": "Finanzas",
+        "description": "Aprendé a administrar tus recursos, construir patrimonio y ganar independencia financiera."
+      }
+    ],
+    "marketplaceTypes": [
+      {
+        "id": "premium",
+        "name": "Protocolos prémium",
+        "count": 5
+      },
+      {
+        "id": "opensource",
+        "name": "Código abierto",
+        "count": 4
+      },
+      {
+        "id": "coaching",
+        "name": "Acompañamiento",
+        "count": 3
+      },
+      {
+        "id": "books",
+        "name": "Libros y guías",
+        "count": 78
+      },
+      {
+        "id": "video",
+        "name": "Videos y medios",
+        "count": 2
+      },
+      {
+        "id": "references",
+        "name": "Referencias e historia",
+        "count": 1
+      }
+    ]
+  },
+  "landing": {
+    "hero": {
+      "badge": "Tu sistema operativo biológico",
+      "title": "Conocé tu biología.",
+      "highlight": "Desarrollá tu potencial.",
+      "description": "Liberture reúne en una plataforma las herramientas para registrar tus hábitos, seguir tu progreso y mejorar tu rendimiento.",
+      "primaryCta": "Empezar",
+      "secondaryCta": "Más información"
+    },
+    "features": {
+      "heading": "Todo lo que necesitás para mejorar",
+      "description": "Reuní tus hábitos y tus objetivos en Liberture y seguí tu progreso desde un solo lugar.",
+      "items": [
+        {
+          "title": "Seis pilares",
+          "description": "Trabajo, sueño, nutrición, mente, ejercicio y finanzas en un mismo sistema."
+        },
+        {
+          "title": "Progreso por niveles",
+          "description": "Sumá experiencia, subí de nivel y completá protocolos a medida que avanzás."
+        },
+        {
+          "title": "Seguimiento de nivel",
+          "description": "El nivel de tu sistema operativo biológico refleja tu progreso en las distintas áreas."
+        },
+        {
+          "title": "Protocolos inteligentes",
+          "description": "Rutinas seleccionadas con ayuda de IA para practicar técnicas y hábitos."
+        },
+        {
+          "title": "Sistema de logros",
+          "description": "Desbloqueá logros, completá misiones y registrá tus avances."
+        },
+        {
+          "title": "Estadísticas",
+          "description": "Descubrí cómo se relacionan los pilares y qué patrones aparecen en tus hábitos."
+        }
+      ]
+    },
+    "pillars": {
+      "heading": "Los seis pilares",
+      "description": "Cada pilar abarca un área de tu vida. Explorá cómo se complementan."
+    },
+    "marketplace": {
+      "badge": "Biblioteca de protocolos",
+      "heading": "Protocolos y evidencia",
+      "description": "Explorá rutinas, compartilas, descargalas o agregalas a tu registro como hábitos diarios.",
+      "featuredItems": [
+        {
+          "title": "Protocolo de inducción cetogénica de siete días",
+          "pillar": "Nutrición",
+          "type": "Protocolo prémium",
+          "author": "Dr. Sarah Chen",
+          "color": "bg-nutrition/20 border-nutrition/30",
+          "icon": "nutrition"
+        },
+        {
+          "title": "Curso sobre las fases del sueño profundo",
+          "pillar": "Sueño",
+          "type": "Curso en video",
+          "author": "Prof. Matthew Walker",
+          "color": "bg-sleep/20 border-sleep/30",
+          "icon": "sleep"
+        },
+        {
+          "title": "Entrenamiento para entrar en estado de flujo",
+          "pillar": "Trabajo",
+          "type": "Juego interactivo",
+          "author": "Liberture Labs",
+          "color": "bg-work/20 border-work/30",
+          "icon": "work"
+        }
+      ],
+      "cta": "Explorar todos los protocolos"
+    },
+    "knowledge": {
+      "heading": "Biblioteca de conocimiento",
+      "description": "Consultá libros, investigaciones y aportes de especialistas seleccionados por la comunidad.",
+      "cards": [
+        {
+          "title": "Biblioteca de documentos",
+          "description": "Libros, publicaciones digitales, informes, artículos académicos y guías organizados por pilar y tema.",
+          "accent": "primary"
+        },
+        {
+          "title": "Los 100 de Liberture",
+          "description": "Los 100 libros más influyentes sobre biohacking, ordenados según las valoraciones de la comunidad y de especialistas.",
+          "accent": "yellow"
+        },
+        {
+          "title": "Índice de 50 referentes",
+          "description": "Autores, investigadores y divulgadores de biohacking organizados por especialidad.",
+          "accent": "cyan"
+        }
+      ],
+      "cta": "Explorar la biblioteca"
+    },
+    "cta": {
+      "heading": "¿Querés empezar?",
+      "description": "Empezá hoy a registrar tus hábitos y a seguir tu progreso.",
+      "primary": "Empezar gratis"
+    },
+    "footer": {
+      "privacy": "Privacidad",
+      "terms": "Términos"
+    }
+  },
+  "marketplace": {
+    "heading": "Mercado de Liberture",
+    "description": "Descubrí protocolos, acompañamiento especializado y recursos educativos para tus objetivos.",
+    "searchPlaceholder": "Buscar protocolos, especialistas, libros…",
+    "filters": {
+      "pillarLabel": "Filtrar por área",
+      "contentTypeLabel": "Filtrar por tipo de contenido",
+      "resultsCount": "{count} recursos",
+      "typeOverrides": {
+        "coaching": "Servicios de acompañamiento"
+      }
+    },
+    "price": {
+      "free": "Gratis"
+    },
+    "meta": {
+      "byPrefix": "por"
+    },
+    "emptyState": {
+      "message": "No hay recursos que coincidan con los filtros.",
+      "reset": "Quitar los filtros"
+    },
+    "recommendation": {
+      "title": "Recomendaciones personalizadas",
+      "description": "Iniciá sesión para recibir recomendaciones según tu nivel y las áreas que querés mejorar.",
+      "cta": "Ver mis recomendaciones"
+    }
+  },
+  "knowledge": {
+    "hero": {
+      "badge": "Explorador de la biblioteca",
+      "title": "Explorá la biblioteca",
+      "subtitle": "Elegí un tema y un formato.",
+      "description": "Selección automática al cargar",
+      "autoCurated": "Selección automática al cargar",
+      "activeState": "Activo",
+      "viewState": "Ver",
+      "loading": "Cargando recursos…",
+      "empty": "No hay recursos disponibles."
+    },
+    "header": {
+      "title": "Profundizá",
+      "description": "Consultá libros, investigaciones, informes y aportes de especialistas sobre los seis pilares."
+    },
+    "tabs": {
+      "library": "Biblioteca de documentos",
+      "liberture100": "Los 100 de Liberture",
+      "influencers": "50 referentes"
+    },
+    "search": {
+      "placeholder": "Buscar libros, autores o temas…"
+    },
+    "filters": {
+      "pillarLabel": "Filtrar por área",
+      "tagsLabel": "Filtrar por etiquetas"
+    },
+    "heroMeta": {
+      "verticalEmphasisSuffix": " primero",
+      "formatLabelPrefix": "Formato:"
+    },
+    "results": {
+      "cardsTitle": "Los 100 de Liberture: lecturas esenciales sobre biohacking",
+      "cardsDescription": "Una selección de 100 libros sobre los seis pilares, ordenados según valoraciones de la comunidad, ventas y opiniones de especialistas.",
+      "documentsCount": "{count} documentos"
+    },
+    "library": {
+      "suggest": "Sugerir un recurso",
+      "internal": "Interno",
+      "external": "Externo",
+      "influence": "Influencia",
+      "byPrefix": "por"
+    },
+    "liberture100": {
+      "title": "Los 100 de Liberture: lecturas esenciales sobre biohacking",
+      "description": "Una selección de 100 libros sobre los seis pilares, ordenados según valoraciones de la comunidad, ventas y opiniones de especialistas.",
+      "sortBy": "Ordenar por:",
+      "sortOptions": {
+        "influence": "Puntuación de influencia",
+        "pillar": "Pilar"
+      }
+    },
+    "influencers": {
+      "title": "Índice de los 50 referentes",
+      "description": "Conocé a 50 autores, divulgadores e investigadores de biohacking y consultá sus áreas de especialidad.",
+      "followers": "Seguidores:",
+      "publications": "Publicaciones:"
+    },
+    "community": {
+      "title": "Colaborá con la biblioteca",
+      "description": "Sugerí libros y recursos para que la comunidad los revise. A partir del nivel 20 podés votar las sugerencias.",
+      "voteCta": "Votar sugerencias",
+      "suggestCta": "Sugerir un recurso"
+    }
+  },
+  "habits": {
+    "protocolLibrary": {
+      "title": "Protocolos",
+      "eyebrow": "Biblioteca de protocolos",
+      "seoTitle": "Protocolos | Rutinas basadas en evidencia",
+      "description": "Explora rutinas y la evidencia que las respalda. Comparte un protocolo, descarga una copia o añade sus hábitos a tu registro.",
+      "imageAlt": "Biblioteca de protocolos de Liberture",
+      "inTracker": "{count} en tu registro"
+    },
+    "bookDetails": {
+      "heading": "Datos del libro",
+      "author": "Autoría",
+      "published": "Publicación",
+      "pages": "Páginas",
+      "rating": "Valoración",
+      "verticals": "Áreas",
+      "amazon": "Ver en Amazon",
+      "about": "Sobre el libro",
+      "takeaways": "Ideas principales",
+      "audience": "A quién va dirigido"
+    },
+    "getStarted": {
+      "metaTitle": "Empezá: registro de hábitos gratis para ChatGPT y Claude",
+      "metaDescription": "Creá tu cuenta gratis de Liberture en un minuto, agregá tus primeros hábitos con protocolos basados en evidencia y conectá ChatGPT o Claude para registrarlos por voz.",
+      "eyebrow": "Empezá",
+      "title": "Empezá a registrar en un minuto",
+      "lead": "Gratis, sin email ni contraseña. Creá tu cuenta, elegí uno o dos hábitos y conectá ChatGPT o Claude si querés registrarlos por voz.",
+      "create": "Crear mi cuenta",
+      "signIn": "Ya tengo una clave",
+      "openTracker": "Abrir mi tracker",
+      "stepsTitle": "Tres pasos",
+      "steps": [
+        {
+          "title": "Creá tu cuenta",
+          "body": "Tu cuenta es una clave Nostr que se genera en tu navegador. Guardala en un lugar seguro: con ella entrás desde cualquier dispositivo y nadie puede recuperarla por vos."
+        },
+        {
+          "title": "Agregá tus primeros hábitos",
+          "body": "Elegí un protocolo del catálogo (luz de la mañana, trabajo profundo, una caminata diaria) o agregá los tuyos. Empezá con dos o tres."
+        },
+        {
+          "title": "Conectá ChatGPT o Claude",
+          "body": "Es opcional y lleva un minuto. Después decí \"¿qué me falta hoy?\" o \"marcá la meditación\", por chat o por voz."
+        }
+      ],
+      "startersTitle": "Buenos primeros protocolos",
+      "startersBody": "Simples, gratis y con evidencia detrás. Cada uno se convierte en uno o dos hábitos diarios.",
+      "browseAll": "Ver los 53 protocolos",
+      "guidesTitle": "Conectá tu asistente",
+      "chatgptGuide": "Registrar hábitos con ChatGPT",
+      "claudeGuide": "Conectar Claude",
+      "voiceGuide": "Registrar hábitos por voz",
+      "shotAlt": "El registro de hábitos de Liberture con los hábitos de hoy, una mejor racha de 14 días y 67% de cumplimiento semanal",
+      "faqTitle": "Preguntas",
+      "faq": [
+        {
+          "q": "¿Es gratis?",
+          "a": "Sí. El tracker, el catálogo de protocolos y las conexiones con ChatGPT y Claude son gratis. Liberture es de código abierto."
+        },
+        {
+          "q": "¿Por qué no hay email ni contraseña?",
+          "a": "Tu cuenta es una clave Nostr: un secreto que solo vos tenés. Te deja entrar desde cualquier dispositivo que la tenga y no hay una base de contraseñas que se pueda filtrar. Guardala cuando aparezca, porque no se puede recuperar."
+        },
+        {
+          "q": "¿Necesito ChatGPT o Claude?",
+          "a": "No. El tracker funciona solo, en la web y en el celular. Conectar un asistente suma el registro y los chequeos por chat o por voz."
+        },
+        {
+          "q": "¿Lo puedo usar en el celular?",
+          "a": "Sí. Funciona en cualquier navegador del celular y se puede instalar en la pantalla de inicio como una app."
+        },
+        {
+          "q": "¿Qué puede ver el asistente?",
+          "a": "Solo tus datos de hábitos, dentro de los permisos que elijas. Borrar hábitos está apagado por defecto y podés desconectar cualquier asistente al instante."
+        }
+      ]
+    },
+    "guides": {
+      "nav": "Guías",
+      "eyebrow": "Guías",
+      "title": "Guías",
+      "heading": "Sacale más provecho a tu registro de hábitos",
+      "lead": "Guías paso a paso para registrar hábitos con ChatGPT y Claude, hacerlo por voz, armar rutinas con protocolos basados en evidencia y entender tu progreso.",
+      "metaTitle": "Guías del registro de hábitos: ChatGPT, Claude, voz y protocolos",
+      "metaDescription": "Guías paso a paso para registrar tus hábitos con ChatGPT o Claude, hacerlo por voz, armar rutinas con protocolos basados en evidencia y leer tus estadísticas.",
+      "readGuide": "Leer la guía",
+      "minutes": "{n} min de lectura",
+      "updated": "Actualizada el {date}",
+      "onThisPage": "En esta página",
+      "related": "Guías relacionadas",
+      "allGuides": "Todas las guías",
+      "ctaTitle": "Probalo con tus propios hábitos",
+      "ctaBody": "Gratis, sin email ni contraseña. Tu clave Nostr es tu cuenta.",
+      "ctaButton": "Abrir el tracker",
+      "docsLink": "Documentación técnica",
+      "screenshotOf": "Captura",
+      "articles": [
+        {
+          "slug": "track-habits-with-chatgpt",
+          "title": "Cómo registrar tus hábitos con ChatGPT",
+          "description": "Conectá ChatGPT a un registro de hábitos real en un minuto y marcá hábitos, mirá tus rachas y agregá tareas por chat o por voz.",
+          "excerpt": "Conectá ChatGPT una vez y va a poder leer tus hábitos, marcarlos como hechos y contarte cómo te fue en la semana.",
+          "minutes": "4",
+          "hero": "tracker-today",
+          "heroAlt": "Registro de hábitos de Liberture con los hábitos de hoy, una mejor racha de 14 días y 67% de cumplimiento en 7 días",
+          "howTo": true,
+          "sections": [
+            {
+              "heading": "Por qué registrar hábitos desde ChatGPT",
+              "paragraphs": [
+                "La mayoría de los registros de hábitos fallan por la fricción: abrir la app, buscar el hábito, tocar la casilla. ChatGPT saca ese paso. Decís \"marcá la meditación\" en el chat que ya tenés abierto y el tracker lo guarda con la fecha, la racha y la tasa de cumplimiento.",
+                "ChatGPT no guarda tus hábitos. Habla con Liberture a través de un conector (un servidor MCP), así tu historial queda en un solo lugar y funciona igual desde ChatGPT, Claude o la web."
+              ]
+            },
+            {
+              "heading": "Paso 1: Creá tu tracker",
+              "paragraphs": [
+                "Abrí el tracker y creá una cuenta. No hay email ni contraseña: tu clave Nostr es tu cuenta, así que guardala cuando aparezca. Agregá uno o dos hábitos, o un protocolo entero del catálogo. De eso te va a hablar ChatGPT."
+              ],
+              "image": {
+                "key": "mobile-today",
+                "alt": "Los hábitos de hoy en el tracker de Liberture, con rachas, pilares y horarios",
+                "caption": "Tu tracker: los hábitos de hoy, las rachas y la tasa de cumplimiento."
+              }
+            },
+            {
+              "heading": "Paso 2: Agregá Liberture a ChatGPT",
+              "paragraphs": [
+                "En ChatGPT, entrá a Settings → Apps → Advanced, activá el modo desarrollador y tocá Create. Ponele de nombre \"Liberture\", pegá https://liberture.com/mcp como URL y elegí OAuth.",
+                "ChatGPT abre Liberture en otra ventana: entrá si te lo pide y tocá Aprobar. Se hace una sola vez. La misma URL y los pasos están siempre en el tracker, en Ajustes → Asistentes de voz."
+              ],
+              "image": {
+                "key": "connect-assistant",
+                "alt": "Ajustes de Liberture con la URL del conector y los pasos para Claude y ChatGPT",
+                "caption": "Ajustes → Asistentes de voz muestra la URL del conector y los pasos para cada asistente."
+              }
+            },
+            {
+              "heading": "Paso 3: Hablale",
+              "paragraphs": [
+                "Abrí un chat, activá Liberture desde el menú de herramientas y preguntá \"¿qué me falta hoy?\". Cuando ChatGPT pida permiso para usar una herramienta, elegí Always allow para que el modo voz nunca se frene a confirmar."
+              ],
+              "bullets": [
+                "¿Qué me falta hoy?",
+                "Marcá la meditación como hecha.",
+                "Ayer no salí a caminar, deshacelo.",
+                "¿Cómo me fue esta semana comparada con la anterior?",
+                "Agregá correr como hábito diario."
+              ]
+            },
+            {
+              "heading": "Qué cambia en tu tracker",
+              "paragraphs": [
+                "Cada cambio aparece en el tracker abierto en menos de un segundo, en la compu y en el celular, sin recargar. Los días que registrás después (\"ayer corrí\") cuentan en tus rachas y estadísticas igual que los que marcaste a tiempo."
+              ],
+              "image": {
+                "key": "tracker-week",
+                "alt": "Vista semanal del tracker con los días cumplidos marcados en cada hábito",
+                "caption": "La vista semanal: cada cumplimiento que registra ChatGPT aparece acá."
+              }
+            },
+            {
+              "heading": "Si algo no funciona",
+              "paragraphs": [
+                "Si ChatGPT te pide entrar de nuevo, la conexión se quitó o entraste con otra clave: volvé a aprobarla. Si dice que una acción está desactivada, ese permiso está apagado en Ajustes → Asistentes de voz."
+              ]
+            }
+          ],
+          "steps": [
+            "Creá tu tracker y agregá un hábito",
+            "En ChatGPT: Settings → Apps → Advanced, activá el modo desarrollador y tocá Create",
+            "Pegá https://liberture.com/mcp, elegí OAuth, entrá y aprobá",
+            "Preguntá \"¿qué me falta hoy?\" por chat o por voz"
+          ],
+          "related": [
+            "connect-claude-to-your-habit-tracker",
+            "log-habits-by-voice",
+            "habit-tracker-privacy-and-permissions",
+            "refresh-your-assistant-connector"
+          ]
+        },
+        {
+          "slug": "connect-claude-to-your-habit-tracker",
+          "title": "Cómo conectar Claude a tu registro de hábitos",
+          "description": "Agregá Liberture como conector personalizado en Claude y registrá hábitos, rachas y tareas desde cualquier chat, proyecto o conversación por voz.",
+          "excerpt": "Un conector personalizado y Claude puede registrar tus hábitos, leer tus estadísticas y sugerirte protocolos, por chat o por voz.",
+          "minutes": "4",
+          "hero": "connect-assistant",
+          "heroAlt": "Ajustes de Liberture con la URL del conector de Claude y los pasos para agregarlo",
+          "howTo": true,
+          "sections": [
+            {
+              "heading": "Qué puede hacer Claude con tu tracker",
+              "paragraphs": [
+                "Una vez conectado, Claude puede decirte qué te falta hoy con tus rachas, marcar hábitos como hechos (o deshacerlos) por nombre, responder \"¿cómo me fue esta semana?\", agregar y cerrar tareas, y sugerirte protocolos del catálogo con el link para leerlos primero. Funciona en chats normales, en Proyectos y en modo voz en las apps de Claude."
+              ]
+            },
+            {
+              "heading": "Paso 1: Copiá la URL del conector",
+              "paragraphs": [
+                "La URL es la misma para todos: https://liberture.com/mcp. Lo que la une a tus hábitos es tu inicio de sesión. También la tenés en el tracker, en Ajustes → Asistentes de voz, con un botón para copiarla."
+              ],
+              "image": {
+                "key": "connect-assistant",
+                "alt": "URL del conector con botón para copiar en los ajustes de asistentes de voz de Liberture",
+                "caption": "La URL del conector y los pasos de Claude en Ajustes → Asistentes de voz."
+              }
+            },
+            {
+              "heading": "Paso 2: Agregala en Claude",
+              "paragraphs": [
+                "En claude.ai o la app de Claude, abrí Settings → Connectors → Add custom connector. Ponele \"Liberture\", pegá la URL y tocá Add. Después tocá Connect: se abre Liberture, entrás si te lo pide y tocás Aprobar. Listo."
+              ]
+            },
+            {
+              "heading": "Paso 3 (opcional): Instalá la skill",
+              "paragraphs": [
+                "La skill de Liberture le enseña a Claude una rutina de chequeo rápida, ideal para voz. Descargala desde Ajustes → Asistentes de voz en el tracker y subí el zip en Claude → Settings → Capabilities → Skills."
+              ]
+            },
+            {
+              "heading": "Comprobá que esté conectado",
+              "paragraphs": [
+                "De vuelta en el tracker, Ajustes → Asistentes de voz muestra cada asistente conectado y cuándo se usó por última vez. Cada uno tiene su propio acceso, así que podés desconectar Claude sin afectar a ChatGPT."
+              ],
+              "image": {
+                "key": "assistant-permissions",
+                "alt": "Lista de asistentes conectados, ChatGPT y Claude, con botones para desconectar y permisos",
+                "caption": "Los asistentes conectados y lo que pueden hacer."
+              }
+            },
+            {
+              "heading": "Usalo por voz",
+              "paragraphs": [
+                "Empezá el modo voz en la app de Claude con el conector activado y preguntá \"¿qué me falta hoy?\". Si tu dispositivo todavía no ofrece herramientas en voz, mandá lo mismo como mensaje de texto."
+              ]
+            }
+          ],
+          "steps": [
+            "Copiá https://liberture.com/mcp",
+            "En Claude: Settings → Connectors → Add custom connector, ponele Liberture y pegá la URL",
+            "Tocá Connect, entrá a Liberture y tocá Aprobar",
+            "Preguntá \"¿qué me falta hoy?\""
+          ],
+          "related": [
+            "track-habits-with-chatgpt",
+            "log-habits-by-voice",
+            "habit-tracker-privacy-and-permissions",
+            "refresh-your-assistant-connector"
+          ]
+        },
+        {
+          "slug": "log-habits-by-voice",
+          "title": "Registrá hábitos por voz con ChatGPT o Claude",
+          "description": "Usá el modo voz de ChatGPT o Claude para registrar hábitos sin manos, escuchar tus rachas y planear el día, con ejemplos reales de qué decir.",
+          "excerpt": "Registro de hábitos sin manos: decilo en voz alta mientras hacés el café y el tracker se actualiza al instante.",
+          "minutes": "3",
+          "hero": "mobile-today",
+          "heroAlt": "Registro de hábitos de Liberture en un celular con los hábitos de hoy y una mejor racha de 14 días",
+          "howTo": false,
+          "sections": [
+            {
+              "heading": "Por qué la voz funciona para los hábitos",
+              "paragraphs": [
+                "El mejor momento para registrar un hábito es justo después de hacerlo, que suele ser cuando tenés las manos ocupadas. El modo voz de ChatGPT y Claude te deja decir \"terminé la caminata\" y seguir, mientras el tracker guarda el registro."
+              ]
+            },
+            {
+              "heading": "Antes de empezar",
+              "paragraphs": [
+                "Conectá tu asistente una vez (mirá las guías de ChatGPT y Claude). En ChatGPT, elegí Always allow la primera vez que pida usar Liberture, así la voz nunca se frena a confirmar."
+              ]
+            },
+            {
+              "heading": "Qué decirle",
+              "paragraphs": [
+                "No hacen falta nombres exactos ni frases especiales. Algunas que funcionan bien:"
+              ],
+              "bullets": [
+                "\"¿Qué me falta hoy?\"",
+                "\"Marcá la meditación como hecha.\"",
+                "\"Ayer no salí a caminar, deshacelo.\"",
+                "\"¿Cómo va mi racha de sueño?\"",
+                "\"Recordame llamar al banco el viernes.\"",
+                "\"Sugerime un protocolo para concentrarme.\"",
+                "\"Agregá el protocolo de luz de la mañana.\""
+              ]
+            },
+            {
+              "heading": "Miralo actualizarse en el celular",
+              "paragraphs": [
+                "Si tenés el tracker abierto en el celular o la compu, el cambio aparece en menos de un segundo. Sin recargar. Registrar la caminata de ayer actualiza la casilla de ayer y tu racha."
+              ],
+              "image": {
+                "key": "mobile-today",
+                "alt": "Vista del tracker en el celular actualizando los hábitos de hoy",
+                "caption": "El tracker en el celular, actualizado en vivo por el asistente."
+              }
+            },
+            {
+              "heading": "Planeá el día en voz alta",
+              "paragraphs": [
+                "Pedí un chequeo de la mañana: qué está programado, qué está vencido, qué racha está en riesgo. Agregá tareas a medida que se te ocurren y quedan en el mismo tracker, con fechas y prioridades."
+              ],
+              "image": {
+                "key": "mobile-todos",
+                "alt": "Lista de tareas en el celular con fechas límite y prioridades",
+                "caption": "Tareas agregadas por voz, con fechas y prioridades."
+              }
+            }
+          ],
+          "steps": [],
+          "related": [
+            "track-habits-with-chatgpt",
+            "connect-claude-to-your-habit-tracker",
+            "read-your-habit-statistics"
+          ]
+        },
+        {
+          "slug": "build-a-morning-routine-with-protocols",
+          "title": "Armá una rutina de mañana con protocolos basados en evidencia",
+          "description": "Convertí protocolos de Huberman, Attia, Walker y otros en hábitos diarios: luz de la mañana, desayuno proteico, trabajo profundo y más.",
+          "excerpt": "Elegí protocolos con la evidencia a la vista y se convierten en hábitos diarios comunes que podés registrar y editar.",
+          "minutes": "5",
+          "hero": "protocol-catalog",
+          "heroAlt": "Catálogo de protocolos con rutinas basadas en evidencia filtradas por pilar, costo y esfuerzo",
+          "howTo": true,
+          "sections": [
+            {
+              "heading": "Empezá por protocolos, no de cero",
+              "paragraphs": [
+                "Un protocolo es una rutina con la investigación detrás: qué hacer, cuándo, cuánto cuesta y de dónde sale la evidencia. El catálogo de Liberture tiene 53, repartidos en seis pilares (trabajo, sueño, nutrición, mente, ejercicio y finanzas), de investigadores y referentes como Andrew Huberman, Peter Attia, Matthew Walker y Cal Newport."
+              ],
+              "image": {
+                "key": "protocol-catalog",
+                "alt": "Catálogo de 53 protocolos con filtros por pilar, costo, esfuerzo y autor",
+                "caption": "El catálogo: filtrá por pilar, costo, esfuerzo o autor, y leé la evidencia antes de agregar."
+              }
+            },
+            {
+              "heading": "Una rutina de mañana simple",
+              "paragraphs": [
+                "Una rutina que la mayoría puede sostener, armada solo con protocolos del catálogo:"
+              ],
+              "bullets": [
+                "Luz solar a la mañana: 5 a 10 minutos afuera al rato de despertarte.",
+                "Hidratación al despertar: un vaso de agua antes del café.",
+                "Retrasá el primer café 90 minutos.",
+                "Desayuno con proteína primero: unos 30 g de proteína antes que nada.",
+                "Bloque de trabajo profundo: 90 minutos sin distracciones en la tarea más difícil."
+              ]
+            },
+            {
+              "heading": "Agregalos a tu tracker",
+              "paragraphs": [
+                "Abrí un protocolo, leelo y tocá Agregar. Sus hábitos llegan al tracker con un horario y una frecuencia razonables: todos los días para la luz de la mañana, días de semana para el trabajo profundo. Cambiá lo que quieras: los hábitos adoptados son hábitos comunes."
+              ],
+              "image": {
+                "key": "tracker-today",
+                "alt": "Hábitos de hoy creados a partir de protocolos, con horarios y frecuencias",
+                "caption": "Los protocolos se convierten en hábitos comunes con horarios y frecuencias."
+              }
+            },
+            {
+              "heading": "O pedíselo a tu asistente",
+              "paragraphs": [
+                "Si tenés ChatGPT o Claude conectado, decí \"sugerime un protocolo para concentrarme\" o \"agregá el protocolo de luz de la mañana\". Busca en el mismo catálogo, te manda el link para leerlo primero y agrega los hábitos cuando se lo pedís."
+              ]
+            },
+            {
+              "heading": "Empezá de a poco",
+              "paragraphs": [
+                "Arrancá con dos o tres hábitos. Después de dos semanas, la vista semanal te muestra cuáles quedaron. Sumá el siguiente protocolo recién cuando los primeros te salgan solos."
+              ],
+              "image": {
+                "key": "tracker-week",
+                "alt": "Vista semanal mostrando qué hábitos de la mañana se cumplieron cada día",
+                "caption": "Dos semanas después: la vista semanal muestra qué quedó."
+              }
+            }
+          ],
+          "steps": [
+            "Abrí el catálogo de protocolos",
+            "Leé un protocolo y tocá Agregar",
+            "Ajustá los horarios y días si hace falta",
+            "Registralo dos semanas antes de sumar más"
+          ],
+          "related": [
+            "read-your-habit-statistics",
+            "track-habits-with-chatgpt",
+            "log-habits-by-voice"
+          ]
+        },
+        {
+          "slug": "read-your-habit-statistics",
+          "title": "Cómo leer tus estadísticas de hábitos: rachas, tasas y tendencias",
+          "description": "Entendé la tasa de cumplimiento, las rachas, la torre de pilares y la constancia semanal para ver qué hábitos quedan y cuáles necesitan ayuda.",
+          "excerpt": "Tasa de cumplimiento, rachas, constancia semanal y equilibrio de pilares: qué te dice cada uno y qué hacer.",
+          "minutes": "5",
+          "hero": "statistics",
+          "heroAlt": "Estadísticas de hábitos con la tasa de cumplimiento de cada hábito, cumplimientos totales y tasa promedio",
+          "howTo": false,
+          "sections": [
+            {
+              "heading": "Elegí un período",
+              "paragraphs": [
+                "Las estadísticas cubren los últimos 7, 30 o 90 días, este mes, este año o un rango a elección. Siete días responde \"¿cómo va esta semana?\"; 90 días muestra si un hábito realmente quedó."
+              ]
+            },
+            {
+              "heading": "Tasa de cumplimiento por hábito",
+              "paragraphs": [
+                "El resumen muestra los cumplimientos totales, la tasa promedio y cuántos hábitos están activos. Abajo, cada hábito tiene una barra con su tasa del período: verde va bien, naranja pide atención, rojo se está cayendo. Solo cuentan los días programados, así que un hábito de días de semana no se penaliza el fin de semana."
+              ],
+              "image": {
+                "key": "statistics",
+                "alt": "Barras de rendimiento de nueve hábitos entre 29% y 100% en siete días",
+                "caption": "Rendimiento por hábito: los flojos saltan a la vista."
+              }
+            },
+            {
+              "heading": "Rachas",
+              "paragraphs": [
+                "Una racha cuenta días programados seguidos. Saltear un día que no te tocaba no la corta. Los días que registrás después, desde el tracker o con ChatGPT o Claude, también cuentan, incluso si son anteriores a cuando creaste el hábito."
+              ]
+            },
+            {
+              "heading": "Tendencias, mapa de calor y constancia",
+              "paragraphs": [
+                "La tendencia muestra los totales por día; el resumen del año es un mapa de calor de cada día; la constancia semanal marca las semanas perfectas y las que quedaron debajo del 50%. Juntas te dicen si una caída fue una mala semana o un bajón lento."
+              ]
+            },
+            {
+              "heading": "En el celular",
+              "paragraphs": [
+                "Las mismas estadísticas funcionan en el celular, una tarjeta por sección."
+              ],
+              "image": {
+                "key": "mobile-statistics",
+                "alt": "Estadísticas de hábitos en un celular con cumplimientos totales y tasa promedio",
+                "caption": "Estadísticas en el celular."
+              }
+            },
+            {
+              "heading": "Preguntá en vez de leer",
+              "paragraphs": [
+                "Con un asistente conectado, preguntá \"¿cómo me fue esta semana comparada con la anterior?\" o \"¿con qué hábito me está costando?\". Lee los mismos números y te responde en una o dos frases."
+              ]
+            }
+          ],
+          "steps": [],
+          "related": [
+            "build-a-morning-routine-with-protocols",
+            "log-habits-by-voice",
+            "track-habits-with-chatgpt"
+          ]
+        },
+        {
+          "slug": "habit-tracker-privacy-and-permissions",
+          "title": "Controlá qué puede ver y hacer tu asistente de IA",
+          "description": "Elegí exactamente qué puede hacer ChatGPT o Claude en tu registro de hábitos, desde leer estadísticas hasta borrar hábitos, y desconectá cualquier asistente al instante.",
+          "excerpt": "Diez interruptores deciden qué pueden hacer los asistentes conectados. Borrar cualquier cosa está apagado hasta que lo actives.",
+          "minutes": "3",
+          "hero": "assistant-permissions",
+          "heroAlt": "Asistentes conectados, ChatGPT y Claude, con permisos para leer, registrar, tareas, calendario y hábitos",
+          "howTo": false,
+          "sections": [
+            {
+              "heading": "Cada asistente tiene su propio acceso",
+              "paragraphs": [
+                "Cada asistente que conectás recibe su propio token de acceso. Ajustes → Asistentes de voz los muestra con la última vez que se usaron, y Desconectar corta uno al instante sin afectar a los demás."
+              ],
+              "image": {
+                "key": "assistant-permissions",
+                "alt": "Ajustes con ChatGPT y Claude conectados, botones para desconectar y permisos",
+                "caption": "Los asistentes conectados y los permisos que se aplican a todos."
+              }
+            },
+            {
+              "heading": "Los permisos",
+              "paragraphs": [
+                "Todos los permisos están activados por defecto, salvo los dos de borrar. Los cambios se aplican desde el siguiente pedido:"
+              ],
+              "bullets": [
+                "Leer: hábitos, rachas, estadísticas, tareas, calendario, catálogo y recomendaciones.",
+                "Registrar cumplimientos: marcar hábitos como hechos o no, para hoy u otro día.",
+                "Tareas y proyectos: crear, editar y completar.",
+                "Calendario: crear y mover eventos.",
+                "Agregar hábitos: crear hábitos y sumar protocolos del catálogo.",
+                "Editar hábitos: renombrar, cambiar descripción, días u horario, archivar.",
+                "Borrar hábitos: apagado hasta que lo actives.",
+                "Borrar tareas, proyectos y eventos: apagado hasta que lo actives.",
+                "Ajustes: ver y cambiar tu perfil, preferencias y avisos del coach.",
+                "Exportar: descargar una copia completa en JSON."
+              ]
+            },
+            {
+              "heading": "Cuando un permiso está apagado",
+              "paragraphs": [
+                "El asistente recibe una respuesta clara de \"desactivado\" que puede leerte, en vez de fallar en silencio. Si agregar hábitos está apagado, te da el link del protocolo para que lo agregues vos."
+              ]
+            },
+            {
+              "heading": "Lo que un asistente nunca puede hacer",
+              "paragraphs": [
+                "Ningún token puede cambiar sus propios permisos, leer o cambiar tu clave de acceso o identidad Nostr, ni llegar a los datos de otra persona. Los datos van a OpenAI o Anthropic solo cuando usás el asistente, bajo sus términos."
+              ]
+            }
+          ],
+          "steps": [],
+          "related": [
+            "track-habits-with-chatgpt",
+            "connect-claude-to-your-habit-tracker",
+            "read-your-habit-statistics"
+          ]
+        },
+        {
+          "slug": "refresh-your-assistant-connector",
+          "title": "Herramientas nuevas de Liberture en ChatGPT y Claude",
+          "description": "ChatGPT y Claude se quedan con la lista de herramientas que cargaron al conectar Liberture. Mirá cuándo hay herramientas nuevas y actualizá el conector en un minuto.",
+          "excerpt": "Los asistentes no toman las herramientas nuevas solos. Ajustes te avisa cuando están atrasados; con actualizar una vez alcanza.",
+          "minutes": "2",
+          "hero": "connect-assistant",
+          "heroAlt": "Ajustes de Liberture con ChatGPT y Claude conectados y el estado de herramientas de cada uno",
+          "howTo": true,
+          "sections": [
+            {
+              "heading": "Por qué las herramientas nuevas no aparecen solas",
+              "paragraphs": [
+                "Cuando conectás Liberture, ChatGPT o Claude carga la lista de cosas que puede hacer (registrar un hábito, mover un evento, leer tu semana) y se queda con esa copia. Cuando Liberture publica herramientas nuevas, tu asistente no vuelve a consultar solo. Hasta que actualices el conector sigue funcionando, pero sin lo nuevo."
+              ]
+            },
+            {
+              "heading": "Cómo te enterás de que hay algo nuevo",
+              "paragraphs": [
+                "Liberture recuerda, para cada asistente conectado, cuándo cargó la lista de herramientas por última vez y qué versión recibió. No guarda nada de tus conversaciones."
+              ],
+              "bullets": [
+                "Ajustes → Asistentes de voz: cada app conectada dice \"Herramientas al día\", o cuántas herramientas nuevas le faltan y desde cuándo.",
+                "Tu asistente te avisa: cuando su lista está atrasada, Liberture le pide que te lo mencione una vez al empezar un chat.",
+                "Docs → Herramientas nuevas siempre muestra cuántas herramientas ofrece Liberture ahora."
+              ],
+              "image": {
+                "key": "connect-assistant",
+                "alt": "Asistentes conectados en los ajustes de Liberture, cada uno con su estado de herramientas",
+                "caption": "Cada asistente conectado muestra si sus herramientas están al día."
+              }
+            },
+            {
+              "heading": "Actualizá ChatGPT",
+              "paragraphs": [
+                "En ChatGPT abrí Configuración → Apps y conectores y abrí Liberture. Usá Actualizar si aparece; si no, desconectalo y conectalo de nuevo con la misma URL, iniciá sesión y tocá Aprobar. Reconectar reemplaza la conexión anterior, y tus hábitos y permisos quedan como están. Después empezá un chat nuevo: los chats viejos siguen con la lista vieja.",
+                "¿Usás un GPT personalizado con acciones? Editá el GPT, andá a Configurar → Acciones → Importar desde URL, pegá https://liberture.com/api/v1/openapi.json y tocá Actualizar."
+              ]
+            },
+            {
+              "heading": "Actualizá Claude",
+              "paragraphs": [
+                "Claude lee las herramientas del conector al empezar cada conversación, así que primero empezá un chat nuevo. Si siguen sin aparecer, andá a Configuración → Conectores → Liberture, desconectá, conectá de nuevo y aprobá. En la app del celular, cerrala del todo y volvé a abrirla."
+              ]
+            },
+            {
+              "heading": "Comprobá que funcionó",
+              "paragraphs": [
+                "De vuelta en Liberture, Ajustes → Asistentes de voz debería decir \"Herramientas al día\" para ese asistente. También podés preguntarle directamente: \"¿qué herramientas de Liberture podés usar?\""
+              ]
+            }
+          ],
+          "steps": [
+            "Abrí Liberture → Ajustes → Asistentes de voz y fijate qué asistente dice que tiene herramientas nuevas esperando.",
+            "En ChatGPT: Configuración → Apps y conectores → Liberture → Actualizar, o desconectá y volvé a conectar.",
+            "En Claude: empezá un chat nuevo; si siguen faltando, desconectá y volvé a conectar Liberture en Configuración → Conectores.",
+            "Empezá una conversación nueva y confirmá que Liberture ahora muestra \"Herramientas al día\"."
+          ],
+          "related": [
+            "track-habits-with-chatgpt",
+            "connect-claude-to-your-habit-tracker",
+            "habit-tracker-privacy-and-permissions"
+          ]
+        }
+      ]
+    },
+    "preview": {
+      "eyebrow": "Miralo",
+      "heading": "Tus hábitos, registrados y a un mensaje de distancia",
+      "body": "Un tracker de verdad por debajo: hábitos diarios, rachas, estadísticas, tareas y calendario. Tu asistente lee y escribe los mismos datos.",
+      "today": "Los hábitos de hoy con rachas y tasa de cumplimiento",
+      "stats": "Estadísticas: tasa de cumplimiento por hábito",
+      "mobile": "El tracker en un celular",
+      "guides": "Leer las guías"
+    },
+    "app": {
+      "common": {
+        "close": "Cerrar",
+        "cancel": "Cancelar",
+        "save": "Guardar",
+        "delete": "Eliminar",
+        "undo": "Deshacer",
+        "confirm": "Confirmar",
+        "discardChanges": "¿Descartar los cambios sin guardar?",
+        "somethingWentWrong": "Algo salió mal. Probá de nuevo.",
+        "habitDeleted": "Eliminaste “{name}”",
+        "habitArchived": "Archivaste “{name}”",
+        "habitRestored": "Restauraste “{name}”",
+        "habitCreated": "Agregaste “{name}”",
+        "dataImported": "Copia de seguridad importada",
+        "dataCleared": "Borraste todos los datos",
+        "accountReset": "Eliminaste tu cuenta",
+        "accountResetFailed": "No pudimos eliminar tu cuenta. No se cambió nada; probá de nuevo.",
+        "signOutConfirm": "¿Cerrar sesión de Liberture en este dispositivo?"
+      },
+      "signInDialog": {
+        "dialogAriaLabel": "Entrar",
+        "closeAriaLabel": "Cerrar inicio de sesión",
+        "title": "Entrá con Nostr",
+        "subtitleSelect": "Tu identidad Nostr es tu cuenta — sin email, sin contraseña.",
+        "subtitleNsec": "Tu clave secreta te deja entrar desde cualquier dispositivo que la tenga.",
+        "subtitleNip46": "Escaneá con Amber/nsec.app, o pegá una URL bunker.",
+        "extensionTitle": "Extensión del navegador",
+        "extensionHint": "nostr-wot, Alby, nos2x o similar",
+        "remoteSignerTitle": "Firmante remoto",
+        "secretKeyTitle": "Clave secreta (nsec)",
+        "secretKeyHint": "Entrá con una clave que ya tenés",
+        "createTitle": "Soy nuevo — crear una cuenta",
+        "createHint": "Generá una clave, guardala y empezá",
+        "tabHaveKey": "Tengo una clave",
+        "tabNew": "Soy nuevo",
+        "nsecLabel": "Tu clave secreta (nsec)",
+        "hideKey": "Ocultar clave",
+        "showKey": "Mostrar clave",
+        "pasteFromClipboard": "Pegar del portapapeles",
+        "nsecPrivacyNote": "Tu clave nunca sale de este navegador. Solo se usa para que entres y queda en memoria — nunca la guardamos.",
+        "signInWithKey": "Entrar con la clave",
+        "backupWarningBefore": "Tu ",
+        "backupWarningMiddle": " es tu cuenta. Copiala o guardala en un lugar seguro ahora mismo. Si la perdés,",
+        "backupWarningBold": "nadie puede recuperar",
+        "backupWarningAfter": " tus hábitos por vos.",
+        "newKeyLabel": "Tu nueva clave secreta",
+        "copyKey": "Copiar",
+        "copiedKey": "Copiada",
+        "publicKey": "Pública: {npub}",
+        "backupConfirm": "Guardé mi nsec en un lugar seguro y entiendo que nadie puede recuperarla por mí.",
+        "createAccount": "Crear mi cuenta y empezar",
+        "back": "Volver",
+        "actionRequired": "ACCIÓN REQUERIDA: Aprobá en tu app firmante",
+        "connectHint": "Mismo dispositivo: tocá el botón. Otro dispositivo: escaneá el QR.",
+        "openSignerApp": "Abrir Amber / app firmante",
+        "qrTitle": "Código QR de Nostr Connect",
+        "generatingConnection": "Generando conexión...",
+        "copyUri": "Copiar URI",
+        "copiedUri": "¡Copiada!",
+        "promptBunker": "Pegá la URI bunker://",
+        "manualBunker": "Conectar bunker manualmente",
+        "waitingForConnection": "Esperando la conexión...",
+        "slowHint": "¿Sigue esperando? Abrí Amber/nsec.app y aprobá la solicitud.",
+        "footer": "Tu npub es tu cuenta. Entrá desde cualquier dispositivo que tenga tu clave Nostr.",
+        "errorBunkerPrefix": "Usá una URI bunker:// de tu firmante remoto.",
+        "errorChallengeRequest": "No se pudo pedir el desafío",
+        "errorNoChallenge": "El servidor no devolvió un desafío",
+        "errorAuthFailed": "Falló la autenticación",
+        "errorRateLimited": "Demasiados intentos de inicio de sesión. Esperá un minuto y volvé a intentar.",
+        "errorTimeout": "Se agotó el tiempo de conexión. Abrí Amber/nsec.app y aprobá la solicitud.",
+        "errorDenied": "El firmante rechazó la solicitud. Aprobá la conexión en tu app firmante.",
+        "errorCancelled": "Conexión cancelada.",
+        "errorConnectionFailed": "Falló la conexión",
+        "errorNoExtension": "No encontramos una extensión de Nostr. Instalá nostr-wot, Alby, nos2x o usá un firmante remoto.",
+        "errorExtensionFailed": "No se pudo conectar con la extensión de Nostr",
+        "errorPasteBunker": "Pegá una URI bunker://",
+        "errorRemoteSignerFailed": "No se pudo conectar con el firmante remoto",
+        "errorNsecEmpty": "Pegá tu clave secreta nsec1... para entrar.",
+        "errorNsecInvalid": "Eso no parece una nsec válida. Pegá la clave completa que empieza con nsec1.",
+        "errorNsecFailed": "No se pudo entrar con esa clave",
+        "errorClipboard": "No pudimos leer el portapapeles. Pegala a mano con Ctrl/Cmd+V.",
+        "errorConfirmBackup": "Confirmá que guardaste tu clave secreta antes de seguir.",
+        "errorCreateFailed": "No se pudo crear tu cuenta"
+      },
+      "onboardingFlow": {
+        "welcomeTitle": "Bienvenido a Liberture",
+        "buildTitle": "Armá tu primer hábito",
+        "stepOf": "Paso {current} de {total}",
+        "skipAriaLabel": "Saltar la bienvenida",
+        "defaultHabitName": "Mi primer hábito"
+      },
+      "onboardingStep1": {
+        "title": "¿En qué áreas querés enfocarte?",
+        "subtitle": "Elegí hasta dos áreas. Podés agregar más después.",
+        "startTracking": "Empezar a registrar",
+        "chooseDifferent": "Elegir otro",
+        "continue": "Continuar",
+        "customizeLater": "Tranqui, en los próximos pasos podés personalizar todo",
+        "categories": {
+          "exercise": {
+            "name": "Ejercicio",
+            "story": "El ejercicio regular libera endorfinas, baja el estrés y te da energía. Con 5 minutos ya te cambia el día.",
+            "exampleHabit": "Entrenamiento matutino"
+          },
+          "reading": {
+            "name": "Lectura",
+            "story": "Leer te abre la cabeza, baja el estrés y mejora el foco. Solo 10 páginas por día son 15 libros por año.",
+            "exampleHabit": "Leer"
+          },
+          "meditation": {
+            "name": "Meditación",
+            "story": "Meditar reconfigura tu cerebro para la calma y la claridad. Los estudios muestran que 5 minutos por día reducen la ansiedad y mejoran el foco.",
+            "exampleHabit": "Meditar"
+          },
+          "health": {
+            "name": "Salud",
+            "story": "Los pequeños hábitos de salud se suman en un gran bienestar. Tomar agua, tus vitaminas o un poco de sol transforma tu energía.",
+            "exampleHabit": "Tomar agua"
+          },
+          "morning_routine": {
+            "name": "Rutina matutina",
+            "story": "Cómo arrancás la mañana marca el tono de todo el día. Una buena rutina genera impulso y confianza.",
+            "exampleHabit": "Rutina matutina"
+          },
+          "personal": {
+            "name": "Meta personal",
+            "story": "Tu meta importa. Sea lo que sea que quieras construir, empezar chiquito y ser constante te va a llevar ahí.",
+            "exampleHabit": "Mi meta"
+          }
+        }
+      },
+      "onboardingStep2": {
+        "title": "Elegí tus hábitos",
+        "reviewTitle": "Tu plan para empezar",
+        "paceTitle": "Elegí tu ritmo",
+        "paceBody": "Elegí cuántos días por semana vas a practicar cada hábito. Durante las próximas tres semanas, vas a pasar de la versión mínima al hábito completo.",
+        "frequencyLabel": "Días por semana",
+        "planSummary": "En cada hábito, pasás al paso intermedio tras {medium} registros y a la versión completa tras {full}. Si salteás un día, retomás donde dejaste.",
+        "chosenLabel": "Hábito elegido",
+        "tinyLabel": "Empezá con",
+        "whyBody": "La versión mínima es una forma más breve de practicar el mismo hábito. Empezá por ahí en los días ocupados y hacé más cuando tengas tiempo.",
+        "back": "Volver",
+        "continueText": "Continuar",
+        "choices": {
+          "exercise": [
+            {
+              "full": "Caminar 20 minutos",
+              "tiny": "Salí a caminar cinco minutos",
+              "medium": "Caminá diez minutos"
+            },
+            {
+              "full": "Hacer una rutina de fuerza",
+              "tiny": "Hacé una serie de un ejercicio que conozcas",
+              "medium": "Hacé dos series de un ejercicio que conozcas"
+            },
+            {
+              "full": "Estirar durante 10 minutos",
+              "tiny": "Dedicá dos minutos a tus estiramientos habituales",
+              "medium": "Estirá durante cinco minutos"
+            }
+          ],
+          "reading": [
+            {
+              "full": "Leer un capítulo",
+              "tiny": "Leé dos páginas",
+              "medium": "Leé medio capítulo"
+            },
+            {
+              "full": "Escuchar un audiolibro 20 minutos",
+              "tiny": "Escuchá cinco minutos",
+              "medium": "Escuchá un audiolibro diez minutos"
+            },
+            {
+              "full": "Tomar notas de lectura",
+              "tiny": "Anotá una idea que quieras recordar",
+              "medium": "Anotá dos ideas de tu lectura"
+            }
+          ],
+          "meditation": [
+            {
+              "full": "Meditar 10 minutos",
+              "tiny": "Dedicá dos minutos a prestar atención a tu respiración",
+              "medium": "Meditá cinco minutos"
+            },
+            {
+              "full": "Hacer un escaneo corporal",
+              "tiny": "Recorré con atención los pies, las piernas y las caderas",
+              "medium": "Recorré con atención desde los pies hasta los hombros"
+            },
+            {
+              "full": "Caminar con atención plena",
+              "tiny": "Caminá dos minutos prestando atención a cada paso",
+              "medium": "Caminá cinco minutos con atención plena"
+            }
+          ],
+          "health": [
+            {
+              "full": "Tomar agua con cada comida",
+              "tiny": "Tomá un vaso de agua con una comida",
+              "medium": "Tomá agua con dos comidas"
+            },
+            {
+              "foodFocused": true,
+              "full": "Comer verduras en el almuerzo",
+              "tiny": "Sumale al almuerzo unas rodajas de una verdura que te guste",
+              "medium": "Sumá una guarnición chica de verduras al almuerzo"
+            },
+            {
+              "full": "Descansar de las pantallas por la tarde",
+              "tiny": "Alejate de la pantalla dos minutos esta tarde",
+              "medium": "Alejate de las pantallas cinco minutos"
+            }
+          ],
+          "morning_routine": [
+            {
+              "full": "Escribir en tu diario por la mañana",
+              "tiny": "Escribí un par de líneas sobre lo que tenés en mente esta mañana",
+              "medium": "Escribí un párrafo corto en tu diario"
+            },
+            {
+              "full": "Planificar el día",
+              "tiny": "Anotá tu prioridad del día y a qué hora vas a empezar",
+              "medium": "Planificá tus dos tareas principales"
+            },
+            {
+              "full": "Ordenar tu habitación",
+              "tiny": "Despejá una superficie, como la mesa de luz",
+              "medium": "Ordená un rincón de tu habitación"
+            }
+          ],
+          "personal": [
+            {
+              "full": "Practicar un idioma 15 minutos",
+              "tiny": "Practicá cómo presentarte en dos frases",
+              "medium": "Practicá un idioma siete minutos"
+            },
+            {
+              "full": "Trabajar en un proyecto creativo",
+              "tiny": "Dedicá cinco minutos a una parte chica de tu proyecto",
+              "medium": "Trabajá diez minutos en tu proyecto"
+            },
+            {
+              "full": "Practicar un instrumento 20 minutos",
+              "tiny": "Tocá unos compases de una melodía que conozcas",
+              "medium": "Practicá un instrumento diez minutos"
+            }
+          ]
+        }
+      },
+      "onboardingStep3": {
+        "title": "¿Cuándo lo vas a hacer?",
+        "subtitle": "Armá un plan \"si-entonces\" para asegurarte de cumplir",
+        "researchTitle": "Intenciones de implementación (más de 300 estudios)",
+        "researchBody": "Quienes arman planes \"si-entonces\" tienen 2 a 3 veces más chances de cumplir. Esto deja el hábito precargado en tu cerebro y lo vuelve automático.",
+        "ifLabel": "SI",
+        "thenLabel": "ENTONCES",
+        "chooseTrigger": "Elegí un disparador",
+        "selectTriggerPlaceholder": "Elegí un disparador...",
+        "customTriggerPlaceholder": "Después de...",
+        "iWill": "Voy a...",
+        "behaviorPlaceholder": "Hacer {habit}",
+        "defaultHabitName": "mi hábito",
+        "yourIntention": "Tu intención de implementación:",
+        "intentionSummary": "\"{trigger}, voy a {behavior}\"",
+        "back": "Volver",
+        "continue": "Continuar",
+        "customTrigger": "Disparador propio...",
+        "triggers": [
+          "Después de despertarme",
+          "Después de tomar el café de la mañana",
+          "Después de lavarme los dientes",
+          "Después de desayunar",
+          "Después de almorzar",
+          "Después de cenar",
+          "Después de terminar de trabajar",
+          "Después de llegar a casa",
+          "Cuando veo mi [objeto]"
+        ]
+      },
+      "onboardingStep4": {
+        "becomingTitle": "Te estás convirtiendo en {identity}",
+        "researchTitle": "Hábitos basados en la identidad (James Clear, Hábitos atómicos)",
+        "researchBody": "El verdadero cambio de conducta es un cambio de identidad. No te enfoques en lo que querés lograr, sino en quién querés ser. Cada acción es un voto por la persona que querés ser.",
+        "journeyTitle": "Tu camino de identidad",
+        "thinkOfYourself": "De ahora en más, pensate como {identity}.",
+        "youWillSay": "Cuando completes tu hábito, vas a decir:",
+        "iAmQuote": "\"Soy {identity}\"",
+        "eachRepetition": "Cada repetición refuerza tu nueva identidad.",
+        "accepted": "✓ Acepto esta identidad",
+        "acceptButton": "Soy {identity}",
+        "back": "Volver",
+        "continue": "Continuar",
+        "foodIdentity": {
+          "identity": "gastrónomo",
+          "identityPhrase": "gastrónomo"
+        },
+        "identities": {
+          "exercise": {
+            "identity": "atleta",
+            "identityPhrase": "atleta",
+            "identityTitle": "atleta",
+            "description": "Alguien que mueve el cuerpo y valora la fuerza física",
+            "milestones": [
+              "Día 3: Estás construyendo la base",
+              "Día 7: Los atletas aparecen con constancia",
+              "Día 21: Tu cuerpo se está adaptando",
+              "Día 66: Ya sos atleta"
+            ]
+          },
+          "reading": {
+            "identity": "erudito",
+            "identityPhrase": "erudito",
+            "identityTitle": "erudito",
+            "description": "Alguien que valora el conocimiento y alimenta su mente",
+            "milestones": [
+              "Día 3: Estás cultivando la curiosidad",
+              "Día 7: Los eruditos se hacen tiempo para crecer",
+              "Día 21: Tu mente se está expandiendo",
+              "Día 66: Ya sos erudito"
+            ]
+          },
+          "meditation": {
+            "identity": "yogui",
+            "identityPhrase": "yogui",
+            "identityTitle": "yogui",
+            "description": "Alguien que valora la paz interior y la claridad mental",
+            "milestones": [
+              "Día 3: Estás aprendiendo a estar presente",
+              "Día 7: Los yoguis priorizan la calma",
+              "Día 21: Tu mente se está aquietando",
+              "Día 66: Ya sos yogui"
+            ]
+          },
+          "health": {
+            "identity": "biohacker",
+            "identityPhrase": "biohacker",
+            "identityTitle": "biohacker",
+            "description": "Alguien que cuida su bienestar",
+            "milestones": [
+              "Día 3: Estás honrando tu cuerpo",
+              "Día 7: Los biohackers priorizan su salud",
+              "Día 21: La salud se está volviendo tu norma",
+              "Día 66: Ya sos biohacker"
+            ]
+          },
+          "morning_routine": {
+            "identity": "una persona madrugadora",
+            "identityPhrase": "una persona madrugadora",
+            "identityTitle": "una persona madrugadora",
+            "description": "Alguien que se adueña de sus mañanas y arranca con intención",
+            "milestones": [
+              "Día 3: Estás tomando impulso",
+              "Día 7: Los madrugadores manejan su día",
+              "Día 21: Tus mañanas se transformaron",
+              "Día 66: Ya sos una persona madrugadora"
+            ]
+          },
+          "personal": {
+            "identity": "una persona comprometida",
+            "identityPhrase": "una persona comprometida",
+            "identityTitle": "una persona comprometida",
+            "description": "Alguien que se compromete y cumple",
+            "milestones": [
+              "Día 3: Estás apareciendo",
+              "Día 7: Las personas comprometidas cumplen sus promesas",
+              "Día 21: La constancia es tu fortaleza",
+              "Día 66: Demostraste tu compromiso"
+            ]
+          }
+        }
+      },
+      "onboardingStep5": {
+        "defaultTinyHabit": "tu hábito mínimo",
+        "title": "¡Hacelo ahora mismo!",
+        "subtitle": "El mejor momento para empezar es este",
+        "whyNowTitle": "¿Por qué ahora?",
+        "whyNowBody": "Empezar ya genera impulso y te demuestra que podés. No esperes al lunes, a mañana ni al \"momento perfecto\". El momento perfecto es ahora.",
+        "yourTinyHabit": "Tu hábito mínimo:",
+        "rememberSmall": "(¡Acordate: empezá ridículamente chico!)",
+        "iDidIt": "¡Lo hice!",
+        "takeSeconds": "Tomate solo 30 segundos para hacer tu versión mínima",
+        "congratulations": "¡Felicitaciones! 🎉",
+        "youBecame": "Acabás de convertirte en {identity}",
+        "defaultIdentity": "una persona de acción",
+        "identityByCategory": {
+          "exercise": "atleta",
+          "reading": "lector",
+          "meditation": "meditador",
+          "health": "una persona saludable",
+          "morning_routine": "una persona madrugadora",
+          "personal": "una persona comprometida"
+        },
+        "brainTitle": "Lo que acaba de pasar en tu cerebro:",
+        "brainDopamine": "Tu cerebro liberó dopamina (la química de la recompensa)",
+        "brainNeural": "Empezaron a formarse conexiones neuronales para esta conducta",
+        "brainProof": "Te demostraste que podés cumplir",
+        "reminderTitle": "¿Querés un recordatorio diario?",
+        "reminderBody": "Podemos recordarte mañana a las {time} para que sigas con la racha.",
+        "remindYes": "Sí, recordame",
+        "remindNo": "No, gracias",
+        "back": "Volver",
+        "startJourney": "Empezar mi camino"
+      },
+      "onboardingConnectAssistant": {
+        "title": "Conectá tu asistente de IA",
+        "platformLabel": "Plataforma de IA",
+        "urlLabel": "URL del servidor MCP",
+        "subtitle": "Hablale a tus hábitos desde Claude o ChatGPT, por chat o por voz. Conectalo una vez y queda conectado.",
+        "copy": "Copiar",
+        "copied": "Copiado",
+        "connected": "Conectado",
+        "claudeSteps": [
+          "Claude → Configuración → Conectores → Agregar conector personalizado.",
+          "Pegá esta URL, tocá Agregar, después Conectar y aprobá."
+        ],
+        "chatgptSteps": [
+          "ChatGPT → Configuración → Apps → Avanzado: activá el modo desarrollador y después Crear.",
+          "Pegá esta URL, elegí OAuth, creá y aprobá."
+        ],
+        "continue": "Continuar",
+        "skipForNow": "Saltar por ahora",
+        "connectLater": "Siempre podés conectarlo después en Ajustes → Asistentes de voz.",
+        "connectedTitle": "¡Conectado! Terminá de configurar en tu asistente",
+        "connectedBody": "Abrí un chat nuevo: tu asistente te va a mostrar lo que puede hacer, hacerte unas preguntas y sugerirte protocolos para arrancar.",
+        "continueHere": "Configurar acá"
+      },
+      "assistantStart": {
+        "title": "Terminá de configurar con tu asistente",
+        "body": "Tu asistente ya está conectado. Abrí un chat nuevo y te va a guiar por Liberture: unas preguntas y después protocolos del catálogo para arrancar.",
+        "openChatgpt": "Empezar en ChatGPT",
+        "openClaude": "Empezar en Claude",
+        "dismiss": "Ocultar",
+        "prompt": "¡Hola! Acabo de conectar Liberture. Usando el conector de Liberture, mostrame lo que podés hacer, haceme unas preguntas sobre qué quiero mejorar y sugerime protocolos del catálogo para arrancar."
+      },
+      "morningDashboard": {
+        "greeting": "Buen día",
+        "greetingWithName": "Buen día, {name}",
+        "today": "Hoy",
+        "nothingLogged": "Todavía no registraste nada — el primero es todo el truco.",
+        "allDone": "Todos los hábitos hechos. Día cumplido.",
+        "percentDone": "{percent}% de los hábitos de hoy hechos.",
+        "startMorningWith": "Arrancá la mañana con",
+        "todaysPassage": "El pasaje de hoy",
+        "todaysIntention": "La intención de hoy",
+        "intentionBody": "Cada pequeña acción de hoy construye a la persona en la que te estás convirtiendo. Enfocate en la constancia, no en la perfección.",
+        "dismiss": "Cerrar",
+        "startDay": "Empezar mi día",
+        "becomeIdentity": "Convertite en {identity}",
+        "pillars": {
+          "work": "Trabajo",
+          "sleep": "Sueño",
+          "nutrition": "Nutrición",
+          "mind": "Mente",
+          "exercise": "Ejercicio",
+          "finance": "Finanzas"
+        },
+        "markDone": "Marcar {name} como hecho",
+        "markNotDone": "Marcar {name} como no hecho"
+      },
+      "coachPanel": {
+        "suggestions": {
+          "addNext": {
+            "title": "¿Qué debería agregar ahora?",
+            "hint": "Elige del catálogo según lo que te falta"
+          },
+          "slipping": {
+            "title": "¿Qué hábito se me está cayendo?",
+            "hint": "Mira los últimos 30 días"
+          },
+          "sleepBetter": {
+            "title": "Quiero dormir mejor",
+            "hint": "Por dónde empezar, según lo que ya hacés"
+          },
+          "tooMuch": {
+            "title": "¿Me estoy cargando demasiado?",
+            "hint": "Revisa tu carga y los choques de horario"
+          }
+        },
+        "errorLoadHistory": "No pudimos cargar tus chats guardados. Recargá para intentar de nuevo.",
+        "errorSaveHistory": "No pudimos guardar tu último chat. Dejá esta página abierta e intentá de nuevo.",
+        "statusReading": "Leyendo tus hábitos…",
+        "statusThinking": "Pensando…",
+        "errorTurnFailed": "El coach no pudo terminar esa respuesta. Probá preguntar de nuevo.",
+        "errorStopped": "El coach se detuvo de forma inesperada.",
+        "errorLostConnection": "Se perdió la conexión con el coach.",
+        "errorUnreachable": "No pudimos comunicarnos con el coach.",
+        "unavailableTitle": "El coach no está disponible ahora",
+        "unavailableBody": "Todo lo demás de la app funciona como siempre. Volvé a probar en un rato.",
+        "manageConnection": "Administrar la conexión del coach",
+        "setupNeedsAttention": "La configuración del coach necesita atención. Abrí los ajustes de conexión.",
+        "loadingHistory": "Cargando chats guardados…",
+        "newConversation": "Nueva conversación",
+        "inputLabel": "Mensaje para el coach",
+        "suggestionsLabel": "Preguntas sugeridas",
+        "emptyTitle": "Preguntá sobre tus hábitos",
+        "emptyBody": "El coach puede ver tus hábitos, rachas e historial, y todo lo que hay en el catálogo. Puede sugerirte cosas para agregar — vos decidís qué queda.",
+        "placeholderChecking": "Verificando…",
+        "placeholder": "Preguntale al coach…",
+        "stop": "Detener",
+        "ask": "Preguntar",
+        "dismiss": "Descartar",
+        "snooze": "Posponer 7 días",
+        "suggestionActions": "Qué hacer con esta sugerencia"
+      },
+      "coachMessages": {
+        "and": "y",
+        "morningTitle": "Dos prioridades para hoy",
+        "morningTitleOne": "La prioridad de hoy",
+        "morningBody": "{priorities}. Primer paso: {action}.",
+        "atTime": "{name} a las {time}",
+        "overdue": "{name} (atrasada)",
+        "dueToday": "{name} (vence hoy)",
+        "afternoonTitle": "Lo que sigue",
+        "afternoonTimed": "{name} a las {time}. Todavía es buen momento.",
+        "afternoonAnytime": "{name} sigue pendiente hoy. Con unos minutos alcanza.",
+        "weeklyTitle": "Tu semana",
+        "weeklyItem": "{name} {done}/{target}",
+        "weeklyWorked": "Funcionó: {list}.",
+        "weeklyFriction": "Costó: {list}.",
+        "weeklyNothingYet": "Todavía no registraste nada esta semana.",
+        "proposeLower": "Propuesta: ¿dejar {name} en {count} veces por semana por ahora?",
+        "proposeTime": "Propuesta: ¿probar {name} en otro horario que no sea las {time}?",
+        "proposeSmaller": "Propuesta: ¿hacer {name} más chico, para que cueste menos empezar?",
+        "proposeKeep": "Propuesta: ¿mantener el mismo plan la semana que viene?",
+        "missedTitle": "¿Lo salteaste o te olvidaste de registrarlo?",
+        "missedBodyOne": "{name} no tiene registro hace {count} días en que tocaba. ¿Lo hiciste y no lo anotaste, o lo salteaste? Cualquier respuesta sirve.",
+        "missedBodyMany": "{list} no tienen registro hace varios días en que tocaban. ¿Los hiciste y no los anotaste, o los salteaste? Cualquier respuesta sirve.",
+        "pulseSuggestionTitle": "Una idea de tu coach",
+        "pulseSuggestionBody": "{name}: {reason}",
+        "pulseIdeaTitle": "Algo para {pillar}",
+        "pulseIdeaBody": "{name}: {why}",
+        "pulseProgressTitle": "Hoy hasta ahora",
+        "pulseProgressBody": "{done} de {total} hechos. Sigue: {next}.",
+        "pulseAllDoneTitle": "Todo listo por hoy",
+        "pulseAllDoneBody": "Todos los hábitos de hoy están hechos: {total} de {total}.",
+        "pulseQuoteTitle": "Un pensamiento para hoy",
+        "pulseQuoteBody": "“{text}” — {author}"
+      },
+      "assistantReceipts": {
+        "assistant": "Tu asistente",
+        "habitTitle": "{assistant} registró {name}",
+        "todoTitle": "{assistant} completó {name}",
+        "habitsProgress": {
+          "one": "{done} de {count} hábito hecho hoy.",
+          "other": "{done} de {count} hábitos hechos hoy."
+        },
+        "allHabitsDone": "Todos los hábitos de hoy están hechos.",
+        "pastDay": "Guardado para el {date}.",
+        "todosLeft": {
+          "one": "Te queda {count} tarea para hoy.",
+          "other": "Te quedan {count} tareas para hoy."
+        },
+        "noTodosLeft": "No queda nada en la lista de hoy.",
+        "undo": "Deshacer",
+        "undoneTitle": "Deshecho: {name}",
+        "undoneHabitBody": "Ya no figura como hecho.",
+        "undoneTodoBody": "Volvió a tu lista.",
+        "undoFailedTitle": "No se pudo deshacer",
+        "undoFailedBody": "Cambió desde entonces o el botón venció. Abrí Liberture para corregirlo."
+      },
+      "coachSettings": {
+        "title": "Check-ins del coach",
+        "description": "Mensajes cortos de tu coach, como notificaciones. Todos apagados hasta que elijas un horario. Los asistentes conectados a Liberture respetan los mismos límites.",
+        "morning": "Check-in de la mañana",
+        "morningHint": "Dos prioridades del día y un primer paso.",
+        "afternoon": "Check-in de la tarde",
+        "afternoonHint": "Lo próximo que todavía vale la pena hacer hoy.",
+        "weekly": "Repaso semanal",
+        "weeklyHint": "Qué funcionó, qué costó y un cambio propuesto.",
+        "weeklyDay": "Día",
+        "missedLogging": "Preguntar por hábitos sin registrar",
+        "missedLoggingHint": "A las 18:00, cuando un hábito lleva 3 días en que tocaba sin registro: ¿lo salteaste o te olvidaste de anotarlo?",
+        "quietHours": "Horas de silencio",
+        "quietHoursHint": "Sin mensajes del coach entre estos horarios.",
+        "quietFrom": "Desde",
+        "quietTo": "Hasta",
+        "maxPerDay": "Mensajes por día",
+        "maxPerDayHint": "Como máximo esta cantidad de mensajes del coach por día, sumando todos los coaches. Los recordatorios de hábitos no cuentan.",
+        "pulses": "Check-ins al azar",
+        "pulsesHint": "Algunos mensajes en horarios al azar fuera de las horas de silencio: una sugerencia, cómo va el día o una frase. Cuentan para Mensajes por día.",
+        "pulsesOff": "Desactivado",
+        "pulsesCount": "{count} por día",
+        "pulsesOverCap": "Los check-ins y los mensajes al azar suman más de {max} por día, así que algunos se van a saltear. Subí Mensajes por día para recibirlos todos.",
+        "enable": "Activado",
+        "time": "Hora",
+        "days": [
+          "Domingo",
+          "Lunes",
+          "Martes",
+          "Miércoles",
+          "Jueves",
+          "Viernes",
+          "Sábado"
+        ]
+      },
+      "coachAdmin": {
+        "title": "Conexión del coach",
+        "subtitle": "Conectá ChatGPT para empezar a charlar con tu coach de hábitos.",
+        "checking": "Verificando la conexión…",
+        "signInTitle": "Iniciá sesión para administrar el coach",
+        "signInDescription": "Abrí Coach desde tu cuenta del tracker con la sesión iniciada. Quienes operan el sitio también pueden usar su secreto de administración acá.",
+        "adminSecret": "Secreto de administración",
+        "continue": "Continuar",
+        "chatGptConnection": "Conexión con ChatGPT",
+        "signedIn": "sesión iniciada",
+        "tokenRefreshed": "token renovado {time}",
+        "authProblem": "Las preguntas vienen fallando porque este inicio de sesión dejó de funcionar. Volvé a conectarlo.",
+        "reconnect": "Reconectar",
+        "connect": "Conectar cuenta de ChatGPT",
+        "disconnect": "Desconectar",
+        "disconnectConfirm": "¿Cerrar la sesión del coach? Nadie va a poder usarlo hasta que se conecte de nuevo.",
+        "statusNotConnected": "sin conectar",
+        "statusExpired": "sesión vencida",
+        "statusApiKey": "clave de API",
+        "statusConnected": "conectado",
+        "deviceConnected": "Conectado. El coach está listo.",
+        "deviceFailed": "El inicio de sesión no se completó.",
+        "deviceStarting": "Iniciando sesión…",
+        "deviceStep1": "1. Abrí este enlace en cualquier dispositivo e iniciá sesión en ChatGPT:",
+        "deviceStep2": "2. Ingresá este código de un solo uso:",
+        "codeCopied": "Código copiado",
+        "copyCode": "Copiar código",
+        "openSignIn": "Abrir el inicio de sesión de ChatGPT",
+        "copyManually": "Seleccioná el código de arriba para copiarlo a mano.",
+        "expiresAt": "Usá solo un código que hayas iniciado acá. Vence a las {time}; esta página se actualiza sola cuando termines.",
+        "expiresSoon": "Usá solo un código que hayas iniciado acá. Vence en 15 minutos; esta página se actualiza sola cuando termines.",
+        "cancel": "Cancelar",
+        "sandboxTitle": "El sandbox del coach no está activo en este servidor.",
+        "sandboxBody": "Las respuestas pueden fallar con un \"environment error\". En el host que corre el sidecar, configurá",
+        "sandboxRestart": "y reiniciá"
+      },
+      "recommendationCards": {
+        "madeForYou": "Hecho para vos",
+        "add": "Agregar"
+      },
+      "marketplaceView": {
+        "title": "Mercado",
+        "description": "Protocolos respaldados por evidencia, de investigadores y profesionales con nombre y apellido. Cada uno muestra cuánto cuesta y en qué se basa — leé la investigación y después agregalo. Todo lo que adoptes se vuelve un hábito común que podés editar, reprogramar o borrar.",
+        "searchPlaceholder": "Buscá protocolos, autores, equipamiento…",
+        "searchAria": "Buscar en el catálogo",
+        "showResults": "Ver resultados",
+        "sortAria": "Ordenar protocolos",
+        "all": "Todos",
+        "cost": "Costo",
+        "any": "Cualquiera",
+        "effort": "Esfuerzo",
+        "vertical": "Vertical",
+        "authors": "Autores",
+        "protocols": "Protocolos",
+        "removeAuthor": "Quitar filtro de autor",
+        "noSuggestions": "No hay autores ni protocolos que coincidan",
+        "authorAria": "Filtrar por autor",
+        "allAuthors": "Todos los autores",
+        "clear": "Limpiar {count}",
+        "protocolsHeading": "Protocolos ({count})",
+        "noProtocols": "Ningún protocolo coincide con estos filtros.",
+        "singleHabitsHeading": "Hábitos sueltos ({count})",
+        "noHabits": "Ningún hábito suelto coincide con estos filtros."
+      },
+      "protocolDetails": {
+        "overview": "Resumen",
+        "practice": "Práctica",
+        "evidence": "Evidencia",
+        "benefits": "Beneficios",
+        "why": "Por qué funciona",
+        "equipment": "Equipo",
+        "risks": "Riesgos y advertencias",
+        "sources": "Fuentes",
+        "steps": "Pasos",
+        "related": "Protocolos relacionados",
+        "previous": "Protocolos anteriores",
+        "next": "Protocolos siguientes",
+        "synergy": "Se complementa con",
+        "alternative": "Alternativa",
+        "by": "Por"
+      },
+      "protocolCard": {
+        "featured": "Destacado",
+        "habitCount": {
+          "one": "{count} hábito",
+          "other": "{count} hábitos"
+        },
+        "read": "Leer",
+        "added": "Agregado",
+        "add": "Agregar",
+        "readToComplete": "Se completa leyendo",
+        "readToCompleteHint": "Se completa leyendo un pasaje corto",
+        "alreadyAddedAria": "{name} ya está agregado",
+        "addAria": "Agregar {name}"
+      },
+      "directoryTable": {
+        "projects": "Proyectos",
+        "people": "Personas",
+        "books": "Libros",
+        "organizations": "Organizaciones",
+        "protocols": "Protocolos",
+        "articles": "Artículos",
+        "entry": "Entrada",
+        "actions": "Acciones",
+        "edit": "Editar",
+        "remove": "Eliminar",
+        "search": "Buscar entradas",
+        "empty": "No hay entradas coincidentes",
+        "loading": "Cargando entradas…",
+        "error": "No se pudieron cargar las entradas",
+        "add": "Añadir entrada"
+      },
+      "directoryListing": {
+        "books": "Libros",
+        "people": "Personas",
+        "booksIntro": "Lecturas sobre biohacking, longevidad y optimización humana.",
+        "peopleIntro": "Investigadores, autores y profesionales del directorio.",
+        "booksSearch": "Buscar libros o autores…",
+        "peopleSearch": "Buscar personas o especialidades…",
+        "organizationsSearch": "Buscar organizaciones…",
+        "projectsSearch": "Buscar proyectos…",
+        "featured": "Destacados primero",
+        "name": "Nombre A–Z",
+        "rating": "Mejor valorados",
+        "newestBooks": "Año de publicación",
+        "order": "Ordenar resultados",
+        "more": "Ver más",
+        "empty": "No hay resultados. Probá otra búsqueda o área."
+      },
+      "directoryProfiles": {
+        "projects": "Proyectos",
+        "organizations": "Organizaciones",
+        "projectsIntro": "Plataformas, iniciativas y comunidades del directorio.",
+        "organizationsIntro": "Empresas, organizaciones sin fines de lucro e instituciones vinculadas a proyectos.",
+        "related": "Proyectos y organizaciones relacionados",
+        "previous": "Entradas anteriores",
+        "next": "Entradas siguientes",
+        "projectProfile": "Detalles del proyecto",
+        "source": "Fuente",
+        "directoryIntro": "Descubre personas, proyectos, organizaciones, protocolos y publicaciones."
+      },
+      "organizationProfile": {
+        "about": "Acerca de",
+        "people": "Personas clave",
+        "resources": "Recursos",
+        "publications": "Publicaciones",
+        "profile": "Detalles de la organización",
+        "type": "Tipo",
+        "founded": "Fundación",
+        "website": "Sitio web",
+        "focus": "Áreas de interés"
+      },
+      "directoryEditor": {
+        "details": "Detalles",
+        "content": "Contenido",
+        "links": "Enlaces y medios",
+        "history": "Historial",
+        "name": "Nombre",
+        "title": "Título",
+        "expertise": "Especialidad",
+        "pillars": "Pilares (separados por comas)",
+        "summary": "Resumen para la tarjeta",
+        "bio": "Biografía",
+        "website": "Sitio web",
+        "wikipedia": "Wikipedia",
+        "twitter": "X / Twitter",
+        "instagram": "Instagram",
+        "youtube": "YouTube",
+        "podcast": "Pódcast",
+        "type": "Tipo de organización",
+        "founded": "Fundación",
+        "keyPeople": "Personas clave",
+        "description": "Descripción",
+        "imageUrl": "URL de la imagen",
+        "author": "Autor",
+        "year": "Año de publicación",
+        "rating": "Valoración",
+        "amazonUrl": "URL de Amazon",
+        "goodreadsUrl": "URL de Goodreads",
+        "pillar": "Pilar",
+        "tags": "Etiquetas",
+        "readTime": "Tiempo de lectura (minutos)",
+        "url": "URL del artículo",
+        "creator": "Creador",
+        "duration": "Duración",
+        "difficulty": "Dificultad",
+        "steps": "Pasos",
+        "benefits": "Beneficios",
+        "risks": "Riesgos",
+        "equipment": "Equipamiento",
+        "beginner": "Principiante",
+        "intermediate": "Intermedio",
+        "advanced": "Avanzado",
+        "save": "Guardar cambios",
+        "saving": "Guardando…",
+        "back": "Volver al directorio",
+        "saved": "Cambios guardados.",
+        "saveError": "No se pudieron guardar los cambios. Volvé a intentarlo.",
+        "required": "Completá este campo.",
+        "invalidNumber": "Ingresá un número entero válido.",
+        "historyError": "No se pudo cargar el historial.",
+        "retry": "Volver a intentar",
+        "loading": "Cargando historial…",
+        "empty": "Todavía no hay ediciones registradas.",
+        "older": "Cargar ediciones anteriores",
+        "before": "Antes",
+        "after": "Después",
+        "manual": "Edición manual",
+        "ai": "Edición con IA",
+        "system": "Edición del sistema",
+        "emptyValue": "Vacío",
+        "people": "Editar persona",
+        "organizations": "Editar organización",
+        "books": "Editar libro",
+        "articles": "Editar artículo",
+        "protocols": "Editar protocolo",
+        "markdown": "Texto del artículo (Markdown)",
+        "relationships": "Relaciones",
+        "relatedPeople": "Personas",
+        "selectPerson": "Elegí una persona",
+        "linkPerson": "Vincular persona",
+        "loadLinkError": "No se pudieron cargar las entradas del directorio.",
+        "projects": "Editar proyecto",
+        "relatedOrganizations": "Organizaciones",
+        "selectOrganization": "Elegí una organización",
+        "relationshipRole": "Rol de la organización",
+        "sourceUrl": "URL de la fuente",
+        "linkOrganization": "Vincular organización",
+        "invalidRelationship": "Elegí una entrada, indicá su rol y agregá la URL de la fuente. Usá cada rol una sola vez por entrada.",
+        "personProfile": "Perfil del directorio",
+        "projectType": "Tipo de proyecto",
+        "resources": "Recursos",
+        "publications": "Publicaciones",
+        "addEntry": "Agregar entrada",
+        "removeEntry": "Quitar entrada",
+        "linkTitle": "Título del enlace",
+        "linkUrl": "URL",
+        "invalidLink": "Ingresá un título y una dirección web válida."
+      },
+      "adminNav": {
+        "title": "Administración",
+        "directory": "Directorio",
+        "users": "Usuarios",
+        "subscribers": "Suscriptores",
+        "marketplace": "Marketplace",
+        "social": "Publicaciones sociales",
+        "comments": "Comentarios"
+      },
+      "adminUsers": {
+        "users": "Usuarios",
+        "search": "Buscar por nombre",
+        "find": "Buscar",
+        "empty": "No se encontraron usuarios.",
+        "previous": "Anterior",
+        "next": "Siguiente",
+        "name": "Nombre",
+        "role": "Rol",
+        "admin": "Administrador",
+        "user": "Usuario",
+        "manage": "Administrar",
+        "banned": "Bloqueado",
+        "active": "Activo",
+        "create": "Agregar usuario",
+        "pubkey": "Clave pública de Nostr (npub o hex)",
+        "duplicate": "Ya existe una cuenta con esta clave pública.",
+        "invalid": "Introducí un nombre y una clave pública de Nostr válidos.",
+        "unavailable": "No se pudo completar la solicitud.",
+        "updated": "Cambios guardados.",
+        "details": "Cuenta",
+        "sessions": "Sesiones",
+        "noSessions": "No hay sesiones activas.",
+        "expires": "Vence",
+        "device": "Dispositivo",
+        "unknown": "Dispositivo desconocido",
+        "revoke": "Revocar",
+        "revokeAll": "Revocar todas las sesiones",
+        "rename": "Guardar nombre",
+        "promote": "Otorgar acceso de administrador",
+        "demote": "Quitar acceso de administrador",
+        "ban": "Bloquear cuenta",
+        "unban": "Desbloquear cuenta",
+        "delete": "Eliminar cuenta",
+        "impersonate": "Cambiar a esta cuenta",
+        "exit": "Volver al panel de administración",
+        "acting": "Usando la cuenta",
+        "confirm": "Confirmar",
+        "deleteHelp": "Se eliminarán la cuenta, sus datos de seguimiento y sus sesiones activas.",
+        "reason": "Motivo del bloqueo (opcional)",
+        "days": "Duración del bloqueo en días (opcional)",
+        "back": "Panel de administración",
+        "created": "Cuenta creada.",
+        "unauthorized": "Se requiere acceso de administrador."
+      },
+      "newsletter": {
+        "title": "Boletín de Liberture",
+        "description": "Recibe artículos y novedades de Liberture por correo.",
+        "email": "Correo electrónico",
+        "subscribe": "Suscribirme",
+        "success": "Gracias por tu solicitud.",
+        "limited": "Inténtalo de nuevo en unos minutos.",
+        "error": "La suscripción no está disponible ahora.",
+        "subscribers": "Suscriptores",
+        "search": "Buscar por correo",
+        "find": "Buscar",
+        "empty": "Sin resultados",
+        "next": "Siguiente",
+        "previous": "Anterior"
+      },
+      "articleReader": {
+        "searchPlaceholder": "Título o tema…",
+        "topics": "Temas",
+        "articles": "Artículos",
+        "description": "Explora investigaciones y guías prácticas de los seis pilares de Liberture.",
+        "all": "Todas las áreas",
+        "order": "Ordenar artículos",
+        "newest": "Más recientes",
+        "oldest": "Más antiguos",
+        "titleOrder": "Título A–Z",
+        "more": "Ver más artículos",
+        "empty": "No hay artículos que coincidan con tu búsqueda.",
+        "search": "Buscar artículos",
+        "language": "Idioma",
+        "categories": "Categorías",
+        "related": "Artículos relacionados",
+        "previous": "Artículos anteriores",
+        "next": "Artículos siguientes"
+      },
+      "protocolReader": {
+        "previousPeople": "Perfiles anteriores",
+        "nextPeople": "Perfiles siguientes",
+        "relatedPeople": "Personas con áreas de interés en común",
+        "back": "Volver",
+        "facts": "En resumen",
+        "duration": "Duración",
+        "habits": "Hábitos",
+        "openFullProtocol": "Abrir protocolo completo",
+        "tabs": {
+          "overview": "Resumen",
+          "habits": "Hábitos",
+          "routine": "Rutina",
+          "resources": "Recursos",
+          "evidence": "Evidencia"
+        },
+        "closeProtocolAria": "Cerrar protocolo",
+        "downloadPdf": "Descargar PDF",
+        "preparingPdf": "Preparando PDF…",
+        "downloadError": "No se pudo descargar el PDF. Inténtalo de nuevo.",
+        "close": "Cerrar",
+        "habitCount": {
+          "one": "{count} hábito",
+          "other": "{count} hábitos"
+        },
+        "whyItWorks": "Por qué funciona",
+        "howToRun": "Cómo llevarlo a cabo",
+        "whatYouGet": "Qué ganás",
+        "watchOutFor": "Tené cuidado con",
+        "whatYouNeed": "Qué necesitás",
+        "whatItCosts": "Cuánto cuesta",
+        "optional": "opcional",
+        "perMonth": "/mes",
+        "perYear": "/año",
+        "habitsTracking": "Hábitos que vas a seguir ({count})",
+        "evidence": "Evidencia",
+        "alreadyTracking": "Ya lo estás siguiendo",
+        "addHabits": {
+          "one": "Agregar {count} hábito",
+          "other": "Agregar {count} hábitos"
+        }
+      },
+      "pillarTag": {
+        "pillars": {
+          "work": "Trabajo",
+          "sleep": "Sueño",
+          "nutrition": "Nutrición",
+          "mind": "Mente",
+          "exercise": "Ejercicio",
+          "finance": "Finanzas"
+        },
+        "difficulty": {
+          "easy": "Fácil",
+          "moderate": "Moderado",
+          "hard": "Difícil"
+        },
+        "costTier": {
+          "free": "Gratis",
+          "low": "$",
+          "moderate": "$",
+          "high": "$$"
+        },
+        "costBlurb": {
+          "free": "No cuesta nada",
+          "low": "Menos de $50",
+          "moderate": "$50–500",
+          "high": "Más de $500"
+        },
+        "costFree": "Gratis",
+        "costOneOff": "~{amount} único pago",
+        "costMonthly": "~{amount}/mes",
+        "sort": {
+          "featured": "Destacados primero",
+          "name": "A–Z",
+          "cost": "Más baratos primero",
+          "difficulty": "Más fáciles primero"
+        },
+        "sourceType": {
+          "study": "Estudio",
+          "review": "Revisión",
+          "book": "Libro",
+          "podcast": "Podcast",
+          "guideline": "Guía",
+          "article": "Artículo"
+        },
+        "strength": {
+          "strong": "Evidencia sólida",
+          "moderate": "Evidencia moderada",
+          "emerging": "Emergente",
+          "anecdotal": "Experiencia profesional"
+        },
+        "scheduleEveryDay": "Todos los días",
+        "scheduleTimesPerWeek": "{count}× por semana",
+        "scheduleNoDays": "Sin días definidos",
+        "scheduleWeekdays": "Lun–Vie",
+        "dayNamesShort": [
+          "Dom",
+          "Lun",
+          "Mar",
+          "Mié",
+          "Jue",
+          "Vie",
+          "Sáb"
+        ]
+      },
+      "calendarView": {
+        "loadingCalendar": "Cargando calendario…",
+        "invalidDate": "Fecha inválida",
+        "invalidTime": "Hora inválida",
+        "todayAt": "Hoy {time}",
+        "tomorrowAt": "Mañana {time}",
+        "invalidTimes": "Usá horarios de inicio y fin válidos.",
+        "endBeforeStart": "El fin tiene que ser después del inicio.",
+        "titleRequired": "El título es obligatorio.",
+        "deleteEvent": "Eliminar evento",
+        "addEventTitle": "Agregar evento",
+        "addEvent": "Agregar evento",
+        "title": "Título",
+        "eventTitlePlaceholder": "Título del evento",
+        "start": "Inicio",
+        "end": "Fin",
+        "time": "Hora",
+        "linkedTodo": "Tarea vinculada",
+        "none": "Ninguna",
+        "location": "Lugar",
+        "optional": "Opcional",
+        "tags": "Etiquetas",
+        "tagsPlaceholder": "trabajo, finanzas",
+        "notes": "Notas",
+        "cancel": "Cancelar",
+        "todos": "Tareas",
+        "habits": "Hábitos",
+        "events": "Eventos",
+        "boardHint": "Tocá un día para ver su agenda · elegí un horario para agregar algo",
+        "calendar": "Calendario",
+        "upcomingCount": "{count} próximos",
+        "daySummary": "{events} eventos · {todos} tareas · {habits} hábitos",
+        "today": "Hoy",
+        "noEvents": "Sin eventos.",
+        "noTodos": "Sin tareas.",
+        "noHabits": "Sin hábitos.",
+        "priority": "Prioridad {priority}",
+        "status": {
+          "incomplete": "pendiente",
+          "in_progress": "en curso",
+          "completed": "completada"
+        },
+        "anyTime": "Cualquier hora",
+        "upcoming": "Próximos",
+        "add": "Agregar",
+        "addAria": "Agregar un evento o una tarea",
+        "newEventTitle": "Nuevo evento",
+        "editEventTitle": "Editar evento",
+        "saveEvent": "Guardar evento",
+        "deleteEventTitle": "¿Eliminar este evento?",
+        "deleteEventBody": "“{title}” se va a quitar de tu calendario.",
+        "eventDeleted": "Eliminaste “{title}”",
+        "eventSaved": "Guardaste “{title}”",
+        "eventAdded": "Agregaste “{title}” a tu calendario",
+        "eventMoved": "Moviste “{title}”",
+        "todoAdded": "Agregaste “{title}”",
+        "editEvent": "Editar {title}",
+        "editTodo": "Editar {title}",
+        "quickCreateTitle": "Agregar al calendario",
+        "kindLabel": "¿Qué querés agregar?",
+        "kindEvent": "Evento",
+        "kindTodo": "Tarea",
+        "moreOptions": "Más opciones",
+        "create": "Crear",
+        "allDay": "Todo el día",
+        "todoTitlePlaceholder": "¿Qué hay que hacer?",
+        "agenda": "Agenda",
+        "previousDay": "Día anterior",
+        "nextDay": "Día siguiente",
+        "markHabitDone": "Marcar “{name}” como hecho",
+        "markHabitUndone": "Marcar “{name}” como no hecho",
+        "markTodoDone": "Marcar “{title}” como completada",
+        "markTodoActive": "Marcar “{title}” como pendiente",
+        "showUpcoming": "Próximos ({count})",
+        "filters": "Mostrar en el calendario"
+      },
+      "calendarBoard": {
+        "habitsRollup": "{done}/{total} hábitos",
+        "today": "Hoy",
+        "previous": "Anterior",
+        "next": "Siguiente",
+        "month": "Mes",
+        "week": "Semana",
+        "day": "Día",
+        "agenda": "Agenda",
+        "date": "Fecha",
+        "time": "Hora",
+        "event": "Evento",
+        "allDay": "Todo el día",
+        "noEventsInRange": "No hay eventos en este período.",
+        "showMore": "+{count} más"
+      },
+      "settingsDialog": {
+        "title": "Ajustes",
+        "close": "Cerrar ajustes",
+        "sections": "Secciones de ajustes",
+        "tabs": {
+          "profile": "Perfil",
+          "preferences": "Preferencias",
+          "reminders": "Recordatorios",
+          "assistants": "Asistentes",
+          "developer": "Desarrolladores / API",
+          "data": "Datos y cuenta"
+        },
+        "statHabits": "Hábitos",
+        "statCheckIns": "Registros",
+        "statOpenTodos": "Tareas abiertas",
+        "statDoneTodos": "Tareas hechas",
+        "backupTitle": "Copia de seguridad",
+        "backupDescription": "Un único archivo JSON con todo: hábitos, registros, tareas, proyectos y calendario.",
+        "backedUpToday": "Copia de seguridad hecha hoy",
+        "lastBackupYesterday": "Última copia: ayer",
+        "lastBackupDaysAgo": "Última copia: hace {count} días",
+        "neverBackedUp": "Nunca hiciste una copia de seguridad",
+        "nothingToBackUp": "Todavía no hay nada para respaldar",
+        "export": "Exportar",
+        "import": "Importar",
+        "importDescription": "Restaurá desde un archivo exportado. Reemplaza lo que hay ahora, así que exportá antes si tenés dudas.",
+        "mergeHistory": "Sumar historial",
+        "mergeHistoryDescription": "Agregá check-ins pasados desde la copia de otro tracker. No se reemplaza ni se borra nada de lo que hay.",
+        "dangerZone": "Zona de peligro",
+        "clearAllData": "Eliminar cuenta",
+        "clearAllDataDescription": "Eliminá para siempre tu cuenta de Liberture: todos tus datos, ajustes, el historial del coach y las conexiones con asistentes. Se cierra tu sesión. Exportá antes si quizás querés recuperar algo.",
+        "clearAllDataConfirm": "¿Eliminar TODOS tus hábitos, registros y tareas? No se puede deshacer.",
+        "clear": "Borrar",
+        "nostrAccount": "Cuenta de Nostr",
+        "yourAccount": "Tu cuenta",
+        "verified": "Verificado",
+        "signedInWithNostr": "Sesión iniciada con Nostr",
+        "signedInWithApiKey": "Sesión iniciada con una clave de API",
+        "copied": "Copiado",
+        "copy": "Copiar",
+        "copyNpub": "Copiar npub",
+        "apiKey": "Clave de API",
+        "nostrIdentity": "Identidad de Nostr",
+        "nostrIdentityDescription": "Vinculá una clave de Nostr para entrar desde cualquier dispositivo sin la clave de API.",
+        "linked": "Vinculada",
+        "signOut": "Cerrar sesión",
+        "signOutNostrDescription": "Cierra la sesión en este dispositivo. Tus datos quedan en tu cuenta.",
+        "signOutApiKeyDescription": "Quita la clave de API de este dispositivo.",
+        "testNoNotificationApi": "Este navegador no tiene la API de notificaciones.",
+        "testPermissionNotGranted": "El permiso está en \"{permission}\". Primero permití las notificaciones.",
+        "testNotificationBody": "Los recordatorios funcionan en este dispositivo.",
+        "testSentServiceWorker": "Enviada por el service worker. Revisá tus notificaciones.",
+        "testSentNotificationApi": "Enviada por la API de notificaciones. Sin service worker, los recordatorios no van a llegar a Android.",
+        "testUnknownError": "El envío falló por un motivo desconocido.",
+        "remindersTitle": "Recordatorios de hábitos",
+        "remindersDescription": "Una notificación cuando pasó la hora de un hábito y todavía no lo hiciste, mientras la app está abierta.",
+        "remindMe": "Recordarme",
+        "remindersBlocked": "Bloqueadas por tu navegador. Permití las notificaciones para este sitio en sus ajustes.",
+        "remindersUnsupported": "Este navegador no admite notificaciones.",
+        "remindersOn": "Activados. Se guarda en tu cuenta.",
+        "remindersOff": "Desactivados. Se guarda en tu cuenta.",
+        "troubleshoot": "Solucionar problemas de recordatorios",
+        "browserPermission": "Permiso del navegador",
+        "permissionStates": {
+          "default": "Sin conceder",
+          "granted": "concedido",
+          "denied": "denegado",
+          "unsupported": "no admitido"
+        },
+        "serviceWorker": "Service worker",
+        "checking": "Comprobando…",
+        "registered": "Registrado",
+        "notRegistered": "No registrado",
+        "sendTest": "Enviar una prueba",
+        "sendTestDescription": "Manda una ahora mismo, igual que los recordatorios reales.",
+        "test": "Probar",
+        "diagnosticsFootnote": "La comprobación corre cada minuto mientras la app está abierta. Para probar el camino real, poné la hora de un hábito un minuto atrás y dejá esto abierto.",
+        "closedAppTitle": "También con Liberture cerrado",
+        "closedAppDescription": "El servidor manda los recordatorios a este dispositivo, así llegan con la app y la pestaña cerradas.",
+        "closedAppOn": "Activado en este dispositivo.",
+        "closedAppOff": "Desactivado en este dispositivo: los recordatorios solo llegan mientras Liberture está abierto.",
+        "closedAppUnsupported": "Este navegador no puede recibir notificaciones push. Los recordatorios llegan solo mientras Liberture está abierto.",
+        "closedAppNotConfigured": "Las notificaciones push todavía no están configuradas en este servidor. Los recordatorios llegan solo mientras Liberture está abierto.",
+        "closedAppNeedsPermission": "Primero permití las notificaciones en el navegador.",
+        "closedAppFailed": "No se pudo cambiar la suscripción de este dispositivo. Probá de nuevo.",
+        "closedAppRemindersOff": "Activá los recordatorios arriba para usar esto.",
+        "devicesTitle": "Dispositivos",
+        "devicesCount": {
+          "one": "{count} dispositivo recibe recordatorios con la app cerrada.",
+          "other": "{count} dispositivos reciben recordatorios con la app cerrada."
+        },
+        "devicesNone": "Todavía ningún dispositivo recibe recordatorios con la app cerrada.",
+        "lastDelivered": "Último envío {time}.",
+        "neverDelivered": "Todavía no se envió nada.",
+        "lastFailure": "Última falla {time}.",
+        "serverTest": "Enviar prueba desde el servidor",
+        "serverTestDescription": "Manda un push real a todos los dispositivos suscriptos. Cerrá Liberture antes para comprobar que llega igual.",
+        "serverTestButton": "Enviar",
+        "serverTestSent": {
+          "one": "Enviado a {count} dispositivo. Debería llegar en unos segundos.",
+          "other": "Enviado a {count} dispositivos. Deberían llegar en unos segundos."
+        },
+        "serverTestNoDevices": "No hay dispositivos suscriptos. Activá \"También con Liberture cerrado\" primero.",
+        "serverTestFailed": "El servicio de push rechazó el mensaje. Probá desactivar y volver a activar \"También con Liberture cerrado\".",
+        "assistantReceiptsTitle": "Cuando un asistente registra algo",
+        "assistantReceiptsDescription": "Recibí una notificación en tus dispositivos cuando ChatGPT, Claude u otro asistente conectado marca un hábito o una tarea como hecha. Chrome, Edge y Android muestran un botón Deshacer; en iPhone, Safari y Firefox, tocala para abrir Liberture.",
+        "assistantReceiptsOn": "Activado: cada dispositivo suscripto recibe un aviso.",
+        "assistantReceiptsOff": "Desactivado: los asistentes siguen registrando, sin notificación.",
+        "requestPermission": "Solicitar permiso",
+        "requestingPermission": "Esperando al navegador…",
+        "permissionGrantedHint": "Este navegador puede mostrar tus recordatorios.",
+        "permissionDefaultHint": "Solicitá el permiso y elegí Permitir en tu navegador.",
+        "profile": {
+          "title": "Sobre vos",
+          "description": "Se muestra en la app y tus asistentes conectados lo pueden leer.",
+          "displayName": "Nombre visible",
+          "displayNamePlaceholder": "¿Cómo querés que te llamemos?",
+          "mission": "Declaración de propósito",
+          "missionPlaceholder": "¿Por qué te importan estos hábitos?",
+          "missionHint": "Una frase para volver a leer cuando baje la motivación.",
+          "focusTitle": "Hábitos foco",
+          "focusDescription": "Elegí hasta {max} hábitos que más te importan ahora.",
+          "focusCount": "{count} de {max} elegidos",
+          "focusEmpty": "Agregá un hábito primero y después elegí tu foco acá.",
+          "focusLimitReached": "Podés elegir hasta {max}. Sacá uno para elegir otro."
+        },
+        "prefs": {
+          "languageTitle": "Idioma y región",
+          "language": "Idioma",
+          "languageHint": "El idioma de la app en este dispositivo.",
+          "languageNames": {
+            "en": "English",
+            "es": "Español"
+          },
+          "timeZone": "Zona horaria",
+          "timeZoneHint": "Define cuándo empieza tu día, para vos y para tus asistentes.",
+          "useDeviceTimeZone": "Usar {zone}",
+          "weekStart": "La semana empieza el",
+          "monday": "Lunes",
+          "sunday": "Domingo",
+          "timeFormat": "Formato de hora",
+          "time24h": "24 horas",
+          "time12h": "12 horas",
+          "appearanceTitle": "Apariencia",
+          "theme": "Tema",
+          "themeNames": {
+            "system": "Sistema",
+            "light": "Claro",
+            "dark": "Oscuro"
+          },
+          "themeOnlyDark": "Por ahora Liberture solo tiene tema oscuro. El tema claro está en camino.",
+          "habitsTitle": "Hábitos",
+          "defaultLayout": "Vista de hábitos predeterminada",
+          "defaultLayoutHint": "Con qué vista se abre la pestaña Hábitos.",
+          "layouts": {
+            "day": "Día",
+            "week": "Semana",
+            "matrix": "Matriz"
+          },
+          "morningDashboard": "Panel de la mañana",
+          "morningDashboardHint": "Un resumen de tu día cuando abrís la app a la mañana.",
+          "defaultReminderTime": "Hora de recordatorio predeterminada",
+          "defaultReminderTimeHint": "Se completa sola al crear un hábito. Dejala vacía para no tener recordatorio.",
+          "clearTime": "Borrar"
+        },
+        "data": {
+          "accountTitle": "Cuenta",
+          "signOutTitle": "¿Cerrar sesión?",
+          "importPreviewTitle": "¿Importar esta copia?",
+          "importBackupDate": "Copia del {date}.",
+          "importNoDate": "Este archivo no dice cuándo se hizo.",
+          "counts": {
+            "habits": "Hábitos",
+            "completions": "Registros",
+            "todos": "Tareas",
+            "projects": "Proyectos",
+            "events": "Eventos del calendario"
+          },
+          "importReplaceTitle": "Reemplaza todo",
+          "importReplaceDescription": "Todo lo que hay ahora en tu cuenta se reemplaza por este archivo. Exportá antes si quizás lo querés recuperar.",
+          "importConfirm": "Reemplazar todo",
+          "importInvalid": "Ese archivo no es una copia de seguridad de Liberture.",
+          "importUnreadable": "No pudimos leer ese archivo.",
+          "merge": {
+            "title": "¿Sumar este historial?",
+            "checking": "Revisando la copia…",
+            "counts": {
+              "imported": "Para sumar",
+              "skipped": "Ya están",
+              "conflicts": "Se mantienen",
+              "unresolved": "Pendientes",
+              "failed": "Inválidos"
+            },
+            "conflictsHint": "Los días que ya registraste distinto quedan como están en Liberture. Un día marcado como no hecho en la copia nunca desmarca uno de acá.",
+            "matchesTitle": "Hábitos",
+            "matchesHint": "Revisá que cada hábito viejo vaya al correcto. Los que quedan pendientes se guardan y los podés sumar después.",
+            "leavePending": "Dejar pendiente",
+            "needsConfirming": "Confirmar",
+            "notInBackup": "No está en la lista de hábitos de la copia",
+            "records": "{count} check-ins",
+            "confirm": "Sumar {count} check-ins",
+            "nothingToAdd": "No hay nada nuevo para sumar",
+            "working": "Sumando…",
+            "done": "Se sumaron {imported} check-ins. {skipped} ya estaban, {conflicts} quedaron como estaban, {unresolved} pendientes.",
+            "failed": "No se pudo sumar ese historial. No se cambió nada de lo que ya había; podés intentar de nuevo.",
+            "invalid": "Ese archivo no tiene check-ins para sumar."
+          },
+          "clearTitle": "¿Eliminar tu cuenta?",
+          "clearDescription": "Tu cuenta de Liberture se elimina para siempre, con todo lo que tiene:",
+          "clearDeletes": [
+            "Hábitos, registros, tareas, proyectos y eventos del calendario",
+            "Tu perfil, preferencias y ajustes del coach",
+            "Sugerencias e historial de chat del coach",
+            "Las conexiones con asistentes (ChatGPT, Claude) y el token de scripts",
+            "Los dispositivos e historial de recordatorios",
+            "Tus sesiones iniciadas en todos los dispositivos"
+          ],
+          "clearKeeps": "Se cierra tu sesión y volvés a la página de inicio. Tu clave Nostr no se toca: si entrás de nuevo con ella, empezás una cuenta nueva y vacía. No se puede deshacer.",
+          "clearTypeToConfirm": "Escribí {word} para confirmar",
+          "clearWord": "BORRAR",
+          "clearConfirm": "Eliminar cuenta",
+          "clearWorking": "Eliminando…"
+        }
+      },
+      "assistantAccessSection": {
+        "scopes": {
+          "read": {
+            "label": "Leer",
+            "hint": "Hábitos, rachas, estadísticas, tareas, calendario y el catálogo"
+          },
+          "log_completions": {
+            "label": "Registrar cumplimientos",
+            "hint": "Marcar hábitos como hechos o no hechos"
+          },
+          "todos": {
+            "label": "Tareas y proyectos",
+            "hint": "Crear, editar y completar"
+          },
+          "calendar": {
+            "label": "Calendario",
+            "hint": "Crear y mover eventos, agendar tareas"
+          },
+          "add_habits": {
+            "label": "Agregar hábitos",
+            "hint": "Crear hábitos nuevos o agregarlos desde el catálogo"
+          },
+          "edit_habits": {
+            "label": "Editar hábitos",
+            "hint": "Renombrar, cambiar descripción, días u hora"
+          },
+          "delete_habits": {
+            "label": "Eliminar hábitos",
+            "hint": "Desactivado por defecto. Elimina el hábito y su historial"
+          },
+          "delete_items": {
+            "label": "Eliminar tareas, proyectos y eventos",
+            "hint": "Desactivado por defecto. Los elimina para siempre"
+          },
+          "settings": {
+            "label": "Perfil y preferencias",
+            "hint": "Cambiar tu nombre, hábitos foco, zona horaria, tema y recordatorios"
+          },
+          "export": {
+            "label": "Exportar",
+            "hint": "Descargar una copia de seguridad completa de tus datos"
+          }
+        },
+        "notUsedYet": "todavía sin usar",
+        "usedJustNow": "usado recién",
+        "usedMinutesAgo": "usado hace {count} min",
+        "usedHoursAgo": "usado hace {count} h",
+        "usedDaysAgo": "usado hace {count} días",
+        "skillError": "No se pudo preparar el skill. Probá de nuevo.",
+        "disconnectConfirm": "¿Desconectar {name}? Deja de funcionar al instante.",
+        "disconnectError": "No se pudo desconectar. Probá de nuevo.",
+        "savePermissionError": "No se pudo guardar el permiso",
+        "savePermissionNetworkError": "Error de red al guardar el permiso",
+        "regenerateTokenConfirm": "¿Generar un token de script nuevo? Los scripts que usan el anterior dejan de funcionar. Los asistentes conectados no se ven afectados.",
+        "generateTokenError": "No se pudo generar el token",
+        "generateTokenNetworkError": "Error de red al generar el token",
+        "revokeTokenConfirm": "¿Revocar el token de script? Los scripts que lo usan dejan de funcionar. Los asistentes conectados no se ven afectados.",
+        "copied": "Copiado",
+        "copy": "Copiar",
+        "connectTitle": "Conectá un asistente",
+        "connectDescription": "Hablá con tus hábitos desde Claude o ChatGPT, por chat o por voz. Conectalo una vez; queda conectado hasta que lo desconectes abajo.",
+        "guide": "Guía",
+        "claudeStep1Before": "En Claude: ",
+        "claudeStep1Path": "Settings → Connectors → Add custom connector",
+        "claudeStep1After": ".",
+        "claudeStep2Before": "Pegá esta URL, tocá ",
+        "claudeStep2Add": "Add",
+        "claudeStep2Middle": ", después ",
+        "claudeStep2Connect": "Connect",
+        "claudeStep2After": " y aprobá.",
+        "downloadSkill": "Descargar skill de Claude",
+        "downloadSkillHint": "Opcional. Subilo en Claude → Settings → Capabilities → Skills.",
+        "openInChatGpt": "Abrir Liberture en ChatGPT",
+        "chatGptHint": "Tocá Connect, iniciá sesión si te lo pide y aprobá.",
+        "chatGptStep1Before": "En ChatGPT: ",
+        "chatGptStep1Path": "Settings → Apps → Advanced",
+        "chatGptStep1Middle": ", activá el modo desarrollador y después ",
+        "chatGptStep1Create": "Create",
+        "chatGptStep1After": ".",
+        "chatGptStep2Before": "Pegá la URL de arriba, elegí ",
+        "chatGptStep2After": ", crealo y aprobá.",
+        "connectedTitle": "Conectados",
+        "connectedDescription": "Cada asistente tiene su propio acceso. Desconectar uno no afecta a los demás.",
+        "loading": "Cargando…",
+        "noConnections": "Todavía nada. Los asistentes aparecen acá apenas los aprobás.",
+        "disconnect": "Desconectar",
+        "permissionsTitle": "Qué pueden hacer los asistentes",
+        "permissionsDescription": "Se aplica a cada asistente conectado desde su próxima solicitud.",
+        "offByDefault": "Desactivado por defecto",
+        "enableDestructiveConfirm": "¿Dejar que los asistentes puedan {action}? No se puede deshacer una vez que lo hagan.",
+        "loadingPermissions": "Cargando permisos…",
+        "scriptTokenTitle": "Token de script",
+        "scriptTokenDescription": "Solo para tu propio código que llama a la API directamente (Authorization: Bearer). Los asistentes no lo necesitan.",
+        "active": "Activo",
+        "regenerate": "Regenerar",
+        "revoke": "Revocar",
+        "noToken": "Sin token",
+        "generate": "Generar",
+        "disconnected": "{name} desconectado",
+        "disconnectLabel": "Desconectar {name}",
+        "revokeTokenError": "No pudimos revocar el token. Probá de nuevo.",
+        "tokenRevoked": "Token para scripts revocado",
+        "newTokenHint": "Copialo ahora. No se va a volver a mostrar.",
+        "toolsLine": "Este servidor ofrece {count} herramientas (versión {version}). Si tu asistente muestra menos, actualizá o reconectá el conector.",
+        "toolsNeverLoaded": "Todavía no cargó la lista de herramientas.",
+        "toolsUpToDate": "Herramientas al día · cargadas el {date}",
+        "toolsNewOne": "1 herramienta nueva desde el {date}: actualizalo para usarla.",
+        "toolsNewMany": "{count} herramientas nuevas desde el {date}: actualizalo para usarlas.",
+        "toolsChanged": "Las herramientas cambiaron desde el {date}: actualizalo.",
+        "toolsHowToRefresh": "Cómo actualizar",
+        "mcpUrlTitle": "URL del servidor MCP",
+        "mcpUrlDescription": "Para cualquier cliente MCP. El inicio de sesión se hace por OAuth cuando el cliente se conecta.",
+        "legacyKeyTitle": "Clave de API",
+        "legacyKeyDescription": "La clave con la que iniciás sesión. También sirve como token Bearer para la API, así que guardala en privado.",
+        "download": "Descargar",
+        "apiDocsTitle": "Referencia de la API",
+        "apiDocsDescription": "Todos los endpoints, con ejemplos.",
+        "apiDocsOpen": "Abrir docs"
+      },
+      "nostrMigrationCard": {
+        "uriSchemeError": "Usá una URI bunker:// o nostrconnect://.",
+        "invalidConnectionString": "Cadena de conexión inválida.",
+        "challengeFailed": "No se pudo pedir el desafío",
+        "noChallenge": "El servidor no devolvió un desafío",
+        "migrationFailed": "Falló la migración",
+        "noExtensionFound": "No se encontró una extensión de Nostr. Instalá Alby, nos2x u otro firmante de Nostr.",
+        "enterConnectionString": "Ingresá una cadena de conexión",
+        "linkedTitle": "Identidad de Nostr vinculada",
+        "linkedDescription": "Ya podés entrar con tu extensión de Nostr desde cualquier dispositivo.",
+        "connecting": "Conectando con el firmante...",
+        "signing": "Esperando la firma...",
+        "submitting": "Vinculando identidad...",
+        "approveSignature": "Aprobá la solicitud de firma en tu firmante de Nostr.",
+        "connectTitle": "Conectá tu identidad de Nostr",
+        "connectDescription": "Vinculá tu pubkey de Nostr a esta cuenta. Después de la migración vas a poder entrar con tu extensión de Nostr, sin clave de API.",
+        "connectWithExtension": "Conectar con extensión",
+        "extensionHint": "Alby, nos2x o una extensión NIP-07",
+        "noExtensionDetected": "No se detectó ninguna extensión",
+        "connectWithRemoteSigner": "Conectar con firmante remoto",
+        "remoteSignerHint": "URI de Bunker o Nostr Connect",
+        "connectionString": "Cadena de conexión",
+        "launchSignerApp": "Abrir app firmante",
+        "launchSignerAppHint": "Pegá una URI y abrila acá o escaneá el QR desde otro dispositivo.",
+        "openApp": "Abrir app",
+        "qrTitle": "Código QR de conexión del firmante remoto",
+        "qrPlaceholder": "El QR aparece acá con una URI bunker:// o nostrconnect:// válida.",
+        "back": "Volver",
+        "connect": "Conectar"
+      },
+      "qrCode": {
+        "defaultTitle": "Código QR"
+      },
+      "habitDialog": {
+        "tabs": {
+          "details": "Detalles",
+          "schedule": "Horario",
+          "tracking": "Registro",
+          "analytics": "Estadísticas"
+        },
+        "progressTitle": "Camino al hábito completo",
+        "stageNames": [
+          "Inicio",
+          "Paso intermedio",
+          "Hábito completo"
+        ],
+        "progressCount": "{done} de {goal} registros",
+        "dayUnit": {
+          "one": "{count} día",
+          "other": "{count} días"
+        },
+        "weekUnit": {
+          "one": "{count} semana",
+          "other": "{count} semanas"
+        },
+        "totalCheckIns": "Registros totales",
+        "currentStreak": "Racha actual",
+        "noCheckIns": "Registrá este hábito cuando lo completes para empezar su historial.",
+        "titleCreate": "Nuevo hábito",
+        "titleEdit": "Editar hábito",
+        "close": "Cerrar",
+        "daysShort": [
+          "Dom",
+          "Lun",
+          "Mar",
+          "Mié",
+          "Jue",
+          "Vie",
+          "Sáb"
+        ],
+        "frequencies": {
+          "daily": "Todos los días",
+          "specific_days": "Algunos días",
+          "times_per_week": "Veces por semana"
+        },
+        "partsOfDay": {
+          "anytime": "Cualquier momento",
+          "morning": "Mañana",
+          "afternoon": "Tarde",
+          "evening": "Noche"
+        },
+        "priorities": [
+          "Baja",
+          "Media-baja",
+          "Media",
+          "Alta",
+          "Crítica"
+        ],
+        "triggers": [
+          "Después de levantarme",
+          "Después del café de la mañana",
+          "Después de lavarme los dientes",
+          "Después de almorzar",
+          "Después de terminar de trabajar",
+          "Cuando llego a casa"
+        ],
+        "pillars": {
+          "work": "Trabajo",
+          "sleep": "Sueño",
+          "nutrition": "Nutrición",
+          "mind": "Mente",
+          "exercise": "Ejercicio",
+          "finance": "Finanzas"
+        },
+        "pillarDescriptions": {
+          "work": "Productividad, estados de flow y rendimiento profesional.",
+          "sleep": "Calidad del sueño, recuperación y ritmo circadiano.",
+          "nutrition": "Qué comés, cuándo comés y cómo te alimentás.",
+          "mind": "Atención, aprendizaje y vida emocional.",
+          "exercise": "Fuerza, movimiento y salud cardiovascular.",
+          "finance": "Ahorro, gastos y seguridad a largo plazo."
+        },
+        "tagLabels": {
+          "exercise": "Ejercicio",
+          "reading": "Lectura",
+          "meditation": "Meditación",
+          "health": "Salud",
+          "productivity": "Productividad",
+          "social": "Social",
+          "creative": "Creatividad",
+          "personal": "Personal",
+          "nutrition": "Nutrición",
+          "sleep": "Sueño",
+          "mindfulness": "Mindfulness",
+          "learning": "Aprendizaje",
+          "finance": "Finanzas",
+          "selfcare": "Autocuidado"
+        },
+        "summary": {
+          "daily": "Todos los días",
+          "noDays": "Sin días elegidos",
+          "weekdays": "Días de semana",
+          "weekends": "Fines de semana"
+        },
+        "defaultNumberLabel": "Cantidad",
+        "defaultTextLabel": "Notas",
+        "confirmDelete": "¿Eliminar \"{name}\" y su historial de cumplimiento?",
+        "sections": {
+          "habit": "El hábito",
+          "habitHint": "Qué vas a hacer y por qué te importa.",
+          "when": "Cuándo",
+          "whenHint": "Con qué frecuencia lo vas a hacer y a qué hora.",
+          "look": "Aspecto y prioridad",
+          "data": "Registrar un número o una nota",
+          "dataHint": "Anotá algo cada vez que lo cumplas, como minutos corridos o páginas leídas.",
+          "intention": "Plan si-entonces",
+          "intentionHint": "Atá el hábito a algo que ya hacés. Quienes planean la señal lo cumplen mucho más seguido."
+        },
+        "name": "Nombre",
+        "namePlaceholder": "ej. Correr a la mañana",
+        "description": "Descripción",
+        "descriptionHint": "Opcional · {count}/{max}",
+        "descriptionPlaceholder": "Por qué importa o qué cuenta como hecho. ej. 20 minutos a ritmo suave, para dormir mejor y tener energía para trabajar.",
+        "area": "Área de vida",
+        "areaHint": "Define el color del hábito.",
+        "howOften": "Con qué frecuencia",
+        "whichDays": "Qué días",
+        "pickOneDay": "Elegí al menos un día",
+        "timesPerWeek": "Veces por semana",
+        "timesPerWeekHint": "Los días que quieras",
+        "timesPerWeekValue": "{count}× por semana",
+        "fewer": "Menos",
+        "more": "Más",
+        "time": "Hora",
+        "timeHint": "Para recordatorios y orden",
+        "partOfDay": "Momento del día",
+        "partOfDayHint": "Lo agrupa dentro de tu día",
+        "nudges": "Recordatorios al azar",
+        "nudgesHint": "Avisos ocasionales durante el día hasta que lo cumplas.",
+        "moreOptions": "Más opciones",
+        "moreOptionsHint": "Prioridad, color, etiquetas, registrar un número, plan si-entonces",
+        "priority": "Prioridad",
+        "priorityHint": "Las más altas aparecen primero",
+        "color": "Color",
+        "colorHint": "Sigue al área salvo que elijas uno",
+        "pillarColor": "Color de {pillar}",
+        "customColor": "Personalizado",
+        "tags": "Etiquetas",
+        "tagsHint": "Opcional, además del área",
+        "askOnComplete": "Preguntarme cuando lo cumpla",
+        "fieldType": "Tipo de campo",
+        "fieldTypeNumber": "Número",
+        "fieldTypeText": "Nota",
+        "removeField": "Quitar campo",
+        "fieldLabel": "Etiqueta",
+        "fieldLabelPlaceholder": "Distancia",
+        "fieldUnit": "Unidad",
+        "fieldUnitPlaceholder": "km",
+        "fieldGoal": "Meta",
+        "addField": "Agregar un campo",
+        "useIntention": "Usar un plan si-entonces",
+        "when": "Cuando…",
+        "pickMoment": "Elegí un momento",
+        "somethingElse": "Otra cosa…",
+        "customTriggerPlaceholder": "Después de…",
+        "iWill": "…voy a",
+        "behaviorPlaceholder": "salir a correr 20 minutos",
+        "obstaclesTitle": "Si algo se interpone",
+        "obstaclePlaceholder": "Si llueve…",
+        "strategyPlaceholder": "…entonces hago 15 minutos de escaleras",
+        "remove": "Quitar",
+        "addBackupPlan": "Agregar un plan B",
+        "delete": "Eliminar",
+        "archive": "Archivar",
+        "unarchive": "Desarchivar",
+        "cancel": "Cancelar",
+        "saveChanges": "Guardar cambios",
+        "create": "Crear hábito",
+        "useAreaColor": "Usar el color del área"
+      },
+      "habitDataEntryModal": {
+        "dateFormat": "EEEE d 'de' MMM",
+        "close": "Cerrar",
+        "previouslyLogged": "Registrado antes:",
+        "markComplete": "Marcar como hecho",
+        "markCompleteHint": "Tachá este hábito por hoy",
+        "fieldFallback": "Campo {number}",
+        "goalPlaceholder": "Meta: {goal} {unit}",
+        "numberPlaceholder": "Ingresá {label}...",
+        "valueFallback": "un valor",
+        "goalReached": "¡Meta cumplida!",
+        "goalProgress": "{percent}% de la meta diaria",
+        "textPlaceholder": "Agregá {label}...",
+        "notesFallback": "notas",
+        "cancel": "Cancelar",
+        "quickComplete": "Completar rápido",
+        "save": "Guardar",
+        "note": "Nota",
+        "optional": "Opcional",
+        "notePlaceholder": "¿Cómo fue? Algo que valga la pena recordar…"
+      },
+      "habitReadingModal": {
+        "ariaLabel": "Lectura: {name}",
+        "dateFormat": "EEEE d 'de' MMM",
+        "close": "Cerrar",
+        "reflectionPrompt": "En una línea: ¿qué te quedó?",
+        "optional": "Opcional",
+        "undo": "Deshacer",
+        "saveReflection": "Guardar reflexión",
+        "iReadThis": "Lo leí",
+        "reading": "Leyendo…"
+      },
+      "todoList": {
+        "title": "Tareas",
+        "openCount": "{count} abiertas",
+        "new": "Nueva",
+        "newProject": "Nuevo proyecto",
+        "newProjectTitle": "Nuevo proyecto",
+        "allTodos": "Todas las tareas",
+        "all": "Todas",
+        "uncategorized": "Sin proyecto",
+        "project": "Proyecto",
+        "priorities": {
+          "low": "Baja",
+          "medLow": "Media-baja",
+          "medium": "Media",
+          "high": "Alta",
+          "critical": "Crítica",
+          "normal": "Normal"
+        },
+        "overdue": {
+          "one": "Vencida - hace {count} día",
+          "other": "Vencida - hace {count} días"
+        },
+        "todayAt": "Hoy a las {time}",
+        "today": "Hoy",
+        "tomorrow": "Mañana",
+        "inDays": {
+          "one": "En {count} día",
+          "other": "En {count} días"
+        },
+        "shortDateFormat": "d MMM",
+        "longDateFormat": "d MMM yyyy",
+        "onTime": "A tiempo",
+        "daysLate": {
+          "one": "{count} día tarde",
+          "other": "{count} días tarde"
+        },
+        "daysEarly": {
+          "one": "{count} día antes",
+          "other": "{count} días antes"
+        },
+        "completed": "Completada",
+        "completedOn": "Completada el {date}",
+        "expectedBy": "Fecha límite: {date}",
+        "markActive": "Marcar tarea como pendiente",
+        "markComplete": "Marcar tarea como completada",
+        "inProgress": "En curso",
+        "edit": "Editar tarea",
+        "delete": "Eliminar tarea",
+        "confirmDelete": "¿Eliminar \"{title}\"?",
+        "editProject": "Editar {name}",
+        "projectName": "Nombre del proyecto",
+        "projectColor": "Color del proyecto",
+        "deleteProject": "Eliminar proyecto",
+        "saveProject": "Guardar proyecto",
+        "cancel": "Cancelar",
+        "create": "Crear",
+        "close": "Cerrar",
+        "addTodo": "Agregar tarea",
+        "emptyTitle": "No hay tareas acá",
+        "emptyBody": "Agregá una arriba para que la lista avance.",
+        "completedCount": "Completadas ({count})",
+        "quickAddLabel": "Título de la nueva tarea",
+        "quickAddPlaceholder": "Agregá una tarea… (Enter para guardar)",
+        "searchLabel": "Buscar tareas",
+        "searchPlaceholder": "Buscar",
+        "clearSearch": "Borrar búsqueda",
+        "sortLabel": "Ordenar por",
+        "sortOptions": {
+          "deadline": "Fecha límite",
+          "priority": "Prioridad",
+          "created": "Más recientes"
+        },
+        "datedGroup": "Con fecha",
+        "noDateGroup": "Algún día",
+        "noMatches": "Ninguna tarea coincide con “{query}”.",
+        "topolino": "Topolino",
+        "schedule": "Agendar “{title}”",
+        "deleteTitle": "¿Eliminar esta tarea?",
+        "deleteBody": "“{title}” se va a eliminar para siempre.",
+        "todoDeleted": "Eliminaste “{title}”",
+        "todoAdded": "Agregaste “{title}”",
+        "projectCreated": "Creaste el proyecto “{name}”",
+        "projectDeleted": "Eliminaste el proyecto “{name}”",
+        "deleteProjectTitle": "¿Eliminar este proyecto?",
+        "deleteProjectBody": "Se va a eliminar “{name}”. Sus tareas quedan y pasan a Sin proyecto.",
+        "projectNameRequired": "Ponele un nombre al proyecto.",
+        "projectFilters": "Proyectos",
+        "subtasksProgress": "{done}/{total} subtareas",
+        "estimate": "{minutes} min",
+        "scheduleDialog": {
+          "title": "Agendar tarea",
+          "description": "Reservá tiempo para “{title}” en tu calendario.",
+          "date": "Fecha",
+          "time": "Hora de inicio",
+          "duration": "Duración",
+          "durationOption": "{minutes} min",
+          "submit": "Agregar al calendario",
+          "scheduled": "Agendaste “{title}”",
+          "invalid": "Elegí una fecha y hora válidas."
+        }
+      },
+      "editTodoDialog": {
+        "title": "Editar tarea",
+        "close": "Cerrar",
+        "confirmDelete": "¿Seguro que querés eliminar esta tarea?",
+        "status": {
+          "incomplete": "Pendiente",
+          "in_progress": "En curso",
+          "completed": "Completada"
+        },
+        "titleLabel": "Título",
+        "titlePlaceholder": "¿Qué hay que hacer?",
+        "description": "Descripción",
+        "descriptionPlaceholder": "Sumá detalles (opcional)...",
+        "project": "Proyecto",
+        "uncategorized": "Sin proyecto",
+        "newProject": "Nuevo proyecto",
+        "newProjectPlaceholder": "Crealo al guardar",
+        "dueDate": "Fecha límite",
+        "dueDateRequired": "Necesitás una fecha límite.",
+        "reminderTime": "Hora del recordatorio",
+        "priority": "Prioridad",
+        "assistance": "Asistencia",
+        "topolinoActive": "⛄ Topolino activo",
+        "topolinoHelp": "Ayuda de Topolino",
+        "delete": "Eliminar",
+        "cancel": "Cancelar",
+        "add": "Agregar",
+        "saveChanges": "Guardar cambios",
+        "newTitle": "Nueva tarea",
+        "titleRequired": "Ponele un título a la tarea.",
+        "statusLabel": "Estado",
+        "dueDateHint": "Opcional: dejalo vacío para algún día.",
+        "cancelNewProject": "Cancelar proyecto nuevo",
+        "moreDetails": "Más detalles",
+        "estimatedMinutes": "Minutos estimados",
+        "estimatedPlaceholder": "ej. 30",
+        "energyLevel": "Energía necesaria",
+        "energy": {
+          "low": "Baja",
+          "medium": "Media",
+          "high": "Alta"
+        },
+        "tags": "Etiquetas",
+        "tagsPlaceholder": "trabajo, trámites",
+        "tagsHint": "Separalas con comas",
+        "notes": "Notas",
+        "notesPlaceholder": "Cualquier otra cosa que valga la pena recordar",
+        "subtasks": "Subtareas",
+        "addSubtask": "Agregar subtarea",
+        "subtaskPlaceholder": "Nueva subtarea",
+        "removeSubtask": "Quitar la subtarea “{title}”"
+      },
+      "smartDatePicker": {
+        "placeholder": "Elegí una fecha",
+        "quick": {
+          "today": "Hoy",
+          "tomorrow": "Mañana",
+          "monday": "Lunes",
+          "nextWeekend": "Próximo finde"
+        },
+        "displayFormat": "EEE d 'de' MMM",
+        "shortFormat": "d MMM",
+        "done": "Listo",
+        "suggested": "Fechas sugeridas",
+        "calendar": "Calendario",
+        "quickSelect": "Selección rápida",
+        "clear": "Quitar fecha",
+        "prevMonth": "Mes anterior",
+        "nextMonth": "Mes siguiente",
+        "weekdayInitials": [
+          "D",
+          "L",
+          "M",
+          "M",
+          "J",
+          "V",
+          "S"
+        ]
+      },
+      "smartTimePicker": {
+        "placeholder": "Elegí una hora",
+        "quick": {
+          "morning": "Mañana",
+          "midday": "Mediodía",
+          "afternoon": "Tarde",
+          "evening": "Atardecer",
+          "night": "Noche"
+        },
+        "am": "a. m.",
+        "pm": "p. m.",
+        "done": "Listo",
+        "suggested": "Horarios sugeridos",
+        "customTime": "Hora personalizada",
+        "custom": "Personalizar",
+        "quickSelect": "Selección rápida",
+        "hour": "Hora",
+        "minute": "Minutos (de a 5)"
+      },
+      "habitGrid": {
+        "pillars": {
+          "work": "Trabajo",
+          "sleep": "Sueño",
+          "nutrition": "Nutrición",
+          "mind": "Mente",
+          "exercise": "Ejercicio",
+          "finance": "Finanzas"
+        },
+        "tags": {
+          "exercise": "Ejercicio",
+          "reading": "Lectura",
+          "meditation": "Meditación",
+          "health": "Salud",
+          "productivity": "Productividad",
+          "social": "Social",
+          "creative": "Creatividad",
+          "personal": "Personal",
+          "nutrition": "Nutrición",
+          "sleep": "Sueño",
+          "mindfulness": "Atención plena",
+          "learning": "Aprendizaje",
+          "finance": "Finanzas",
+          "selfcare": "Autocuidado"
+        },
+        "weekdaysShort": [
+          "Dom",
+          "Lun",
+          "Mar",
+          "Mié",
+          "Jue",
+          "Vie",
+          "Sáb"
+        ],
+        "timesPerWeek": "{count}x/semana",
+        "daily": "Todos los días",
+        "monthDayFormat": "d MMM",
+        "columns": {
+          "habit": "Hábito",
+          "actions": "Acciones",
+          "time": "Hora",
+          "schedule": "Frecuencia",
+          "streak": "Racha"
+        },
+        "archived": "Archivado",
+        "restore": "Restaurar",
+        "restoreHabit": "Restaurar hábito",
+        "editHabit": "Editar hábito",
+        "editHabitNamed": "Editar {name}",
+        "habitOnDate": "{name} el {date}",
+        "data": "Datos",
+        "resizeColumn": "Cambiar el ancho de la columna {column}",
+        "resizeHint": "Arrastrá para cambiar el ancho · doble clic para restablecer ({width}px)",
+        "sortTime": "Hora",
+        "sortCategory": "Categoría",
+        "sortByTime": "Ordenar por hora",
+        "sortByCategory": "Ordenar por categoría",
+        "yourHabits": "Tus hábitos",
+        "add": "Agregar",
+        "addHabit": "Agregar hábito",
+        "emptyMobile": "Todavía no tenés hábitos. Tocá \"Agregar\" para crear el primero.",
+        "emptyDesktop": "Todavía no tenés hábitos. Agregá el primero para empezar a registrar.",
+        "noDays": "Sin días",
+        "weekdays": "Lun–Vie"
+      },
+      "habitStatistics": {
+        "pillars": {
+          "work": "Trabajo",
+          "sleep": "Sueño",
+          "nutrition": "Nutrición",
+          "mind": "Mente",
+          "exercise": "Ejercicio",
+          "finance": "Finanzas"
+        },
+        "weekdaysShort": [
+          "Dom",
+          "Lun",
+          "Mar",
+          "Mié",
+          "Jue",
+          "Vie",
+          "Sáb"
+        ],
+        "monthDayFormat": "d MMM",
+        "monthDayYearFormat": "d MMM yyyy",
+        "fullDateFormat": "EEE d MMM yyyy",
+        "am": "a. m.",
+        "pm": "p. m.",
+        "onTime": "A tiempo",
+        "later": "{duration} más tarde",
+        "earlier": "{duration} antes",
+        "morning": "Mañana",
+        "afternoon": "Tarde",
+        "evening": "Noche",
+        "title": "Estadísticas detalladas",
+        "pillarBalance": "Equilibrio de pilares",
+        "strongest": "Más fuerte:",
+        "needsWork": "a reforzar:",
+        "habitCount": {
+          "one": "{count} hábito",
+          "other": "{count} hábitos"
+        },
+        "totalCompletions": "Cumplimientos totales",
+        "vsPrevious": "vs. {days} d anteriores",
+        "averageRate": "Tasa promedio",
+        "bestActiveStreak": "Mejor racha activa",
+        "streakWeeksShort": "{count} sem",
+        "streakDays": {
+          "one": "{count} día seguido",
+          "other": "{count} días seguidos"
+        },
+        "streakWeeks": {
+          "one": "{count} semana seguida cumpliendo la meta",
+          "other": "{count} semanas seguidas cumpliendo la meta"
+        },
+        "activeHabits": "Hábitos activos",
+        "completionTrend": "Evolución del cumplimiento",
+        "completions": "Cumplimientos",
+        "habitBalance": "Equilibrio de hábitos",
+        "completionPercent": "% de cumplimiento",
+        "yearOverview": "Resumen del año",
+        "completionsCount": {
+          "one": "{count} cumplimiento",
+          "other": "{count} cumplimientos"
+        },
+        "hoverDay": "Pasá el cursor sobre un día para ver la fecha",
+        "less": "Menos",
+        "more": "Más",
+        "weeklyConsistency": "Constancia semanal (12 semanas)",
+        "consistencyPercent": "% de constancia",
+        "perfectWeek": "Semana perfecta",
+        "timeOfDayPerformance": "Rendimiento por momento del día",
+        "completedOf": "{completed}/{scheduled} cumplidos",
+        "selectHabit": "Elegí un hábito",
+        "improving": "Mejorando",
+        "declining": "Empeorando",
+        "stable": "Estable",
+        "successRate": "Tasa de cumplimiento",
+        "withData": "Con datos",
+        "numericDataTrend": "Evolución de datos numéricos",
+        "value": "Valor",
+        "goal": "Meta: {goal}",
+        "averageCompletedAt": "Hora promedio de cumplimiento",
+        "vsScheduledTime": "Vs. hora programada",
+        "numericData": "Datos numéricos",
+        "average": "Promedio",
+        "total": "Total",
+        "minimum": "Mínimo",
+        "maximum": "Máximo",
+        "dayOfWeekPerformance": "Rendimiento por día de la semana",
+        "textEntries": {
+          "one": "{count} nota",
+          "other": "{count} notas"
+        },
+        "notesAdded": "Notas y reflexiones agregadas",
+        "noHabits": "Todavía no hay hábitos para analizar",
+        "days": {
+          "one": "{count} día",
+          "other": "{count} días"
+        }
+      },
+      "habitHelix": {
+        "pillars": {
+          "work": "Trabajo",
+          "sleep": "Sueño",
+          "nutrition": "Nutrición",
+          "mind": "Mente",
+          "exercise": "Ejercicio",
+          "finance": "Finanzas"
+        },
+        "ranges": {
+          "90d": "90 días",
+          "180d": "6 meses",
+          "1y": "1 año"
+        },
+        "empty": "Agregá un hábito para ver cómo toma forma tu torre.",
+        "title": "Torre de pilares",
+        "description": "Cada corte horizontal es una fecha, dibujada como un radar de tus seis pilares. Los cortes se apilan del más viejo abajo a hoy arriba, así que la silueta es tu evolución.",
+        "pauseRotation": "Pausar rotación",
+        "resumeRotation": "Reanudar rotación",
+        "resetView": "Restablecer vista",
+        "legendHeight": "Altura = fecha",
+        "legendDistance": "Distancia al centro = tasa de cumplimiento (centro 0% → anillo exterior 100%)",
+        "legendColour": "Color = pilar",
+        "legendControls": "Pasá el cursor sobre un corte para leerlo · arrastrá para girar · scroll para hacer zoom",
+        "spanTo": {
+          "one": "{count} día hasta el {date}",
+          "other": "{count} días hasta el {date}"
+        },
+        "percentOverall": "{percent}% en total",
+        "rangeToToday": "{date} → hoy",
+        "overall": "En total",
+        "points": "{points} pts",
+        "vsStartOfRange": "vs. inicio del período",
+        "averagePerPillar": "Promedio por pilar",
+        "sliceGroups": "Cada corte agrupa {count} días.",
+        "sliceSingle": "Cada corte es un solo día.",
+        "nothingScheduled": "Un pilar sin nada programado queda en el centro y muestra “—”.",
+        "rangeSpan": "{start} → {end}"
+      },
+      "habitMatrix": {
+        "pillars": {
+          "work": "Trabajo",
+          "sleep": "Sueño",
+          "nutrition": "Nutrición",
+          "mind": "Mente",
+          "exercise": "Ejercicio",
+          "finance": "Finanzas"
+        },
+        "ranges": {
+          "30d": "30 d",
+          "90d": "90 d",
+          "6m": "6 m",
+          "1y": "1 año",
+          "all": "Todo"
+        },
+        "empty": "Agregá un hábito para ver su historial acá.",
+        "title": "Matriz de cumplimiento",
+        "days": {
+          "one": "{count} día",
+          "other": "{count} días"
+        },
+        "rowTitle": "{name} — {hit}/{scheduled} días programados",
+        "rowTitleWeekly": "{name} — {hit}/{scheduled} de las metas semanales",
+        "missed": "Sin hacer",
+        "footerHint": "Hacé clic en una celda para marcarla · el % es la tasa en este período",
+        "statusDone": "hecho",
+        "statusMissed": "sin hacer",
+        "statusNotScheduled": "no programado",
+        "longDateFormat": "d 'de' MMMM 'de' yyyy",
+        "cellCompleted": "{name} el {date}, cumplido",
+        "cellNotCompleted": "{name} el {date}, sin cumplir"
+      },
+      "habitSummary": {
+        "title": "Resumen",
+        "totalCompletions": "Cumplimientos totales",
+        "averageRate": "Tasa promedio",
+        "activeHabits": "Hábitos activos",
+        "habitPerformance": "Rendimiento por hábito",
+        "noHabits": "Todavía no hay hábitos para analizar",
+        "monthDayFormat": "d MMM",
+        "monthDayYearFormat": "d MMM yyyy",
+        "days": {
+          "one": "{count} día",
+          "other": "{count} días"
+        }
+      },
+      "streakDisplay": {
+        "current": "Actual",
+        "best": "Mejor",
+        "currentWeeks": "Semanas",
+        "bestWeeks": "Mejor (sem)",
+        "freeze": "Congelador",
+        "freezes": "Congeladores",
+        "toMilestone": "para {milestone}"
+      },
+      "dateRangeFilter": {
+        "presets": {
+          "7d": "7 días",
+          "30d": "30 días",
+          "90d": "90 días",
+          "month": "Este mes",
+          "year": "Este año"
+        },
+        "pickPeriod": "Elegí un período exacto",
+        "custom": "Personalizado",
+        "pickHint": "Hacé clic en un día de inicio y después en uno de fin.",
+        "previousDays": {
+          "one": "{count} día anterior",
+          "other": "{count} días anteriores"
+        },
+        "nextDays": {
+          "one": "{count} día siguiente",
+          "other": "{count} días siguientes"
+        },
+        "backToDefault": "Volver a los últimos 7 días",
+        "days": {
+          "one": "{count} día",
+          "other": "{count} días"
+        }
+      },
+      "habitsTour": {
+        "summary": "Tus hábitos de un vistazo",
+        "summaryBody": "Acá ves cuántos hábitos seguís, tu mejor racha y con qué frecuencia los completás.",
+        "pace": "Practicá {times} días por semana. Cada día completado te acerca a la meta.",
+        "stages": [
+          "Inicio",
+          "Tras {count}",
+          "Tras {count}"
+        ],
+        "dates": "Tus registros del día",
+        "datesBody": "El contador muestra cuántos hábitos completaste hoy. Usá el calendario para ver un día anterior.",
+        "start": "Probá uno hoy",
+        "startBody": "Probá la tarea de hoy y tocá el círculo de la tarjeta cuando termines.",
+        "next": "Seguir",
+        "skip": "Omitir guía",
+        "finish": "Probar este hábito"
+      },
+      "dailyTracker": {
+        "timeFilters": {
+          "allDay": "Todo el día",
+          "morning": "Mañana",
+          "afternoon": "Tarde",
+          "evening": "Noche"
+        },
+        "greetingMorning": "Buen día, {name}.",
+        "greetingAfternoon": "Buenas tardes, {name}.",
+        "greetingEvening": "Buenas noches, {name}.",
+        "greetingDefault": "Tu día, registrado.",
+        "today": "Hoy",
+        "eyebrow": "Tu registro",
+        "browse": "Explorar",
+        "addHabit": "Agregar hábito",
+        "statHabits": "Hábitos",
+        "statBestStreak": "Mejor racha",
+        "stat7DayRate": "Tasa de 7 días",
+        "statProtocols": "Protocolos",
+        "previousDay": "Día anterior",
+        "nextDay": "Día siguiente",
+        "doneCount": "{done}/{total} hechos",
+        "noHabits": "Todavía no tenés hábitos.",
+        "nothingScheduled": "No hay nada programado para este día.",
+        "addProtocol": "Agregar un protocolo",
+        "doneHeading": "Hechos",
+        "milestoneHint": {
+          "one": "Te falta {count} día para llegar a una racha de {milestone} días.",
+          "other": "Te faltan {count} días para llegar a una racha de {milestone} días."
+        },
+        "pickDate": "Elegir fecha",
+        "jumpToToday": "Hoy"
+      },
+      "habitRow": {
+        "pillars": {
+          "work": "Trabajo",
+          "sleep": "Sueño",
+          "nutrition": "Nutrición",
+          "mind": "Mente",
+          "exercise": "Ejercicio",
+          "finance": "Finanzas"
+        },
+        "weekdaysShort": [
+          "Dom",
+          "Lun",
+          "Mar",
+          "Mié",
+          "Jue",
+          "Vie",
+          "Sáb"
+        ],
+        "everyDay": "Todos los días",
+        "timesPerWeek": "{count}× por semana",
+        "noDaysSet": "Sin días elegidos",
+        "weekdays": "Lun–Vie",
+        "editNamed": "Editar {name}",
+        "markDone": "Marcar {name} como hecho",
+        "markNotDone": "Marcar {name} como no hecho",
+        "intention": "Después de {trigger}, {behavior}",
+        "logDataNamed": "Registrar datos de {name}",
+        "weekProgress": "{done}/{target} esta semana",
+        "streakWeeksShort": "{count} sem",
+        "streakDays": {
+          "one": "{count} día seguido",
+          "other": "{count} días seguidos"
+        },
+        "streakWeeks": {
+          "one": "{count} semana seguida cumpliendo la meta",
+          "other": "{count} semanas seguidas cumpliendo la meta"
+        }
+      },
+      "habitTracker": {
+        "showTutorial": "Ver tutorial",
+        "homeLink": "Inicio de Liberture",
+        "loadingStatistics": "Cargando estadísticas…",
+        "loadingHelix": "Armando la hélice…",
+        "loadingHabits": "Cargando tus hábitos...",
+        "views": {
+          "habits": "Hábitos",
+          "todos": "Tareas",
+          "calendar": "Calendario",
+          "stats": "Estadísticas",
+          "discover": "Mercado"
+        },
+        "viewTitles": {
+          "habits": "Hábitos",
+          "todos": "Lista de tareas",
+          "calendar": "Calendario",
+          "stats": "Estadísticas",
+          "discover": "Mercado"
+        },
+        "layouts": {
+          "day": "Día",
+          "week": "Semana",
+          "matrix": "Matriz"
+        },
+        "saving": "Guardando...",
+        "saved": "Guardado",
+        "allChangesSaved": "Todos los cambios guardados",
+        "unsavedChanges": "Cambios sin guardar",
+        "savedLocallySyncing": "Guardado en este dispositivo — sincronizando...",
+        "saveFailed": "No se pudieron guardar los cambios",
+        "saveFailedCached": "No se pudo guardar — quedó guardado en este dispositivo",
+        "saveFailedKeepOpen": "No se pudo guardar — no cierres esta pestaña",
+        "staleCopyRejected": "Una copia local dañada o desactualizada intentó borrar tus hábitos y tareas. Mantuvimos la copia del servidor y la volvimos a cargar.",
+        "accountResetElsewhere": "Esta cuenta se restableció en otro dispositivo, así que esta pestaña cargó la cuenta nueva.",
+        "importFailed": "No se pudieron importar los datos. Revisá el formato del archivo.",
+        "added": "Agregaste {name}",
+        "showArchivedShort": "Ver archivados ({count})",
+        "hideArchivedShort": "Ocultar archivados ({count})",
+        "showArchived": "Ver hábitos archivados ({count})",
+        "hideArchived": "Ocultar hábitos archivados ({count})",
+        "navLabel": "Principal",
+        "layoutLabel": "Vista de hábitos",
+        "alreadyAdded": "“{name}” ya está en tus hábitos",
+        "addedPartial": "Se añadieron {added} de {name} — {skipped} ya estaban"
+      },
+      "discoverView": {
+        "tabsLabel": "Mercado",
+        "tabs": {
+          "catalog": "Catálogo",
+          "coach": "Coach"
+        }
+      },
+      "accountHeader": {
+        "yourAccount": "Tu cuenta",
+        "accountLabel": "Menú de la cuenta de {name}",
+        "verified": "Verificado",
+        "settings": "Ajustes",
+        "openSettings": "Abrir ajustes",
+        "logOut": "Salir",
+        "profile": "Perfil",
+        "assistants": "Asistentes",
+        "exportBackup": "Exportar copia",
+        "signOut": "Cerrar sesión",
+        "signOutTitle": "¿Cerrar sesión?"
+      },
+      "backupReminder": {
+        "neverBackedUp": "Nunca hiciste una copia de seguridad de tus hábitos",
+        "daysSinceBackup": {
+          "one": "Pasó {count} día desde tu última copia de seguridad",
+          "other": "Pasaron {count} días desde tu última copia de seguridad"
+        },
+        "description": "Exportar descarga un solo archivo JSON con todo: hábitos, cumplimientos, tareas y proyectos.",
+        "backUpNow": "Hacer copia ahora",
+        "remindLater": "Recordármelo en {count} días"
+      },
+      "notificationManager": {
+        "reminderTitle": "Recordatorio de hábito",
+        "reminderBody": "Acordate de hacer \"{name}\".",
+        "overdueBody": "Todavía no completaste \"{name}\", programado para las {time}. ¡Es momento de hacerlo!",
+        "promptTitle": "¿Activar recordatorios de hábitos?",
+        "promptBody": "Recibí un aviso cuando un hábito pasa su horario y todavía no lo hiciste.",
+        "enable": "Activar",
+        "notNow": "Ahora no",
+        "dueBody": "Son las {time}: es hora de \"{name}\".",
+        "testTitle": "Liberture",
+        "testBody": "Prueba desde el servidor: los recordatorios llegan a este dispositivo aunque Liberture esté cerrado."
+      },
+      "shell": {
+        "checking": "Comprobando tu sesión…",
+        "signIn": "Entrar"
+      },
+      "login": {
+        "title": "Entrá a Liberture",
+        "body": "Tu clave Nostr es tu cuenta: sin email ni contraseña. Entrá para abrir tu registro de hábitos.",
+        "button": "Entrar con Nostr",
+        "signedIn": "Ya entraste.",
+        "continue": "Continuar"
+      }
+    },
+    "site": {
+      "name": "Liberture",
+      "nav": {
+        "docs": "Guía",
+        "guides": "Guías",
+        "signIn": "Entrar",
+        "openApp": "Abrir la app",
+        "liberture": "Liberture",
+        "pillars": "Pilares",
+        "directory": "Directorio",
+        "protocols": "Protocolos",
+        "howItWorks": "Cómo funciona",
+        "tracker": "Mi tracker",
+        "admin": "Panel de admin",
+        "signOut": "Salir",
+        "toggleMenu": "Abrir o cerrar el menú"
+      },
+      "language": "Idioma",
+      "footer": {
+        "tagline": "Tu sistema operativo biológico",
+        "docs": "Guía",
+        "api": "Referencia de la API",
+        "permissions": "Permisos",
+        "protocols": "Protocolos",
+        "privacy": "Privacidad",
+        "terms": "Términos",
+        "support": "Soporte",
+        "pillars": "Pilares",
+        "resources": "Recursos",
+        "company": "Compañía",
+        "connect": "Conectar",
+        "assistant": "Tu asistente",
+        "howItWorks": "Cómo funciona",
+        "guides": "Guías",
+        "chatgpt": "Conectar ChatGPT",
+        "claude": "Conectar Claude",
+        "tracker": "Registro de hábitos",
+        "directory": "Directorio",
+        "people": "Personas",
+        "organizations": "Organizaciones",
+        "books": "Libros",
+        "about": "Quiénes somos",
+        "contact": "Contacto",
+        "allRights": "Todos los derechos reservados.",
+        "rights": "Código abierto, operado por nosotros."
+      }
+    },
+    "landing": {
+      "badge": "Tu sistema operativo biológico",
+      "title": "Dominá tu biología.",
+      "titleAccent": "Liberá tu potencial.",
+      "subtitle": "Liberture unifica el mundo fragmentado de la optimización humana en una sola plataforma inteligente. Registrá, gamificá y optimizá cada aspecto de tu rendimiento biológico.",
+      "ctaConnect": "Conectá tu asistente",
+      "ctaDashboard": "Dashboard",
+      "ctaStart": "Empezar",
+      "github": "Código abierto en GitHub",
+      "note": "Sin email ni contraseña. Tu clave Nostr es tu cuenta.",
+      "how": {
+        "eyebrow": "Cómo funciona",
+        "heading": "Tres pasos y después solo hablás",
+        "connectTitle": "Conectá tu asistente",
+        "connectBody": "Un link, un inicio de sesión. Elegí tu asistente para la versión corta, o abrí la guía completa.",
+        "fullGuide": "Guía completa",
+        "offByDefault": "Apagado por defecto",
+        "permissionsTitle": "Vos decidís qué puede hacer",
+        "permissionsLink": "Cómo funcionan los permisos",
+        "docsLink": "Leer la guía",
+        "tryTitle": "Probá decirle"
+      },
+      "convoEyebrow": "Así suena",
+      "convoHeading": "Un repaso del día, de principio a fin",
+      "convo": [
+        {
+          "who": "you",
+          "text": "Buen día. ¿Qué tengo hoy?"
+        },
+        {
+          "who": "assistant",
+          "text": "Cuatro hábitos hoy: luz de la mañana a las 7:30, un bloque de trabajo profundo a las 9, desayuno con proteína primero y una caminata de 10 minutos. Llevás 12 días seguidos con la luz de la mañana."
+        },
+        {
+          "who": "you",
+          "text": "La luz ya la hice. Marcala."
+        },
+        {
+          "who": "assistant",
+          "text": "Listo. Son 13 días seguidos."
+        },
+        {
+          "who": "you",
+          "text": "Vengo durmiendo mal. ¿Algo para probar?"
+        },
+        {
+          "who": "assistant",
+          "text": "Te sirve el corte de cafeína: último café 8 a 10 horas antes de dormir. Te paso el protocolo. ¿Querés que lo agregue?",
+          "link": "Corte de cafeína · protocolo"
+        }
+      ],
+      "you": "Vos",
+      "assistant": "Asistente",
+      "recsEyebrow": "Recomendaciones",
+      "recsHeading": "Los protocolos viven en Liberture",
+      "recsBody": "Cuando tu asistente te sugiere algo, te pasa el link a la página del protocolo acá, con la evidencia y los pasos. Lo agregás vos desde ahí, o dejás que el asistente lo agregue por vos.",
+      "recsCta": "Ver protocolos",
+      "controlEyebrow": "El control es tuyo",
+      "controlHeading": "Todo activado de entrada. Apagá lo que no quieras.",
+      "controlBody": "Tu asistente puede leer tus hábitos, registrar cumplimientos, manejar tareas y calendario, y agregar hábitos del catálogo. Cada cosa es un interruptor en Ajustes, y cualquier asistente se desconecta ahí con un toque.",
+      "controlItems": [
+        "Leer hábitos, rachas y estadísticas",
+        "Registrar hábitos cumplidos",
+        "Crear y actualizar tareas",
+        "Agregar bloques al calendario",
+        "Crear hábitos y agregarlos del catálogo",
+        "Exportar un respaldo completo"
+      ],
+      "featuresHeading": "Todo lo que necesitás para optimizarte",
+      "featuresBody": "Dejá de saltar entre apps. Liberture reúne todos los aspectos de la optimización humana en un solo lugar.",
+      "features": [
+        {
+          "title": "Seis pilares de optimización",
+          "body": "Trabajo, Sueño, Nutrición, Mente, Ejercicio y Finanzas, todo unificado en un solo sistema."
+        },
+        {
+          "title": "Rachas y subidas de nivel",
+          "body": "Hitos a los 3, 7, 21, 30 y 66 días, y hábitos que crecen de mínimos a completos a medida que se afianzan."
+        },
+        {
+          "title": "Balance entre pilares",
+          "body": "Mirá dónde va realmente tu esfuerzo entre los seis pilares, y cuál venís descuidando."
+        },
+        {
+          "title": "Protocolos con evidencia",
+          "body": "Rutinas probadas con la investigación incluida, que tu asistente puede sugerirte y agregarte."
+        },
+        {
+          "title": "Repasos por voz",
+          "body": "Hablale a tus hábitos desde ChatGPT o Claude: registrá un hábito, escuchá tus rachas, planificá el día."
+        },
+        {
+          "title": "Analítica unificada",
+          "body": "Porcentajes de cumplimiento, una matriz de todo el año y tendencias entre hábitos, para ver qué funciona y qué se cae."
+        }
+      ],
+      "pillarsEyebrow": "Los seis pilares",
+      "pillarsHeading": "Los seis pilares de la optimización",
+      "pillarsBody": "Cada pilar representa un área clave del rendimiento humano. Equilibrá los seis para optimizarte de verdad.",
+      "pillarCards": {
+        "work": "Optimizá tu productividad, tus estados de flujo, tu entorno de trabajo y tu rendimiento profesional para lograr cosas que importan.",
+        "sleep": "Dominá la arquitectura del sueño, el ritmo circadiano y los protocolos de recuperación para descansar mejor y vivir más.",
+        "nutrition": "Optimizá la digestión, el microbioma, los macros y la suplementación para tener energía y salud metabólica.",
+        "mind": "Mejorá la función cerebral, los neurotransmisores, los nootrópicos y la resiliencia mental para pensar mejor.",
+        "exercise": "Desarrollá fuerza, capacidad cardiovascular, movilidad y rendimiento con entrenamiento basado en evidencia.",
+        "finance": "Dominá la creación de riqueza, la independencia financiera y el uso de tus recursos para ganar libertad."
+      },
+      "assistantsEyebrow": "Elegí tu asistente",
+      "assistantsHeading": "Conectado en un minuto, para siempre",
+      "chatgptTitle": "ChatGPT",
+      "chatgptBody": "Abrí Liberture en ChatGPT, entrá y aprobá. Funciona por chat y por voz.",
+      "claudeTitle": "Claude",
+      "claudeBody": "Agregá una URL de conector, entrá y aprobá. Y una skill opcional.",
+      "readGuide": "Ver la guía",
+      "finalHeading": "Empezá con un hábito.",
+      "finalBody": "Entrá, elegí un hábito, conectá tu asistente. Mañana a la mañana, hablale."
+    },
+    "docs": {
+      "title": "Guía",
+      "sidebar": {
+        "overview": "Introducción",
+        "chatgpt": "ChatGPT",
+        "claude": "Claude",
+        "permissions": "Permisos",
+        "updates": "Herramientas nuevas",
+        "api": "Referencia de la API"
+      },
+      "onThisPage": "En esta página",
+      "copy": "Copiar",
+      "copied": "Copiado",
+      "download": "Descargar",
+      "backHome": "Inicio",
+      "overview": {
+        "title": "Hablale a tus hábitos",
+        "lead": "Liberture no tiene un chat propio. La conversación la tenés con tu ChatGPT o tu Claude. Esta guía conecta uno de ellos a tu tracker para que pueda leer tus hábitos y registrarlos por vos, por texto o por voz.",
+        "whatTitle": "Qué puede hacer tu asistente",
+        "what": [
+          "Decirte qué te falta hoy y qué ya hiciste, con tus rachas",
+          "Marcar hábitos como hechos (o deshacerlo) por nombre",
+          "Responder \"¿cómo me fue esta semana?\" con tus estadísticas",
+          "Agregar tareas y cerrarlas",
+          "Sugerir protocolos del catálogo, con un link para leerlos primero",
+          "Crear hábitos nuevos, o agregar los de un protocolo, cuando se lo pedís"
+        ],
+        "stepsTitle": "Configuración en tres pasos",
+        "steps": [
+          {
+            "title": "Entrá acá",
+            "body": "Creá tu cuenta y elegí un hábito o dos. De eso va a hablar tu asistente."
+          },
+          {
+            "title": "Agregá un link en tu asistente",
+            "body": "En Claude o ChatGPT, agregá el conector de Liberture, entrá y tocá Aprobar. Queda conectado."
+          },
+          {
+            "title": "Saludá",
+            "body": "Abrí un chat, o el modo voz, y preguntá \"¿qué me falta hoy?\"."
+          }
+        ],
+        "pickTitle": "Elegí tu guía",
+        "phrasesTitle": "Cosas para decirle",
+        "phrases": [
+          "¿Qué me falta hoy?",
+          "Marcá meditación como hecha.",
+          "Ayer no salí a caminar, deshacelo.",
+          "¿Cómo va mi racha de sueño?",
+          "¿Cómo me fue esta semana comparada con la anterior?",
+          "Recordame llamar al banco el viernes.",
+          "Sugerime un protocolo para concentrarme.",
+          "Agregá correr como hábito diario.",
+          "Agregá el protocolo de luz de la mañana."
+        ],
+        "privacyTitle": "Privacidad",
+        "privacy": "Conectarlo le da a tu asistente acceso solo a tus datos de hábitos, dentro de los permisos que elijas. Cuando lo usás, los datos viajan de este servidor al proveedor del asistente (OpenAI o Anthropic), bajo sus términos. Desconectalo en Ajustes → Asistentes de voz y el acceso se corta al instante."
+      },
+      "chatgpt": {
+        "title": "Conectar ChatGPT",
+        "lead": "Un link, un inicio de sesión. Queda conectado hasta que lo desconectes en Ajustes.",
+        "gptSteps": [
+          {
+            "title": "Abrí Liberture en ChatGPT",
+            "body": "Usá el botón de abajo, o buscá Liberture en las apps de ChatGPT."
+          },
+          {
+            "title": "Tocá Conectar",
+            "body": "ChatGPT abre Liberture: entrá si te lo pide y tocá Aprobar. Lo hacés una sola vez."
+          },
+          {
+            "title": "Hablá",
+            "body": "Preguntá \"¿qué me falta hoy?\", por chat o por voz. Elegí Permitir siempre cuando ChatGPT pregunte, así la voz no se frena a confirmar."
+          }
+        ],
+        "gptButton": "Abrir Liberture en ChatGPT",
+        "connectorTitle": "Mientras la app no está publicada: modo desarrollador",
+        "connectorSteps": [
+          {
+            "title": "Activá el modo desarrollador",
+            "body": "En ChatGPT: Configuración → Apps → Avanzado, activá el modo desarrollador y tocá Crear."
+          },
+          {
+            "title": "Pegá la URL",
+            "body": "Llamalo \"Liberture\", pegá la URL de abajo, elegí OAuth y crealo."
+          },
+          {
+            "title": "Entrá y aprobá",
+            "body": "ChatGPT abre Liberture: entrá y tocá Aprobar. Después activalo desde el menú de herramientas de un chat."
+          }
+        ],
+        "urlLabel": "URL del conector",
+        "voiceTitle": "Usarlo por voz",
+        "voice": "Activá el modo voz en la app de ChatGPT. Si tu versión no ejecuta herramientas por voz, mandá el mismo pedido por texto.",
+        "troubleTitle": "Si algo falla",
+        "trouble": [
+          {
+            "q": "Me pide entrar de nuevo",
+            "a": "Lo desconectaste en Ajustes, o entraste con otra cuenta. Entrá y aprobá de nuevo."
+          },
+          {
+            "q": "403 scope_disabled",
+            "a": "Apagaste ese permiso en Ajustes → Asistentes de voz. El asistente debería decirte cuál."
+          },
+          {
+            "q": "Pide confirmación cada vez",
+            "a": "Elegí Permitir siempre cuando ChatGPT pregunte por una acción."
+          },
+          {
+            "q": "No aparecen las herramientas nuevas",
+            "a": "ChatGPT guarda la lista de herramientas de cuando conectaste. Actualizala: Configuración → Apps y conectores → Liberture → Actualizar, o desconectá y volvé a conectar. Liberture → Ajustes → Asistentes te dice si está al día; los pasos completos están en Docs → Herramientas nuevas."
+          }
+        ]
+      },
+      "claude": {
+        "title": "Conectar Claude",
+        "lead": "Un link, un inicio de sesión. Claude lo usa en chats, proyectos y modo voz, y queda conectado hasta que lo desconectes.",
+        "steps": [
+          {
+            "title": "Copiá la URL",
+            "body": "Es la misma para todos; tu inicio de sesión es lo que la une a tus hábitos."
+          },
+          {
+            "title": "Agregala en Claude",
+            "body": "En claude.ai o la app: Configuración → Conectores → Agregar conector personalizado. Llamalo \"Liberture\", pegá la URL y tocá Agregar."
+          },
+          {
+            "title": "Conectá y aprobá",
+            "body": "Tocá Conectar. Se abre Liberture: entrá si te lo pide y tocá Aprobar. Listo."
+          },
+          {
+            "title": "Opcional: la skill",
+            "body": "La skill le enseña a Claude un repaso rápido por voz. Descargala en Liberture → Ajustes → Asistentes de voz (trae su propia clave) y subí el zip en Claude → Configuración → Capacidades → Skills."
+          },
+          {
+            "title": "Hablá",
+            "body": "Preguntá \"¿qué me falta hoy?\". Permití las herramientas cuando Claude lo pida."
+          }
+        ],
+        "urlLabel": "URL del conector",
+        "openSettings": "Abrir Ajustes en Liberture",
+        "instructionsLabel": "Instrucciones de proyecto opcionales",
+        "voiceTitle": "Usarlo por voz",
+        "voice": "Activá el modo voz en la app de Claude con el conector habilitado. Si en tu dispositivo no ofrece herramientas por voz, pedí lo mismo por texto.",
+        "troubleTitle": "Si algo falla",
+        "trouble": [
+          {
+            "q": "Me pide entrar de nuevo",
+            "a": "Lo desconectaste en Ajustes, o entraste con otra cuenta. Tocá Conectar y aprobá de nuevo."
+          },
+          {
+            "q": "403 scope_disabled",
+            "a": "Apagaste ese permiso en Liberture → Ajustes → Asistentes. Claude debería decirte cuál."
+          },
+          {
+            "q": "No aparecen las herramientas nuevas",
+            "a": "Claude guarda la lista de herramientas de cuando conectaste. Primero empezá una conversación nueva; si siguen sin aparecer: Configuración → Conectores → Liberture → Desconectar, y después Conectar de nuevo. Liberture → Ajustes → Asistentes te dice si está al día; los pasos completos están en Docs → Herramientas nuevas."
+          }
+        ]
+      },
+      "updates": {
+        "title": "Herramientas nuevas",
+        "lead": "Cuando Liberture publica herramientas nuevas, ChatGPT y Claude siguen usando la lista que cargaron al conectarse. No vuelven a consultarla solos: actualizá el conector una vez y aparecen.",
+        "currentTitle": "Lo que ofrece este servidor ahora",
+        "current": "{count} herramientas · versión {version}",
+        "knowTitle": "Cómo te enterás de que hay algo nuevo",
+        "know": [
+          "Liberture → Ajustes → Asistentes: cada app conectada muestra cuándo cargó las herramientas por última vez y cuántas hay nuevas desde entonces.",
+          "Tu asistente te avisa: cuando su lista está atrasada, el resumen diario de Liberture (get_today) le pide que te lo mencione una vez.",
+          "Liberture guarda, para cada conexión, la fecha y la versión de la última lista de herramientas que cargó y cuántas veces la cargó. No guarda nada de tus conversaciones."
+        ],
+        "chatgptTitle": "ChatGPT",
+        "chatgptSteps": [
+          {
+            "title": "Abrí el conector",
+            "body": "En ChatGPT: Configuración → Apps y conectores, y abrí Liberture."
+          },
+          {
+            "title": "Actualizalo",
+            "body": "Usá Actualizar si aparece. Si no, desconectalo y conectalo de nuevo con la misma URL, iniciá sesión y tocá Aprobar. Reconectar reemplaza la conexión anterior; tus hábitos y permisos quedan como están."
+          },
+          {
+            "title": "Empezá un chat nuevo",
+            "body": "Abrí un chat nuevo y preguntá \"¿qué herramientas de Liberture podés usar?\". Los chats viejos siguen con la lista vieja."
+          }
+        ],
+        "gptTitle": "GPT personalizado de ChatGPT (acciones)",
+        "gpt": "Editá el GPT → Configurar → Acciones → Importar desde URL, pegá la URL del esquema de abajo y tocá Actualizar.",
+        "schemaLabel": "URL del esquema",
+        "claudeTitle": "Claude",
+        "claudeSteps": [
+          {
+            "title": "Empezá una conversación nueva",
+            "body": "Claude lee las herramientas del conector al empezar cada conversación, así que muchas veces alcanza con un chat nuevo."
+          },
+          {
+            "title": "¿Siguen faltando? Reconectá",
+            "body": "Configuración → Conectores → Liberture → Desconectar, después Conectar y tocá Aprobar en Liberture. En la app del celular, cerrala del todo y volvé a abrirla."
+          }
+        ],
+        "urlLabel": "URL del conector",
+        "checkTitle": "Comprobá que funcionó",
+        "check": "En Liberture → Ajustes → Asistentes la app debería decir \"Herramientas al día\". O pedile a tu asistente que llame a get_permissions: connector.yourSync.upToDate tiene que ser true."
+      },
+      "permissions": {
+        "title": "Permisos",
+        "lead": "Todos los permisos están activados hasta que los apagues, salvo los dos que borran cosas (hábitos; tareas, proyectos y eventos), que quedan apagados hasta que los actives. Los cambios aplican desde el siguiente pedido.",
+        "where": "Se cambian en Ajustes → Asistentes de voz → Qué puede hacer tu asistente.",
+        "tableScope": "Permiso",
+        "tableAllows": "Permite",
+        "scopes": {
+          "read": {
+            "name": "Leer",
+            "allows": "Hábitos, rachas, estadísticas, tareas, proyectos, calendario, catálogo y recomendaciones."
+          },
+          "log_completions": {
+            "name": "Registrar cumplimientos",
+            "allows": "Marcar hábitos como hechos o no hechos, hoy u otro día."
+          },
+          "todos": {
+            "name": "Tareas y proyectos",
+            "allows": "Crear, editar y completar tareas y proyectos."
+          },
+          "calendar": {
+            "name": "Calendario",
+            "allows": "Crear y mover eventos, y agendar tareas en bloques."
+          },
+          "add_habits": {
+            "name": "Agregar hábitos",
+            "allows": "Crear hábitos nuevos, como \"correr todos los días\", y agregar protocolos o hábitos del catálogo."
+          },
+          "edit_habits": {
+            "name": "Editar hábitos",
+            "allows": "Renombrar hábitos y cambiar su descripción, días u horario."
+          },
+          "delete_habits": {
+            "name": "Borrar hábitos",
+            "allows": "Borrar un hábito y su historial. Apagado hasta que lo actives."
+          },
+          "delete_items": {
+            "name": "Borrar tareas, proyectos y eventos",
+            "allows": "Borrar para siempre tareas, proyectos y eventos del calendario. Apagado hasta que lo actives."
+          },
+          "settings": {
+            "name": "Perfil y preferencias",
+            "allows": "Cambiar tu nombre, misión, hábitos foco, horarios de check-in, zona horaria, tema, inicio de semana y recordatorios."
+          },
+          "export": {
+            "name": "Exportar",
+            "allows": "Descargar un respaldo JSON completo de tus datos."
+          }
+        },
+        "deniedTitle": "Qué pasa cuando uno está apagado",
+        "denied": "El pedido devuelve 403 con el código scope_disabled y un mensaje que el asistente te puede leer. Para agregar hábitos, te pasa el link del protocolo, así lo agregás vos.",
+        "revokeTitle": "Desconectar",
+        "revoke": "Tocá Desconectar al lado de un asistente en Ajustes → Asistentes de voz. Deja de funcionar al instante; los demás siguen andando.",
+        "cannotTitle": "Lo que un token nunca puede hacer",
+        "cannot": [
+          "Cambiar sus propios permisos",
+          "Borrar hábitos, salvo que lo actives",
+          "Leer o cambiar tu clave de acceso o tu identidad Nostr",
+          "Acceder a los datos de otra persona"
+        ]
+      },
+      "api": {
+        "title": "Referencia de la API",
+        "lead": "Las operaciones que usa tu asistente. Los conectores las reciben como herramientas en /mcp después de entrar; la misma lista está en el esquema OpenAPI. Los scripts mandan Authorization: Bearer con el token de Ajustes → Avanzado.",
+        "openapi": "Esquema OpenAPI",
+        "mcp": "Endpoint MCP",
+        "method": "Método",
+        "path": "Ruta",
+        "tool": "Herramienta",
+        "scope": "Permiso",
+        "description": "Qué hace",
+        "mcpOnly": "Solo MCP (no está en el esquema OpenAPI, que un GPT personalizado limita a 30 operaciones)",
+        "more": "El resto de /api/v1 (rutas por id, exportación ICS, respaldos) está documentado en API.md, en el repositorio.",
+        "limits": "Límite: 120 pedidos por minuto por token. Pasado eso, los pedidos reciben 429 con Retry-After."
+      },
+      "prompts": {
+        "gpt": "Sos mi coach de hábitos, conectado a mi tracker Liberture. Muchas veces te hablo por voz, así que sé rápido y breve.\n\n- Empezá con una sola llamada: get_today. No llames a nada más solo para buscar datos.\n- Actuá en una sola llamada. log_habit, create_habit y set_todo_status aceptan nombres tal como los digo; nunca listes hábitos ni tareas antes.\n- No hagas preguntas de seguimiento si hay un valor por defecto: un hábito nuevo es diario y sin recordatorio. Hacelo, leé la frase `say` que devuelve la herramienta y ofrecé ajustarlo.\n- Respondé en mi idioma, en una o dos oraciones.\n- Nunca inventes hábitos, rachas ni números.\n- Para recomendar algo, usá search_catalog y pasame el infoUrl. Para registrar algo que nombro, usá create_habit.\n- Si una herramienta devuelve scope_disabled, decime su mensaje y no reintentes.",
+        "claude": "Sos mi coach de hábitos. Mi tracker Liberture está conectado como el conector \"Liberture\". Muchas veces uso la voz, así que sé rápido y breve.\n\n- Empezá con una sola llamada: get_today. No llames a nada más solo para buscar datos.\n- Actuá en una sola llamada. log_habit, create_habit y set_todo_status aceptan nombres tal como los digo; nunca listes hábitos ni tareas antes.\n- No hagas preguntas de seguimiento si hay un valor por defecto: un hábito nuevo es diario y sin recordatorio. Hacelo, leé la frase `say` que devuelve la herramienta y ofrecé ajustarlo.\n- Respondé en mi idioma, en una o dos oraciones. Nunca inventes hábitos, rachas ni números.\n- Para recomendar algo, usá search_catalog y compartí el infoUrl. Para registrar algo que nombro, usá create_habit.\n- Si una herramienta devuelve scope_disabled, decime su mensaje en vez de reintentar."
+      }
+    },
+    "oauth": {
+      "title": "Conectar {app} con Liberture",
+      "lead": "{app} quiere usar tu tracker de hábitos. Al terminar volvés a {host}.",
+      "signedInAs": "Sesión iniciada como",
+      "you": "vos",
+      "willBeAble": "Va a poder:",
+      "scopes": {
+        "read": "Ver tus hábitos, rachas, estadísticas y tareas",
+        "log_completions": "Marcar hábitos como hechos",
+        "todos": "Crear y completar tareas",
+        "calendar": "Cambiar tu calendario",
+        "add_habits": "Crear hábitos y agregarlos del catálogo",
+        "edit_habits": "Renombrar y cambiar hábitos",
+        "delete_habits": "Borrar hábitos",
+        "delete_items": "Borrar tareas, proyectos y eventos",
+        "settings": "Cambiar tu perfil y preferencias",
+        "export": "Descargar un respaldo completo"
+      },
+      "offNote": "Apagado en tus ajustes, así que no puede:",
+      "durable": "Queda conectado hasta que lo desconectes en Ajustes → Asistentes de voz.",
+      "approve": "Aprobar",
+      "cancel": "Cancelar",
+      "signInTitle": "Entrá para conectar {app}",
+      "signInBody": "Entrá a Liberture en este navegador y volvés directo acá para aprobar.",
+      "signIn": "Entrar",
+      "working": "Conectando…",
+      "errorTitle": "Este link de conexión no funciona",
+      "done": "Aprobado. Volviendo a {app}…"
+    },
+    "protocols": {
+      "title": "Protocolos",
+      "lead": "Todos los protocolos del catálogo de Liberture, con la evidencia, los pasos y los hábitos que agregan.",
+      "habits": "Hábitos que agrega",
+      "steps": "Pasos",
+      "benefits": "Beneficios",
+      "risks": "Precauciones",
+      "evidence": "Evidencia",
+      "addInApp": "Agregalo en la app",
+      "addHint": "Entrá, o pedile a tu asistente que lo agregue.",
+      "standalone": "Hábitos sueltos",
+      "back": "Todos los protocolos",
+      "duration": "Duración",
+      "difficulty": "Dificultad"
+    }
+  },
+  "breadcrumbs": {
+    "label": "Ruta de navegación",
+    "about": "Nosotros",
+    "articles": "Artículos",
+    "books": "Libros",
+    "contact": "Contacto",
+    "directory": "Directorio",
+    "docs": "Documentación",
+    "get-started": "Primeros pasos",
+    "media-kit": "Kit de prensa",
+    "organizations": "Organizaciones",
+    "projects": "Proyectos",
+    "people": "Personas",
+    "pillars": "Pilares",
+    "privacy": "Privacidad",
+    "protocols": "Protocolos",
+    "support": "Ayuda",
+    "terms": "Términos",
+    "chatgpt": "ChatGPT",
+    "claude": "Claude",
+    "api": "API",
+    "permissions": "Permisos",
+    "updates": "Novedades",
+    "sleep": "Sueño",
+    "work": "Trabajo",
+    "nutrition": "Nutrición",
+    "exercise": "Ejercicio",
+    "finance": "Finanzas",
+    "mind": "Mente",
+    "guides": "Guías",
+    "how-it-works": "Cómo funciona"
+  }
+}

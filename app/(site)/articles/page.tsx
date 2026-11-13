@@ -1,27 +1,22 @@
-import type { Metadata } from "next"
+import { publicPageMetadata } from "@/lib/seo/public-page-metadata"
+export function generateMetadata() {
+  return publicPageMetadata("/articles", "articles")
+}
+
 import { DirectoryHeader, DirectoryLayout } from "@/components/directory/layout"
 import { DirectoryLibrary, type ListingPageProps } from "@/components/directory/directory-library"
-import { prisma } from "@/lib/prisma"
-import { getDictionary } from "@/lib/habits/i18n"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { directoryPrisma as prisma } from "@/lib/i18n/directory-records.server"
+import { getSiteMessages } from "@/lib/i18n/messages.server"
 
-export const metadata: Metadata = {
-  title: "Articles | Biohacking Directory | Liberture",
-  description: "Research articles and practical guides across the six Liberture pillars.",
-  alternates: { canonical: "/articles" },
-}
 
 export default async function ArticlesPage({ searchParams }: ListingPageProps) {
   const params = await searchParams
   const sort = params.sort === "oldest" || params.sort === "title" ? params.sort : "newest"
-  const [locale, articles] = await Promise.all([
-    getRequestLocale(),
-    prisma.article.findMany({
+  const articles = await prisma.article.findMany({
       orderBy: [sort === "title" ? { title: "asc" } : { publishedAt: sort === "oldest" ? "asc" : "desc" }, { slug: "asc" }],
       select: { slug: true, title: true, description: true, author: true, readTime: true, pillar: true, tags: true },
-    }),
-  ])
-  const copy = getDictionary(locale).app.articleReader
+    })
+  const copy = (await getSiteMessages()).habits.app.articleReader
   return <DirectoryLayout>
     <DirectoryHeader title={copy.articles} description={copy.description} />
     <DirectoryLibrary catalog={{ section: "articles", rows: articles }} params={params} />

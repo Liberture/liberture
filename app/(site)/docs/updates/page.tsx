@@ -2,7 +2,7 @@ import { docsMetadata } from "@/lib/seo/localized-metadata"
 import { CopyBlock } from "@/components/habits/docs/copy-block"
 import { DocsCallout, DocsSection, DocsSteps, DocsTitle } from "@/components/habits/docs/docs-parts"
 import { TOOL_COUNT, TOOLS_VERSION } from "@/lib/habits/api/operations"
-import { getDictionary } from "@/lib/habits/i18n"
+import { getSiteMessages } from "@/lib/i18n/messages.server"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { getServerOrigin } from "@/lib/habits/request-origin"
 import { formatMessage } from "@/lib/i18n-format"
@@ -11,7 +11,7 @@ import { formatMessage } from "@/lib/i18n-format"
 /** How to refresh ChatGPT and Claude after new tools ship. Linked from Settings and from get_today. */
 export default async function UpdatesDocsPage() {
   const [locale, origin] = await Promise.all([getRequestLocale(), getServerOrigin()])
-  const dict = getDictionary(locale)
+  const dict = (await getSiteMessages()).habits
   const t = dict.docs.updates
   const copy = { copyLabel: dict.docs.copy, copiedLabel: dict.docs.copied }
 

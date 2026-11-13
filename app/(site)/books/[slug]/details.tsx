@@ -1,5 +1,7 @@
-import { getDictionary } from "@/lib/habits/i18n"
-import type { Locale } from "@/lib/translations"
+import { localizedPageUrl } from "@/lib/i18n/page-url.server"
+import { getMessages } from "next-intl/server"
+import { getRequestLocale } from "@/lib/habits/i18n/server"
+import type { Catalog } from "@/lib/translations"
 import { PillarTag } from "@/components/habits/marketplace/pillar-tag"
 import { profilePillars } from "@/lib/pillars"
 import { DirectoryInfobox, DirectoryLayout } from "@/components/directory/layout"
@@ -35,8 +37,9 @@ type Book = {
   } | null;
 };
 
-export default function BookDetails({ book, locale }: { book: Book; locale: Locale }) {
-  const text = getDictionary(locale).bookDetails
+export default async function BookDetails({ book }: { book: Book }) {
+  const locale = await getRequestLocale()
+  const text = (await getMessages() as unknown as Catalog).habits.bookDetails
   const keyTakeaways = entries(book.keyTakeaways);
   const { title, subtitle } = splitBookTitle(book.title)
   const pillars = profilePillars(book.pillars);
@@ -47,10 +50,10 @@ export default function BookDetails({ book, locale }: { book: Book; locale: Loca
       <BookSchema
         title={book.title}
         author={book.Person?.name || book.author}
-        authorUrl={book.Person && `https://liberture.com/people/${book.Person.slug}` || undefined}
+        authorUrl={book.Person ? await localizedPageUrl(`/people/${book.Person.slug}`, locale) : undefined}
         description={book.description}
         isbn={book.isbn || undefined}
-        url={`https://liberture.com/books/${book.slug}`}
+        url={await localizedPageUrl(`/books/${book.slug}`, locale)}
         image={book.imageUrl || undefined}
       />
       <BreadcrumbSchema compact items={[...sectionTrail("books"), {name:title, url:`https://liberture.com/books/${book.slug}`}]} />

@@ -1,7 +1,7 @@
 "use client"
 
-import { useTranslations } from "@/components/i18n/locale-provider"
-import Link from "next/link"
+import { useLocale, useTranslations } from "next-intl"
+import Link from "@/components/i18n/localized-link"
 import { useCallback, useEffect, useState } from "react"
 import { ArrowRight, Check } from "lucide-react"
 import { DirectoryLayout, DirectoryHeader } from "@/components/directory/layout"
@@ -10,7 +10,8 @@ import { useHabitsSession } from "@/components/habits/session-provider"
 import type { CatalogProtocol } from "@/lib/habits/protocols/catalog"
 
 export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }) {
-  const text = useTranslations().habits.protocolLibrary
+  const locale = useLocale()
+  const t = useTranslations("habits.protocolLibrary")
   const { isSignedIn } = useHabitsSession()
   const [adopted, setAdopted] = useState<Set<string>>(new Set())
   const [hydrated, setHydrated] = useState(false)
@@ -39,16 +40,16 @@ export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }
     const res = await fetch("/api/tracker/protocols", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slug }),
+      body: JSON.stringify({ slug, locale }),
     })
     if (res.ok) setAdopted((prev) => new Set(prev).add(slug))
-  }, [])
+  }, [locale])
 
   return (
     <DirectoryLayout>
         <MarketplaceView catalog={protocols} adopted={adopted} shareable
           onAdoptProtocol={isSignedIn ? protocol => void adopt(protocol.slug) : undefined} heading={<>
-        <DirectoryHeader eyebrow={text.eyebrow} title={text.title} description={text.description} />
+        <DirectoryHeader eyebrow={t("eyebrow")} title={t("title")} description={t("description")} />
 
           {hydrated && adopted.size > 0 ? (
             <Link
@@ -56,7 +57,7 @@ export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }
               className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
             >
               <Check className="h-4 w-4" aria-hidden />
-              {text.inTracker.replace("{count}", String(adopted.size))}
+              {t("inTracker", { count: adopted.size })}
               <ArrowRight className="h-4 w-4" aria-hidden />
             </Link>
           ) : null}

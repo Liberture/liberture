@@ -2,6 +2,7 @@
 
 import type { ComponentProps } from "react"
 import { ArrowUpDown } from "lucide-react"
+import { useLocalizedHref } from "@/components/i18n/localized-link"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { FieldOption, FieldSelect } from "@/components/ui/select"
@@ -26,6 +27,7 @@ export type ListingPageProps = { searchParams: Promise<ListingParams> }
 
 export function DirectoryLibrary({ catalog, params }: { catalog: Catalog; params: ListingParams }) {
   const router = useRouter()
+  const localize = useLocalizedHref()
   const { directoryListing: text, articleReader, directoryProfiles, pillarTag, protocolCard } = useTranslations().habits.app
   const { section } = catalog
   const title = section === "articles" ? articleReader.articles : section === "books" || section === "people" ? text[section] : directoryProfiles[section]
@@ -52,7 +54,7 @@ export function DirectoryLibrary({ catalog, params }: { catalog: Catalog; params
     if (query) search.set("q", query)
     if (pillar !== "all") search.set("pillar", pillar)
     if (order !== options[0][0]) search.set("sort", order)
-    router.push(`/${section}?${search}`, { scroll: false })
+    router.push(localize(`/${section}?${search}`), { scroll: false })
   }
 
   const page = Number(params.page)

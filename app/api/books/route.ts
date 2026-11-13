@@ -1,3 +1,4 @@
+import { directoryApiClient } from "@/lib/i18n/directory-records.server"
 import { NextResponse } from "next/server"
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest) {
     // Liberture 100 filtered view (requires migration to add libertureRank column)
     if (list === 'liberture100') {
       try {
-        const books = await prisma.book.findMany({
+        const books = await directoryApiClient(request).book.findMany({
           where: { libertureRank: { not: null } },
           orderBy: { libertureRank: "asc" },
         })
@@ -66,7 +67,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const dbBooks = await prisma.book.findMany({
+    const dbBooks = await directoryApiClient(request).book.findMany({
       select: {
         id: true,
         title: true,

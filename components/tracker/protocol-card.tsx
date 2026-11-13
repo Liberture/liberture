@@ -1,4 +1,5 @@
 "use client"
+import { useTranslations as useUiCopy } from "next-intl"
 
 import { motion } from "framer-motion"
 import { BookOpen, Check, Clock, ListChecks, Plus } from "lucide-react"
@@ -42,6 +43,8 @@ export function ProtocolCard({
   onRead: () => void
   onToggle: () => void
 }) {
+  const uiCopy = useUiCopy("publicCopy.trackerCard")
+
   const styles = PILLAR_STYLES[protocol.pillar]
 
   return (
@@ -68,7 +71,7 @@ export function ProtocolCard({
         <div className="flex items-center gap-1.5">
           <ListChecks className="h-3.5 w-3.5" aria-hidden />
           <dd>
-            {protocol.habits.length} habit{protocol.habits.length === 1 ? "" : "s"}
+            {protocol.habits.length} {uiCopy("habit")}{protocol.habits.length === 1 ? "" : "s"}
           </dd>
         </div>
         <div className="flex items-center gap-1.5">
@@ -83,9 +86,7 @@ export function ProtocolCard({
           onClick={onRead}
           className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-white/10 px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-white/25 hover:text-foreground"
         >
-          <BookOpen className="h-4 w-4" aria-hidden />
-          Read
-        </button>
+          <BookOpen className="h-4 w-4" aria-hidden />{uiCopy("read")}</button>
         <button
           type="button"
           onClick={onToggle}
@@ -99,14 +100,10 @@ export function ProtocolCard({
         >
           {selected ? (
             <>
-              <Check className="h-4 w-4" aria-hidden />
-              Added
-            </>
+              <Check className="h-4 w-4" aria-hidden />{uiCopy("added")}</>
           ) : (
             <>
-              <Plus className="h-4 w-4" aria-hidden />
-              Add
-            </>
+              <Plus className="h-4 w-4" aria-hidden />{uiCopy("add")}</>
           )}
         </button>
       </div>

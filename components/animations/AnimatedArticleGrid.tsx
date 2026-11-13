@@ -1,4 +1,5 @@
 "use client"
+import { useTranslations as useUiCopy } from "next-intl"
 
 import { HelpTooltip } from "@/components/ui/tooltip"
 import { motion } from "framer-motion"
@@ -6,7 +7,7 @@ import { stagger, transition, hover } from "@/lib/animations"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Clock, ExternalLink } from "lucide-react"
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import type { Article } from "@/types"
 import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
 import type { PillarId } from "@/lib/translations"
@@ -17,6 +18,8 @@ interface Props {
 }
 
 export function AnimatedArticleGrid({ articles, pillar }: Props) {
+  const uiCopy = useUiCopy("publicCopy.articleGrid")
+
   const Icon = PILLAR_ICON_MAP[pillar as PillarId]
   const styles = PILLAR_STYLES[pillar as PillarId]
   return (
@@ -70,7 +73,7 @@ export function AnimatedArticleGrid({ articles, pillar }: Props) {
                   <span className="text-xs text-muted-foreground truncate">{article.author}</span>
                   <div className="flex items-center gap-3">
                     {article.url && (
-                      <HelpTooltip label="View source"><a
+                      <HelpTooltip label={uiCopy("viewSource")}><a
                         href={article.url}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -79,9 +82,7 @@ export function AnimatedArticleGrid({ articles, pillar }: Props) {
                         <ExternalLink className="h-3 w-3" />
                       </a></HelpTooltip>
                     )}
-                    <Link href={`/articles/${article.slug}`} className="text-xs text-primary hover:underline font-medium">
-                      Read
-                    </Link>
+                    <Link href={`/articles/${article.slug}`} className="text-xs text-primary hover:underline font-medium">{uiCopy("read")}</Link>
                   </div>
                 </div>
               </CardContent>

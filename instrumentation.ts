@@ -12,8 +12,9 @@ export async function register() {
   // api_key that was derived from the public key (lib/habits/internal-api-key.ts).
   if (process.env.DATABASE_URL) {
     if (process.env.NEXT_PHASE !== "phase-production-build") {
-      const { ensureDirectoryRevisionSchema } = await import("./lib/directory/revision-schema")
+      const { ensureDirectoryRevisionSchema, ensureDirectoryTranslationSchema } = await import("./lib/directory/revision-schema")
       await ensureDirectoryRevisionSchema()
+      await ensureDirectoryTranslationSchema()
       const { ensureDirectoryProfiles } = await import("./lib/directory/profile-migrations")
       await ensureDirectoryProfiles()
     }

@@ -1,7 +1,7 @@
 import { ArticleTopicTags } from "./article-topic-tags"
 import { CoverArtwork } from "@/components/habits/marketplace/protocol-artwork"
 import { articleTags } from "@/lib/article-tags"
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import type { Article } from "@prisma/client"
 import { Clock, User } from "lucide-react"
 

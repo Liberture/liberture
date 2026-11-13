@@ -1,18 +1,17 @@
-import type { Metadata } from "next"
+import { docsMetadata } from "@/lib/seo/localized-metadata"
 import type { ReactNode } from "react"
 
 import { DocsNav } from "@/components/habits/docs/docs-nav"
-import { getDictionary } from "@/lib/habits/i18n"
+import { getSiteMessages } from "@/lib/i18n/messages.server"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
 
-export const metadata: Metadata = {
-  title: "Docs · Liberture",
-  description: "Connect ChatGPT or Claude to your habit tracker and talk to your habits, in chat or by voice.",
+export function generateMetadata() {
+  return docsMetadata("overview")
 }
 
 export default async function DocsLayout({ children }: { children: ReactNode }) {
   const locale = await getRequestLocale()
-  const dict = getDictionary(locale)
+  const dict = (await getSiteMessages()).habits
   const nav = [
     { href: "/docs", label: dict.docs.sidebar.overview },
     { href: "/docs/chatgpt", label: dict.docs.sidebar.chatgpt },

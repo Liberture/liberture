@@ -2,11 +2,11 @@ import { RelatedProfiles } from "@/components/directory/related-profiles"
 import { CardCarousel } from "@/components/ui/card-carousel"
 import { PersonCard } from "@/components/people/person-card"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
-import { getDictionary } from "@/lib/habits/i18n"
+import { getSiteMessages } from "@/lib/i18n/messages.server"
 import { notFound } from "next/navigation"
 import { getPerson } from "@/lib/seo/public-records"
 import { detailMetadata } from "@/lib/seo/detail-metadata"
-import { prisma } from "@/lib/prisma"
+import { directoryPrisma as prisma } from "@/lib/i18n/directory-records.server"
 import { profilePillars } from "@/lib/pillars"
 import Details from "./details"
 
@@ -33,7 +33,7 @@ export default async function Page({params}: Props) {
     shared: profilePillars(person.pillars).filter(pillar => focus.includes(pillar)),
   })).filter(person => person.shared.length).sort((a,b) => b.shared.length - a.shared.length).slice(0,6)
   const locale = await getRequestLocale()
-  const {protocolReader: copy, protocolCard} = getDictionary(locale).app
+  const {protocolReader: copy, protocolCard} = (await getSiteMessages()).habits.app
   return <Details person={record}>
     <RelatedProfiles connections={record.directoryProfiles} locale={locale} />
     {related.length > 0 && <CardCarousel title={copy.relatedPeople} previousLabel={copy.previousPeople} nextLabel={copy.nextPeople}>

@@ -1,7 +1,7 @@
 "use client"
 
 import { HelpTooltip } from "@/components/ui/tooltip"
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import { motion, useReducedMotion } from "framer-motion"
 import {
   ArrowRight,

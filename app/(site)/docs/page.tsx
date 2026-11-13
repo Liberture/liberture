@@ -1,17 +1,17 @@
 import { docsMetadata } from "@/lib/seo/localized-metadata"
-import Link from "next/link"
+import Link from "@/components/i18n/localized-link"
 import { ArrowRight, MessageSquareQuote } from "lucide-react"
 
 import { ChatGPTLogo, ClaudeLogo } from "@/components/habits/brand-logos"
 
 import { DocsList, DocsSection, DocsSteps, DocsTitle } from "@/components/habits/docs/docs-parts"
-import { getDictionary } from "@/lib/habits/i18n"
+import { getSiteMessages } from "@/lib/i18n/messages.server"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { DocsScreenshot } from "@/components/habits/docs/docs-screenshot"
 
 export default async function DocsOverviewPage() {
   const locale = await getRequestLocale()
-  const dict = getDictionary(locale)
+  const dict = (await getSiteMessages()).habits
   const t = dict.docs.overview
 
   return (

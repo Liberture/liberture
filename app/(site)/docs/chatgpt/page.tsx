@@ -3,7 +3,7 @@ import { ExternalLink } from "lucide-react"
 
 import { CopyBlock } from "@/components/habits/docs/copy-block"
 import { DocsCallout, DocsSection, DocsSteps, DocsTitle } from "@/components/habits/docs/docs-parts"
-import { getDictionary } from "@/lib/habits/i18n"
+import { getSiteMessages } from "@/lib/i18n/messages.server"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { getSiteSetting } from "@/lib/habits/oauth/store"
 import { getServerOrigin } from "@/lib/habits/request-origin"
@@ -16,7 +16,7 @@ export default async function ChatGptDocsPage() {
     getServerOrigin(),
     getSiteSetting("chatgpt_gpt_url").catch(() => null),
   ])
-  const dict = getDictionary(locale)
+  const dict = (await getSiteMessages()).habits
   const t = dict.docs.chatgpt
   const copy = { copyLabel: dict.docs.copy, copiedLabel: dict.docs.copied }
   const urlBlock = <CopyBlock label={t.urlLabel} value={`${origin}/mcp`} inline {...copy} />

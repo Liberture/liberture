@@ -1,18 +1,14 @@
 import type { Locale } from "@/lib/translations"
+import { localizedPath } from "@/lib/i18n/paths"
 
-const staticPaths = new Set(["/", "/protocols", "/how-it-works", "/get-started", "/guides", "/docs", "/docs/chatgpt", "/docs/claude", "/docs/permissions", "/docs/api", "/docs/updates"])
+const origin = "https://liberture.com"
 
-// These pages translate their main content. A translated navigation bar alone doesn't qualify.
-export function hasTranslatedContent(path: string) {
-  return staticPaths.has(path) || /^\/guides\/[a-z0-9-]+$/.test(path)
+export function languageAlternates(path: string, spanishEntitySlug?: string) {
+  const en = origin + localizedPath(path, "en")
+  return { en, es: origin + localizedPath(path, "es", spanishEntitySlug), "x-default": en }
 }
 
-export function languageAlternates(path: string) {
-  const url = new URL(path, "https://liberture.com").href
-  return { en: url + "?lang=en", es: url + "?lang=es", "x-default": url }
-}
-
-export function translatedAlternates(path: string, locale: Locale) {
-  const languages = languageAlternates(path)
+export function translatedAlternates(path: string, locale: Locale, spanishEntitySlug?: string) {
+  const languages = languageAlternates(path, spanishEntitySlug)
   return { canonical: languages[locale], languages }
 }
