@@ -1,3 +1,4 @@
+import { CoverArtwork } from "@/components/habits/marketplace/protocol-artwork"
 import Markdown from "react-markdown"
 import { articleTags } from "@/lib/article-tags"
 import { LanguageSwitch } from "@/components/habits/site/language-switch"
@@ -48,9 +49,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: article.description || `Learn about ${article.title} from ${article.author}.`,
       url: `https://liberture.com/articles/${slug}`,
       type: 'article',
+      images: [{ url: `/articles/images/${slug}.webp`, width: 1200, height: 420 }],
     },
     twitter: {
       card: 'summary_large_image',
+      images: [`/articles/images/${slug}.webp`],
       title: article.title,
       description: article.description || `Learn about ${article.title}.`,
     },
@@ -174,6 +177,7 @@ export default async function ArticlePage({ params }: PageProps) {
             </div>
           </div>
 
+          <CoverArtwork src={`/articles/images/${slug}.webp`} height={420} loading="eager" className="mb-6 rounded-xl border border-border" />
           <Card className="mb-8">
             <CardContent className="prose prose-lg dark:prose-invert max-w-none p-8">
               {markdown ? (
