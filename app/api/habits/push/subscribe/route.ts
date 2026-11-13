@@ -35,7 +35,9 @@ export async function POST(request: Request) {
 
   const userId = await verifiedTrackerUserId(request)
   if (userId) {
-    await saveSubscription(userId, subscription, userAgent)
+    if (!await saveSubscription(userId, subscription, userAgent)) {
+      return NextResponse.json({ error: "A fresh device subscription is required." }, { status: 409 })
+    }
     return NextResponse.json({ subscribed: true })
   }
 

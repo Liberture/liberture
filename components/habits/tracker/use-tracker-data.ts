@@ -371,8 +371,12 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
   // into the UI. First hits the cheap meta endpoint; only downloads the full
   // blob when the server's lastUpdated differs from ours. Never runs while
   // local edits are pending — the save's smart merge covers that path.
+  const liveReady = useRef(false)
+  const refreshSequence = useRef(0)
   const refreshFromServer = useCallback(async () => {
     if (isDirtyRef.current || isSavingRef.current) return
+    const sequence = ++refreshSequence.current
+    const previousVersion = lastUpdatedRef.current
     try {
       const metaResponse = await fetch("/api/storage/meta", {
         headers: authHeaders,
@@ -380,7 +384,7 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
       })
       if (!metaResponse.ok) return
       const meta: { lastUpdated?: string | null } = await metaResponse.json()
-      if (!meta.lastUpdated || meta.lastUpdated === lastUpdatedRef.current) return
+      if (sequence !== refreshSequence.current || !meta.lastUpdated || meta.lastUpdated === lastUpdatedRef.current) return
 
       const response = await fetch("/api/storage", {
         headers: authHeaders,
@@ -390,7 +394,7 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
       const data: StorageData = await response.json()
       // The user may have started editing while we fetched; applying the
       // response now would clobber those edits, so let the save merge win.
-      if (isDirtyRef.current || isSavingRef.current) return
+      if (sequence !== refreshSequence.current || previousVersion !== lastUpdatedRef.current || isDirtyRef.current || isSavingRef.current) return
       applyServerData(data)
     } catch {
       // Background refresh must stay silent; the next tick will retry.
@@ -399,7 +403,9 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
 
   useEffect(() => {
     if (isLoading) return
-    const interval = setInterval(refreshFromServer, 30_000)
+    const interval = setInterval(() => {
+      if (!liveReady.current && document.visibilityState === "visible") refreshFromServer()
+    }, 30_000)
     const onWake = () => {
       if (document.visibilityState === "visible") refreshFromServer()
     }
@@ -409,6 +415,7 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
     // iOS restores pages from the back/forward cache without a visibilitychange.
     window.addEventListener("pageshow", onWake)
     return () => {
+      ++refreshSequence.current
       clearInterval(interval)
       document.removeEventListener("visibilitychange", onWake)
       window.removeEventListener("focus", onWake)
@@ -436,12 +443,17 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
       }
       refreshFromServer()
     }
-    const onReady = () => refreshFromServer()
+    const onReady = () => {
+      liveReady.current = true
+      refreshFromServer()
+    }
+    source.onerror = () => { liveReady.current = false }
     source.addEventListener("change", onChange)
     source.addEventListener("ready", onReady)
     return () => {
       source.removeEventListener("change", onChange)
       source.removeEventListener("ready", onReady)
+      liveReady.current = false
       source.close()
     }
   }, [isLoading, apiKey, refreshFromServer])

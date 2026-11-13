@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getDb } from "@/lib/habits/db"
-import { verifyApiKey } from "@/lib/habits/integration-auth"
+import { verifiedTrackerUserId } from "@/lib/habits/app-auth"
 import crypto from "crypto"
 
 /**
@@ -9,8 +9,8 @@ import crypto from "crypto"
  * Token is returned only once — store it safely.
  */
 export async function POST(request: Request) {
-  const user = await verifyApiKey(request)
-  if (!user) {
+  const userId = await verifiedTrackerUserId(request)
+  if (userId === null) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -24,20 +24,7 @@ export async function POST(request: Request) {
 
     const sql = getDb()
     
-    // Use appropriate WHERE clause based on auth type
-    if (user.nostrPubkey) {
-      await sql`
-        UPDATE habit_users
-        SET data = jsonb_set(data, '{integrationToken}', ${JSON.stringify({ hash, prefix })}::jsonb)
-        WHERE nostr_pubkey = ${user.nostrPubkey}
-      `
-    } else {
-      await sql`
-        UPDATE habit_users
-        SET data = jsonb_set(data, '{integrationToken}', ${JSON.stringify({ hash, prefix })}::jsonb)
-        WHERE api_key = ${user.apiKey}
-      `
-    }
+    await sql`UPDATE habit_users SET data = jsonb_set(COALESCE(data, '{}'::jsonb), '{integrationToken}', ${JSON.stringify({ hash, prefix })}::jsonb) WHERE id = ${userId}`
 
     return NextResponse.json({ token })
   } catch (error) {
@@ -51,29 +38,16 @@ export async function POST(request: Request) {
  * Revoke the integration token.
  */
 export async function DELETE(request: Request) {
-  const user = await verifyApiKey(request)
-  if (!user) {
+  const userId = await verifiedTrackerUserId(request)
+  if (userId === null) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
   try {
     const sql = getDb()
     
-    // Use appropriate WHERE clause based on auth type
-    if (user.nostrPubkey) {
-      await sql`
-        UPDATE habit_users
-        SET data = data - 'integrationToken'
-        WHERE nostr_pubkey = ${user.nostrPubkey}
-      `
-    } else {
-      await sql`
-        UPDATE habit_users
-        SET data = data - 'integrationToken'
-        WHERE api_key = ${user.apiKey}
-      `
-    }
-    
+    await sql`UPDATE habit_users SET data = data - 'integrationToken' WHERE id = ${userId}`
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Failed to revoke integration token:", error)
@@ -86,17 +60,18 @@ export async function DELETE(request: Request) {
  * Check token status (does not return the token itself).
  */
 export async function GET(request: Request) {
-  const user = await verifyApiKey(request)
-  if (!user) {
+  const userId = await verifiedTrackerUserId(request)
+  if (userId === null) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const token = (user.data as unknown as Record<string, unknown>).integrationToken as
-    | { hash: string; prefix: string }
-    | undefined
-
+  const [row] = await getDb()`
+    SELECT (data #>> '{integrationToken,hash}') IS NOT NULL AS has_token,
+           data #>> '{integrationToken,prefix}' AS prefix
+    FROM habit_users WHERE id = ${userId}
+  `
   return NextResponse.json({
-    hasToken: !!token?.hash,
-    prefix: token?.prefix ? `${token.prefix}...` : null,
-  })
+    hasToken: row?.has_token ?? false,
+    prefix: row?.prefix ? `${row.prefix}...` : null,
+  }, { headers: { "Cache-Control": "private, no-store" } })
 }

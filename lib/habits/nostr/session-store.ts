@@ -120,9 +120,9 @@ export async function verifySession(token: string): Promise<string | null> {
  * Refresh a session's expiry (extend by another SESSION_TTL)
  * Call this on successful API requests to keep active sessions alive
  */
-export async function refreshSession(token: string): Promise<boolean> {
+export async function renewSession(token: string): Promise<string | null> {
   if (!token || !isSessionToken(token)) {
-    return false
+    return null
   }
 
   const sql = getDb()
@@ -135,7 +135,7 @@ export async function refreshSession(token: string): Promise<boolean> {
     RETURNING pubkey
   `
 
-  return result.length > 0
+  return result[0]?.pubkey ?? null
 }
 
 /**

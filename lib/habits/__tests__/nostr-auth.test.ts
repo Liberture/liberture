@@ -71,7 +71,7 @@ vi.mock("@/lib/habits/db", () => {
     }
     if (q.startsWith("UPDATE nostr_sessions SET expires_at = $")) {
       const s = db.sessions.get(v[1] as string)
-      if (!s) return []
+      if (!s || s.expiresAt <= now) return []
       s.expiresAt = v[0] as Date
       return [{ pubkey: s.pubkey }]
     }

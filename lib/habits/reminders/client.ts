@@ -62,15 +62,18 @@ export async function subscribeThisDevice(authHeaders: AuthHeaders): Promise<Pus
   if (!reg) throw new Error("no_service_worker")
   const publicKey = await fetchPublicKey()
   if (!publicKey) throw new Error("not_configured")
-  let subscription = await reg.pushManager.getSubscription()
-  if (!subscription) {
-    subscription = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(publicKey) })
-  }
-  const response = await fetch("/api/habits/push/subscribe", {
+  const subscribe = () => reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(publicKey) })
+  const register = (subscription: PushSubscription) => fetch("/api/habits/push/subscribe", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders },
     body: JSON.stringify({ subscription: subscription.toJSON() }),
   })
+  let subscription = await reg.pushManager.getSubscription() ?? await subscribe()
+  let response = await register(subscription)
+  if (response.status === 409 && await subscription.unsubscribe()) {
+    subscription = await subscribe()
+    response = await register(subscription)
+  }
   if (!response.ok) throw new Error(`subscribe failed (${response.status})`)
   return subscription
 }

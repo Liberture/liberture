@@ -2,7 +2,7 @@ import { managedAuthEnabled } from "@/lib/identity/config"
 import { NextResponse } from "next/server"
 import { nip19 } from "nostr-tools"
 import { isLocalStorageMode } from "@/lib/habits/local-storage"
-import { verifySession, refreshSession, deleteSession, getSessionTokenFromCookie, SESSION_COOKIE_NAME, SESSION_TTL_SECONDS } from "@/lib/habits/nostr/session-store"
+import { renewSession, deleteSession, getSessionTokenFromCookie, SESSION_COOKIE_NAME, SESSION_TTL_SECONDS } from "@/lib/habits/nostr/session-store"
 import { createNostrSessionsTable } from "@/lib/habits/db-migrate"
 
 /**
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
     // Ensure sessions table exists
     await createNostrSessionsTable()
 
-    const pubkey = await verifySession(token)
+    const pubkey = await renewSession(token)
 
     if (!pubkey) {
       return NextResponse.json({ 
@@ -46,9 +46,6 @@ export async function GET(request: Request) {
         error: "Invalid or expired session" 
       }, { status: 401 })
     }
-
-    // Refresh the session (extend expiry on successful verification)
-    await refreshSession(token)
 
     // Convert to npub for display
     let npub = ""

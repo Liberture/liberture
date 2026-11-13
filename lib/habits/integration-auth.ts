@@ -129,11 +129,8 @@ export async function authorizeIntegration(
 export async function verifyApiKey(
   request: Request
 ): Promise<IntegrationAuthResult | null> {
-  const auth = request.headers.get("Authorization")
-  const sql = getDb()
-
   try {
-    if (!auth && new URL(request.url).searchParams.has("apiKey")) return null
+    const sql = getDb()
     const owner = await getAuthFromRequest(request)
     if (!owner) return null
     const result = owner.type === "api-key"

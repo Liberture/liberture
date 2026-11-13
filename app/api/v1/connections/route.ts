@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { verifyApiKey } from "@/lib/habits/integration-auth"
+import { verifiedTrackerUserId } from "@/lib/habits/app-auth"
 import { listConnections } from "@/lib/habits/oauth/store"
 import { syncStatusesFor, type ToolSyncStatus } from "@/lib/habits/api/connector-sync"
 import { TOOL_COUNT, TOOLS_VERSION } from "@/lib/habits/api/operations"
@@ -16,16 +16,16 @@ function toolsSummary(status: ToolSyncStatus | undefined) {
  * (null if it never has), so Settings can say "refresh ChatGPT to get N new tools".
  */
 export async function GET(request: Request) {
-  const user = await verifyApiKey(request)
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const userId = await verifiedTrackerUserId(request)
+  if (userId === null) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   const [connections, syncs] = await Promise.all([
-    listConnections(user.userId),
-    syncStatusesFor(user.userId).catch(() => new Map<string, ToolSyncStatus>()),
+    listConnections(userId),
+    syncStatusesFor(userId).catch(() => new Map<string, ToolSyncStatus>()),
   ])
   return NextResponse.json(
     {
       connections: connections.map((c) => ({ ...c, tools: toolsSummary(syncs.get(`conn:${c.id}`)) })),
-      scriptTokenTools: toolsSummary(syncs.get(`script:${user.userId}`)),
+      scriptTokenTools: toolsSummary(syncs.get(`script:${userId}`)),
       server: { tools: TOOL_COUNT, version: TOOLS_VERSION },
     },
     { headers: { "Cache-Control": "no-store" } }

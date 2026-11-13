@@ -26,7 +26,7 @@ export async function GET(request: Request, context: { params: Promise<{ runId: 
   }
 
   try {
-    const auth = await getAuthFromRequest(request)
+    const auth = await getAuthFromRequest(request, true)
     if (!auth) {
       return NextResponse.json({ error: "Valid API key or Nostr session required." }, { status: 401 })
     }

@@ -23,7 +23,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Live updates need database mode" }, { status: 501 })
   }
 
-  const userId = await verifiedTrackerUserId(request)
+  const userId = await verifiedTrackerUserId(request, true)
   if (userId === null) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
@@ -48,6 +48,7 @@ export async function GET(request: Request) {
       cleanup = () => {
         if (closed) return
         closed = true
+        request.signal.removeEventListener("abort", cleanup)
         clearInterval(heartbeat)
         unsubscribe()
         try {
@@ -56,7 +57,8 @@ export async function GET(request: Request) {
           // Already closed by the client.
         }
       }
-      request.signal.addEventListener("abort", () => cleanup())
+      request.signal.addEventListener("abort", cleanup, { once: true })
+      if (request.signal.aborted) return cleanup()
 
       // Tell EventSource to reconnect quickly if the stream drops.
       send("retry: 3000\n\n")
@@ -64,6 +66,7 @@ export async function GET(request: Request) {
         unsubscribe = await subscribeToChanges(userId, (event) => {
           send(`event: change\ndata: ${JSON.stringify({ lastUpdated: event.lastUpdated })}\n\n`)
         })
+        if (closed) return unsubscribe()
         send(`event: ready\ndata: {}\n\n`)
       } catch (error) {
         console.error("storage events: could not subscribe", error)

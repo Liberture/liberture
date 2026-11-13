@@ -60,6 +60,10 @@ export const directoryPrisma = clientFor(getRequestLocale)
 const english = clientFor(async () => "en")
 const spanish = clientFor(async () => "es")
 
+export function directoryClientForLocale(locale: Locale) {
+  return locale === "es" ? spanish : english
+}
+
 export function directoryApiClient(request: Request) {
-  return new URL(request.url).searchParams.get("lang") === "es" ? spanish : english
+  return directoryClientForLocale(new URL(request.url).searchParams.get("lang") === "es" ? "es" : "en")
 }

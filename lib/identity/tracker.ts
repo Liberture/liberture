@@ -9,7 +9,7 @@ function importedId(headers: Headers) {
 }
 
 export async function activeUser(id: string) {
-  return prisma.authUser.findFirst({ where: { id, OR: [{ banned: false }, { banned: null }, { banExpires: { lte: new Date() } }] } })
+  return prisma.authUser.findFirst({ select: { id: true, role: true }, where: { id, OR: [{ banned: false }, { banned: null }, { banExpires: { lte: new Date() } }] } })
 }
 
 export async function trackerIdentity(headers: Headers) {

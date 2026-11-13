@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { requestOrigin } from "@/lib/habits/api/assistant"
 import { buildClaudeSkillZip } from "@/lib/habits/assistant-kit"
-import { verifyApiKey } from "@/lib/habits/integration-auth"
+import { verifiedTrackerUserId } from "@/lib/habits/app-auth"
 import { createConnection } from "@/lib/habits/oauth/store"
 
 /**
@@ -10,10 +10,10 @@ import { createConnection } from "@/lib/habits/oauth/store"
  * in Settings and revocable on its own, so it never disturbs other assistants.
  */
 export async function POST(request: Request) {
-  const user = await verifyApiKey(request)
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  const userId = await verifiedTrackerUserId(request)
+  if (userId === null) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-  const { accessToken } = await createConnection({ userId: user.userId, name: "Claude skill", kind: "skill" })
+  const { accessToken } = await createConnection({ userId, name: "Claude skill", kind: "skill" })
   const zip = buildClaudeSkillZip({ baseUrl: requestOrigin(request), token: accessToken })
   return new NextResponse(new Uint8Array(zip), {
     headers: {

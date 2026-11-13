@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 
 import { appendHabits } from "@/lib/habits/api/habit-writes"
 import { userToday } from "@/lib/habits/api/time-zone"
+import { verifiedTrackerUserId } from "@/lib/habits/app-auth"
+import { getDb } from "@/lib/habits/db"
 import { verifyApiKey } from "@/lib/habits/integration-auth"
 import { adoptedProtocolSlugs, adoptedSlugs, catalogHabitToHabit } from "@/lib/habits/protocols/adopt"
 import { isLocale } from "@/lib/habits/i18n"
@@ -15,10 +17,12 @@ import { CATALOG_PROTOCOLS } from "@/lib/habits/protocols/catalog"
  * protocol's habits, skipping any already tracked.
  */
 export async function GET(request: Request) {
-  const user = await verifyApiKey(request)
-  if (!user) return NextResponse.json({ signedIn: false, adopted: [] })
-  const adopted = adoptedProtocolSlugs(user.data.habits ?? [], CATALOG_PROTOCOLS)
-  return NextResponse.json({ signedIn: true, adopted: [...adopted] })
+  const userId = await verifiedTrackerUserId(request)
+  const headers = { "Cache-Control": "private, no-store" }
+  if (userId === null) return NextResponse.json({ signedIn: false, adopted: [] }, { headers })
+  const [row] = await getDb()`SELECT data->'habits' AS habits FROM habit_users WHERE id = ${userId}`
+  const adopted = adoptedProtocolSlugs(row?.habits ?? [], CATALOG_PROTOCOLS)
+  return NextResponse.json({ signedIn: Boolean(row), adopted: [...adopted] }, { headers })
 }
 
 export async function POST(request: Request) {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getDb } from "@/lib/habits/db"
-import { verifyApiKey } from "@/lib/habits/integration-auth"
+import { verifiedTrackerUserId } from "@/lib/habits/app-auth"
 import { effectivePermissions, sanitizePermissions } from "@/lib/habits/api-scopes"
 
 /**
@@ -10,13 +10,13 @@ import { effectivePermissions, sanitizePermissions } from "@/lib/habits/api-scop
  * never change them.
  */
 export async function GET(request: Request) {
-  const user = await verifyApiKey(request)
-  if (!user) {
+  const userId = await verifiedTrackerUserId(request)
+  if (userId === null) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const stored = (user.data as unknown as Record<string, unknown>).integrationPermissions
-  return NextResponse.json({ permissions: effectivePermissions(stored) })
+  const [row] = await getDb()`SELECT data->'integrationPermissions' AS permissions FROM habit_users WHERE id = ${userId}`
+  return NextResponse.json({ permissions: effectivePermissions(row?.permissions) }, { headers: { "Cache-Control": "private, no-store" } })
 }
 
 /**
@@ -26,8 +26,8 @@ export async function GET(request: Request) {
  * so the browser's blob save can never revert it.
  */
 export async function PUT(request: Request) {
-  const user = await verifyApiKey(request)
-  if (!user) {
+  const userId = await verifiedTrackerUserId(request)
+  if (userId === null) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -43,20 +43,19 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "permissions must be an object of scope → boolean" }, { status: 400 })
   }
 
-  const current = (user.data as unknown as Record<string, unknown>).integrationPermissions
-  const next = { ...effectivePermissions(current), ...update }
-
   try {
-    const sql = getDb()
-    await sql`
+    const [row] = await getDb()`
       UPDATE habit_users
-      SET data = jsonb_set(data, '{integrationPermissions}', ${JSON.stringify(next)}::jsonb)
-      WHERE id = ${user.userId}
+      SET data = jsonb_set(COALESCE(data, '{}'::jsonb), '{integrationPermissions}',
+        (CASE WHEN jsonb_typeof(data->'integrationPermissions') = 'object'
+          THEN data->'integrationPermissions' ELSE '{}'::jsonb END) || ${JSON.stringify(update)}::jsonb)
+      WHERE id = ${userId}
+      RETURNING data->'integrationPermissions' AS permissions
     `
+    if (!row) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    return NextResponse.json({ permissions: effectivePermissions(row.permissions) })
   } catch (error) {
     console.error("Failed to update integration permissions:", error)
     return NextResponse.json({ error: "Failed to save permissions" }, { status: 500 })
   }
-
-  return NextResponse.json({ permissions: next })
 }

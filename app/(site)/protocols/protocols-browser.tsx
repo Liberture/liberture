@@ -12,7 +12,7 @@ import type { CatalogProtocol } from "@/lib/habits/protocols/catalog"
 export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }) {
   const locale = useLocale()
   const t = useTranslations("habits.protocolLibrary")
-  const { isSignedIn } = useHabitsSession()
+  const { isSignedIn, auth } = useHabitsSession()
   const [adopted, setAdopted] = useState<Set<string>>(new Set())
   const [hydrated, setHydrated] = useState(false)
   // What's already in the signed-in user's tracker (database, via the session cookie).
@@ -23,7 +23,7 @@ export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }
       return
     }
     let cancelled = false
-    fetch("/api/tracker/protocols")
+    fetch("/api/tracker/protocols", { headers: auth.apiKey ? { Authorization: `Bearer ${auth.apiKey}` } : undefined, cache: "no-store" })
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (cancelled || !d) return
@@ -34,16 +34,16 @@ export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }
     return () => {
       cancelled = true
     }
-  }, [isSignedIn])
+  }, [isSignedIn, auth.apiKey, auth.pubkey])
 
   const adopt = useCallback(async (slug: string) => {
     const res = await fetch("/api/tracker/protocols", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...(auth.apiKey && { Authorization: `Bearer ${auth.apiKey}` }) },
       body: JSON.stringify({ slug, locale }),
     })
     if (res.ok) setAdopted((prev) => new Set(prev).add(slug))
-  }, [locale])
+  }, [locale, auth.apiKey])
 
   return (
     <DirectoryLayout>

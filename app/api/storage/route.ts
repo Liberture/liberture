@@ -7,7 +7,7 @@ import { mergeProjects } from "@/lib/habits/project-sync"
 import { mergeTodos } from "@/lib/habits/todo-sync"
 import { mergeFieldStamped, mergeHabits, mergeHabitTombstones } from "@/lib/habits/habit-sync"
 import { mergeCalendarEvents } from "@/lib/habits/calendar-utils"
-import { syncOptimizedStorageTables } from "@/lib/habits/optimized-storage"
+import { ensureOptimizedStorageTables, syncOptimizedStorageTables } from "@/lib/habits/optimized-storage"
 import { getAuthFromRequest, type AuthInfo } from "@/lib/habits/app-auth"
 import { laterBackupAt } from "@/lib/habits/backup-status"
 import { mergeCoachRecommendations } from "@/lib/habits/coach/suggestions"
@@ -74,7 +74,7 @@ async function updateUserData(auth: AuthInfo, data: StorageData, sql: ReturnType
 }
 
 function storageResponse(data: StorageData, createdAt: string | null) {
-  const response = NextResponse.json(redactSecretMetadata(data))
+  const response = NextResponse.json(redactSecretMetadata(data), { headers: { "Cache-Control": "private, no-store" } })
   if (createdAt) response.headers.set("X-Account-Created-At", new Date(createdAt).toISOString())
   return response
 }
@@ -300,6 +300,7 @@ export async function POST(request: Request) {
     }
 
     const data: StorageData = await request.json()
+    delete (data as StorageData & { integrationToken?: unknown }).integrationToken
     data.projects = Array.isArray(data.projects) ? data.projects : []
     data.calendarEvents = Array.isArray(data.calendarEvents) ? data.calendarEvents : []
     if (!data.projectTombstones || typeof data.projectTombstones !== 'object' || Array.isArray(data.projectTombstones)) {
@@ -328,24 +329,18 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Nostr auth requires database mode" }, { status: 400 })
       }
 
+      const currentData = await getLocalUser(auth.apiKey!)
+      if (!currentData) return NextResponse.json({ error: "Invalid API key" }, { status: 401 })
+      carryIntegrationPermissions(data, currentData)
+      const stored = currentData as StorageData & { integrationToken?: unknown }
+      if (stored.integrationToken) Object.assign(data, { integrationToken: stored.integrationToken })
+
       if (mergeStrategy === 'smart') {
-        const currentData = await getLocalUser(auth.apiKey!)
-
-        if (!currentData) {
-          return NextResponse.json({ error: "Invalid API key" }, { status: 401 })
-        }
-
         if (predatesReset(clientLastUpdated, currentData)) return rejectedAfterReset(currentData)
         if (currentData.resetAt) data.resetAt = currentData.resetAt
         if (isSuspiciousEmptySnapshot(data, currentData)) {
           return rejectedEmptySnapshot(currentData)
         }
-
-        const currentIntegrationToken = (currentData as StorageData & { integrationToken?: unknown }).integrationToken
-        if (currentIntegrationToken) {
-          ;(data as StorageData & { integrationToken?: unknown }).integrationToken = currentIntegrationToken
-        }
-        carryIntegrationPermissions(data, currentData)
 
         // Same reasoning as the token above: /api/v1/export writes this
         // server-side, and a client that loaded beforehand would save it back
@@ -401,78 +396,80 @@ export async function POST(request: Request) {
     // Production mode: use Neon database
     const sql = getDb()
     
-    const currentData = (await getUserRecord(auth, sql))?.data ?? null
-    if (predatesReset(clientLastUpdated, currentData)) return rejectedAfterReset(currentData!)
-    // Server-owned, like the backup date: a save never drops or moves it.
-    if (currentData?.resetAt) data.resetAt = currentData.resetAt
-    if (isSuspiciousEmptySnapshot(data, currentData)) {
-      return rejectedEmptySnapshot(currentData!)
-    }
-    const currentIntegrationToken = (currentData as (StorageData & { integrationToken?: unknown }) | null)?.integrationToken
-    if (currentIntegrationToken) {
-      const dataWithToken = data as StorageData & { integrationToken?: unknown }
-      dataWithToken.integrationToken = currentIntegrationToken
-    }
-    carryIntegrationPermissions(data, currentData)
-
-    // Never let a save move the backup date backwards. /api/v1/export records
-    // it server-side, so a client that loaded before that export is holding a
-    // stale (usually absent) value. Outside the merge branch on purpose: this
-    // has to hold for a plain overwrite too.
-    data.lastBackupAt = laterBackupAt(data.lastBackupAt, currentData?.lastBackupAt)
-    // respond_to_suggestion (MCP) writes suggestion statuses server-side; a tab
-    // that loaded before must not undo them.
-    data.coachRecommendations = mergeCoachRecommendations(data.coachRecommendations, currentData?.coachRecommendations)
-
-    // If merge strategy is enabled, merge arrays
-    if (mergeStrategy === 'smart') {
-      if (currentData) {
-        // Merge completions and todos arrays using the client's last known sync time
-        data.habitTombstones = mergeHabitTombstones(data.habitTombstones, currentData.habitTombstones)
-        data.habits = mergeHabits(data.habits, currentData.habits, clientLastUpdated, data.habitTombstones)
-        data.completions = mergeCompletions(data.completions, currentData.completions, clientLastUpdated)
-        const mergedProjects = mergeProjects({
-          clientProjects: data.projects,
-          serverProjects: currentData.projects,
-          clientTombstones: data.projectTombstones,
-          serverTombstones: currentData.projectTombstones,
-        })
-        data.projects = mergedProjects.projects
-        data.projectTombstones = mergedProjects.projectTombstones
-        const mergedTodos = mergeTodos({
-          clientTodos: data.todos,
-          serverTodos: currentData.todos,
-          clientLastUpdated,
-          clientTombstones: data.todoTombstones,
-          serverTombstones: currentData.todoTombstones,
-        })
-        data.todos = mergedTodos.todos
-        data.todoTombstones = mergedTodos.todoTombstones
-        const mergedCalendar = mergeCalendarEvents({
-          clientEvents: data.calendarEvents,
-          serverEvents: currentData.calendarEvents,
-          clientLastUpdated,
-          clientTombstones: data.calendarEventTombstones,
-          serverTombstones: currentData.calendarEventTombstones,
-        })
-        data.calendarEvents = mergedCalendar.calendarEvents
-        data.calendarEventTombstones = mergedCalendar.calendarEventTombstones
-        mergeProfileAndPreferences(data, currentData, clientLastUpdated)
+    await ensureOptimizedStorageTables()
+    return await sql.begin(async tx => {
+      const [owner] = auth.type === "api-key"
+        ? await tx`SELECT id, data FROM habit_users WHERE api_key = ${auth.apiKey!} FOR UPDATE`
+        : await tx`SELECT id, data FROM habit_users WHERE nostr_pubkey = ${auth.pubkey!} FOR UPDATE`
+      if (!owner) return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
+      const currentData = owner.data as StorageData | null
+      if (predatesReset(clientLastUpdated, currentData)) return rejectedAfterReset(currentData!)
+      // Server-owned, like the backup date: a save never drops or moves it.
+      if (currentData?.resetAt) data.resetAt = currentData.resetAt
+      if (isSuspiciousEmptySnapshot(data, currentData)) {
+        return rejectedEmptySnapshot(currentData!)
       }
-    }
-    
-    const userId = await updateUserData(auth, data, sql)
+      const currentIntegrationToken = (currentData as (StorageData & { integrationToken?: unknown }) | null)?.integrationToken
+      if (currentIntegrationToken) {
+        const dataWithToken = data as StorageData & { integrationToken?: unknown }
+        dataWithToken.integrationToken = currentIntegrationToken
+      }
+      carryIntegrationPermissions(data, currentData)
 
-    if (!userId) {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
-    }
+      // Never let a save move the backup date backwards. /api/v1/export records
+      // it server-side, so a client that loaded before that export is holding a
+      // stale (usually absent) value. Outside the merge branch on purpose: this
+      // has to hold for a plain overwrite too.
+      data.lastBackupAt = laterBackupAt(data.lastBackupAt, currentData?.lastBackupAt)
+      // respond_to_suggestion (MCP) writes suggestion statuses server-side; a tab
+      // that loaded before must not undo them.
+      data.coachRecommendations = mergeCoachRecommendations(data.coachRecommendations, currentData?.coachRecommendations)
 
-    await syncOptimizedStorageTables(sql, userId, data)
+      // If merge strategy is enabled, merge arrays
+      if (mergeStrategy === 'smart') {
+        if (currentData) {
+          // Merge completions and todos arrays using the client's last known sync time
+          data.habitTombstones = mergeHabitTombstones(data.habitTombstones, currentData.habitTombstones)
+          data.habits = mergeHabits(data.habits, currentData.habits, clientLastUpdated, data.habitTombstones)
+          data.completions = mergeCompletions(data.completions, currentData.completions, clientLastUpdated)
+          const mergedProjects = mergeProjects({
+            clientProjects: data.projects,
+            serverProjects: currentData.projects,
+            clientTombstones: data.projectTombstones,
+            serverTombstones: currentData.projectTombstones,
+          })
+          data.projects = mergedProjects.projects
+          data.projectTombstones = mergedProjects.projectTombstones
+          const mergedTodos = mergeTodos({
+            clientTodos: data.todos,
+            serverTodos: currentData.todos,
+            clientLastUpdated,
+            clientTombstones: data.todoTombstones,
+            serverTombstones: currentData.todoTombstones,
+          })
+          data.todos = mergedTodos.todos
+          data.todoTombstones = mergedTodos.todoTombstones
+          const mergedCalendar = mergeCalendarEvents({
+            clientEvents: data.calendarEvents,
+            serverEvents: currentData.calendarEvents,
+            clientLastUpdated,
+            clientTombstones: data.calendarEventTombstones,
+            serverTombstones: currentData.calendarEventTombstones,
+          })
+          data.calendarEvents = mergedCalendar.calendarEvents
+          data.calendarEventTombstones = mergedCalendar.calendarEventTombstones
+          mergeProfileAndPreferences(data, currentData, clientLastUpdated)
+        }
+      }
 
-    return NextResponse.json({ 
-      success: true, 
-      lastUpdated: data.lastUpdated,
-      data: redactSecretMetadata(data) // Return full merged data without token metadata
+      await tx`UPDATE habit_users SET data = ${JSON.stringify(data)}::jsonb, updated_at = NOW() WHERE id = ${owner.id}`
+      await syncOptimizedStorageTables(tx, owner.id, data)
+
+      return NextResponse.json({
+        success: true,
+        lastUpdated: data.lastUpdated,
+        data: redactSecretMetadata(data) // Return full merged data without token metadata
+      })
     })
   } catch (error) {
     console.error("Failed to write storage:", error)

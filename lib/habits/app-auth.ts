@@ -3,8 +3,8 @@ import crypto from "node:crypto"
 import { getDb } from "@/lib/habits/db"
 
 import { createNostrSessionsTable } from "@/lib/habits/db-migrate"
-import { isLocalStorageMode } from "@/lib/habits/local-storage"
-import { getSessionTokenFromCookie, refreshSession, verifySession } from "@/lib/habits/nostr/session-store"
+import { isLocalStorageMode, localUserExists } from "@/lib/habits/local-storage"
+import { getSessionTokenFromCookie, renewSession } from "@/lib/habits/nostr/session-store"
 
 /**
  * Who is making this request.
@@ -15,6 +15,7 @@ import { getSessionTokenFromCookie, refreshSession, verifySession } from "@/lib/
  * sessions work cannot leave one of them behind.
  */
 export interface AuthInfo {
+  userId?: number
   type: "api-key" | "nostr"
   apiKey?: string
   pubkey?: string
@@ -22,23 +23,27 @@ export interface AuthInfo {
 
 async function legacyCredential(key: string): Promise<AuthInfo | null> {
   if (!key.startsWith("ht_")) return null
-  if (managedAuthEnabled()) {
-    const { prisma } = await import("@/lib/prisma")
-    const { activeUser } = await import("@/lib/identity/tracker")
-    const user = await prisma.habitUser.findUnique({ where: { apiKey: key }, select: { id: true } })
-    if (!user || !await activeUser("habit-" + user.id)) return null
+  if (isLocalStorageMode()) {
+    return await localUserExists(key) ? { type: "api-key", apiKey: key } : null
   }
-  return { type: "api-key", apiKey: key }
+  const [user] = await getDb()`SELECT id FROM habit_users WHERE api_key = ${key}`
+  if (!user) return null
+  if (managedAuthEnabled()) {
+    const { activeUser } = await import("@/lib/identity/tracker")
+    if (!await activeUser("habit-" + user.id)) return null
+  }
+  return { type: "api-key", apiKey: key, userId: user.id }
 }
 
 /**
  * Parse the auth identifier from the request.
  * Supports legacy API keys (ht_...) and signed Nostr sessions.
  */
-export async function getAuthFromRequest(request: Request): Promise<AuthInfo | null> {
+export async function getAuthFromRequest(request: Request, allowStreamQueryKey = false): Promise<AuthInfo | null> {
   const authHeader = request.headers.get("authorization")
 
-  if (authHeader?.startsWith("Bearer ")) {
+  if (authHeader !== null) {
+    if (!authHeader.startsWith("Bearer ")) return null
     const token = authHeader.slice(7)
     return legacyCredential(token)
   }
@@ -46,7 +51,7 @@ export async function getAuthFromRequest(request: Request): Promise<AuthInfo | n
   const url = new URL(request.url)
   const apiKey = url.searchParams.get("apiKey")
   if (apiKey) {
-    return legacyCredential(apiKey)
+    return allowStreamQueryKey && request.method === "GET" ? legacyCredential(apiKey) : null
   }
 
   if (isLocalStorageMode()) return null
@@ -55,15 +60,14 @@ export async function getAuthFromRequest(request: Request): Promise<AuthInfo | n
     const { trackerIdentity } = await import("@/lib/identity/tracker")
     const current = await trackerIdentity(request.headers)
     if (!current) return null
-    return current.tracker.nostrPubkey ? { type: "nostr", pubkey: current.tracker.nostrPubkey } : { type: "api-key", apiKey: current.tracker.apiKey }
+    return current.tracker.nostrPubkey ? { type: "nostr", pubkey: current.tracker.nostrPubkey, userId: current.tracker.id } : { type: "api-key", apiKey: current.tracker.apiKey, userId: current.tracker.id }
   }
   const sessionToken = getSessionTokenFromCookie(request)
   if (!sessionToken) return null
 
   await createNostrSessionsTable()
-  const pubkey = await verifySession(sessionToken)
+  const pubkey = await renewSession(sessionToken)
   if (!pubkey) return null
-  await refreshSession(sessionToken)
 
   return { type: "nostr", pubkey }
 }
@@ -101,7 +105,7 @@ export async function canManageCoach(auth: AuthInfo): Promise<boolean> {
   const owner = process.env.HABIT_COACH_OWNER_USER_ID
   if (!owner || !/^[1-9][0-9]*$/.test(owner) || isLocalStorageMode()) return false
   const sql = getDb()
-  // getAuthFromRequest only parses legacy keys: verify them against the DB here.
+  if (auth.userId !== undefined) return String(auth.userId) === owner
   const rows = auth.type === "api-key"
     ? await sql`SELECT id FROM habit_users WHERE id = ${owner} AND api_key = ${auth.apiKey ?? ""}`
     : await sql`SELECT id FROM habit_users WHERE id = ${owner} AND nostr_pubkey = ${auth.pubkey ?? ""}`
@@ -120,9 +124,10 @@ export async function isCoachAdminRequest(request: Request): Promise<boolean> {
   return auth !== null && await canManageCoach(auth)
 }
 
-export async function verifiedTrackerUserId(request: Request): Promise<number | null> {
-  const auth = await getAuthFromRequest(request)
+export async function verifiedTrackerUserId(request: Request, allowStreamQueryKey = false): Promise<number | null> {
+  const auth = await getAuthFromRequest(request, allowStreamQueryKey)
   if (!auth || isLocalStorageMode()) return null
+  if (auth.userId !== undefined) return auth.userId
   const sql = getDb()
   const rows = auth.type === "api-key"
     ? await sql`SELECT id FROM habit_users WHERE api_key = ${auth.apiKey ?? ""}`

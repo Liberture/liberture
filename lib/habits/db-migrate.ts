@@ -34,7 +34,17 @@ export async function createNostrChallengesTable(): Promise<void> {
  * Sessions allow users to stay logged in without re-signing on every page load.
  * Safe to run multiple times (IF NOT EXISTS).
  */
-export async function createNostrSessionsTable(): Promise<void> {
+let sessionsReady: Promise<void> | undefined
+
+export function createNostrSessionsTable(): Promise<void> {
+  sessionsReady ??= initializeSessionsTable().catch(error => {
+    sessionsReady = undefined
+    throw error
+  })
+  return sessionsReady
+}
+
+async function initializeSessionsTable(): Promise<void> {
   const sql = getDb()
   await sql`
     CREATE TABLE IF NOT EXISTS nostr_sessions (

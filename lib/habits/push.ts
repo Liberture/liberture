@@ -94,24 +94,26 @@ export function isPushSubscriptionInput(value: unknown): value is PushSubscripti
     && sub.keys.p256dh.length <= 512 && sub.keys.auth.length <= 512
 }
 
-/** Stores (or re-assigns) a device's subscription. A browser has one endpoint, whoever is signed in on it. */
+/** Register or update a device belonging to this tracker account. */
 export async function saveSubscription(
   userId: number,
   subscription: PushSubscriptionInput,
   userAgent?: string | null,
-): Promise<void> {
+  sql: Sql = getDb(),
+): Promise<boolean> {
   await ensurePushTables()
-  const sql = getDb()
-  await sql`
+  const rows = await sql`
     INSERT INTO habit_push_subscriptions (user_id, endpoint, p256dh, auth, user_agent)
     VALUES (${userId}, ${subscription.endpoint}, ${subscription.keys.p256dh}, ${subscription.keys.auth}, ${userAgent?.slice(0, 512) ?? null})
     ON CONFLICT (endpoint) DO UPDATE SET
-      user_id = EXCLUDED.user_id,
       p256dh = EXCLUDED.p256dh,
       auth = EXCLUDED.auth,
       user_agent = COALESCE(EXCLUDED.user_agent, habit_push_subscriptions.user_agent),
       failures = 0
+    WHERE habit_push_subscriptions.user_id = EXCLUDED.user_id
+    RETURNING id
   `
+  return rows.length > 0
 }
 
 /**
@@ -127,14 +129,14 @@ export async function replaceSubscription(
 ): Promise<number | null> {
   await ensurePushTables()
   const sql = getDb()
-  const rows = await sql`SELECT user_id FROM habit_push_subscriptions WHERE endpoint = ${oldEndpoint}`
-  const userId = rows[0]?.user_id as number | undefined
-  if (!userId) return null
-  if (oldEndpoint !== subscription.endpoint) {
-    await sql`DELETE FROM habit_push_subscriptions WHERE endpoint = ${oldEndpoint}`
-  }
-  await saveSubscription(userId, subscription, userAgent)
-  return userId
+  return sql.begin(async tx => {
+    const [old] = await tx`SELECT user_id FROM habit_push_subscriptions WHERE endpoint = ${oldEndpoint} FOR UPDATE`
+    if (!old || !await saveSubscription(old.user_id, subscription, userAgent, tx)) return null
+    if (oldEndpoint !== subscription.endpoint) {
+      await tx`DELETE FROM habit_push_subscriptions WHERE user_id = ${old.user_id} AND endpoint = ${oldEndpoint}`
+    }
+    return old.user_id as number
+  })
 }
 
 /** Whether the user has at least one subscribed device. */

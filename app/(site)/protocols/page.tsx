@@ -1,13 +1,14 @@
+import { unstable_cache } from "next/cache"
 import type { Metadata } from "next"
 
 import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { getTranslations } from "next-intl/server"
 import { translatedAlternates } from "@/lib/seo/translated-routes"
-import { directoryPrisma as prisma } from "@/lib/i18n/directory-records.server"
+import { directoryClientForLocale } from "@/lib/i18n/directory-records.server"
 import { catalogProtocols } from "@/lib/habits/protocols/localized-catalog"
 import { type CatalogProtocol } from "@/lib/habits/protocols/catalog"
 import { normalizeSources } from "@/lib/habits/protocols/sources"
-import type { PillarId } from "@/lib/translations"
+import type { Locale, PillarId } from "@/lib/translations"
 
 import { ProtocolsBrowser } from "./protocols-browser"
 
@@ -45,22 +46,31 @@ const DIFFICULTY: Record<string, CatalogProtocol["difficulty"]> = {
   advanced: "hard",
 }
 
+const publishedProtocols = unstable_cache(
+  (locale: Locale) => directoryClientForLocale(locale).protocol.findMany({
+    where: { published: true },
+    orderBy: [{ featured: "desc" }, { name: "asc" }],
+    select: { slug: true, name: true, description: true, why: true, pillar: true, difficulty: true, duration: true, benefits: true, risks: true, references: true },
+  }),
+  ["public-protocol-library-v1"],
+  { revalidate: 60 },
+)
+
 /**
  * Published protocols from the database, shaped for the browser. Habit
  * breakdowns aren't stored per-protocol, so they're taken from the bundled
  * catalog by slug — the same source the seeder writes from.
  */
 async function loadProtocols(): Promise<CatalogProtocol[]> {
-  const bundled = catalogProtocols(await getRequestLocale())
+  const locale = await getRequestLocale()
+  const bundled = catalogProtocols(locale)
   try {
-    const rows = await prisma.protocol.findMany({
-      where: { published: true },
-      orderBy: [{ featured: "desc" }, { name: "asc" }],
-    })
+    const rows = await publishedProtocols(locale)
     if (rows.length === 0) return bundled
 
+    const bySlug = new Map(bundled.map(protocol => [protocol.slug, protocol]))
     const trackable = rows.flatMap(row => {
-      const catalog = bundled.find(p => p.slug === row.slug)
+      const catalog = bySlug.get(row.slug)
       if (!catalog) return []
       return [{
         ...catalog,

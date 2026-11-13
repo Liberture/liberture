@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { getDb } from "@/lib/habits/db"
 import { isLocalStorageMode } from "@/lib/habits/local-storage"
 import { nip19 } from "nostr-tools"
-import { addNostrPubkeyColumn } from "@/lib/habits/db-migrate"
+import { getAuthFromRequest } from "@/lib/habits/app-auth"
 
 /**
  * GET /api/auth/nostr/status
@@ -12,17 +12,8 @@ import { addNostrPubkeyColumn } from "@/lib/habits/db-migrate"
  */
 export async function GET(request: Request) {
   try {
-    // Check authorization header
-    const authHeader = request.headers.get("Authorization")
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json({ error: "Missing authorization header" }, { status: 401 })
-    }
-
-    const apiKey = authHeader.slice(7) // Remove "Bearer " prefix
-
-    if (!apiKey.startsWith("ht_")) {
-      return NextResponse.json({ error: "Invalid API key" }, { status: 401 })
-    }
+    const auth = await getAuthFromRequest(request)
+    if (auth?.type !== "api-key") return NextResponse.json({ error: "Invalid API key" }, { status: 401 })
 
     // Local storage mode not supported
     if (isLocalStorageMode()) {
@@ -33,14 +24,11 @@ export async function GET(request: Request) {
       })
     }
 
-    // Ensure nostr_pubkey column exists (idempotent, safe to call every time)
-    await addNostrPubkeyColumn()
-
     const sql = getDb()
 
     // Get user and check for linked Nostr pubkey
     const userResult = await sql`
-      SELECT id, nostr_pubkey FROM habit_users WHERE api_key = ${apiKey}
+      SELECT id, nostr_pubkey FROM habit_users WHERE id = ${auth.userId!}
     `
 
     if (userResult.length === 0) {

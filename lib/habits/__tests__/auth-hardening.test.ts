@@ -14,18 +14,18 @@ vi.mock("@/lib/habits/db", () => ({
 }))
 vi.mock("@/lib/habits/local-storage", () => ({ isLocalStorageMode: () => false, getLocalUser: vi.fn() }))
 
-import { POST as importStorage } from "@/app/api/storage/import/route"
+import { POST as saveStorage } from "@/app/api/storage/route"
 import { POST as verify } from "@/app/api/auth/verify/route"
 import { randomInternalApiKey } from "@/lib/habits/internal-api-key"
 
 const pubkey = "3bf0c63fcb93463407af97a5e5ee64fa883d107ef9e558472c4eb9aaaefa459d"
 const derived = `npub_${pubkey.slice(0, 16)}`
 
-describe("POST /api/storage/import", () => {
+describe("POST /api/storage", () => {
   it("rejects the derived key (the attack): 401 before touching any account", async () => {
     queries.length = 0
-    const response = await importStorage(
-      new Request("https://liberture.test/api/storage/import", {
+    const response = await saveStorage(
+      new Request("https://liberture.test/api/storage", {
         method: "POST",
         headers: { Authorization: `Bearer ${derived}`, "Content-Type": "application/json" },
         body: JSON.stringify({ habits: [] }),
@@ -36,7 +36,7 @@ describe("POST /api/storage/import", () => {
   })
 
   it("rejects a request with no credentials", async () => {
-    const response = await importStorage(new Request("https://liberture.test/api/storage/import", { method: "POST", body: "{}" }))
+    const response = await saveStorage(new Request("https://liberture.test/api/storage", { method: "POST", body: "{}" }))
     expect(response.status).toBe(401)
   })
 })
