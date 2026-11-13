@@ -17,6 +17,7 @@ export function AppToaster() {
       closeButton
       // Clears the mobile bottom nav.
       offset={88}
+      mobileOffset={{ bottom: "calc(7rem + env(safe-area-inset-bottom))" }}
       toastOptions={{ className: "font-sans" }}
     />
   )

@@ -3155,6 +3155,7 @@
         }
       },
       "habitTracker": {
+        "welcomeMessage": "One day at a time. One habit at a time.",
         "showTutorial": "Show tutorial",
         "homeLink": "Liberture home",
         "loadingStatistics": "Loading statistics…",

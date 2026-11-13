@@ -3155,6 +3155,7 @@
         }
       },
       "habitTracker": {
+        "welcomeMessage": "Un día a la vez. Un hábito a la vez.",
         "showTutorial": "Ver tutorial",
         "homeLink": "Inicio de Liberture",
         "loadingStatistics": "Cargando estadísticas…",

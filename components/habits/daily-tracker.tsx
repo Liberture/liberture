@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useMemo, useState } from "react"
 import { addDays, differenceInCalendarDays, format, isSameDay, isValid, parseISO, startOfDay } from "date-fns"
-import { CalendarDays, ChevronLeft, ChevronRight, Compass, Flame, Plus, Sparkles, Store, TrendingUp } from "lucide-react"
+import { CalendarDays, ChevronLeft, ChevronRight, Compass, Flame, Plus, Store, TrendingUp } from "lucide-react"
 
 import { HabitRow } from "@/components/habits/tracker/habit-row"
 import {
@@ -29,7 +29,6 @@ interface DailyTrackerProps {
   habits: Habit[]
   completions: HabitCompletion[]
   displayName?: string
-  motivationalMessage?: string
   onToggleCompletion: (habitId: string, date: Date) => void
   onLogData: (habitId: string, date: Date) => void
   /** Opens the habit dialog — the only place a habit can be deleted (with a confirm). */
@@ -66,7 +65,6 @@ export const DailyTracker = memo(function DailyTracker({
   habits,
   completions,
   displayName,
-  motivationalMessage,
   onToggleCompletion,
   onLogData,
   onEditHabit,
@@ -219,13 +217,6 @@ export const DailyTracker = memo(function DailyTracker({
   return (
     <div className="relative overflow-hidden">
       <div className="relative mx-auto max-w-3xl px-1 py-6 sm:px-4 sm:py-12">
-        {motivationalMessage ? (
-          <div className="mb-6 flex items-center gap-2 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/10 to-work/10 p-3">
-            <Sparkles className="h-4 w-4 shrink-0 text-primary" aria-hidden />
-            <p className="text-sm text-foreground">{motivationalMessage}</p>
-          </div>
-        ) : null}
-
         <header className="space-y-6">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>

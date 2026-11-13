@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { HelpTooltip } from "@/components/ui/tooltip"
 import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { format, subDays, startOfDay } from "date-fns"
-import { Check, CircleAlert, Loader2, Sparkles, Archive, BookOpen, Rows3, LayoutGrid, CalendarRange } from "lucide-react"
+import { Check, CircleAlert, Loader2, Archive, BookOpen, Rows3, LayoutGrid, CalendarRange } from "lucide-react"
 
 import Link from "@/components/i18n/localized-link"
 import { LibertureLogoStatic } from "@/components/branding"
@@ -28,7 +28,7 @@ import { DailyTracker } from "@/components/habits/daily-tracker"
 import { DiscoverView } from "@/components/habits/discover-view"
 import { SwipeViews } from "@/components/habits/swipe-views"
 import { TopographicBackground } from "@/components/habits/patterns/topographic-background"
-import { AppToaster } from "@/components/habits/ui/toast"
+import { AppToaster, notify } from "@/components/habits/ui/toast"
 import { defaultRange, type DateRange } from "@/components/habits/date-range-filter"
 import { HabitLogModals, type LogTarget } from "@/components/habits/tracker/habit-log-modals"
 import { StatsView } from "@/components/habits/tracker/stats-view"
@@ -38,7 +38,6 @@ import { useTrackerData } from "@/components/habits/tracker/use-tracker-data"
 import { useTrackerActions } from "@/components/habits/tracker/use-tracker-actions"
 import { useTrackerView, type ActiveView } from "@/components/habits/tracker/use-tracker-view"
 import { isReadingHabit } from "@/lib/habits/reading-passages"
-import { getDailyMotivation } from "@/lib/habits/motivational-messages"
 import type { UserPreferences } from "@/lib/habits/types"
 import { useMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -119,7 +118,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
   const [tourIds, setTourIds] = useState<string[] | null>(null)
   const [showMorningDashboard, setShowMorningDashboard] = useState(false)
   const [dates, setDates] = useState<Date[]>([])
-  const [motivationalMessage, setMotivationalMessage] = useState<string>("")
+  const welcomeShown = useRef(false)
   // Stats period, shared by the summary and the detailed charts. Last 7 days.
   const [statsRange, setStatsRange] = useState<DateRange>(() => defaultRange())
   const [logTarget, setLogTarget] = useState<LogTarget | null>(null)
@@ -230,12 +229,14 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
     }
   }, [habits, completions, dates, isLoading, setHabits, markDirty])
 
-  // Set motivational message once data is loaded
   useEffect(() => {
-    if (!isLoading && habits.length > 0) {
-      setMotivationalMessage(getDailyMotivation(habits, completions))
-    }
-  }, [isLoading, habits, completions, dates])
+    if (isLoading || !onboardingState.completed || welcomeShown.current || tourIds !== null || showMorningDashboard) return
+    const timer = window.setTimeout(() => {
+      welcomeShown.current = true
+      notify.info(t.welcomeMessage)
+    }, 250)
+    return () => window.clearTimeout(timer)
+  }, [isLoading, onboardingState.completed, tourIds, showMorningDashboard, t.welcomeMessage])
 
   // Morning dashboard: once per day between 05:00 and 11:00 unless turned off
   // in Preferences or already dismissed today (saved, so it follows the
@@ -410,19 +411,11 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
               slideDirection === "up" && "motion-safe:slide-in-from-bottom-4",
               slideDirection === "down" && "motion-safe:slide-in-from-top-4",
             )}>
-              {motivationalMessage && habits.length > 0 && effectiveLayout !== "day" && (
-                <div className="flex items-center gap-2 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/10 to-work/10 p-3 md:gap-3 md:p-4">
-                  <Sparkles className="h-4 w-4 flex-shrink-0 text-primary md:h-5 md:w-5" aria-hidden />
-                  <p className="text-xs text-foreground md:text-sm">{motivationalMessage}</p>
-                </div>
-              )}
-
               {effectiveLayout === "day" ? (
                 <DailyTracker key={tourIds !== null ? "tour" : "tracker"}
                   habits={habits}
                   completions={completions}
                   displayName={storageData?.profile?.name}
-                  motivationalMessage={motivationalMessage}
                   onToggleCompletion={toggleOrLogForDay}
                   onLogData={openHabitData}
                   onEditHabit={openHabitEditor}
