@@ -2,10 +2,10 @@
   overflow: hidden;
   border-radius: .8rem;
   padding: .65rem .5rem;
-  background: radial-gradient(ellipse at bottom, #ffd28518, transparent 70%), var(--muted);
+  background: radial-gradient(ellipse at bottom, #875bdf38, transparent 70%), var(--muted);
 }
-.ring { display: block; width: 100%; max-width: 360px; margin: auto; }
-.names { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 240px; margin: auto; text-align: center; font-size: .75rem; font-weight: 600; }
+.ring { display: block; width: 100%; max-width: 410px; margin: auto; }
+.names { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 410px; margin: auto; text-align: center; font-size: .75rem; font-weight: 600; }
 .names span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 .2rem; }
 .fighter { --team: #6edac9; transform-origin: 0 72px; }
 .fighter[data-side="player"] { --team: #fa886e; }

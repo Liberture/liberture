@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { useHabitsSession } from "@/components/habits/session-provider"
 import type { Challenge } from "@/lib/challenges/types"
+import { InviteTarget } from "./invite-target"
 import { ChallengeDetail } from "./detail"
 import { Field, panel, rememberWallet, useAction, useChallengeClient } from "./common"
 
@@ -120,14 +121,8 @@ export function ChallengesView() {
               required
             />
           </div>
-          <p className="text-sm text-muted-foreground">{t("inviteHint")}</p>
-          <Field label={t("playerNpub")} name="playerNpub" placeholder="npub1…" pattern="npub1[0-9a-z]{58}" />
-          <Field
-            label={t("moderatorNpub")}
-            name="moderatorNpub"
-            placeholder="npub1…"
-            pattern="npub1[0-9a-z]{58}"
-          />
+          <InviteTarget role="player" />
+          <InviteTarget role="moderator" />
           {error && <p role="alert">{error}</p>}
           <div className="flex gap-2">
             <Button disabled={busy}>{t("create")}</Button>
