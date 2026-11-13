@@ -10,6 +10,8 @@ export async function proxy(request: NextRequest) {
   headers.delete("x-liberture-spanish-slug")
 
   const url = new URL(request.url)
+  headers.delete("x-liberture-private-invite")
+  if (url.pathname.startsWith("/challenges/")) headers.set("x-liberture-private-invite", "1")
   const route = parsePublicPath(url.pathname)
   if (!route) return NextResponse.next({ request: { headers } })
 

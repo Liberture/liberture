@@ -673,3 +673,33 @@ model DirectoryDataMigration {
   name String @id
   appliedAt DateTime @default(now()) @db.Timestamptz(3)
 }
+
+// Private challenge state and hashed invitation / guest credentials. Account IDs
+// stay opaque if a tracker account is deleted, preserving other players' claims.
+model TrackerChallenge {
+  id              String  @id @db.Uuid
+  creatorId       Int     @map("creator_id")
+  playerId        Int?    @map("player_id")
+  moderatorId     Int?    @map("moderator_id")
+  playerInvite    String  @unique @map("player_invite")
+  moderatorInvite String  @unique @map("moderator_invite")
+  playerGuest     String? @map("player_guest")
+  moderatorGuest  String? @map("moderator_guest")
+  playerNostr     String? @map("player_nostr")
+  moderatorNostr  String? @map("moderator_nostr")
+  state           Json
+  proofClaims     TrackerChallengeProof[]
+
+  @@index([creatorId])
+  @@index([playerId])
+  @@index([moderatorId])
+  @@map("tracker_challenges")
+}
+
+model TrackerChallengeProof {
+  id          String           @id
+  challengeId String           @map("challenge_id") @db.Uuid
+  challenge   TrackerChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@map("tracker_challenge_proofs")
+}

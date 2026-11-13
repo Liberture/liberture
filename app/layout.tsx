@@ -87,7 +87,8 @@ export default async function RootLayout({
 }>) {
   const [locale, t] = await Promise.all([getLocale(), getTranslations("siteMetadata")])
   const requestHeaders = await headers()
-  const isAhrefsAudit = /\bAhrefsSiteAudit\b/i.test(requestHeaders.get("user-agent") ?? "")
+  const privateInvite = requestHeaders.has("x-liberture-private-invite")
+  const isAhrefsAudit = !privateInvite && /\bAhrefsSiteAudit\b/i.test(requestHeaders.get("user-agent") ?? "")
   let impersonatedName: string | undefined
   if (managedAuthEnabled()) {
     const jar = await cookies()
@@ -111,8 +112,7 @@ export default async function RootLayout({
             {impersonatedName && <ImpersonationNotice name={impersonatedName} />}
             <HabitsSessionProvider><TooltipProvider delayDuration={250}>{children}</TooltipProvider></HabitsSessionProvider>
             <ServiceWorkerRegister />
-            <CookieConsent ahrefsInHead={isAhrefsAudit} />
-            <Analytics />
+            {!privateInvite && <><CookieConsent ahrefsInHead={isAhrefsAudit} /><Analytics /></>}
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>

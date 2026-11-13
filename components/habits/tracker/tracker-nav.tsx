@@ -39,8 +39,7 @@ export function DesktopNav({ activeView, onSelect, status, className }: NavProps
 }
 
 /**
- * Phone: bottom bar with every view (five slots — Discover holds both the
- * catalog and the coach). Hidden from `lg` up.
+ * Phone: one bottom navigation slot per view.
  */
 export function MobileNav({ activeView, onSelect, status, className }: NavProps) {
   const t = useTranslations().habits.app.habitTracker
@@ -72,7 +71,7 @@ export function MobileNav({ activeView, onSelect, status, className }: NavProps)
             )}
           >
             <span className="inline-flex size-6 shrink-0">{activeView === id && status ? status : <Icon className="size-full" aria-hidden />}</span>
-            <span className="max-w-full truncate text-xs font-semibold">{t.views[id]}</span>
+            <span className="max-w-full truncate text-[10px] sm:text-xs font-semibold">{t.views[id]}</span>
           </button>
         ))}
       </div>

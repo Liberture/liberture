@@ -8,6 +8,7 @@ import { Check, CircleAlert, Loader2, Archive, BookOpen, Rows3, LayoutGrid, Cale
 
 import Link from "@/components/i18n/localized-link"
 import { LibertureLogoStatic } from "@/components/branding"
+import dynamic from "next/dynamic"
 import { HabitGrid } from "@/components/habits/habit-grid"
 import { HabitDialog } from "@/components/habits/habit-dialog"
 import { useHabitsSession } from "@/components/habits/session-provider"
@@ -45,6 +46,8 @@ import { useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage } from "@/lib/i18n-format"
 import { AssistantStartCard } from "@/components/habits/assistant/assistant-start"
 import { assistantKind, useAssistantConnections } from "@/components/habits/assistant/use-assistant-connections"
+
+const ChallengesView = dynamic(() => import("@/components/habits/challenges/challenges-view").then(module => module.ChallengesView))
 
 type HabitsLayout = NonNullable<UserPreferences["habitsLayout"]>
 
@@ -325,14 +328,14 @@ export function HabitTracker() {
   }
 
   // New users: the wizard — unless an assistant is already connected (handed off above).
-  if (!onboardingState.completed && (connections?.length || (connections === null && !connectionCheckTimedOut))) {
+  if (activeView !== "challenges" && !onboardingState.completed && (connections?.length || (connections === null && !connectionCheckTimedOut))) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <p className="text-muted-foreground">{t.loadingHabits}</p>
       </div>
     )
   }
-  if (!onboardingState.completed) {
+  if (activeView !== "challenges" && !onboardingState.completed) {
     return (
       <OnboardingFlow
         onComplete={(selected, onboarding) => {
@@ -361,6 +364,7 @@ export function HabitTracker() {
   const editingTodo = editingTodoId ? todos.find((item) => item.id === editingTodoId) : undefined
 
   const renderView = (view: ActiveView) => {
+    if (view === "challenges") return <ChallengesView />
     if (view === "habits") {
       return (
         <Tabs value={effectiveLayout} orientation="horizontal" variant="embedded"
