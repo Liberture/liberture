@@ -55,9 +55,13 @@ export function isSource(ref: SourceRef): ref is Source {
   return typeof ref === "object" && ref !== null && "title" in ref
 }
 
-/** A legacy string becomes a title-only source of unstated type. */
+/** Database exports also store citations as "title — metadata (URL)". */
 export function normalizeSource(ref: SourceRef): Source {
-  return isSource(ref) ? ref : { title: ref, type: "article" }
+  if (isSource(ref)) return ref
+  const text = ref.trim()
+  const citation = /^(.*?)\s*\((https?:\/\/[^\s]+)\)$/iu.exec(text)
+  const url = citation?.[2] ?? (/^https?:\/\/\S+$/iu.test(text) ? text : undefined)
+  return { title: citation?.[1]?.trim() || text, url, type: "article" }
 }
 
 export function normalizeSources(refs: SourceRef[]): Source[] {

@@ -15,6 +15,7 @@ import { formatMessage, plural } from "@/lib/i18n-format"
 import { protocolImage } from "@/lib/habits/protocols/images"
 import { toast } from "sonner"
 import { ProtocolArtwork } from "./protocol-artwork"
+import { SourceLink } from "./source-link"
 import { ProtocolFacts, ProtocolHabits } from "./protocol-facts"
 import { useCatalogLabels } from "./pillar-tag"
 
@@ -292,19 +293,7 @@ export function ProtocolReader({ protocol, adopted, onAdopt, onClose, shareable 
                               </span>
                             ) : null}
                           </div>
-                          {source.url ? (
-                            <a
-                              href={source.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-start gap-1 text-xs font-medium leading-relaxed text-foreground underline decoration-border underline-offset-2 hover:decoration-foreground"
-                            >
-                              {source.title}
-                              <ExternalLink className="mt-0.5 h-3 w-3 shrink-0" aria-hidden />
-                            </a>
-                          ) : (
-                            <p className="text-xs font-medium leading-relaxed text-foreground">{source.title}</p>
-                          )}
+                          <p className="text-sm font-medium leading-relaxed"><SourceLink source={source} /></p>
                           {meta ? <p className="text-xs text-muted-foreground">{meta}</p> : null}
                         </li>
                       )
