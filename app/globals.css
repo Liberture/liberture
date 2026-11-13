@@ -127,6 +127,26 @@
   mix-blend-mode: screen;
 }
 
+@keyframes topo-drift {
+  from { transform: translate(-3%, 2%) rotate(-2deg); }
+  to { transform: translate(3%, -2%) rotate(2deg); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .topo-layer {
+    animation: topo-drift 18s ease-in-out -5s infinite alternate;
+  }
+
+  .topo-island, .topo-ripple, .topo-folded {
+    animation-direction: alternate-reverse;
+    animation-duration: 24s;
+  }
+
+  .topo-micro, .topo-triad {
+    animation-delay: -12s;
+  }
+}
+
 .topo-vortex {
   width: min(48rem, 70vw);
   height: min(48rem, 70vw);
