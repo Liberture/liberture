@@ -1,7 +1,6 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
-import { NostrSessionProvider, useLogout, type SignerStorage } from "@nostr-wot/ui"
 import { useRouter } from "next/navigation"
 
 import { SignInDialog, type AuthResult, type AuthType } from "@/components/habits/sign-in-dialog"
@@ -107,22 +106,6 @@ function safeNext(next: string | null | undefined): string | null {
  * dialog. Any page can open it; `?signin=1&next=/path` opens it on load.
  */
 export function HabitsSessionProvider({ children }: { children: ReactNode }) {
-  return (
-    <NostrSessionProvider autoRestore={false} signerStorage={sessionOnlyStorage}>
-      <HabitsSession>{children}</HabitsSession>
-    </NostrSessionProvider>
-  )
-}
-
-// The server cookie restores the session. Never persist signing secrets in browser storage.
-const sessionOnlyStorage: SignerStorage = {
-  getItem: () => null,
-  setItem: () => {},
-  removeItem: () => {},
-}
-
-function HabitsSession({ children }: { children: ReactNode }) {
-  const logoutSigner = useLogout()
   const router = useRouter()
   const restoration = useRef<AbortController | null>(null)
   const [auth, setAuth] = useState<HabitsAuthState>(SIGNED_OUT)
@@ -200,11 +183,10 @@ function HabitsSession({ children }: { children: ReactNode }) {
     // Revokes the server-side session (cookie) before clearing local state.
     restoration.current?.abort()
     await fetch("/api/auth/nostr/session", { method: "DELETE", credentials: "same-origin" }).catch(() => {})
-    await logoutSigner()
     clearAuthStorage()
     setAuth(SIGNED_OUT)
     router.push("/")
-  }, [router, logoutSigner])
+  }, [router])
 
   const profile = useNostrProfile(auth.pubkey)
   const authHeaders = useMemo((): Record<string, string> => auth.apiKey ? { Authorization: `Bearer ${auth.apiKey}` } : {}, [auth.apiKey])

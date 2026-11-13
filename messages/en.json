@@ -1113,7 +1113,7 @@
         "title": "Sign in with Nostr",
         "subtitleSelect": "Your Nostr identity is your account — no email, no password.",
         "subtitleNsec": "Your secret key signs you in from any device that holds it.",
-        "subtitleNip46": "Scan with Amber/nsec.app, or paste a bunker URL.",
+        "subtitleNip46": "Scan with Nostr WoT Wallet or Amber, or paste a bunker URL.",
         "extensionTitle": "Browser Extension",
         "extensionHint": "nostr-wot, Alby, nos2x, or similar",
         "remoteSignerTitle": "Remote Signer",

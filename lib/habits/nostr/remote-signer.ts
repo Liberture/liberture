@@ -15,7 +15,7 @@ import { generateSecretKey } from "nostr-tools/pure"
 
 export type { Nip46Signer }
 
-export const NOSTRCONNECT_RELAYS = ["wss://relay.nsec.app", "wss://relay.damus.io", "wss://nos.lol"]
+export const NOSTRCONNECT_RELAYS = ["wss://relay.damus.io", "wss://relay.primal.net"]
 
 /** The only permission requested over Nostr Connect: signing the NIP-98 login event. */
 const SIGN_IN_PERMS = "sign_event:27235"
@@ -72,7 +72,7 @@ export function startNostrConnect(options: StartNostrConnectOptions = {}): Nostr
     clientSecretKey: loadOrCreate(`${NOSTR_CONNECT_LOCAL_KEY_PREFIX}${scope}`, isHexKey, newHexKey),
     // Part of the signer-side pairing record too: rotating it makes Amber and
     // nsec.app treat the same client as a new connection.
-    secret: loadOrCreate(`${NOSTR_CONNECT_URI_SECRET_PREFIX}${scope}`, (s) => s.length >= 16, () => crypto.randomUUID()),
+    secret: loadOrCreate(`${NOSTR_CONNECT_URI_SECRET_PREFIX}${scope}`, (s) => s.length >= 16, newHexKey),
     perms: SIGN_IN_PERMS,
     metadata: { name: "Liberture", url: window.location.origin },
     onAuthChallenge: httpsOnly(options.onAuthChallenge),
