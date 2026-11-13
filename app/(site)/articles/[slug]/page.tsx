@@ -114,10 +114,17 @@ export default async function ArticlePage({ params }: PageProps) {
   const firstLine = body?.split("\n", 1)[0]
   const markdown = firstLine?.replace(/^#\s+/, "").trim() === article.title && firstLine.startsWith("# ")
     ? body?.slice(firstLine.length).trimStart() : body
-  const externalSource = URL.canParse(article.url) ? new URL(article.url) : null
-  const showSource = externalSource && ["https:", "http:"].includes(externalSource.protocol)
-    && !/(^|\.)liberture\.com$/i.test(externalSource.hostname)
-    && !/^liberture(?: team)?$/i.test(article.author.trim())
+  let externalSource: string | undefined
+  if (!/^liberture(?: team)?$/i.test(article.author.trim())) {
+    try {
+      const source = new URL(article.url)
+      if (["https:", "http:"].includes(source.protocol) && !/(^|\.)liberture\.com$/i.test(source.hostname)) {
+        externalSource = source.href
+      }
+    } catch {
+      // Legacy records can point to relative or retired directory routes.
+    }
+  }
   const articleUrl = `https://liberture.com/articles/${slug}`
 
   return (
@@ -186,7 +193,7 @@ export default async function ArticlePage({ params }: PageProps) {
             </CardContent>
           </Card>
 
-          {showSource && (
+          {externalSource && (
             <Card className="mb-8 border-primary/20 bg-primary/5">
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
@@ -197,7 +204,7 @@ export default async function ArticlePage({ params }: PageProps) {
                       This article was originally published at:
                     </p>
                     <a
-                      href={externalSource.href}
+                      href={externalSource}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm text-primary hover:underline break-all"
@@ -206,7 +213,7 @@ export default async function ArticlePage({ params }: PageProps) {
                     </a>
                   </div>
                   <Button variant="outline" size="sm" asChild>
-                    <a href={externalSource.href} target="_blank" rel="noopener noreferrer">
+                    <a href={externalSource} target="_blank" rel="noopener noreferrer">
                       Visit Source
                     </a>
                   </Button>
