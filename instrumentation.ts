@@ -14,6 +14,8 @@ export async function register() {
     if (process.env.NEXT_PHASE !== "phase-production-build") {
       const { ensureDirectoryRevisionSchema } = await import("./lib/directory/revision-schema")
       await ensureDirectoryRevisionSchema()
+      const { ensureDirectoryProfiles } = await import("./lib/directory/profile-migrations")
+      await ensureDirectoryProfiles()
     }
 
     try {
