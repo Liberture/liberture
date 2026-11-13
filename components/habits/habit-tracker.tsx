@@ -1,9 +1,10 @@
 "use client"
 
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { HelpTooltip } from "@/components/ui/tooltip"
 import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { format, subDays, startOfDay } from "date-fns"
-import { Check, CircleAlert, Loader2, Sparkles, Archive, Rows3, LayoutGrid, CalendarRange } from "lucide-react"
+import { Check, CircleAlert, Loader2, Sparkles, Archive, BookOpen, Rows3, LayoutGrid, CalendarRange } from "lucide-react"
 
 import Link from "@/components/i18n/localized-link"
 import { LibertureLogoStatic } from "@/components/branding"
@@ -268,6 +269,8 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
   // Matrix needs a wide screen; a phone falls back to the week grid.
   const effectiveLayout: HabitsLayout = tourIds !== null ? "day" : isMobile && habitsLayout === "matrix" ? "week" : habitsLayout
 
+  const [slideDirection, setSlideDirection] = useState<"up" | "down" | null>(null)
+
   // The time-of-day filter and "show archived" are Habits-view controls only;
   // Stats and Calendar get their own unfiltered lists.
   const habitsViewHabits = useMemo(
@@ -377,106 +380,99 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
   const renderView = (view: ActiveView) => {
     if (view === "habits") {
       return (
-        <div className="space-y-4 md:space-y-6">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-          <div role="group" aria-label={t.layoutLabel} className="flex items-center gap-1 rounded-xl bg-muted/50 p-1 md:inline-flex">
-            {LAYOUTS.map(({ id, icon: Icon, desktopOnly }) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => updatePreferences({ habitsLayout: id })}
-                aria-pressed={effectiveLayout === id}
-                className={cn(
-                  "flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors md:flex-none",
-                  desktopOnly ? "hidden md:inline-flex" : "inline-flex",
-                  effectiveLayout === id
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
-                )}
-              >
-                <Icon className="h-3 w-3" aria-hidden />
-                {t.layouts[id]}
-              </button>
+        <Tabs value={effectiveLayout} orientation="vertical" variant="embedded"
+          className="grid grid-cols-[3rem_minmax(0,1fr)] items-start gap-2 pb-12 sm:gap-4 xl:grid-cols-[8rem_minmax(0,1fr)]"
+          onValueChange={value => {
+            const next = LAYOUTS.findIndex(layout => layout.id === value)
+            if (next < 0) return
+            setSlideDirection(next > LAYOUTS.findIndex(layout => layout.id === effectiveLayout) ? "up" : "down")
+            updatePreferences({ habitsLayout: LAYOUTS[next].id })
+          }}>
+          <TabsList aria-label={t.layoutLabel}
+            className="group sticky top-0 z-10 mb-0 w-12 max-w-none flex-col items-stretch overflow-hidden rounded-xl border border-border bg-card p-1 shadow-sm transition-[width] duration-200 hover:w-32 has-[:focus-visible]:w-32 motion-reduce:transition-none xl:w-32">
+            {LAYOUTS.filter(layout => !layout.desktopOnly || !isMobile).map(({ id, icon: Icon }) => (
+              <TabsTrigger key={id} value={id} aria-label={t.layouts[id]}
+                className="h-10 justify-start gap-2.5 overflow-hidden rounded-lg px-2.5 data-[state=active]:border-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <Icon aria-hidden className="shrink-0" />
+                <span className="opacity-0 transition-opacity group-hover:opacity-100 group-has-[:focus-visible]:opacity-100 motion-reduce:transition-none xl:opacity-100">{t.layouts[id]}</span>
+              </TabsTrigger>
             ))}
+          </TabsList>
+          <div className="min-w-0 space-y-4 md:space-y-6">
+            {onboardingState.handedOffToAssistant && !onboardingState.assistantCardDismissed && (
+              <AssistantStartCard connected={connectedKinds} onDismiss={actions.dismissAssistantCard} />
+            )}
+
+            <BackupReminder habits={habits} lastBackupAt={storageData?.lastBackupAt} onExport={actions.exportData} />
+
+            <TabsContent key={effectiveLayout} value={effectiveLayout} className={cn("space-y-4 md:space-y-6",
+              slideDirection && "motion-safe:animate-in motion-safe:fade-in motion-safe:duration-200",
+              slideDirection === "up" && "motion-safe:slide-in-from-bottom-4",
+              slideDirection === "down" && "motion-safe:slide-in-from-top-4",
+            )}>
+              {motivationalMessage && habits.length > 0 && effectiveLayout !== "day" && (
+                <div className="flex items-center gap-2 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/10 to-work/10 p-3 md:gap-3 md:p-4">
+                  <Sparkles className="h-4 w-4 flex-shrink-0 text-primary md:h-5 md:w-5" aria-hidden />
+                  <p className="text-xs text-foreground md:text-sm">{motivationalMessage}</p>
+                </div>
+              )}
+
+              {effectiveLayout === "day" ? (
+                <DailyTracker key={tourIds !== null ? "tour" : "tracker"}
+                  habits={habits}
+                  completions={completions}
+                  displayName={storageData?.profile?.name}
+                  motivationalMessage={motivationalMessage}
+                  onToggleCompletion={toggleOrLogForDay}
+                  onLogData={openHabitData}
+                  onEditHabit={openHabitEditor}
+                  onAddHabit={openAddDialog}
+                  onBrowse={openDiscover}
+                  timeOfDayFilter={timeOfDayFilter}
+                  onTimeOfDayFilterChange={setTimeOfDayFilter}
+                  weekStartsOn={preferences.weekStartsOn}
+                />
+              ) : effectiveLayout === "matrix" ? (
+                <HabitMatrix
+                  habits={sortedHabitsViewHabits}
+                  completions={completions}
+                  // Not the plain toggle: a habit with data fields or a reading
+                  // passage has to open its modal here too, the same as the day view.
+                  onToggleCompletion={toggleOrLogForDay}
+                  weekStartsOn={preferences.weekStartsOn}
+                />
+              ) : (
+                <HabitGrid
+                  habits={sortedHabitsViewHabits}
+                  dates={dates}
+                  completions={completions}
+                  onCellClick={toggleOrLogForDay}
+                  onAddHabit={openAddDialog}
+                  onEditHabit={openHabitEditor}
+                  onUnarchiveHabit={actions.unarchiveHabit}
+                  weekStartsOn={preferences.weekStartsOn}
+                />
+              )}
+
+              {archivedCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowArchived(!showArchived)}
+                  aria-pressed={showArchived}
+                  className="flex items-center gap-2 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground md:text-sm"
+                >
+                  <Archive className="h-3.5 w-3.5 md:h-4 md:w-4" aria-hidden />
+                  <span className="md:hidden">
+                    {formatMessage(showArchived ? t.hideArchivedShort : t.showArchivedShort, { count: archivedCount })}
+                  </span>
+                  <span className="hidden md:inline">
+                    {formatMessage(showArchived ? t.hideArchived : t.showArchived, { count: archivedCount })}
+                  </span>
+                </button>
+              )}
+            </TabsContent>
           </div>
-
-            <button type="button" className="rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-muted"
-              onClick={() => {
-                setTimeOfDayFilter(null)
-                tourStartedOn.current = format(new Date(), "yyyy-MM-dd")
-                setTourIds(habits.filter(habit => !habit.archived).map(habit => habit.id))
-              }}>
-              {t.showTutorial}
-            </button>
-          </div>
-
-          {onboardingState.handedOffToAssistant && !onboardingState.assistantCardDismissed && (
-            <AssistantStartCard connected={connectedKinds} onDismiss={actions.dismissAssistantCard} />
-          )}
-
-          <BackupReminder habits={habits} lastBackupAt={storageData?.lastBackupAt} onExport={actions.exportData} />
-
-          {motivationalMessage && habits.length > 0 && effectiveLayout !== "day" && (
-            <div className="flex items-center gap-2 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/10 to-work/10 p-3 md:gap-3 md:p-4">
-              <Sparkles className="h-4 w-4 flex-shrink-0 text-primary md:h-5 md:w-5" aria-hidden />
-              <p className="text-xs text-foreground md:text-sm">{motivationalMessage}</p>
-            </div>
-          )}
-
-          {effectiveLayout === "day" ? (
-            <DailyTracker key={tourIds !== null ? "tour" : "tracker"}
-              habits={habits}
-              completions={completions}
-              displayName={storageData?.profile?.name}
-              motivationalMessage={motivationalMessage}
-              onToggleCompletion={toggleOrLogForDay}
-              onLogData={openHabitData}
-              onEditHabit={openHabitEditor}
-              onAddHabit={openAddDialog}
-              onBrowse={openDiscover}
-              timeOfDayFilter={timeOfDayFilter}
-              onTimeOfDayFilterChange={setTimeOfDayFilter}
-              weekStartsOn={preferences.weekStartsOn}
-            />
-          ) : effectiveLayout === "matrix" ? (
-            <HabitMatrix
-              habits={sortedHabitsViewHabits}
-              completions={completions}
-              // Not the plain toggle: a habit with data fields or a reading
-              // passage has to open its modal here too, the same as the day view.
-              onToggleCompletion={toggleOrLogForDay}
-              weekStartsOn={preferences.weekStartsOn}
-            />
-          ) : (
-            <HabitGrid
-              habits={sortedHabitsViewHabits}
-              dates={dates}
-              completions={completions}
-              onCellClick={toggleOrLogForDay}
-              onAddHabit={openAddDialog}
-              onEditHabit={openHabitEditor}
-              onUnarchiveHabit={actions.unarchiveHabit}
-              weekStartsOn={preferences.weekStartsOn}
-            />
-          )}
-
-          {archivedCount > 0 && (
-            <button
-              type="button"
-              onClick={() => setShowArchived(!showArchived)}
-              aria-pressed={showArchived}
-              className="flex items-center gap-2 py-2 text-xs text-muted-foreground transition-colors hover:text-foreground md:text-sm"
-            >
-              <Archive className="h-3.5 w-3.5 md:h-4 md:w-4" aria-hidden />
-              <span className="md:hidden">
-                {formatMessage(showArchived ? t.hideArchivedShort : t.showArchivedShort, { count: archivedCount })}
-              </span>
-              <span className="hidden md:inline">
-                {formatMessage(showArchived ? t.hideArchived : t.showArchived, { count: archivedCount })}
-              </span>
-            </button>
-          )}
-        </div>
+        </Tabs>
       )
     }
     if (view === "stats") {
@@ -551,7 +547,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
   }
 
   return (
-    <div className="topo-pattern lb-see-through flex h-dvh flex-col overflow-hidden">
+    <div style={activeView === "habits" ? { "--reminder-bottom": "5rem" } as React.CSSProperties : undefined} className="topo-pattern lb-see-through flex h-dvh flex-col overflow-hidden">
       <TopographicBackground />
       <header className="flex-shrink-0 border-b border-border/50 bg-background px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top))] md:bg-background/80 md:px-6 md:py-5 md:backdrop-blur-xl">
         {/* Fixed geometry on phones: the name truncates and the action buttons
@@ -584,6 +580,22 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
         panelClassName="lb-scroll p-4 pb-[calc(7.25rem+env(safe-area-inset-bottom))] lg:p-6"
         renderView={renderView}
       />
+
+      {activeView === "habits" && tourIds === null && (
+        <div className="fixed bottom-[calc(7rem+env(safe-area-inset-bottom))] right-4 z-30 lg:bottom-6 lg:right-6">
+          <HelpTooltip label={t.showTutorial}>
+            <button type="button" aria-label={t.showTutorial}
+              className="grid size-11 place-items-center rounded-full border border-border bg-card text-foreground shadow-md hover:text-primary focus-visible:ring-2 focus-visible:ring-ring"
+              onClick={() => {
+                setTimeOfDayFilter(null)
+                tourStartedOn.current = format(new Date(), "yyyy-MM-dd")
+                setTourIds(habits.filter(habit => !habit.archived).map(habit => habit.id))
+              }}>
+              <BookOpen aria-hidden className="size-5" />
+            </button>
+          </HelpTooltip>
+        </div>
+      )}
 
       {tourIds !== null && (
         <HabitsTour weekStartsOn={preferences.weekStartsOn ?? 1} completions={completions} habits={habits.filter(habit => tourIds.includes(habit.id))}

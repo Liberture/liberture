@@ -152,7 +152,7 @@ export function NotificationManager({
     <div
       role="region"
       aria-label={t.promptTitle}
-      className="fixed bottom-[calc(10.5rem+env(safe-area-inset-bottom))] left-4 right-4 z-40 rounded-xl border border-border bg-card/95 p-4 shadow-lg backdrop-blur-sm sm:left-auto sm:max-w-xs lg:bottom-6"
+      className="fixed bottom-[calc(10.5rem+env(safe-area-inset-bottom))] left-4 right-4 z-40 rounded-xl border border-border bg-card/95 p-4 shadow-lg backdrop-blur-sm sm:left-auto sm:max-w-xs lg:bottom-[var(--reminder-bottom,1.5rem)]"
     >
       <div className="flex items-start gap-3">
         <Bell className="mt-0.5 h-5 w-5 flex-shrink-0 text-primary" aria-hidden />
