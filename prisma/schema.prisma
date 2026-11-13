@@ -9,7 +9,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model BookSlugAlias {
+  slug   String @id
+  bookId String
+  book   Book   @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@index([bookId])
+}
+
 model Book {
+  aliases        BookSlugAlias[]
   id             String   @id
   slug           String   @unique
   title          String

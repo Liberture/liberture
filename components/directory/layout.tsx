@@ -20,3 +20,7 @@ export function DirectoryHeader({ title, description, eyebrow }: { title: string
 export function DirectoryGrid({ children }: { children: ReactNode }) {
   return <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{children}</div>
 }
+
+export function DirectoryInfobox({ label, children }: { label: string; children: ReactNode }) {
+  return <aside aria-label={label} className="min-w-0 space-y-5 rounded-xl border border-border bg-card p-5 md:sticky md:top-24 md:col-start-2 md:row-start-1">{children}</aside>
+}

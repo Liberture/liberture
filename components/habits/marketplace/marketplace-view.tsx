@@ -1,5 +1,6 @@
 "use client"
 
+import { InfiniteGrid } from "@/components/directory/infinite-grid"
 import { DirectoryGrid } from "@/components/directory/layout"
 import { FieldSelect, FieldOption } from "@/components/ui/select"
 import { memo, useCallback, useMemo, useState } from "react"
@@ -127,8 +128,7 @@ export const MarketplaceView = memo(function MarketplaceView({ habits = EMPTY_HA
         {protocols.length === 0 ? (
           <EmptyShelf>{t.noProtocols}</EmptyShelf>
         ) : (
-          <DirectoryGrid>
-            {protocols.map((protocol) => (
+          <InfiniteGrid key={JSON.stringify(filter)} items={protocols} renderItem={protocol => (
               <ProtocolCard
                 key={protocol.slug}
                 protocol={protocol}
@@ -136,8 +136,7 @@ export const MarketplaceView = memo(function MarketplaceView({ habits = EMPTY_HA
                 onRead={() => setReadingSlug(protocol.slug)}
                 onAdopt={onAdoptProtocol && (() => onAdoptProtocol(protocol))}
               />
-            ))}
-          </DirectoryGrid>
+            )} />
         )}
       </section>
 

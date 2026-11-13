@@ -22,3 +22,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 - Record every applied AI-assisted change to an existing person, book, organization, protocol, or article in that entry’s edit history. Include the responsible administrator or job, the AI source, and the fields changed with their previous and new values. A queued request or a draft is not an applied edit.
 - Use the authenticated directory PATCH endpoint with the `X-Liberture-Edit-Source: ai` header, or the shared `withDirectoryEdit` transaction for server-side jobs. Write the entry and its revision atomically. Bulk jobs must produce a separate revision for each changed entry.
+
+## Releases and editorial updates
+
+- Batch application and schema changes for local review. Publish a release and trigger production deployment only when the user explicitly asks to cut a release.
+- Apply editorial changes through the database with per-entry edit history. If an edit depends on new application behavior, verify it locally and coordinate its production application with the release that supports it.

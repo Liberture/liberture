@@ -1,13 +1,14 @@
+import { getDictionary } from "@/lib/habits/i18n"
+import type { Locale } from "@/lib/translations"
 import { PillarTag } from "@/components/habits/marketplace/pillar-tag"
 import { profilePillars } from "@/lib/pillars"
-import { DirectoryLayout } from "@/components/directory/layout"
-
-
-
-import { BackLink } from "@/components/seo/back-link"
+import { DirectoryInfobox, DirectoryLayout } from "@/components/directory/layout"
+import { BookCover } from "@/components/directory/book-cover"
+import { ProfileMarkdown } from "@/components/people/profile-markdown"
 import { sectionTrail } from "@/components/seo/section-breadcrumbs"
-import Link from "next/link";
-import { ExternalLink, BookOpen } from "lucide-react";
+import { BookAuthor } from "@/components/directory/book-author"
+import { entries } from "@/lib/directory/organization-entries"
+import { ExternalLink } from "lucide-react";
 import { BookSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
 
 type Book = {
@@ -33,8 +34,9 @@ type Book = {
   } | null;
 };
 
-export default function BookDetails({ book }: { book: Book }) {
-  const keyTakeaways = book.keyTakeaways ? JSON.parse(book.keyTakeaways) : [];
+export default function BookDetails({ book, locale }: { book: Book; locale: Locale }) {
+  const text = getDictionary(locale).bookDetails
+  const keyTakeaways = entries(book.keyTakeaways);
   const pillars = profilePillars(book.pillars);
 
   return (
@@ -49,116 +51,55 @@ export default function BookDetails({ book }: { book: Book }) {
         url={`https://liberture.com/books/${book.slug}`}
         image={book.imageUrl || undefined}
       />
-      <BreadcrumbSchema items={[...sectionTrail("books"), {name:book.title, url:`https://liberture.com/books/${book.slug}`}]} />
-      
-      <div className="mx-auto max-w-5xl">
-          <div className="mb-8">
-            <BackLink fallback="/books" />
-          </div>
-          
-          {/* Header */}
-          <div className="mb-8">
-            <div className="flex items-start gap-2 mb-2">
-              <BookOpen className="w-8 h-8 text-purple-400 mt-1" />
-              <div>
-                <h1 className="text-5xl font-bold mb-2">{book.title}</h1>
-                <p className="text-2xl text-purple-400">
-                  by{' '}
-                  {book.Person ? (
-                    <Link 
-                      href={`/people/${book.Person.slug}`}
-                      className="hover:text-purple-300 underline decoration-purple-400/30 hover:decoration-purple-300 transition-colors"
-                    >
-                      {book.Person.name}
-                    </Link>
-                  ) : (
-                    book.author
-                  )}
-                </p>
-              </div>
-            </div>
-            
-            {/* Meta info */}
-            <div className="flex flex-wrap items-center gap-4 mt-4 text-slate-400">
-              {book.year && <span>{book.year}</span>}
-              {book.pages && <span>{book.pages} pages</span>}
-              {book.rating && (
-                <span className="flex items-center gap-1">
-                  ⭐ {book.rating}/5
-                </span>
-              )}
-            </div>
+      <BreadcrumbSchema compact items={[...sectionTrail("books"), {name:book.title, url:`https://liberture.com/books/${book.slug}`}]} />
 
-            {/* Links */}
-            {book.amazonUrl && (
-              <div className="mt-4">
-                <a
-                  href={book.amazonUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  View on Amazon
-                </a>
-              </div>
-            )}
+      <h1 className="my-7 text-balance text-4xl font-bold sm:text-5xl">{book.title}</h1>
+      <div className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_minmax(15rem,0.42fr)]">
+        <DirectoryInfobox label={text.heading}>
+          <BookCover src={book.imageUrl} title={book.title} />
+          <h2 className="text-lg font-semibold">{text.heading}</h2>
+          <dl className="space-y-3 text-sm [&_dt]:text-muted-foreground">
+            <div><dt>{text.author}</dt><dd><BookAuthor book={book} /></dd></div>
+            {book.year != null && book.year > 0 && <div><dt>{text.published}</dt><dd>{book.year}</dd></div>}
+            {book.pages != null && book.pages > 0 && <div><dt>{text.pages}</dt><dd>{book.pages}</dd></div>}
+            {book.rating != null && book.rating > 0 && <div><dt>{text.rating}</dt><dd>{book.rating.toFixed(1)} / 5</dd></div>}
+            {book.isbn && <div><dt>ISBN</dt><dd>{book.isbn}</dd></div>}
+            {pillars.length > 0 && <div><dt>{text.verticals}</dt><dd className="mt-1 flex flex-wrap gap-1.5">{pillars.map(id => <PillarTag key={id} pillar={id} />)}</dd></div>}
+          </dl>
+          {book.amazonUrl && <a href={book.amazonUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm text-primary hover:underline">{text.amazon} <ExternalLink className="size-3" /></a>}
+        </DirectoryInfobox>
+        <div className="min-w-0 space-y-6 md:col-start-1 md:row-start-1">
+          {/* Description */}
+          <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+            <h2 className="text-2xl font-bold mb-4">{text.about}</h2>
+            <ProfileMarkdown>{book.description}</ProfileMarkdown>
           </div>
 
-          {/* Main Content */}
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Left Column */}
-            <div className="md:col-span-2 space-y-6">
-              {/* Description */}
-              <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                <h2 className="text-2xl font-bold mb-4">About This Book</h2>
-                <p className="text-slate-300 text-lg leading-relaxed">{book.description}</p>
-              </div>
-
-              {/* Key Takeaways */}
-              {keyTakeaways.length > 0 && (
-                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                  <h2 className="text-2xl font-bold mb-4">Key Takeaways</h2>
-                  <ul className="space-y-3">
-                    {keyTakeaways.map((takeaway: string, i: number) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <span className="text-purple-400 mt-1">•</span>
-                        <span className="text-slate-300">{takeaway}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* For Who */}
-              {book.forWho && (
-                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                  <h2 className="text-2xl font-bold mb-4">Who Should Read This</h2>
-                  <p className="text-slate-300">{book.forWho}</p>
-                </div>
-              )}
+          {/* Key Takeaways */}
+          {keyTakeaways.length > 0 && (
+            <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+              <h2 className="text-2xl font-bold mb-4">{text.takeaways}</h2>
+              <ul className="space-y-3">
+                {keyTakeaways.map((takeaway, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <span className="text-purple-400 mt-1">•</span>
+                    <span className="text-slate-300">{takeaway.title}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
+          )}
 
-            {/* Right Column - Sidebar */}
-            <div className="space-y-6">
-              {/* Pillars */}
-              <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                <h3 className="text-xl font-bold mb-4">Topics</h3>
-                <div className="flex flex-wrap gap-2">
-                  {pillars.map(id => <PillarTag key={id} pillar={id} />)}
-                </div>
-              </div>
-
-              {/* ISBN */}
-              {book.isbn && (
-                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                  <h3 className="text-xl font-bold mb-3">ISBN</h3>
-                  <p className="text-slate-300 font-mono text-sm">{book.isbn}</p>
-                </div>
-              )}
+          {/* For Who */}
+          {book.forWho && (
+            <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+              <h2 className="text-2xl font-bold mb-4">{text.audience}</h2>
+              <p className="text-slate-300">{book.forWho}</p>
             </div>
-          </div>
+          )}
         </div>
+
+      </div>
     </DirectoryLayout>
   );
 }

@@ -7,7 +7,7 @@ import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { getDictionary } from "@/lib/habits/i18n"
 import { ArticleCard } from "@/components/directory/article-card"
 import { CardCarousel } from "@/components/ui/card-carousel"
-import { ArticleSearch } from "@/components/directory/article-search"
+import { DirectorySearch } from "@/components/directory/directory-search"
 import { ArticleTopicTags } from "@/components/directory/article-topic-tags"
 import { DirectoryLayout } from "@/components/directory/layout"
 import { sectionTrail } from "@/components/seo/section-breadcrumbs"
@@ -234,7 +234,7 @@ export default async function ArticlePage({ params }: PageProps) {
           )}
           </article>
           <aside className="space-y-5 rounded-xl border bg-card p-5 lg:sticky lg:top-24">
-            <ArticleSearch entries={entries} />
+            <DirectorySearch entries={entries} />
             <div className="flex items-center justify-between"><span className="font-semibold">{copy.language}</span><LanguageSwitch locale={locale} label={copy.language} /></div>
             <nav aria-label={copy.categories}>
               <h2 className="mb-2 font-semibold">{copy.categories}</h2>

@@ -67,8 +67,8 @@ export const getPerson = cache(async (slug: string) => {
 })
 
 export const getBook = cache(async (slug: string) => {
-  const book = await prisma.book.findUnique({
-    where: { slug },
+  const book = await prisma.book.findFirst({
+    where: { OR: [{ slug }, { aliases: { some: { slug } } }] },
     include: {
       Person: {
         select: {

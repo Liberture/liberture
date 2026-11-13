@@ -5,7 +5,7 @@ import { profilePath, profileSection } from "@/lib/directory/profile-path"
 import Link from "next/link"
 import { OrganizationLogo } from "@/components/directory/organization-logo"
 import { BookOpen, Building2, ExternalLink, Files, Users } from "lucide-react"
-import { DirectoryLayout } from "@/components/directory/layout"
+import { DirectoryInfobox, DirectoryLayout } from "@/components/directory/layout"
 import { PillarTag } from "@/components/habits/marketplace/pillar-tag"
 import { ProfileMarkdown } from "@/components/people/profile-markdown"
 import { JsonLd, BreadcrumbSchema } from "@/components/seo/JsonLd"
@@ -63,7 +63,7 @@ export default function OrganizationDetails({ organization, locale }: { organiza
     <BreadcrumbSchema compact items={[...sectionTrail(section), { name: organization.name, url }]} />
     <h1 className="my-7 text-balance text-4xl font-bold sm:text-5xl">{organization.name}</h1>
     <div className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_minmax(15rem,0.42fr)]">
-      <aside className="min-w-0 space-y-5 rounded-xl border border-border bg-card p-5 md:sticky md:top-24 md:col-start-2 md:row-start-1" aria-label={isProject ? copy.directoryProfiles.projectProfile : t.profile}>
+      <DirectoryInfobox label={isProject ? copy.directoryProfiles.projectProfile : t.profile}>
         <OrganizationLogo src={image ?? null} name={organization.name} />
         <dl className="space-y-3 text-sm">
           {organization.type && <div><dt className="text-muted-foreground">{t.type}</dt><dd className="capitalize">{organization.type}</dd></div>}
@@ -74,7 +74,7 @@ export default function OrganizationDetails({ organization, locale }: { organiza
           {pillars.length > 0 && <div><dt className="mb-2 text-muted-foreground">{t.focus}</dt><dd className="flex flex-wrap gap-1.5">{pillars.map(id => <PillarTag key={id} pillar={id} />)}</dd></div>}
         </dl>
         {wikipedia && <a className="inline-flex items-center gap-1 text-sm text-primary hover:underline" href={wikipedia} target="_blank" rel="noopener noreferrer">Wikipedia<ExternalLink className="size-3" aria-hidden /></a>}
-      </aside>
+      </DirectoryInfobox>
       <Tabs defaultValue="about" className="md:col-start-1 md:row-start-1">
         <TabsList aria-label={organization.name}>
           <TabsTrigger value="about"><Building2 />{t.about}</TabsTrigger>

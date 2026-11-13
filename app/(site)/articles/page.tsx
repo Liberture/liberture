@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { DirectoryHeader, DirectoryLayout } from "@/components/directory/layout"
-import { ArticleLibrary } from "@/components/directory/article-library"
+import { DirectoryLibrary, type ListingPageProps } from "@/components/directory/directory-library"
 import { prisma } from "@/lib/prisma"
 import { getDictionary } from "@/lib/habits/i18n"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
@@ -11,9 +11,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/articles" },
 }
 
-export default async function ArticlesPage({ searchParams }: {
-  searchParams: Promise<{ q?: string; pillar?: string; sort?: string }>
-}) {
+export default async function ArticlesPage({ searchParams }: ListingPageProps) {
   const params = await searchParams
   const sort = params.sort === "oldest" || params.sort === "title" ? params.sort : "newest"
   const [locale, articles] = await Promise.all([
@@ -26,6 +24,6 @@ export default async function ArticlesPage({ searchParams }: {
   const copy = getDictionary(locale).app.articleReader
   return <DirectoryLayout>
     <DirectoryHeader title={copy.articles} description={copy.description} />
-    <ArticleLibrary key={JSON.stringify(params)} articles={articles} sort={sort} query={params.q ?? ""} pillar={params.pillar ?? ""} />
+    <DirectoryLibrary catalog={{ section: "articles", rows: articles }} params={params} />
   </DirectoryLayout>
 }

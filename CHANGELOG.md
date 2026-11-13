@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Directory listings support search, ordering and continuous scrolling.
+- Book pages group available covers, credits, publication details and verticals in an infobox. Missing numeric metadata no longer appears as a stray zero.
+- Fix the People page build failure in 0.2.1.
+
 ## 0.2.1
 
 Released 2026-11-13.

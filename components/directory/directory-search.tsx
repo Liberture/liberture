@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Search } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useEffect, useId, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -11,8 +11,12 @@ import { useTranslations } from "@/components/i18n/locale-provider"
 
 type Entry = { slug: string; title: string; tags: string }
 
-export function ArticleSearch({ entries, initialQuery = "", pillar, sort }: { entries: Entry[]; initialQuery?: string; pillar?: string; sort?: string }) {
-  const copy = useTranslations().habits.app.articleReader
+export function DirectorySearch({ entries, initialQuery = "", pillar, sort, section = "articles", label, placeholder }: {
+  entries: Entry[]; initialQuery?: string; pillar?: string; sort?: string; section?: string; label?: string; placeholder?: string
+}) {
+  const { articleReader: copy } = useTranslations().habits.app
+  const inputId = useId()
+  const searchLabel = placeholder ?? copy.search
   const router = useRouter()
   const [query, setQuery] = useState(initialQuery)
   const [term, setTerm] = useState("")
@@ -33,28 +37,28 @@ export function ArticleSearch({ entries, initialQuery = "", pillar, sort }: { en
     const params = new URLSearchParams()
     if (value.trim()) params.set("q", value.trim())
     if (pillar) params.set("pillar", pillar)
-    if (sort && sort !== "newest") params.set("sort", sort)
-    return "/articles?" + params
+    if (sort) params.set("sort", sort)
+    return "/" + section + "?" + params
   }
   const groups = [
     { label: copy.topics, items: topics.map(tag => ({ name: tag, href: resultsUrl(tag) })) },
-    { label: copy.articles, items: articles.map(entry => ({ name: entry.title, href: "/articles/" + entry.slug })) },
+    { label: label ?? copy.articles, items: articles.map(entry => ({ name: entry.title, href: "/" + section + "/" + entry.slug })) },
   ]
   const items = groups.flatMap(group => group.items)
   const open = items.length > 0
-  return <form action="/articles" role="search" className="relative" onSubmit={event => {
+  return <form action={"/" + section} role="search" className="relative" onSubmit={event => {
     event.preventDefault()
     router.push(open && items[active] ? items[active].href : resultsUrl(query))
     setFocused(false)
   }}>
-    <label htmlFor="article-search" className="sr-only">{copy.search}</label>
+    <label htmlFor={inputId} className="sr-only">{searchLabel}</label>
     {sort && <input type="hidden" name="sort" value={sort} />}
     {pillar && <input type="hidden" name="pillar" value={pillar} />}
     <div className="relative">
-      <Input id="article-search" name="q" type="search" role="combobox" autoComplete="off"
-        aria-expanded={open} aria-autocomplete="list" aria-controls={open ? "article-suggestions" : undefined}
-        aria-activedescendant={open && items[active] ? "article-option-" + active : undefined}
-        value={query} placeholder={copy.searchPlaceholder} className="pr-10"
+      <Input id={inputId} name="q" type="search" role="combobox" autoComplete="off"
+        aria-expanded={open} aria-autocomplete="list" aria-controls={open ? (inputId + "-suggestions") : undefined}
+        aria-activedescendant={open && items[active] ? inputId + "-option-" + active : undefined}
+        value={query} placeholder={placeholder ?? copy.searchPlaceholder} className="pr-10"
         onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
         onChange={e => { setQuery(e.target.value); setActive(-1); setFocused(true) }}
         onKeyDown={e => {
@@ -63,18 +67,18 @@ export function ArticleSearch({ entries, initialQuery = "", pillar, sort }: { en
             e.preventDefault()
             const index = e.key === "ArrowDown" ? (active + 1) % items.length : active <= 0 ? items.length - 1 : active - 1
             setActive(index)
-            document.getElementById("article-option-" + index)?.scrollIntoView({ block: "nearest" })
+            document.getElementById(inputId + "-option-" + index)?.scrollIntoView({ block: "nearest" })
           }
         }} />
-      <Button type="submit" size="icon" variant="ghost" className="absolute inset-y-0 right-0 size-9" aria-label={copy.search}
+      <Button type="submit" size="icon" variant="ghost" className="absolute inset-y-0 right-0 size-9" aria-label={searchLabel}
         onClick={() => setActive(-1)}><Search aria-hidden /></Button>
     </div>
-    {open && <div id="article-suggestions" role="listbox" aria-label={copy.search} className="lb-dropdown absolute inset-x-0 top-full z-30 mt-1 max-h-72 overflow-auto p-1">
+    {open && <div id={inputId + "-suggestions"} role="listbox" aria-label={searchLabel} className="lb-dropdown absolute inset-x-0 top-full z-30 mt-1 max-h-72 overflow-auto p-1">
       {groups.map(group => group.items.length > 0 && <div key={group.label} role="group" aria-label={group.label}>
         <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">{group.label}</div>
         {group.items.map(item => {
           const index = items.indexOf(item)
-          return <Link key={item.href} id={"article-option-" + index} role="option" aria-selected={active === index}
+          return <Link key={item.href} id={inputId + "-option-" + index} role="option" aria-selected={active === index}
             href={item.href} prefetch={false} tabIndex={-1} onMouseDown={e => e.preventDefault()}
             className="block rounded px-2 py-1.5 text-sm hover:bg-secondary aria-selected:bg-secondary">{item.name}</Link>
         })}

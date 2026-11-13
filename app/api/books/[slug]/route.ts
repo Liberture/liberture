@@ -8,6 +8,9 @@ export async function GET(
   try {
     const { slug } = await params;
     const record = await getBook(slug)
+    if (record && record.slug !== slug) {
+      return NextResponse.redirect(new URL(`/api/books/${record.slug}`, request.url), 308)
+    }
     return record ? NextResponse.json(record) : NextResponse.json({ error: "Book not found" }, { status: 404 })
   } catch (error) {
     console.error('Error fetching book:', error);

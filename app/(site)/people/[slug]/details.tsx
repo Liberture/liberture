@@ -1,8 +1,7 @@
-import { BookCard } from "@/components/directory/book-card"
 "use client";
+import { BookCard } from "@/components/directory/book-card"
 
 import { DirectoryLayout } from "@/components/directory/layout"
-import { BackLink } from "@/components/seo/back-link"
 import { sectionTrail } from "@/components/seo/section-breadcrumbs"
 import { useState } from "react";
 import { Tabs, TabOptions, TabsContent } from "@/components/ui/tabs";
@@ -95,10 +94,6 @@ export default function PersonDetails({ person, children }: { person: Person; ch
       <BreadcrumbSchema items={[...sectionTrail("people"), {name:person.name, url:`https://liberture.com/people/${person.slug}`}]} />
       <DirectoryLayout>
         <div className="mx-auto max-w-5xl">
-          <div className="mb-8">
-            <BackLink fallback="/people" />
-          </div>
-          
           {/* Header */}
           <div className="mb-8">
             <ProfilePortrait person={person} />

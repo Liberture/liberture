@@ -490,6 +490,7 @@ const liberture: Translations = {
 // ---------------------------------------------------------------------------
 
 const habitsEn = {
+  bookDetails: { heading: "Book details", author: "Author", published: "Published", pages: "Pages", rating: "Rating", verticals: "Verticals", amazon: "View on Amazon", about: "About this book", takeaways: "Key takeaways", audience: "Who should read this" },
   getStarted: {
     metaTitle: "Get Started: Free Habit Tracker for ChatGPT and Claude",
     metaDescription: "Create your free Liberture account in a minute, add your first habits from evidence-based protocols and connect ChatGPT or Claude to track them by voice.",
@@ -1681,6 +1682,7 @@ const habitsEn = {
       error: "Could not load entries",
       add: "Add entry",
     },
+    directoryListing: { books: "Books", people: "People", booksIntro: "Essential reading on biohacking, longevity, and human optimization.", peopleIntro: "Researchers, authors, and practitioners in the directory.", booksSearch: "Search books or authors…", peopleSearch: "Search people or expertise…", organizationsSearch: "Search organizations…", projectsSearch: "Search projects…", featured: "Featured first", name: "Name A–Z", rating: "Highest rated", newestBooks: "Publication year", order: "Sort results", more: "Show more", empty: "No matches. Try another search or vertical." },
     directoryProfiles: {"projects": "Projects", "organizations": "Organizations", "projectsIntro": "Platforms, initiatives and communities in the directory.", "organizationsIntro": "Companies, nonprofits and institutions behind directory projects.", "related": "Related projects and organizations", "previous": "Previous entries", "next": "Next entries", "projectProfile": "Project details", "source": "Source", "directoryIntro": "Discover people, projects, organizations, protocols and publications."},
     organizationProfile: { about: "About", people: "Key people", resources: "Resources", publications: "Publications", profile: "Organization details", type: "Type", founded: "Founded", website: "Website", focus: "Focus areas" },
     directoryEditor: {
@@ -3621,6 +3623,7 @@ const habitsEn = {
 export type HabitsDictionary = typeof habitsEn
 
 const habitsEs: HabitsDictionary = {
+  bookDetails: { heading: "Datos del libro", author: "Autoría", published: "Publicación", pages: "Páginas", rating: "Valoración", verticals: "Áreas", amazon: "Ver en Amazon", about: "Sobre el libro", takeaways: "Ideas principales", audience: "A quién va dirigido" },
   getStarted: {
     metaTitle: "Empezá: registro de hábitos gratis para ChatGPT y Claude",
     metaDescription: "Creá tu cuenta gratis de Liberture en un minuto, agregá tus primeros hábitos con protocolos basados en evidencia y conectá ChatGPT o Claude para registrarlos por voz.",
@@ -4812,6 +4815,7 @@ const habitsEs: HabitsDictionary = {
       error: "No se pudieron cargar las entradas",
       add: "Añadir entrada",
     },
+    directoryListing: { books: "Libros", people: "Personas", booksIntro: "Lecturas sobre biohacking, longevidad y optimización humana.", peopleIntro: "Investigadores, autores y profesionales del directorio.", booksSearch: "Buscar libros o autores…", peopleSearch: "Buscar personas o especialidades…", organizationsSearch: "Buscar organizaciones…", projectsSearch: "Buscar proyectos…", featured: "Destacados primero", name: "Nombre A–Z", rating: "Mejor valorados", newestBooks: "Año de publicación", order: "Ordenar resultados", more: "Ver más", empty: "No hay resultados. Probá otra búsqueda o área." },
     directoryProfiles: {"projects": "Proyectos", "organizations": "Organizaciones", "projectsIntro": "Plataformas, iniciativas y comunidades del directorio.", "organizationsIntro": "Empresas, organizaciones sin fines de lucro e instituciones vinculadas a proyectos.", "related": "Proyectos y organizaciones relacionados", "previous": "Entradas anteriores", "next": "Entradas siguientes", "projectProfile": "Detalles del proyecto", "source": "Fuente", "directoryIntro": "Descubre personas, proyectos, organizaciones, protocolos y publicaciones."},
     organizationProfile: { about: "Acerca de", people: "Personas clave", resources: "Recursos", publications: "Publicaciones", profile: "Detalles de la organización", type: "Tipo", founded: "Fundación", website: "Sitio web", focus: "Áreas de interés" },
     directoryEditor: {

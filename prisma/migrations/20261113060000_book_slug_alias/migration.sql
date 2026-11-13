@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS "BookSlugAlias" (
+  "slug" TEXT PRIMARY KEY,
+  "bookId" TEXT NOT NULL REFERENCES "Book"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+CREATE INDEX IF NOT EXISTS "BookSlugAlias_bookId_idx" ON "BookSlugAlias"("bookId");
