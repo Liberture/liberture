@@ -1663,6 +1663,7 @@ const habitsEn = {
     },
     // E
     articleReader: {
+      searchPlaceholder: "Title or topic…",
       search: "Search articles",
       language: "Language",
       categories: "Categories",
@@ -4669,6 +4670,7 @@ const habitsEs: HabitsDictionary = {
     },
     // E
     articleReader: {
+      searchPlaceholder: "Título o tema…",
       search: "Buscar artículos",
       language: "Idioma",
       categories: "Categorías",

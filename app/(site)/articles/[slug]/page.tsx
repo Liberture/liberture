@@ -7,7 +7,6 @@ import { ArticleCard } from "@/components/directory/article-card"
 import { CardCarousel } from "@/components/ui/card-carousel"
 import { Input } from "@/components/ui/input"
 import { DirectoryLayout } from "@/components/directory/layout"
-import { BackLink } from "@/components/seo/back-link"
 import { sectionTrail } from "@/components/seo/section-breadcrumbs"
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
@@ -124,10 +123,9 @@ export default async function ArticlePage({ params }: PageProps) {
         modifiedAt={article.updatedAt?.toISOString()}
         author={article.author || 'Liberture'}
       />
-      <BreadcrumbSchema items={[...sectionTrail("articles"), {name:article.title, url:articleUrl}]} />
+      <BreadcrumbSchema compact items={[...sectionTrail("articles"), {name:article.title, url:articleUrl}]} />
 
       <div className="mx-auto max-w-6xl">
-          <BackLink fallback="/articles" />
 
           <div className="mt-6 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_16rem]">
           <article className="min-w-0">
@@ -179,7 +177,7 @@ export default async function ArticlePage({ params }: PageProps) {
           <Card className="mb-8">
             <CardContent className="prose prose-lg dark:prose-invert max-w-none p-8">
               {markdown ? (
-                <div className="space-y-4 leading-relaxed break-words [&_h2]:mt-8 [&_h2]:text-2xl [&_h2]:font-bold [&_h3]:text-xl [&_h3]:font-semibold [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6 [&_a]:text-primary [&_a]:underline [&_pre]:overflow-auto">
+                <div className="space-y-4 leading-relaxed break-words [&_p]:text-slate-300 [&_h2]:text-slate-50 [&_h3]:text-slate-50 [&_h2]:mt-8 [&_h2]:text-2xl [&_h2]:font-bold [&_h3]:text-xl [&_h3]:font-semibold [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6 [&_a]:text-primary [&_a]:underline [&_pre]:overflow-auto">
                   <Markdown skipHtml>{markdown}</Markdown>
                 </div>
               ) : (
@@ -239,7 +237,7 @@ export default async function ArticlePage({ params }: PageProps) {
               <label htmlFor="article-search" className="mb-2 block font-semibold">{copy.search}</label>
               <input type="hidden" name="type" value="articles" />
               <div className="flex gap-1">
-                <Input id="article-search" type="search" name="q" />
+                <Input id="article-search" placeholder={copy.searchPlaceholder} type="search" name="q" />
                 <Button size="icon" variant="secondary" aria-label={copy.search}><Search /></Button>
               </div>
             </form>
