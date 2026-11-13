@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.1
+
+Released 2026-11-13.
+
+- Challenge invitations now use compact copy and send actions. Search followed profiles first, discover other profiles through the wallet’s search relay, or paste an npub to review the recipient before sending.
+- The mint checks payment status through wallet-scoped proxy history. Release cleanup can remove cache directories created by the application.
+
 ## 0.5.0
 
 Released 2026-11-13.

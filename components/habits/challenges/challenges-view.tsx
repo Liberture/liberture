@@ -94,7 +94,7 @@ export function ChallengesView() {
                 pubkey,
                 stake: Number(body.stake),
                 durationDays: Number(body.durationDays),
-                playerNpub: String(body.playerNpub).trim() || undefined,
+                playerNpub: String(body.playerNpub ?? "").trim() || undefined,
                 moderatorNpub: String(body.moderatorNpub ?? "").trim() || undefined,
               })
               setLinks(response.invites)

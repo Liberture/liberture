@@ -12,7 +12,7 @@ index 898af41..afe31c4 100644
  	srv.ReadTimeout = 3 * time.Second
  	srv.WriteTimeout = 4 * time.Second
 diff --git a/internal/lightning/lnbits.go b/internal/lightning/lnbits.go
-index 00f6884..a5158b3 100644
+index 00f6884..c6d3ae3 100644
 --- a/internal/lightning/lnbits.go
 +++ b/internal/lightning/lnbits.go
 @@ -32,10 +32,10 @@ type LNBitsDetailErrorData struct {
@@ -30,15 +30,79 @@ index 00f6884..a5158b3 100644
  	Out        bool   `json:"out"`
  }
  
-@@ -91,6 +91,7 @@ func (l *LnbitsWallet) lnbitsRequest(ctx context.Context, method string, endpoin
+@@ -84,13 +84,19 @@ func (l *LnbitsWallet) lnbitsRequest(ctx context.Context, method string, endpoin
+ 		return fmt.Errorf("json.Marshal: %w", err)
+ 	}
+ 
+-	b := bytes.NewBuffer(jsonBytes)
++	var b io.Reader
++	if reqBody != nil {
++		b = bytes.NewReader(jsonBytes)
++	}
+ 
+ 	req, err := http.NewRequestWithContext(ctx, method, l.Endpoint+endpoint, b)
+ 	if err != nil {
  		return fmt.Errorf("http.NewRequestWithContext: %w", err)
  	}
  	req.Header.Set("X-Api-Key", l.Key)
-+	req.Header.Set("Content-Type", "application/json")
++	if reqBody != nil {
++		req.Header.Set("Content-Type", "application/json")
++	}
  
  	resp, err := client.Do(req)
  	if err != nil {
-@@ -160,7 +161,7 @@ func (l LnbitsWallet) PayInvoice(melt_quote cashu.MeltRequestDB, zpayInvoice *zp
+@@ -113,7 +119,9 @@ func (l *LnbitsWallet) lnbitsRequest(ctx context.Context, method string, endpoin
+ 		Detail: "",
+ 		Status: "",
+ 	}
+-	err = json.Unmarshal(body, &detailBody)
++	if len(bytes.TrimSpace(body)) > 0 && bytes.TrimSpace(body)[0] == '{' {
++		err = json.Unmarshal(body, &detailBody)
++	}
+ 	if err != nil {
+ 		return fmt.Errorf("json.Unmarshal(detailBody): %w", err)
+ 	}
+@@ -149,6 +157,39 @@ func (l *LnbitsWallet) lnbitsRequest(ctx context.Context, method string, endpoin
+ 	return nil
+ }
+ 
++// The wallet proxy exposes payment history scoped to the authenticated wallet.
++func (l LnbitsWallet) paymentStatus(hash string, outgoing bool, status *LNBitsPaymentStatus) error {
++	var rows []struct {
++		PaymentHash string `json:"payment_hash"`
++		Amount      int64
++		Fee         int64
++		Status      string
++		Preimage    string
++	}
++	err := l.LnbitsRequest("GET", "/api/v1/payments?limit=2&payment_hash="+hash, nil, &rows)
++	if err != nil {
++		return err
++	}
++	for _, row := range rows {
++		if row.PaymentHash != hash || row.Amount == 0 || (row.Amount < 0) != outgoing {
++			continue
++		}
++		switch row.Status {
++		case "success":
++			status.Paid = true
++		case "pending":
++			status.Pending = true
++		case "failed":
++		default:
++			return errors.New("unrecognized wallet payment status")
++		}
++		status.Details.Fee = row.Fee
++		status.Preimage = row.Preimage
++		return nil
++	}
++	return errors.New("wallet payment record unavailable")
++}
++
+ func (l LnbitsWallet) PayInvoice(melt_quote cashu.MeltRequestDB, zpayInvoice *zpay32.Invoice, feeReserve cashu.Amount, mpp bool, amount cashu.Amount) (PaymentResponse, error) {
+ 	var invoiceRes PaymentResponse
+ 
+@@ -160,7 +201,7 @@ func (l LnbitsWallet) PayInvoice(melt_quote cashu.MeltRequestDB, zpayInvoice *zp
  	reqInvoice := lnbitsInvoiceRequest{
  		Out:        true,
  		Bolt11:     melt_quote.Request,
@@ -47,7 +111,49 @@ index 00f6884..a5158b3 100644
  		Unit:       "",
  		Memo:       "",
  		Expiry:     0,
-@@ -283,7 +284,7 @@ func (l LnbitsWallet) RequestInvoice(amount cashu.Amount, description *string) (
+@@ -175,7 +216,7 @@ func (l LnbitsWallet) PayInvoice(melt_quote cashu.MeltRequestDB, zpayInvoice *zp
+ 	var paymentStatus LNBitsPaymentStatus
+ 
+ 	// check invoice payment to get the preimage and fee
+-	err = l.LnbitsRequest("GET", "/api/v1/payments/"+lnbitsInvoice.PaymentHash, nil, &paymentStatus)
++	err = l.paymentStatus(lnbitsInvoice.PaymentHash, true, &paymentStatus)
+ 	if err != nil {
+ 		if errors.Is(err, ErrLnbitsFailedPayment) {
+ 			invoiceRes.PaymentState = FAILED
+@@ -188,7 +229,7 @@ func (l LnbitsWallet) PayInvoice(melt_quote cashu.MeltRequestDB, zpayInvoice *zp
+ 	invoiceRes.Rhash = lnbitsInvoice.PaymentHash
+ 	invoiceRes.Preimage = paymentStatus.Preimage
+ 	// LNBits returns fee as int64, convert to Amount
+-	invoiceRes.PaidFee = cashu.Amount{Unit: amount.Unit, Amount: uint64(math.Abs(float64(paymentStatus.Details.Fee)))}
++	invoiceRes.PaidFee = cashu.Amount{Unit: cashu.Msat, Amount: uint64(math.Abs(float64(paymentStatus.Details.Fee)))}
+ 	invoiceRes.CheckingId = melt_quote.CheckingId
+ 
+ 	return invoiceRes, nil
+@@ -199,12 +240,12 @@ func (l LnbitsWallet) CheckPayed(quote string, invoice *zpay32.Invoice, checking
+ 	zeroFee := cashu.Amount{Unit: cashu.Sat, Amount: 0}
+ 
+ 	hash := invoice.PaymentHash[:]
+-	err := l.LnbitsRequest("GET", "/api/v1/payments/"+hex.EncodeToString(hash), nil, &paymentStatus)
++	err := l.paymentStatus(hex.EncodeToString(hash), true, &paymentStatus)
+ 	if err != nil {
+ 		return FAILED, "", zeroFee, fmt.Errorf("json.Marshal: %w", err)
+ 	}
+ 
+-	fee := cashu.Amount{Unit: cashu.Sat, Amount: uint64(paymentStatus.Details.Fee)}
++	fee := cashu.Amount{Unit: cashu.Msat, Amount: uint64(math.Abs(float64(paymentStatus.Details.Fee)))}
+ 
+ 	return lnbitsPaymentState(paymentStatus), paymentStatus.Preimage, fee, nil
+ }
+@@ -214,7 +255,7 @@ func (l LnbitsWallet) CheckReceived(quote cashu.MintRequestDB, invoice *zpay32.I
+ 
+ 	hash := invoice.PaymentHash[:]
+ 
+-	err := l.LnbitsRequest("GET", "/api/v1/payments/"+hex.EncodeToString(hash), nil, &paymentStatus)
++	err := l.paymentStatus(hex.EncodeToString(hash), false, &paymentStatus)
+ 	if err != nil {
+ 		return FAILED, "", fmt.Errorf("json.Marshal: %w", err)
+ 	}
+@@ -283,7 +324,7 @@ func (l LnbitsWallet) RequestInvoice(amount cashu.Amount, description *string) (
  	var lnbitsInvoice struct {
  		PaymentHash    string `json:"payment_hash"`
  		PaymentRequest string `json:"payment_request"`
@@ -56,3 +162,12 @@ index 00f6884..a5158b3 100644
  	}
  	err = l.LnbitsRequest("POST", "/api/v1/payments", reqInvoice, &lnbitsInvoice)
  	if err != nil {
+@@ -318,7 +359,7 @@ func (l LnbitsWallet) walletBalance(ctx context.Context) (cashu.Amount, error) {
+ 	}
+ 
+ 	// LNBits returns balance in sats
+-	return cashu.Amount{Unit: cashu.Sat, Amount: uint64(channelBalance.Balance)}, nil
++	return cashu.Amount{Unit: cashu.Sat, Amount: uint64(max(0, channelBalance.Balance) / 1000)}, nil
+ }
+ 
+ func (l LnbitsWallet) Status(ctx context.Context) (NodeStatus, error) {

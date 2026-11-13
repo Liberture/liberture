@@ -32,6 +32,8 @@ test ! -e .env
 CI=true /usr/bin/pnpm install --frozen-lockfile
 mkdir -p .next/cache
 chmod 2770 .next/cache
+# Let the deploy user prune cache directories created by the runtime user.
+setfacl -d -m u:liberture-deploy:rwx .next/cache
 ln -sfn "$release" "$base/staged"
 sudo -n /usr/bin/systemctl start liberture-prepare.service
 activate "$release"

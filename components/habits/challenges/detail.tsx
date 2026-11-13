@@ -2,6 +2,7 @@
 
 import { TEST_MINT } from "@/lib/challenges/mints"
 import { QrCode } from "@/components/habits/qr-code"
+import { NostrRecipient } from "./invite-target"
 import { CashewMatch } from "./cashew-match"
 import { useEffect, useState } from "react"
 import { useLocale, useTranslations } from "next-intl"
@@ -61,6 +62,7 @@ export function ChallengeDetail({
   const { request } = useChallengeClient()
   const locale = useLocale()
   const [c, setChallenge] = useState(initial)
+  const [recipientRole, setRecipientRole] = useState<"player" | "moderator" | null>(null)
   const [tokens, setTokens] = useState(invites)
   const [choice, choose] = useState<Result | null>(null)
   const [notice, notify] = useState("")
@@ -181,50 +183,44 @@ export function ChallengeDetail({
         (["player", "moderator"] as const).map(
           (role) =>
             !c.members[role] && (role !== "moderator" || c.arbitration !== "none") && (
-              <section key={role} className={panel}>
-                <h2 className="font-semibold">{t("inviteRole", { role: t(role) })}</h2>
-                {tokens[role] ? (
-                  <>
-                    <input
-                      className="w-full rounded border bg-background p-2"
-                      aria-label={t("inviteRole", { role: t(role) })}
-                      readOnly
-                      value={inviteLink(tokens[role]!)}
-                      onFocus={(e) => e.target.select()}
-                    />
-                    <div className="flex flex-wrap gap-2">
-                      {button(t("copy"), async () => {
-                        await navigator.clipboard.writeText(inviteLink(tokens[role]!))
-                        notify(t("copied"))
-                      })}
-                      {c.invitedNpubs?.[role] &&
-                        button(t("sendNostr"), async () => {
-                          const { sendChallengeInvite } = await import("@/lib/challenges/nostr-invite")
-                          try {
-                            await sendChallengeInvite(
-                              c.invitedNpubs![role]!,
-                              t("dmBody", {
-                                name: c.members.creator!.name,
-                                title: c.title,
-                                url: inviteLink(tokens[role]!),
-                              }),
-                            )
-                          } catch (e) {
-                            throw new Error(
-                              t(e instanceof Error && e.message === "noInbox" ? "noInbox" : "dmError"),
-                            )
-                          }
-                          notify(t("relayed"))
-                        })}
-                    </div>
-                    {c.invitedNpubs?.[role] && <p className="text-sm text-muted-foreground">{t("dmHint")}</p>}
-                  </>
-                ) : (
-                  button(t("rotateLink"), async () => {
-                    const r = await act({ action: "invite", role })
-                    setTokens((prev) => ({ ...prev, [role]: r.token }))
+              <section key={role} className="rounded-xl border border-border bg-card px-4 py-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="mr-auto text-sm font-medium">{t("inviteRole", { role: t(role) })}</h2>
+                  <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => void run(async () => {
+                    if (!tokens[role]) {
+                      const r = await act({ action: "invite", role })
+                      setTokens(prev => ({ ...prev, [role]: r.token }))
+                      notify(t("linkReady"))
+                      return
+                    }
+                    await navigator.clipboard.writeText(inviteLink(tokens[role]!))
+                    notify(t("copied"))
+                  })}>{t(tokens[role] ? "copyLink" : "rotateLink")}</Button>
+                  <Button type="button" size="sm" aria-expanded={recipientRole === role} onClick={() => setRecipientRole(recipientRole === role ? null : role)}>{t("viaNostr")}</Button>
+                </div>
+                {recipientRole === role && <form className="mt-2 grid gap-2 border-t pt-3" onSubmit={e => {
+                  e.preventDefault()
+                  const recipient = String(new FormData(e.currentTarget).get("recipient"))
+                  void run(async () => {
+                    let token = tokens[role]
+                    if (!token) {
+                      token = (await act({ action: "invite", role })).token
+                      setTokens(prev => ({ ...prev, [role]: token }))
+                    }
+                    if (!token) throw new Error(t("dmError"))
+                    const { sendChallengeInvite } = await import("@/lib/challenges/nostr-invite")
+                    try {
+                      await sendChallengeInvite(recipient, t("dmBody", { name: c.members.creator!.name, title: c.title, url: inviteLink(token) }))
+                    } catch (e) {
+                      throw new Error(t(e instanceof Error && e.message === "noInbox" ? "noInbox" : "dmError"))
+                    }
+                    setRecipientRole(null)
+                    notify(t("relayed"))
                   })
-                )}
+                }}>
+                  <NostrRecipient nameField="recipient" initialNpub={c.invitedNpubs?.[role]} />
+                  <Button type="submit" size="sm" disabled={busy} className="justify-self-end">{t("confirmSend")}</Button>
+                </form>}
               </section>
             ),
         )}
