@@ -12,19 +12,20 @@ export const metadata: Metadata = {
 }
 
 export default async function ArticlesPage({ searchParams }: {
-  searchParams: Promise<{ q?: string; pillar?: string }>
+  searchParams: Promise<{ q?: string; pillar?: string; sort?: string }>
 }) {
-  const [params, locale, articles] = await Promise.all([
-    searchParams,
+  const params = await searchParams
+  const sort = params.sort === "oldest" || params.sort === "title" ? params.sort : "newest"
+  const [locale, articles] = await Promise.all([
     getRequestLocale(),
     prisma.article.findMany({
-      orderBy: [{ publishedAt: "desc" }, { slug: "asc" }],
+      orderBy: [sort === "title" ? { title: "asc" } : { publishedAt: sort === "oldest" ? "asc" : "desc" }, { slug: "asc" }],
       select: { slug: true, title: true, description: true, author: true, readTime: true, pillar: true, tags: true },
     }),
   ])
   const copy = getDictionary(locale).app.articleReader
   return <DirectoryLayout>
     <DirectoryHeader title={copy.articles} description={copy.description} />
-    <ArticleLibrary key={JSON.stringify(params)} articles={articles} query={params.q ?? ""} pillar={params.pillar ?? ""} />
+    <ArticleLibrary key={JSON.stringify(params)} articles={articles} sort={sort} query={params.q ?? ""} pillar={params.pillar ?? ""} />
   </DirectoryLayout>
 }
