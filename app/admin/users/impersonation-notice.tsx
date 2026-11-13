@@ -5,12 +5,10 @@ import { Button } from "@/components/ui/button"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { userAdmin } from "./client"
 
-export function ImpersonationNotice() {
-  const { data } = userAdmin.useSession()
+export function ImpersonationNotice({ name }: { name: string }) {
   const [error, setError] = useState(false)
   const [busy, setBusy] = useState(false)
   const t = useTranslations().habits.app.adminUsers
-  if (!data?.session.impersonatedBy) return null
   async function stop() {
     setBusy(true)
     try {
@@ -20,7 +18,7 @@ export function ImpersonationNotice() {
     } catch { setError(true); setBusy(false) }
   }
   return <aside className="fixed bottom-3 left-1/2 z-[100] flex -translate-x-1/2 items-center gap-3 rounded-lg border border-amber-400 bg-card px-4 py-2 text-sm shadow-lg">
-    <span>{t.acting} <strong>{data.user.name}</strong></span>
+    <span>{t.acting} <strong>{name}</strong></span>
     <Button disabled={busy} onClick={stop}>{t.exit}</Button>
     {error && <span role="alert">{t.unavailable}</span>}
   </aside>
