@@ -1,6 +1,7 @@
 "use client";
 import { useTranslations as useUiCopy } from "next-intl"
 
+import { ahrefsScript } from "@/lib/ahrefs"
 import Script from "next/script";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,7 +12,7 @@ type CookiePreferences = {
   analytics: boolean;
 };
 
-export function CookieConsent() {
+export function CookieConsent({ ahrefsInHead }: { ahrefsInHead: boolean }) {
   const uiCopy = useUiCopy("publicCopy.cookies")
 
   const [analyticsEnabled, setAnalyticsEnabled] = useState(false);
@@ -73,7 +74,7 @@ export function CookieConsent() {
           gtag('config', 'G-TL25ER7S2F', { anonymize_ip: true, cookie_flags: 'SameSite=None;Secure' });
         `}</Script>
         <Script async src="https://www.googletagmanager.com/gtag/js?id=G-TL25ER7S2F" />
-        <Script async src="https://analytics.ahrefs.com/analytics.js" data-key="0JUsXN4NC4ckajqAQL3C7w" />
+        {!ahrefsInHead && <Script {...ahrefsScript} />}
       </>
     );
   }

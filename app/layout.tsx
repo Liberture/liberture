@@ -12,6 +12,7 @@ import { currentPageAlternates } from "@/lib/i18n/route-metadata.server"
 import { ServiceWorkerRegister } from "@/components/habits/service-worker-register"
 import { HabitsSessionProvider } from "@/components/habits/session-provider"
 import { ThemeProvider } from "@/components/providers/theme-provider"
+import { ahrefsScript } from "@/lib/ahrefs"
 import { CookieConsent } from "@/components/legal/CookieConsent"
 import { OrganizationSchema, WebSiteSchema } from "@/components/seo/JsonLd"
 import "./globals.css"
@@ -85,12 +86,14 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   const [locale, t] = await Promise.all([getLocale(), getTranslations("siteMetadata")])
+  const requestHeaders = await headers()
+  const isAhrefsAudit = /\bAhrefsSiteAudit\b/i.test(requestHeaders.get("user-agent") ?? "")
   let impersonatedName: string | undefined
   if (managedAuthEnabled()) {
     const jar = await cookies()
     if (jar.has("better-auth.admin_session") || jar.has("__Secure-better-auth.admin_session")) {
       const { identity } = await import("@/lib/identity/server")
-      const current = await identity().api.getSession({ headers: await headers() })
+      const current = await identity().api.getSession({ headers: requestHeaders })
       if (current?.session.impersonatedBy) impersonatedName = current.user.name
     }
   }
@@ -99,6 +102,7 @@ export default async function RootLayout({
     // server so the first paint is right. Only the dark palette exists in
     // globals.css, so it is the only theme offered (see settings/preferences-tab).
     <html lang={locale} className="dark" suppressHydrationWarning>
+      <head>{isAhrefsAudit && <script {...ahrefsScript} />}</head>
       <body className={`${inter.variable} ${geistMono.variable} font-sans antialiased`}>
         <OrganizationSchema description={t("description")} />
         <WebSiteSchema description={t("description")} locale={locale} />
@@ -107,7 +111,7 @@ export default async function RootLayout({
             {impersonatedName && <ImpersonationNotice name={impersonatedName} />}
             <HabitsSessionProvider><TooltipProvider delayDuration={250}>{children}</TooltipProvider></HabitsSessionProvider>
             <ServiceWorkerRegister />
-            <CookieConsent />
+            <CookieConsent ahrefsInHead={isAhrefsAudit} />
             <Analytics />
           </NextIntlClientProvider>
         </ThemeProvider>
