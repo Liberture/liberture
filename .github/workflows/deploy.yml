@@ -42,5 +42,5 @@ jobs:
           printf '%s\n' "$DEPLOY_KEY" > "$sshdir/key"
           printf '%s\n' "$KNOWN_HOSTS" > "$sshdir/known_hosts"
           unset DEPLOY_KEY
-          tar --exclude=.next/cache -czf - .next public next.config.mjs package.json pnpm-lock.yaml pnpm-workspace.yaml prisma/schema.prisma data scripts/seed-directory-quick.ts scripts/seed-marketplace-protocols.ts lib tsconfig.json |
+          tar --exclude=.next/cache -czf - .next public next.config.mjs package.json pnpm-lock.yaml pnpm-workspace.yaml prisma/schema.prisma prisma/migrations/20261113000000_better_auth/migration.sql scripts/migrate-managed-auth.mjs scripts/managed-auth-backfill.sql data scripts/seed-directory-quick.ts scripts/seed-marketplace-protocols.ts lib tsconfig.json |
             ssh -T -i "$sshdir/key" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o HostKeyAlias=liberture-production -o UserKnownHostsFile="$sshdir/known_hosts" "liberture-deploy@$SSH_HOST"

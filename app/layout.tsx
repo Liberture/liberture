@@ -1,3 +1,5 @@
+import { managedAuthEnabled } from "@/lib/identity/config"
+import { ImpersonationNotice } from "@/app/admin/users/impersonation-notice"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import type React from "react"
 import type { Metadata, Viewport } from "next"
@@ -118,6 +120,7 @@ export default async function RootLayout({
         <WebSiteSchema />
         <ThemeProvider attribute="class" defaultTheme="dark" themes={["dark"]} enableSystem={false} disableTransitionOnChange>
           <LocaleProvider locale={locale}>
+            {managedAuthEnabled() && <ImpersonationNotice />}
             <NostrAuthProvider>
               <HabitsSessionProvider><TooltipProvider delayDuration={250}>{children}</TooltipProvider></HabitsSessionProvider>
             </NostrAuthProvider>

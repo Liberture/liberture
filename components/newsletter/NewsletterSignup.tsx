@@ -1,91 +1,68 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Mail, Check, AlertCircle } from 'lucide-react'
+import { useEffect, useRef, useState } from "react"
+import Script from "next/script"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { useTranslations } from "@/components/i18n/locale-provider"
 
-export function NewsletterSignup() {
-  const [email, setEmail] = useState('')
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
-  const [message, setMessage] = useState('')
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setStatus('error')
-      setMessage('Please enter a valid email address')
-      return
-    }
-
-    setStatus('loading')
-    
-    try {
-      const res = await fetch('/api/newsletter/subscribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      })
-
-      const data = await res.json()
-
-      if (res.ok) {
-        setStatus('success')
-        setMessage('Thank you for subscribing! Check your email to confirm.')
-        setEmail('')
-      } else {
-        setStatus('error')
-        setMessage(data.error || 'Something went wrong. Please try again.')
-      }
-    } catch (error) {
-      setStatus('error')
-      setMessage('Network error. Please try again.')
+declare global {
+  interface Window {
+    grecaptcha?: {
+      ready(callback: () => void): void
+      render(node: HTMLElement, options: Record<string, unknown>): number
+      reset(id: number): void
     }
   }
+}
 
-  return (
-    <div className="w-full max-w-md">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex flex-col sm:flex-row gap-2">
-          <div className="relative flex-1">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-            <Input
-              type="email"
-              placeholder="your@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              disabled={status === 'loading' || status === 'success'}
-              className="pl-10 bg-slate-900/50 border-slate-700 text-white placeholder:text-slate-500"
-            />
-          </div>
-          <Button
-            type="submit"
-            disabled={status === 'loading' || status === 'success'}
-            className="bg-purple-600 hover:bg-purple-700 text-white px-6"
-          >
-            {status === 'loading' ? 'Subscribing...' : status === 'success' ? 'Subscribed!' : 'Subscribe'}
-          </Button>
+export function NewsletterSignup({ siteKey }: { siteKey: string }) {
+  const t = useTranslations().habits.app.newsletter
+  const section = useRef<HTMLElement>(null)
+  const container = useRef<HTMLDivElement>(null)
+  const widget = useRef<number | undefined>(undefined)
+  const [visible, setVisible] = useState(false)
+  const [token, setToken] = useState("")
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error" | "limited">("idle")
+  useEffect(() => {
+    if (!section.current) return
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setVisible(true); observer.disconnect() }
+    })
+    observer.observe(section.current)
+    return () => observer.disconnect()
+  }, [])
+  return <section ref={section} aria-labelledby="newsletter-title" className="relative border-t border-border py-10 px-4">
+    <div className="mx-auto max-w-md">
+      <h2 id="newsletter-title" className="text-xl font-semibold">{t.title}</h2>
+      <p className="my-2 text-sm text-muted-foreground">{t.description}</p>
+      {status === "success" ? <p role="status">{t.success}</p> : <form className="space-y-3" onSubmit={async event => {
+        event.preventDefault()
+        if (!token || status === "sending") return
+        const email = new FormData(event.currentTarget).get("email")
+        setStatus("sending")
+        try {
+          const res = await fetch("/api/newsletter/subscribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, token }) })
+          setStatus(res.ok ? "success" : res.status === 429 ? "limited" : "error")
+        } catch { setStatus("error") }
+        setToken("")
+        if (widget.current !== undefined) window.grecaptcha?.reset(widget.current)
+      }}>
+        <div className="flex gap-2">
+          <Input name="email" aria-label={t.email} placeholder={t.email} type="email" autoComplete="email" required maxLength={254} />
+          <Button disabled={!token || status === "sending"}>{t.subscribe}</Button>
         </div>
-
-        {status === 'success' && (
-          <div className="flex items-center gap-2 text-green-400 text-sm">
-            <Check className="h-4 w-4" />
-            <span>{message}</span>
-          </div>
-        )}
-
-        {status === 'error' && (
-          <div className="flex items-center gap-2 text-red-400 text-sm">
-            <AlertCircle className="h-4 w-4" />
-            <span>{message}</span>
-          </div>
-        )}
-      </form>
-      
-      <p className="mt-3 text-xs text-slate-500">
-        Weekly insights on biohacking, longevity, and human optimization. Unsubscribe anytime.
-      </p>
+        <div ref={container} />
+        {visible && siteKey && <Script src="https://www.google.com/recaptcha/api.js?render=explicit" onError={() => setStatus("error")} onReady={() => {
+          window.grecaptcha?.ready(() => {
+            if (container.current && widget.current === undefined) widget.current = window.grecaptcha!.render(container.current, {
+              sitekey: siteKey, theme: "dark", callback: setToken, "expired-callback": () => setToken(""),
+              "error-callback": () => { setToken(""); setStatus("error") },
+            })
+          })
+        }} />}
+        {(!siteKey || status === "error" || status === "limited") && <p role="status">{status === "limited" ? t.limited : t.error}</p>}
+      </form>}
     </div>
-  )
+  </section>
 }

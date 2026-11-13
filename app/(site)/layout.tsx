@@ -1,3 +1,5 @@
+import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup"
+import { captchaSiteKey } from "@/lib/newsletter/captcha"
 import { SiteBreadcrumbs } from "@/components/seo/site-breadcrumbs"
 import type { ReactNode } from "react"
 
@@ -16,6 +18,7 @@ export default async function SiteLayout({ children }: { children: ReactNode }) 
         <SiteBreadcrumbs />
         {children}
       </main>
+      <NewsletterSignup siteKey={captchaSiteKey} />
       <LandingFooter locale={await getRequestLocale()} />
     </div>
   )

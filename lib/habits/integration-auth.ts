@@ -1,8 +1,8 @@
+import { managedAuthEnabled } from "@/lib/identity/config"
 import { getDb } from "@/lib/habits/db"
 import crypto from "crypto"
 import type { StorageData } from "@/lib/habits/types"
-import { createNostrSessionsTable } from "@/lib/habits/db-migrate"
-import { getSessionTokenFromCookie, refreshSession, verifySession } from "@/lib/habits/nostr/session-store"
+import { getAuthFromRequest } from "@/lib/habits/app-auth"
 import { NextResponse } from "next/server"
 import { hasScope, scopeDeniedMessage, type ApiScope } from "@/lib/habits/api-scopes"
 import { checkRateLimit } from "@/lib/habits/rate-limit"
@@ -68,6 +68,7 @@ export async function verifyIntegrationTokenValue(token: string): Promise<Integr
       return null
     }
     if (!result.length) return null
+    if (managedAuthEnabled() && !await (await import("@/lib/identity/tracker")).activeUser("habit-" + result[0].id)) return null
 
     return {
       userId: result[0].id as number,
@@ -132,39 +133,12 @@ export async function verifyApiKey(
   const sql = getDb()
 
   try {
-    if (auth?.startsWith("Bearer ")) {
-      const token = auth.slice(7)
-      if (!token.startsWith("ht_")) return null
-
-      const result = await sql`
-        SELECT id, api_key, nostr_pubkey, data
-        FROM habit_users
-        WHERE api_key = ${token}
-      `
-      if (!result.length) return null
-
-      return {
-        userId: result[0].id as number,
-        apiKey: result[0].api_key as string,
-        nostrPubkey: result[0].nostr_pubkey as string | null,
-        data: withHabitStarts(result[0].data as StorageData),
-        connectionId: null,
-      }
-    }
-
-    const sessionToken = getSessionTokenFromCookie(request)
-    if (!sessionToken) return null
-
-    await createNostrSessionsTable()
-    const pubkey = await verifySession(sessionToken)
-    if (!pubkey) return null
-    await refreshSession(sessionToken)
-
-    const result = await sql`
-      SELECT id, api_key, nostr_pubkey, data
-      FROM habit_users
-      WHERE nostr_pubkey = ${pubkey}
-    `
+    if (!auth && new URL(request.url).searchParams.has("apiKey")) return null
+    const owner = await getAuthFromRequest(request)
+    if (!owner) return null
+    const result = owner.type === "api-key"
+      ? await sql`SELECT id, api_key, nostr_pubkey, data FROM habit_users WHERE api_key = ${owner.apiKey!}`
+      : await sql`SELECT id, api_key, nostr_pubkey, data FROM habit_users WHERE nostr_pubkey = ${owner.pubkey!}`
     if (!result.length) return null
 
     return {

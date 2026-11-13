@@ -1,39 +1,7 @@
 import { NextResponse } from "next/server"
 import { getDb } from "@/lib/habits/db"
 import { getLocalUser, isLocalStorageMode } from "@/lib/habits/local-storage"
-import { createNostrSessionsTable } from "@/lib/habits/db-migrate"
-import { getSessionTokenFromCookie, refreshSession, verifySession } from "@/lib/habits/nostr/session-store"
-
-interface AuthInfo {
-  type: 'api-key' | 'nostr'
-  apiKey?: string
-  pubkey?: string
-}
-
-/**
- * Parse the auth identifier from the request
- * Supports legacy API keys (ht_...) and signed Nostr sessions.
- */
-async function getAuthFromRequest(request: Request): Promise<AuthInfo | null> {
-  const authHeader = request.headers.get("authorization")
-
-  if (authHeader?.startsWith("Bearer ")) {
-    const token = authHeader.slice(7)
-    return token.startsWith("ht_") ? { type: 'api-key', apiKey: token } : null
-  }
-
-  if (isLocalStorageMode()) return null
-
-  const sessionToken = getSessionTokenFromCookie(request)
-  if (!sessionToken) return null
-
-  await createNostrSessionsTable()
-  const pubkey = await verifySession(sessionToken)
-  if (!pubkey) return null
-  await refreshSession(sessionToken)
-
-  return { type: 'nostr', pubkey }
-}
+import { getAuthFromRequest } from "@/lib/habits/app-auth"
 
 // GET - Read only the lastUpdated timestamp so clients can cheaply poll
 // for changes without downloading the whole storage blob.

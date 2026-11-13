@@ -60,35 +60,12 @@ export function Avatar({ src, name, size }: { src: string | null; name: string; 
   )
 }
 
-/**
- * Who is signed in (Nostr picture, name, NIP-05 address). The whole card is
- * one button that opens the account menu: profile, settings, assistants,
- * export, sign out. Phones also get a Settings button at the other end of the
- * header, since the menu is one tap further away there.
- */
-export function AccountHeader({ pubkey, fallbackName, onOpenSettings, onExport, onLogout, compact = false }: AccountHeaderProps) {
+export function AccountMenuTrigger({ pubkey, fallbackName, compact = false }: Pick<AccountHeaderProps, "pubkey" | "fallbackName" | "compact">) {
   const t = useTranslations().habits.app.accountHeader
-  const common = useTranslations().habits.app.common
   const profile = useNostrProfile(pubkey)
-  const [confirmingSignOut, setConfirmingSignOut] = useState(false)
   const name = profile?.name ?? fallbackName ?? t.yourAccount
   const address = profile?.nip05 ? displayNip05(profile.nip05) : null
-
-  // Act once the menu has closed and handed focus back to its button, so a
-  // dialog opened from it restores focus there when it closes.
-  const afterClose = (action: () => void) => () => window.setTimeout(action, 0)
-
-  // Finger-sized rows on phones, the usual dense menu with a mouse.
-  const itemClass = cn(
-    "flex cursor-pointer select-none items-center rounded-lg text-foreground outline-none transition-colors",
-    "data-[highlighted]:bg-secondary data-[highlighted]:text-foreground",
-    compact ? "min-h-11 gap-3 px-3 text-base" : "gap-2.5 px-3 py-2 text-sm"
-  )
-  const iconClass = cn("shrink-0 text-muted-foreground", compact ? "h-5 w-5" : "h-4 w-4")
-
   return (
-    <div className={cn("flex min-w-0 items-center", compact && "w-full justify-between gap-2")}>
-      <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
           <button
             type="button"
@@ -116,6 +93,36 @@ export function AccountHeader({ pubkey, fallbackName, onOpenSettings, onExport, 
             />
           </button>
         </DropdownMenu.Trigger>
+  )
+}
+
+/**
+ * Who is signed in (Nostr picture, name, NIP-05 address). The whole card is
+ * one button that opens the account menu: profile, settings, assistants,
+ * export, sign out. Phones also get a Settings button at the other end of the
+ * header, since the menu is one tap further away there.
+ */
+export function AccountHeader({ pubkey, fallbackName, onOpenSettings, onExport, onLogout, compact = false }: AccountHeaderProps) {
+  const t = useTranslations().habits.app.accountHeader
+  const common = useTranslations().habits.app.common
+  const [confirmingSignOut, setConfirmingSignOut] = useState(false)
+
+  // Act once the menu has closed and handed focus back to its button, so a
+  // dialog opened from it restores focus there when it closes.
+  const afterClose = (action: () => void) => () => window.setTimeout(action, 0)
+
+  // Finger-sized rows on phones, the usual dense menu with a mouse.
+  const itemClass = cn(
+    "flex cursor-pointer select-none items-center rounded-lg text-foreground outline-none transition-colors",
+    "data-[highlighted]:bg-secondary data-[highlighted]:text-foreground",
+    compact ? "min-h-11 gap-3 px-3 text-base" : "gap-2.5 px-3 py-2 text-sm"
+  )
+  const iconClass = cn("shrink-0 text-muted-foreground", compact ? "h-5 w-5" : "h-4 w-4")
+
+  return (
+    <div className={cn("flex min-w-0 items-center", compact && "w-full justify-between gap-2")}>
+      <DropdownMenu.Root>
+        <AccountMenuTrigger pubkey={pubkey} fallbackName={fallbackName} compact={compact} />
         <DropdownMenu.Portal>
           <DropdownMenu.Content
             // The card sits at the left of the phone header and the right of the desktop one.

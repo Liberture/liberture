@@ -544,3 +544,68 @@ model NostrSession {
   @@index([pubkey], map: "idx_nostr_sessions_pubkey")
   @@map("nostr_sessions")
 }
+
+model AuthUser {
+  id            String   @id
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  role          String?  @default("user")
+  banned        Boolean? @default(false)
+  banReason     String?
+  banExpires    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  sessions      AuthSession[]
+  accounts      AuthAccount[]
+}
+
+model AuthSession {
+  id             String   @id
+  token          String   @unique
+  expiresAt      DateTime
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  ipAddress      String?
+  userAgent      String?
+  impersonatedBy String?
+  userId         String
+  user           AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+}
+
+model AuthAccount {
+  id                    String   @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  @@unique([providerId, accountId])
+  @@index([userId])
+}
+
+model AuthVerification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  @@index([identifier])
+}
+
+model TrackerBootstrapAdmin {
+  pubkey String @id
+
+  @@map("tracker_bootstrap_admins")
+}

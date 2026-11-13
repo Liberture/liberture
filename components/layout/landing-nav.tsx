@@ -1,6 +1,8 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
+import { AccountMenuTrigger } from "@/components/habits/account-header"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { LogOut, Menu, X, ChevronDown, User, Shield } from "lucide-react"
@@ -11,23 +13,23 @@ import { LibertureLogo } from "@/components/branding"
 import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
 
 /** Admin status comes from the server, which holds the admin key list. */
-function useIsAdmin(signedIn: boolean) {
-  const [isAdmin, setIsAdmin] = useState(false)
+function useAccountSummary(signedIn: boolean, pubkey: string | null) {
+  const [account, setAccount] = useState<{ isAdmin: boolean; name: string | null } | null>(null)
   useEffect(() => {
     if (!signedIn) {
-      setIsAdmin(false)
+      setAccount(null)
       return
     }
     let cancelled = false
     fetch("/api/auth/me")
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => !cancelled && setIsAdmin(Boolean(d?.user?.isAdmin)))
+      .then((d) => !cancelled && setAccount(d?.user ?? null))
       .catch(() => undefined)
     return () => {
       cancelled = true
     }
-  }, [signedIn])
-  return isAdmin
+  }, [signedIn, pubkey])
+  return account
 }
 
 export function LandingNav() {
@@ -36,11 +38,30 @@ export function LandingNav() {
   const { brand } = t
   const { pillars } = t.common
   const nav = t.habits.site.nav
-  const { isSignedIn, openSignIn, logout } = useHabitsSession()
-  const isAdmin = useIsAdmin(isSignedIn)
+  const { auth, isSignedIn, openSignIn, logout } = useHabitsSession()
+  const account = useAccountSummary(isSignedIn, auth.pubkey)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [pillarsDropdownOpen, setPillarsDropdownOpen] = useState(false)
-  const [userMenuOpen, setUserMenuOpen] = useState(false)
+
+  const itemClass = "flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none data-[highlighted]:bg-secondary"
+  const accountMenu = (
+    <DropdownMenu.Root>
+      <AccountMenuTrigger pubkey={auth.pubkey} fallbackName={account?.name} />
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content align="end" sideOffset={6} collisionPadding={8} className="lb-dropdown z-50 min-w-44 p-1">
+          <DropdownMenu.Item asChild onSelect={() => setMobileMenuOpen(false)}>
+            <Link className={itemClass} href="/tracker"><User size={16} />{nav.tracker}</Link>
+          </DropdownMenu.Item>
+          {account?.isAdmin && <DropdownMenu.Item asChild onSelect={() => setMobileMenuOpen(false)}>
+            <Link className={itemClass} href="/admin"><Shield size={16} />{nav.admin}</Link>
+          </DropdownMenu.Item>}
+          <DropdownMenu.Item className={itemClass} onSelect={() => { setMobileMenuOpen(false); void logout() }}>
+            <LogOut size={16} />{nav.signOut}
+          </DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
+  )
 
   const links = [
     { href: "/directory", label: nav.directory },
@@ -118,56 +139,7 @@ export function LandingNav() {
 
           {/* Auth Button / User Menu */}
           {isSignedIn ? (
-            <div
-              className="relative"
-              onMouseEnter={() => setUserMenuOpen(true)}
-              onMouseLeave={() => setUserMenuOpen(false)}
-            >
-              <Link href="/tracker">
-                <Button size="sm" className="bg-primary hover:bg-primary/90 gap-2">
-                  <User className="h-4 w-4" />
-                  {nav.tracker}
-                  <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${userMenuOpen ? 'rotate-180' : ''}`} />
-                </Button>
-              </Link>
-
-              {userMenuOpen && (
-                <div className="absolute top-full right-0 pt-2 w-48">
-                  <div className="lb-dropdown overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                    <div className="p-2">
-                      <Link
-                        href="/tracker"
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-accent/50 transition-colors"
-                        onClick={() => setUserMenuOpen(false)}
-                      >
-                        <User className="h-4 w-4" />
-                        {nav.tracker}
-                      </Link>
-                      {isAdmin && (
-                        <Link
-                          href="/admin"
-                          className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-violet-400 hover:bg-violet-500/10 transition-colors"
-                          onClick={() => setUserMenuOpen(false)}
-                        >
-                          <Shield className="h-4 w-4" />
-                          {nav.admin}
-                        </Link>
-                      )}
-                      <button
-                        onClick={() => {
-                          logout()
-                          setUserMenuOpen(false)
-                        }}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-red-500/10 transition-colors w-full"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        {nav.signOut}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
+            accountMenu
           ) : (
             <Button size="sm" className="bg-primary hover:bg-primary/90" onClick={() => openSignIn()}>
               {nav.signIn}
@@ -229,34 +201,7 @@ export function LandingNav() {
               <div className="mt-2 grid grid-cols-[1fr_auto] items-start gap-2 border-t border-border/50 pt-2">
                 <div>
                   {isSignedIn ? (
-                    <>
-                      <Link href="/tracker" onClick={() => setMobileMenuOpen(false)}>
-                        <Button variant="ghost" size="sm" className="w-full justify-start gap-2">
-                          <User className="h-4 w-4" />
-                          {nav.tracker}
-                        </Button>
-                      </Link>
-                      {isAdmin && (
-                        <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
-                          <Button variant="ghost" size="sm" className="w-full justify-start gap-2 text-violet-400">
-                            <Shield className="h-4 w-4" />
-                            {nav.admin}
-                          </Button>
-                        </Link>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          logout()
-                          setMobileMenuOpen(false)
-                        }}
-                        className="gap-2 w-full justify-start text-red-500 hover:text-red-600"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        {nav.signOut}
-                      </Button>
-                    </>
+                    accountMenu
                   ) : (
                     <Button
                       size="sm"
