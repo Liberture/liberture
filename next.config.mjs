@@ -38,6 +38,7 @@ const nextConfig = {
   // Self-contained server bundle for the Docker image (Dockerfile sets NEXT_OUTPUT);
   // the liberture.com deploy runs `next start` and needs the regular output.
   output: process.env.NEXT_OUTPUT === 'standalone' ? 'standalone' : undefined,
+  serverExternalPackages: ["better-auth"],
   poweredByHeader: false,
   images: {
     unoptimized: true,
