@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { version } from "@/package.json"
 
 /**
  * GET /api/health
@@ -8,6 +9,6 @@ export async function GET() {
   return NextResponse.json({
     status: "ok",
     timestamp: new Date().toISOString(),
-    version: "1.0.0",
+    version,
   })
 }
