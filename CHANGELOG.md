@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.1
+
+Released 2026-11-13.
+
+- Restored the localized Liberture sign-in dialog. Pair a NIP-46 signer by QR code, open it on the same device, or paste its bunker URI. New QR pairings use the Damus and Primal relays.
+
 ## 0.6.0
 
 Released 2026-11-13.
