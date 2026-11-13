@@ -269,7 +269,6 @@ const liberture: Translations = {
         { id: "coaching", name: "Coaching", count: 3 },
         { id: "books", name: "Books & Guides", count: 78 },
         { id: "video", name: "Video & Media", count: 2 },
-        { id: "interactive", name: "Interactive Games", count: 3 },
         { id: "references", name: "References & History", count: 1 },
       ],
     },
