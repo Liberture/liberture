@@ -31,8 +31,6 @@ export function LandingFooter({ locale }: { locale: Locale }) {
         { href: "/#how-it-works", label: f.howItWorks },
         { href: "/guides", label: f.guides },
         { href: "/docs", label: f.docs },
-        { href: "/docs/chatgpt", label: f.chatgpt },
-        { href: "/docs/claude", label: f.claude },
         { href: "/docs/permissions", label: f.permissions },
         { href: "/docs/api", label: f.api },
       ],
