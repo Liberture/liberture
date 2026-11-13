@@ -4,6 +4,7 @@ import { DirectoryProtocol } from "@/components/directory/protocol-card"
 import { CardCarousel } from "@/components/ui/card-carousel"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ArticleSchema, BreadcrumbSchema } from "@/components/seo/JsonLd"
+import type { Byline } from "@/lib/seo/protocol-credits"
 import { sectionTrail } from "@/components/seo/section-breadcrumbs"
 import { ProtocolArtwork } from "@/components/habits/marketplace/protocol-artwork"
 import { ProtocolFacts, ProtocolHabits } from "@/components/habits/marketplace/protocol-facts"
@@ -36,6 +37,7 @@ type Protocol = {
   references: string | null;
   featured: boolean;
   related?: RelatedProtocol[];
+  bylines: Byline[];
 };
 
 function parseList(value: string | null): string[] {
@@ -91,9 +93,11 @@ export default async function ProtocolDetails({ protocol }: { protocol: Protocol
         </div>}
         <header className="my-6 space-y-3">
           <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">{protocol.name}</h1>
-          {protocol.creator && <p className="text-muted-foreground">{copy.by} <Link className="text-primary hover:underline" href={`/people/${protocol.creator}`}>
-            {protocol.creator.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
-          </Link></p>}
+          {protocol.bylines.length > 0 && <p className="text-muted-foreground">{copy.by} {protocol.bylines.map((byline, index) =>
+            <span key={byline.name}>{index > 0 && ", "}{byline.slug
+              ? <Link className="text-primary hover:underline" href={`/people/${byline.slug}`}>{byline.name}</Link>
+              : byline.name}</span>
+          )}</p>}
         </header>
 
         <div className="relative grid items-start gap-5 md:grid-cols-[minmax(0,1fr)_16rem]">

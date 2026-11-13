@@ -1,5 +1,7 @@
 import { cache } from "react"
 import { prisma } from "@/lib/prisma"
+import { protocolBylines } from "./protocol-credits"
+import { CATALOG_PROTOCOLS } from "@/lib/habits/protocols/catalog"
 import { profileBiography } from "@/lib/profile-biography"
 
 export const getPerson = cache(async (slug: string) => {
@@ -29,10 +31,14 @@ export const getPerson = cache(async (slug: string) => {
 
   if (!person) return null
 
-  // Fetch protocols where this person is the creator
+  const catalogSlugs = CATALOG_PROTOCOLS.filter(protocol =>
+    [protocol.author, ...protocol.coAuthors].some(author => author?.kind === "person" &&
+      (author.id === person.slug || author.name.toLowerCase() === person.name.toLowerCase()))
+  ).map(protocol => protocol.slug)
   const protocols = await prisma.protocol.findMany({
     where: {
-      creator: slug, published: true,
+      published: true,
+      OR: [{ creator: slug }, { creator: { equals: person.name, mode: "insensitive" } }, { slug: { in: catalogSlugs } }],
     },
     select: {
       id: true,
@@ -120,7 +126,8 @@ export const getProtocol = cache(async (slug: string) => {
     })
     related.push(...siblings.map(protocol => ({ kind: "pillar", note: "", protocol })))
   }
-  return { ...base, related }
+  const people = await prisma.person.findMany({ select: { name: true, slug: true } })
+  return { ...base, related, bylines: protocolBylines(slug, base.creator, people) }
 })
 
 export const getContent = cache(async (id: string) => {
