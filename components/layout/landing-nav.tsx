@@ -1,36 +1,14 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
-import { AccountMenuTrigger } from "@/components/habits/account-header"
+import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { LogOut, Menu, X, ChevronDown, User, Shield } from "lucide-react"
+import { Menu, X, ChevronDown } from "lucide-react"
 import { useLocale, useTranslations } from "@/components/i18n/locale-provider"
 import { useHabitsSession } from "@/components/habits/session-provider"
 import { LanguageSwitch } from "@/components/habits/site/language-switch"
 import { LibertureLogo } from "@/components/branding"
 import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
-
-/** Admin status comes from the server, which holds the admin key list. */
-function useAccountSummary(signedIn: boolean, pubkey: string | null) {
-  const [account, setAccount] = useState<{ isAdmin: boolean; name: string | null } | null>(null)
-  useEffect(() => {
-    if (!signedIn) {
-      setAccount(null)
-      return
-    }
-    let cancelled = false
-    fetch("/api/auth/me")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => !cancelled && setAccount(d?.user ?? null))
-      .catch(() => undefined)
-    return () => {
-      cancelled = true
-    }
-  }, [signedIn, pubkey])
-  return account
-}
 
 export function LandingNav() {
   const locale = useLocale()
@@ -38,29 +16,18 @@ export function LandingNav() {
   const { brand } = t
   const { pillars } = t.common
   const nav = t.habits.site.nav
-  const { auth, isSignedIn, openSignIn, logout } = useHabitsSession()
-  const account = useAccountSummary(isSignedIn, auth.pubkey)
+  const { isSignedIn, openSignIn } = useHabitsSession()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [pillarsDropdownOpen, setPillarsDropdownOpen] = useState(false)
 
-  const itemClass = "flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none data-[highlighted]:bg-secondary"
-  const accountMenu = (
-    <DropdownMenu.Root>
-      <AccountMenuTrigger pubkey={auth.pubkey} fallbackName={account?.name} />
-      <DropdownMenu.Portal>
-        <DropdownMenu.Content align="end" sideOffset={6} collisionPadding={8} className="lb-dropdown z-50 min-w-44 p-1">
-          <DropdownMenu.Item asChild onSelect={() => setMobileMenuOpen(false)}>
-            <Link className={itemClass} href="/tracker"><User size={16} />{nav.tracker}</Link>
-          </DropdownMenu.Item>
-          {account?.isAdmin && <DropdownMenu.Item asChild onSelect={() => setMobileMenuOpen(false)}>
-            <Link className={itemClass} href="/admin"><Shield size={16} />{nav.admin}</Link>
-          </DropdownMenu.Item>}
-          <DropdownMenu.Item className={itemClass} onSelect={() => { setMobileMenuOpen(false); void logout() }}>
-            <LogOut size={16} />{nav.signOut}
-          </DropdownMenu.Item>
-        </DropdownMenu.Content>
-      </DropdownMenu.Portal>
-    </DropdownMenu.Root>
+  const sessionButton = isSignedIn ? (
+    <Button asChild size="sm" className="w-full md:w-auto">
+      <Link href="/tracker" onClick={() => setMobileMenuOpen(false)}>{nav.tracker}</Link>
+    </Button>
+  ) : (
+    <Button size="sm" className="w-full md:w-auto" onClick={() => { setMobileMenuOpen(false); openSignIn() }}>
+      {nav.signIn}
+    </Button>
   )
 
   const links = [
@@ -137,14 +104,7 @@ export function LandingNav() {
             </Link>
           ))}
 
-          {/* Auth Button / User Menu */}
-          {isSignedIn ? (
-            accountMenu
-          ) : (
-            <Button size="sm" className="bg-primary hover:bg-primary/90" onClick={() => openSignIn()}>
-              {nav.signIn}
-            </Button>
-          )}
+          {sessionButton}
           <LanguageSwitch locale={locale} label={t.habits.site.language} />
         </div>
 
@@ -199,22 +159,7 @@ export function LandingNav() {
               ))}
 
               <div className="mt-2 grid grid-cols-[1fr_auto] items-start gap-2 border-t border-border/50 pt-2">
-                <div>
-                  {isSignedIn ? (
-                    accountMenu
-                  ) : (
-                    <Button
-                      size="sm"
-                      className="w-full bg-primary hover:bg-primary/90"
-                      onClick={() => {
-                        setMobileMenuOpen(false)
-                        openSignIn()
-                      }}
-                    >
-                      {nav.signIn}
-                    </Button>
-                  )}
-                </div>
+                {sessionButton}
                 <LanguageSwitch locale={locale} label={t.habits.site.language} />
               </div>
             </div>
