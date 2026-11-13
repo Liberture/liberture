@@ -12,7 +12,8 @@ import { cn } from "@/lib/utils"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage, plural } from "@/lib/i18n-format"
 
-import { sourceLabel } from "@/lib/tracker/catalog"
+import { protocolImage } from "@/lib/habits/protocols/images"
+import { toast } from "sonner"
 import { ProtocolArtwork } from "./protocol-artwork"
 import { DifficultyTag, PillarTag, useCatalogLabels } from "./pillar-tag"
 
@@ -65,34 +66,20 @@ export function ProtocolReader({ protocol, adopted, onAdopt, onClose, shareable 
     }
   }
 
-  const download = () => {
-    const payload = {
-      slug: protocol.slug,
-      name: protocol.name,
-      pillar: protocol.pillar,
-      difficulty: protocol.difficulty,
-      duration: protocol.duration,
-      description: protocol.description,
-      why: protocol.why,
-      benefits: protocol.benefits,
-      risks: protocol.risks,
-      evidence: protocol.evidence.map(sourceLabel),
-      habits: protocol.habits.map((h) => ({
-        slug: h.slug,
-        name: h.name,
-        why: h.why,
-        time: h.time,
-        schedule: h.schedule,
-      })),
-      source: `https://liberture.com/protocols/${protocol.slug}`,
+  const [downloading, setDownloading] = useState(false)
+  const download = async () => {
+    setDownloading(true)
+    try {
+      const { protocolPdf } = await import("@/lib/habits/protocols/download-pdf")
+      const picture = protocolImage(protocol.slug)
+      const response = picture && await fetch(picture.png).catch(() => null)
+      const cover = response?.ok ? new Uint8Array(await response.arrayBuffer()) : undefined
+      protocolPdf(protocol, t, labels, cover).save(`liberture-${protocol.slug}.pdf`)
+    } catch {
+      toast.error(t.downloadError)
+    } finally {
+      setDownloading(false)
     }
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `${protocol.slug}.json`
-    a.click()
-    URL.revokeObjectURL(url)
   }
 
   return (
@@ -383,10 +370,11 @@ export function ProtocolReader({ protocol, adopted, onAdopt, onClose, shareable 
                   <button
                     type="button"
                     onClick={download}
+                    disabled={downloading}
                     className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/15 px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-white/30 hover:text-foreground sm:flex-none"
                   >
                     <Download className="h-4 w-4" aria-hidden />
-                    Download
+                    {downloading ? t.preparingPdf : t.downloadPdf}
                   </button>
                 </div>
               ) : null}

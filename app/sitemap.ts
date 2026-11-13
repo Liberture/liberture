@@ -28,26 +28,24 @@ async function safe<T>(label: string, query: () => Promise<T[]>): Promise<T[]> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
+
 
   // Static routes are built first and never depend on the database, so a DB
   // outage can't drop the homepage and core pages from the sitemap.
   const staticEntries: MetadataRoute.Sitemap = [
-    { url: baseUrl, lastModified: now, changeFrequency: 'daily', priority: 1.0, images: [`${baseUrl}${screenshotSrc('en', 'tracker-today')}`, `${baseUrl}${screenshotSrc('en', 'statistics')}`, `${baseUrl}${screenshotSrc('en', 'mobile-today')}`] },
-    { url: `${baseUrl}/directory`, lastModified: now, changeFrequency: 'daily', priority: 1.0 },
-    { url: `${baseUrl}/articles`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
-    { url: `${baseUrl}/pillars`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: baseUrl, changeFrequency: 'daily', priority: 1.0, images: [`${baseUrl}${screenshotSrc('en', 'tracker-today')}`, `${baseUrl}${screenshotSrc('en', 'statistics')}`, `${baseUrl}${screenshotSrc('en', 'mobile-today')}`] },
+    { url: `${baseUrl}/directory`, changeFrequency: 'daily', priority: 1.0 },
+    { url: `${baseUrl}/articles`, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${baseUrl}/pillars`, changeFrequency: 'weekly', priority: 0.9 },
     ...pillarSlugs.map((pillar) => ({
       url: `${baseUrl}/pillars/${pillar}`,
-      lastModified: now,
       changeFrequency: 'weekly' as const,
       priority: 0.9,
     })),
-    { url: `${baseUrl}/people`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${baseUrl}/organizations`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${baseUrl}/people`, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${baseUrl}/organizations`, changeFrequency: 'weekly', priority: 0.9 },
     {
       url: `${baseUrl}/protocols`,
-      lastModified: now,
       changeFrequency: 'weekly',
       priority: 1.0,
       // Standalone catalog habits have no page of their own; their pictures belong to the library.
@@ -56,11 +54,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         return image ? [absoluteUrl(baseUrl, image.png)] : []
       }),
     },
-    { url: `${baseUrl}/books`, lastModified: now, changeFrequency: 'weekly', priority: 0.9 },
-    { url: `${baseUrl}/games`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${baseUrl}/games/hydration`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${baseUrl}/games/sleep`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
-    { url: `${baseUrl}/how-it-works`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${baseUrl}/books`, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${baseUrl}/games`, changeFrequency: 'monthly', priority: 0.7 },
+    { url: `${baseUrl}/games/hydration`, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/games/sleep`, changeFrequency: 'monthly', priority: 0.6 },
+    { url: `${baseUrl}/how-it-works`, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${baseUrl}/get-started`, lastModified: new Date(GUIDES_UPDATED), changeFrequency: 'monthly', priority: 0.9, images: [`${baseUrl}${screenshotSrc('en', 'tracker-today')}`] },
     { url: `${baseUrl}/guides`, lastModified: new Date(GUIDES_UPDATED), changeFrequency: 'weekly', priority: 0.8 },
     ...guidesFor('en').articles.map((guide) => ({
@@ -70,19 +68,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
       images: guideImages(guide),
     })),
-    { url: `${baseUrl}/docs`, lastModified: now, changeFrequency: 'monthly', priority: 0.8, images: [`${baseUrl}${screenshotSrc('en', 'tracker-today')}`] },
-    { url: `${baseUrl}/docs/chatgpt`, lastModified: now, changeFrequency: 'monthly', priority: 0.6, images: [`${baseUrl}${screenshotSrc('en', 'connect-assistant')}`] },
-    { url: `${baseUrl}/docs/claude`, lastModified: now, changeFrequency: 'monthly', priority: 0.6, images: [`${baseUrl}${screenshotSrc('en', 'connect-assistant')}`] },
-    { url: `${baseUrl}/docs/permissions`, lastModified: now, changeFrequency: 'monthly', priority: 0.5, images: [`${baseUrl}${screenshotSrc('en', 'assistant-permissions')}`] },
-    { url: `${baseUrl}/docs/api`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${baseUrl}/about`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${baseUrl}/contact`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${baseUrl}/media-kit`, lastModified: now, changeFrequency: 'monthly', priority: 0.4 },
-    { url: `${baseUrl}/terms`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
-    { url: `${baseUrl}/privacy`, lastModified: now, changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${baseUrl}/docs`, changeFrequency: 'monthly', priority: 0.8, images: [`${baseUrl}${screenshotSrc('en', 'tracker-today')}`] },
+    { url: `${baseUrl}/docs/chatgpt`, changeFrequency: 'monthly', priority: 0.6, images: [`${baseUrl}${screenshotSrc('en', 'connect-assistant')}`] },
+    { url: `${baseUrl}/docs/claude`, changeFrequency: 'monthly', priority: 0.6, images: [`${baseUrl}${screenshotSrc('en', 'connect-assistant')}`] },
+    { url: `${baseUrl}/docs/permissions`, changeFrequency: 'monthly', priority: 0.5, images: [`${baseUrl}${screenshotSrc('en', 'assistant-permissions')}`] },
+    { url: `${baseUrl}/docs/api`, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/support` },
+    { url: `${baseUrl}/docs/updates` },
+    { url: `${baseUrl}/about`, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/contact`, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/media-kit`, changeFrequency: 'monthly', priority: 0.4 },
+    { url: `${baseUrl}/terms`, changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${baseUrl}/privacy`, changeFrequency: 'yearly', priority: 0.3 },
   ];
 
-  const [articles, people, books, organizations, protocols] = await Promise.all([
+  const [articles, people, books, organizations, protocols, content] = await Promise.all([
     safe('articles', () => prisma.article.findMany({ select: { slug: true, updatedAt: true } })),
     safe('people', () => prisma.person.findMany({ select: { slug: true, updatedAt: true, featured: true } })),
     safe('books', () => prisma.book.findMany({ select: { slug: true, updatedAt: true, featured: true } })),
@@ -95,10 +95,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         select: { slug: true, updatedAt: true, featured: true },
       }),
     ),
+    safe("content", () => prisma.content.findMany({select:{id:true,updatedAt:true}})),
   ]);
 
   return [
     ...staticEntries,
+    ...content.map(item => ({url:`${baseUrl}/content/${encodeURIComponent(item.id)}`,lastModified:item.updatedAt})),
 
     ...articles.map((article) => ({
       url: `${baseUrl}/articles/${article.slug}`,

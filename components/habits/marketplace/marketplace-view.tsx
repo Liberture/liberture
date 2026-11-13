@@ -2,7 +2,7 @@
 
 import { FieldSelect, FieldOption } from "@/components/ui/select"
 import { memo, useCallback, useMemo, useState } from "react"
-import { ArrowDownUp, Store, X } from "lucide-react"
+import { ArrowDownUp, Store } from "lucide-react"
 
 import { PILLAR_IDS, type PillarId } from "@/lib/habits/pillars"
 import {
@@ -15,7 +15,6 @@ import {
 } from "@/lib/habits/protocols/catalog"
 import { COST_TIER_ORDER } from "@/lib/habits/protocols/cost"
 import {
-  activeFilterCount,
   DEFAULT_FILTER,
   filterCatalogHabits,
   filterProtocols,
@@ -65,7 +64,7 @@ export const MarketplaceView = memo(function MarketplaceView({ habits = EMPTY_HA
 
   const author = CATALOG_AUTHORS.find(author => author.id === filter.authorId)
   const reading = readingSlug ? catalog.find((p) => p.slug === readingSlug) : undefined
-  const activeCount = activeFilterCount(filter)
+  const filterStyle = (active: boolean) => active ? "w-auto max-w-full font-bold text-primary border-primary/60 [&_.text-muted-foreground]:text-primary" : "w-auto max-w-full"
 
   const update = useCallback(
     <K extends keyof CatalogFilter>(key: K, value: CatalogFilter[K]) =>
@@ -91,30 +90,19 @@ export const MarketplaceView = memo(function MarketplaceView({ habits = EMPTY_HA
         }}
         onProtocol={setReadingSlug} />
       <div data-no-swipe className="flex flex-wrap items-center justify-center gap-2">
-        <FieldSelect value={filter.pillar} prefix={t.vertical} aria-label={t.vertical} className="w-auto max-w-full" onValueChange={value => update("pillar", value as PillarId | "all")}>
+        <FieldSelect value={filter.pillar} prefix={t.vertical} aria-label={t.vertical} className={filterStyle(filter.pillar !== DEFAULT_FILTER.pillar)} onValueChange={value => update("pillar", value as PillarId | "all")}>
           <FieldOption value="all">{t.all}</FieldOption>
           {PILLAR_IDS.map(pillar => <FieldOption key={pillar} value={pillar}>{labels.pillar[pillar]}</FieldOption>)}
         </FieldSelect>
-        <FieldSelect value={filter.maxCost} aria-label={t.cost} prefix={t.cost} className="w-auto max-w-full" onValueChange={value => update("maxCost", value as CatalogFilter["maxCost"])}>
+        <FieldSelect value={filter.maxCost} aria-label={t.cost} prefix={t.cost} className={filterStyle(filter.maxCost !== DEFAULT_FILTER.maxCost)} onValueChange={value => update("maxCost", value as CatalogFilter["maxCost"])}>
           <FieldOption value="any">{t.any}</FieldOption>
           {COST_TIER_ORDER.map(tier => <FieldOption key={tier} value={tier} title={labels.costBlurb[tier]}>{labels.costTier[tier]}</FieldOption>)}
         </FieldSelect>
-        <FieldSelect value={filter.difficulty} aria-label={t.effort} prefix={t.effort} className="w-auto max-w-full" onValueChange={value => update("difficulty", value as CatalogFilter["difficulty"])}>
+        <FieldSelect value={filter.difficulty} aria-label={t.effort} prefix={t.effort} className={filterStyle(filter.difficulty !== DEFAULT_FILTER.difficulty)} onValueChange={value => update("difficulty", value as CatalogFilter["difficulty"])}>
           <FieldOption value="all">{t.any}</FieldOption>
           {DIFFICULTY_ORDER.map(level => <FieldOption key={level} value={level}>{labels.difficulty[level]}</FieldOption>)}
         </FieldSelect>
       </div>
-
-      {activeCount > 0 ? (
-        <button
-          type="button"
-          onClick={() => { setDraft(""); setFilter(DEFAULT_FILTER) }}
-          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-        >
-          <X className="h-3 w-3" aria-hidden />
-          {formatMessage(t.clear, { count: activeCount })}
-        </button>
-      ) : null}
 
       <section className="space-y-4">
         <div data-no-swipe className="flex flex-wrap items-center justify-between gap-2">
