@@ -1,8 +1,11 @@
 import Link from "next/link"
+import { OrganizationLogo } from "./organization-logo"
+import { profilePillars } from "@/lib/pillars"
+import { PillarTag } from "@/components/habits/marketplace/pillar-tag"
 import type { Organization } from "@prisma/client"
 
-export function OrganizationCard({ org }: { org: Pick<Organization, "slug" | "name" | "type" | "description" | "pillars" | "featured" | "founded"> }) {
-  const pillars = (org.pillars || '').split(',').map(p => p.trim()).filter(Boolean);
+export function OrganizationCard({ org }: { org: Pick<Organization, "imageUrl" | "slug" | "name" | "type" | "description" | "pillars" | "featured" | "founded"> }) {
+  const pillars = profilePillars(org.pillars);
 
   return (
     <Link
@@ -17,6 +20,7 @@ export function OrganizationCard({ org }: { org: Pick<Organization, "slug" | "na
           </div>
         )}
 
+        <OrganizationLogo src={org.imageUrl} name={org.name} className="mb-4 h-12 max-w-[65%]" />
         <h2 className="text-2xl font-bold mb-2 group-hover:text-cyan-400 transition-colors">
           {org.name}
         </h2>
@@ -26,14 +30,7 @@ export function OrganizationCard({ org }: { org: Pick<Organization, "slug" | "na
         <p className="text-slate-400 mb-4 line-clamp-3">{org.description}</p>
 
         <div className="flex flex-wrap gap-2 mb-4">
-          {pillars.slice(0, 3).map((pillar, i) => (
-            <span
-              key={i}
-              className="px-2 py-1 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-medium border border-cyan-500/30"
-            >
-              {pillar}
-            </span>
-          ))}
+          {pillars.slice(0, 3).map(pillar => <PillarTag key={pillar} pillar={pillar} />)}
         </div>
 
         {org.founded && (
