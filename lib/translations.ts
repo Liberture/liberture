@@ -490,6 +490,11 @@ const liberture: Translations = {
 // ---------------------------------------------------------------------------
 
 const habitsEn = {
+  protocolLibrary: {
+    title: "Protocols", eyebrow: "The Protocol Library", seoTitle: "Protocols | Evidence-Backed Routines",
+    description: "Explore structured routines and their supporting evidence. Share a protocol, download a copy, or add its habits to your tracker.",
+    imageAlt: "Liberture protocol library", inTracker: "{count} in your tracker",
+  },
   bookDetails: { heading: "Book details", author: "Author", published: "Published", pages: "Pages", rating: "Rating", verticals: "Verticals", amazon: "View on Amazon", about: "About this book", takeaways: "Key takeaways", audience: "Who should read this" },
   getStarted: {
     metaTitle: "Get Started: Free Habit Tracker for ChatGPT and Claude",
@@ -3623,6 +3628,11 @@ const habitsEn = {
 export type HabitsDictionary = typeof habitsEn
 
 const habitsEs: HabitsDictionary = {
+  protocolLibrary: {
+    title: "Protocolos", eyebrow: "Biblioteca de protocolos", seoTitle: "Protocolos | Rutinas basadas en evidencia",
+    description: "Explora rutinas y la evidencia que las respalda. Comparte un protocolo, descarga una copia o añade sus hábitos a tu registro.",
+    imageAlt: "Biblioteca de protocolos de Liberture", inTracker: "{count} en tu registro",
+  },
   bookDetails: { heading: "Datos del libro", author: "Autoría", published: "Publicación", pages: "Páginas", rating: "Valoración", verticals: "Áreas", amazon: "Ver en Amazon", about: "Sobre el libro", takeaways: "Ideas principales", audience: "A quién va dirigido" },
   getStarted: {
     metaTitle: "Empezá: registro de hábitos gratis para ChatGPT y Claude",

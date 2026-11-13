@@ -1,5 +1,8 @@
 import type { Metadata } from "next"
 
+import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { getDictionary } from "@/lib/habits/i18n"
+import { translatedAlternates } from "@/lib/seo/translated-routes"
 import { prisma } from "@/lib/prisma"
 import { CATALOG_PROTOCOLS, findProtocol, type CatalogProtocol } from "@/lib/habits/protocols/catalog"
 import { normalizeSources } from "@/lib/habits/protocols/sources"
@@ -7,33 +10,19 @@ import type { PillarId } from "@/lib/translations"
 
 import { ProtocolsBrowser } from "./protocols-browser"
 
-const url = "https://liberture.com/protocols"
-
-export const metadata: Metadata = {
-  title: "Protocols | Evidence-Backed Routines",
-  description:
-    "Explore structured protocols with the evidence attached. Share what works, download a protocol to keep, or add one and it becomes daily habits in your tracker.",
-  alternates: { canonical: url },
-  openGraph: {
-    title: "Protocols | Liberture",
-    description:
-      "Structured routines with the evidence attached — explore, share, download, or add them to your habit tracker.",
-    url,
-    siteName: "Liberture",
-    locale: "en_US",
-    type: "website",
-    images: [
-      { url: "/og-image.jpg", width: 1200, height: 630, alt: "Liberture protocol library" },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Protocols | Liberture",
-    description: "Evidence-backed routines you can explore, share, download and track.",
-    images: ["/og-image.jpg"],
-    site: "@liberture",
-    creator: "@liberture",
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale()
+  const { seoTitle: title, description, imageAlt } = getDictionary(locale).protocolLibrary
+  const alternates = translatedAlternates("/protocols", locale)
+  const images = [{ url: "/og-image.jpg", width: 1200, height: 630, alt: imageAlt }]
+  return {
+    title, description, alternates,
+    openGraph: {
+      type: "website", siteName: "Liberture", title, description, url: alternates.canonical,
+      locale: locale === "es" ? "es_ES" : "en_US", alternateLocale: locale === "es" ? "en_US" : "es_ES", images,
+    },
+    twitter: { card: "summary_large_image", title, description, images, site: "@liberture", creator: "@liberture" },
+  }
 }
 
 function parseList(value: string | null | undefined): string[] {

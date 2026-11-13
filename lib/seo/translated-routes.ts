@@ -1,6 +1,6 @@
 import type { Locale } from "@/lib/translations"
 
-const staticPaths = new Set(["/", "/how-it-works", "/get-started", "/guides", "/docs", "/docs/chatgpt", "/docs/claude", "/docs/permissions", "/docs/api", "/docs/updates"])
+const staticPaths = new Set(["/", "/protocols", "/how-it-works", "/get-started", "/guides", "/docs", "/docs/chatgpt", "/docs/claude", "/docs/permissions", "/docs/api", "/docs/updates"])
 
 // These pages translate their main content. A translated navigation bar alone doesn't qualify.
 export function hasTranslatedContent(path: string) {
