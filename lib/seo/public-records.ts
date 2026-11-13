@@ -93,9 +93,11 @@ export const getProtocol = cache(async (slug: string) => {
     where: { slug },
     include: {
       relationsFrom: {
+        where: { to: { published: true } },
         include: { to: { select: { slug: true, name: true, pillar: true, description: true } } },
       },
       relationsTo: {
+        where: { from: { published: true } },
         include: { from: { select: { slug: true, name: true, pillar: true, description: true } } },
       },
     },
@@ -109,6 +111,15 @@ export const getProtocol = cache(async (slug: string) => {
     ...relationsTo.map((r) => ({ kind: r.kind, note: r.note, protocol: r.from })),
   ];
 
+  if (!related.length) {
+    const siblings = await prisma.protocol.findMany({
+      where: { published: true, pillar: base.pillar, slug: { not: slug } },
+      orderBy: [{ featured: "desc" }, { name: "asc" }],
+      take: 6,
+      select: { slug: true, name: true, pillar: true, description: true },
+    })
+    related.push(...siblings.map(protocol => ({ kind: "pillar", note: "", protocol })))
+  }
   return { ...base, related }
 })
 

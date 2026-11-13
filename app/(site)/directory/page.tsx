@@ -8,8 +8,7 @@ import { PersonCard } from "@/components/people/person-card"
 import { BookCard } from "@/components/directory/book-card"
 import { OrganizationCard } from "@/components/directory/org-card"
 import { ArticleCard } from "@/components/directory/article-card"
-import { ProtocolCard } from "@/components/habits/marketplace/protocol-card"
-import { findProtocol } from "@/lib/habits/protocols/catalog"
+import { DirectoryProtocol } from "@/components/directory/protocol-card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { DirectoryLayout, DirectoryHeader, DirectoryGrid } from "@/components/directory/layout"
@@ -333,14 +332,4 @@ function DirectorySection({ title, icon: Icon, color, items, baseUrl, showAll }:
       </DirectoryGrid>
     </div>
   )
-}
-
-function DirectoryProtocol({ protocol }: { protocol: { slug: string; name: string; description: string } }) {
-  const catalog = findProtocol(protocol.slug)
-  const href = `/protocols/${protocol.slug}`
-  if (catalog) return <ProtocolCard protocol={catalog} adopted={false} href={href} />
-  return <Link href={href} className="rounded-xl border border-border bg-card p-5 hover:border-primary">
-    <h3 className="text-lg font-bold">{protocol.name}</h3>
-    <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{protocol.description}</p>
-  </Link>
 }

@@ -1,16 +1,17 @@
+import Link from "next/link"
 import { DirectoryLayout } from "@/components/directory/layout"
-
-
-
-import { BackLink } from "@/components/seo/back-link"
+import { DirectoryProtocol } from "@/components/directory/protocol-card"
+import { CardCarousel } from "@/components/ui/card-carousel"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { ArticleSchema, BreadcrumbSchema } from "@/components/seo/JsonLd"
 import { sectionTrail } from "@/components/seo/section-breadcrumbs"
-import Link from "next/link";
-import { Target, AlertTriangle, Package, Lightbulb, BookOpen, Link2, Shuffle } from "lucide-react";
+import { ProtocolArtwork } from "@/components/habits/marketplace/protocol-artwork"
+import { DifficultyTag, PillarTag } from "@/components/habits/marketplace/pillar-tag"
 import { findProtocol } from "@/lib/habits/protocols/catalog"
 import type { Author } from "@/lib/habits/protocols/authors"
-import { ArticleSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
-import { ProtocolArtwork } from "@/components/habits/marketplace/protocol-artwork";
-import { protocolImage } from "@/lib/habits/protocols/images";
+import { protocolImage } from "@/lib/habits/protocols/images"
+import { getDictionary } from "@/lib/habits/i18n"
+import { getRequestLocale } from "@/lib/habits/i18n/server"
 
 type RelatedProtocol = {
   kind: string;
@@ -37,13 +38,6 @@ type Protocol = {
   related?: RelatedProtocol[];
 };
 
-const difficultyColors = {
-  beginner: 'bg-green-500/20 text-green-400 border-green-500/30',
-  intermediate: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-  advanced: 'bg-red-500/20 text-red-400 border-red-500/30',
-  expert: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-};
-
 function parseList(value: string | null): string[] {
   if (!value) return [];
   try {
@@ -55,15 +49,20 @@ function parseList(value: string | null): string[] {
   }
 }
 
-export default function ProtocolDetails({ protocol }: { protocol: Protocol }) {
+export default async function ProtocolDetails({ protocol }: { protocol: Protocol }) {
   const steps = parseList(protocol.steps);
   const benefits = parseList(protocol.benefits);
   const risks = parseList(protocol.risks);
   const equipment = parseList(protocol.equipment);
   const references = parseList(protocol.references);
-  const synergies = (protocol.related || []).filter((r) => r.kind === 'synergy');
-  const alternatives = (protocol.related || []).filter((r) => r.kind === 'alternative');
-
+  const copy = getDictionary(await getRequestLocale()).app.protocolDetails
+  const related = new Map<string, RelatedProtocol[]>()
+  for (const relation of protocol.related ?? []) {
+    if (relation.protocol.slug === protocol.slug) continue
+    const group = related.get(relation.protocol.slug) ?? []
+    group.push(relation)
+    related.set(relation.protocol.slug, group)
+  }
   const catalog = findProtocol(protocol.slug)
   const credits = [catalog?.author, ...(catalog?.coAuthors ?? [])].filter((author): author is Author => Boolean(author))
   const authors = credits.filter(author => author.kind === "person").map(author => ({
@@ -87,227 +86,62 @@ export default function ProtocolDetails({ protocol }: { protocol: Protocol }) {
       <BreadcrumbSchema items={[...sectionTrail("protocols"), {name:protocol.name, url:`https://liberture.com/protocols/${protocol.slug}`}]} />
       
       <div className="mx-auto max-w-5xl">
-          <div className="mb-8">
-            <BackLink fallback="/protocols" />
+        {image && <div className="mt-4 overflow-hidden rounded-xl border border-border">
+          <ProtocolArtwork slug={protocol.slug} loading="eager" />
+        </div>}
+        <header className="my-6 space-y-3">
+          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+            {catalog ? <><PillarTag pillar={catalog.pillar} /><DifficultyTag difficulty={catalog.difficulty} /></> :
+              <><span className="capitalize">{protocol.pillar}</span><span className="capitalize">{protocol.difficulty}</span></>}
+            {protocol.duration && <span>{protocol.duration}</span>}
           </div>
-          
-          {/* Protocol picture (scripts/generate-protocol-images.tsx) */}
-          {image && (
-            <figure className="mb-10 overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-black/40">
-              <ProtocolArtwork slug={protocol.slug} loading="eager" />
-            </figure>
-          )}
+          <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">{protocol.name}</h1>
+          {protocol.creator && <p className="text-muted-foreground">{copy.by} <Link className="text-primary hover:underline" href={`/people/${protocol.creator}`}>
+            {protocol.creator.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+          </Link></p>}
+        </header>
 
-          {/* Header */}
-          <div className="mb-8">
-            <div className="flex items-start gap-2 mb-2">
-              <Target className="w-8 h-8 text-purple-400 mt-1" />
-              <div>
-                <h1 className="text-5xl font-bold mb-2">{protocol.name}</h1>
-                {protocol.creator && (
-                  <p className="text-xl text-purple-400">
-                    by{' '}
-                    <Link 
-                      href={`/people/${protocol.creator}`}
-                      className="hover:text-purple-300 underline decoration-purple-400/30 hover:decoration-purple-300 transition-colors"
-                    >
-                      {protocol.creator.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                    </Link>
-                  </p>
-                )}
-              </div>
-            </div>
-            
-            {/* Meta info */}
-            <div className="flex flex-wrap items-center gap-4 mt-4">
-              <span className={`px-3 py-1 rounded-full text-sm font-medium border capitalize ${difficultyColors[protocol.difficulty as keyof typeof difficultyColors] || difficultyColors.beginner}`}>
-                {protocol.difficulty}
-              </span>
-              {protocol.duration && (
-                <span className="text-slate-400">{protocol.duration}</span>
-              )}
-              <span className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 text-sm font-medium border border-purple-500/30 capitalize">
-                {protocol.pillar}
-              </span>
-            </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Left Column */}
-            <div className="md:col-span-2 space-y-6">
-              {/* Description */}
-              <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                <h2 className="text-2xl font-bold mb-4">Overview</h2>
-                <p className="text-slate-300 text-lg leading-relaxed">{protocol.description}</p>
-              </div>
-
-              {/* Why This Works */}
-              {protocol.why && (
-                <div className="rounded-2xl border border-amber-700/40 bg-amber-900/10 p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Lightbulb className="w-6 h-6 text-amber-400" />
-                    <h2 className="text-2xl font-bold text-amber-400">Why This Works</h2>
-                  </div>
-                  <p className="text-slate-300 leading-relaxed">{protocol.why}</p>
-                </div>
-              )}
-
-              {/* Steps */}
-              <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                <h2 className="text-2xl font-bold mb-4">Steps</h2>
-                <ol className="space-y-4">
-                  {steps.map((step: string, i: number) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-sm">
-                        {i + 1}
-                      </span>
-                      <span className="text-slate-300 pt-1">{step}</span>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-
-              {/* Benefits */}
-              <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                <h2 className="text-2xl font-bold mb-4">Benefits</h2>
-                <ul className="space-y-3">
-                  {benefits.map((benefit: string, i: number) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <span className="text-green-400 mt-1">✓</span>
-                      <span className="text-slate-300">{benefit}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Risks */}
-              {risks.length > 0 && (
-                <div className="rounded-2xl border border-red-700/50 bg-red-900/20 p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <AlertTriangle className="w-6 h-6 text-red-400" />
-                    <h2 className="text-2xl font-bold text-red-400">Risks & Warnings</h2>
-                  </div>
-                  <ul className="space-y-3">
-                    {risks.map((risk: string, i: number) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <span className="text-red-400 mt-1">!</span>
-                        <span className="text-slate-300">{risk}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Works Well With */}
-              {synergies.length > 0 && (
-                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Link2 className="w-6 h-6 text-green-400" />
-                    <h2 className="text-2xl font-bold">Works Well With</h2>
-                  </div>
-                  <div className="space-y-4">
-                    {synergies.map((rel, i) => (
-                      <Link
-                        key={i}
-                        href={`/protocols/${rel.protocol.slug}`}
-                        className="block rounded-xl border border-slate-700 bg-slate-800/50 p-4 hover:border-green-500/50 transition-colors"
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-semibold text-green-400">{rel.protocol.name}</span>
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 capitalize">{rel.protocol.pillar}</span>
-                        </div>
-                        <p className="text-sm text-slate-400">{rel.note}</p>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Same Goal, Different Route */}
-              {alternatives.length > 0 && (
-                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Shuffle className="w-6 h-6 text-cyan-400" />
-                    <h2 className="text-2xl font-bold">Same Goal, Different Route</h2>
-                  </div>
-                  <div className="space-y-4">
-                    {alternatives.map((rel, i) => (
-                      <Link
-                        key={i}
-                        href={`/protocols/${rel.protocol.slug}`}
-                        className="block rounded-xl border border-slate-700 bg-slate-800/50 p-4 hover:border-cyan-500/50 transition-colors"
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-semibold text-cyan-400">{rel.protocol.name}</span>
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-slate-700 text-slate-300 capitalize">{rel.protocol.pillar}</span>
-                        </div>
-                        <p className="text-sm text-slate-400">{rel.note}</p>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Sources & References */}
-              {references.length > 0 && (
-                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <BookOpen className="w-6 h-6 text-purple-400" />
-                    <h2 className="text-2xl font-bold">Sources & References</h2>
-                  </div>
-                  <ul className="space-y-3">
-                    {references.map((ref: string, i: number) => (
-                      <li key={i} className="flex items-start gap-3">
-                        <span className="text-purple-400 mt-1 text-sm font-mono">[{i + 1}]</span>
-                        <span className="text-slate-400 text-sm">{ref}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            {/* Right Column - Sidebar */}
-            <div className="space-y-6">
-              {/* Equipment */}
-              {equipment.length > 0 && (
-                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Package className="w-5 h-5 text-purple-400" />
-                    <h3 className="text-xl font-bold">Equipment Needed</h3>
-                  </div>
-                  <ul className="space-y-2">
-                    {equipment.map((item: string, i: number) => (
-                      <li key={i} className="text-slate-300 text-sm">• {item}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Quick Stats */}
-              <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                <h3 className="text-xl font-bold mb-4">Quick Info</h3>
-                <div className="space-y-3 text-sm">
-                  <div>
-                    <span className="text-slate-400">Difficulty:</span>
-                    <span className="ml-2 text-white capitalize">{protocol.difficulty}</span>
-                  </div>
-                  {protocol.duration && (
-                    <div>
-                      <span className="text-slate-400">Duration:</span>
-                      <span className="ml-2 text-white">{protocol.duration}</span>
-                    </div>
-                  )}
-                  <div>
-                    <span className="text-slate-400">Focus Area:</span>
-                    <span className="ml-2 text-white capitalize">{protocol.pillar}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Tabs defaultValue="overview">
+          <TabsList aria-label={protocol.name}>
+            <TabsTrigger value="overview">{copy.overview}</TabsTrigger>
+            {(steps.length > 0 || equipment.length > 0) && <TabsTrigger value="practice">{copy.practice}</TabsTrigger>}
+            {(protocol.why || references.length > 0) && <TabsTrigger value="evidence">{copy.evidence}</TabsTrigger>}
+          </TabsList>
+          <TabsContent value="overview" className="space-y-5">
+            <p className="leading-relaxed text-muted-foreground">{protocol.description}</p>
+            <ProtocolList title={copy.benefits} items={benefits} />
+            <ProtocolList title={copy.risks} items={risks} />
+          </TabsContent>
+          <TabsContent value="practice" className="space-y-5">
+            <ProtocolList title={copy.steps} items={steps} ordered />
+            <ProtocolList title={copy.equipment} items={equipment} />
+          </TabsContent>
+          <TabsContent value="evidence" className="space-y-5">
+            {protocol.why && <section><h2 className="mb-2 font-semibold">{copy.why}</h2>
+              <p className="leading-relaxed text-muted-foreground">{protocol.why}</p></section>}
+            <ProtocolList title={copy.sources} items={references} />
+          </TabsContent>
+        </Tabs>
+        {related.size > 0 && <CardCarousel title={copy.related} previousLabel={copy.previous} nextLabel={copy.next}>
+          {Array.from(related, ([slug, group]) => <li key={slug} className="flex flex-col gap-2">
+            <DirectoryProtocol protocol={group[0].protocol} />
+            {group.filter(r => r.note).map(r => <p key={r.kind + r.note} className="text-sm text-muted-foreground">
+              {r.kind === "synergy" ? copy.synergy + " · " : r.kind === "alternative" ? copy.alternative + " · " : ""}{r.note}
+            </p>)}
+          </li>)}
+        </CardCarousel>}
+      </div>
     </DirectoryLayout>
-  );
+  )
+}
+
+function ProtocolList({ title, items, ordered }: { title: string; items: string[]; ordered?: boolean }) {
+  if (!items.length) return null
+  const List = ordered ? "ol" : "ul"
+  return <section>
+    <h2 className="mb-2 font-semibold">{title}</h2>
+    <List className={`space-y-2 pl-6 leading-relaxed text-muted-foreground ${ordered ? "list-decimal" : "list-disc"}`}>
+      {items.map((item, index) => <li key={index}>{item}</li>)}
+    </List>
+  </section>
 }
