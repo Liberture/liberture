@@ -11,6 +11,7 @@ declare global {
     grecaptcha?: {
       ready(callback: () => void): void
       render(node: HTMLElement, options: Record<string, unknown>): number
+      execute(id: number): void
       reset(id: number): void
     }
   }
@@ -22,7 +23,8 @@ export function NewsletterSignup({ siteKey }: { siteKey: string }) {
   const container = useRef<HTMLDivElement>(null)
   const widget = useRef<number | undefined>(undefined)
   const [visible, setVisible] = useState(false)
-  const [token, setToken] = useState("")
+  const [ready, setReady] = useState(false)
+  const pendingEmail = useRef<string | null>(null)
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error" | "limited">("idle")
   useEffect(() => {
     if (!section.current) return
@@ -32,33 +34,55 @@ export function NewsletterSignup({ siteKey }: { siteKey: string }) {
     observer.observe(section.current)
     return () => observer.disconnect()
   }, [])
+  function verificationFailed() {
+    pendingEmail.current = null
+    setStatus("error")
+  }
+
   return <section ref={section} aria-labelledby="newsletter-title" className="relative border-t border-border py-10 px-4">
     <div className="mx-auto max-w-md">
       <h2 id="newsletter-title" className="text-xl font-semibold">{t.title}</h2>
       <p className="my-2 text-sm text-muted-foreground">{t.description}</p>
-      {status === "success" ? <p role="status">{t.success}</p> : <form className="space-y-3" onSubmit={async event => {
+      {status === "success" ? <p role="status">{t.success}</p> : <form className="space-y-3" onSubmit={event => {
         event.preventDefault()
-        if (!token || status === "sending") return
-        const email = new FormData(event.currentTarget).get("email")
+        if (pendingEmail.current || widget.current === undefined || !window.grecaptcha) return
+        pendingEmail.current = String(new FormData(event.currentTarget).get("email"))
         setStatus("sending")
-        try {
-          const res = await fetch("/api/newsletter/subscribe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, token }) })
-          setStatus(res.ok ? "success" : res.status === 429 ? "limited" : "error")
-        } catch { setStatus("error") }
-        setToken("")
-        if (widget.current !== undefined) window.grecaptcha?.reset(widget.current)
+        window.grecaptcha.reset(widget.current)
+        window.grecaptcha.execute(widget.current)
       }}>
         <div className="flex gap-2">
           <Input name="email" aria-label={t.email} placeholder={t.email} type="email" autoComplete="email" required maxLength={254} />
-          <Button disabled={!token || status === "sending"}>{t.subscribe}</Button>
+          <Button disabled={!ready || status === "sending"}>{t.subscribe}</Button>
         </div>
-        <div ref={container} />
+        <div ref={container} className="[&_.grecaptcha-badge]:invisible" />
+        <small className="text-muted-foreground">{t.protection}</small>
         {visible && siteKey && <Script src="https://www.google.com/recaptcha/api.js?render=explicit" onError={() => setStatus("error")} onReady={() => {
           window.grecaptcha?.ready(() => {
-            if (container.current && widget.current === undefined) widget.current = window.grecaptcha!.render(container.current, {
-              sitekey: siteKey, theme: "dark", callback: setToken, "expired-callback": () => setToken(""),
-              "error-callback": () => { setToken(""); setStatus("error") },
+            if (!container.current || widget.current !== undefined) return
+            widget.current = window.grecaptcha!.render(container.current, {
+              sitekey: siteKey,
+              size: "invisible",
+              callback: async (token: string) => {
+                const email = pendingEmail.current
+                if (!email) return
+                try {
+                  const res = await fetch("/api/newsletter/subscribe", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, token }),
+                  })
+                  setStatus(res.ok ? "success" : res.status === 429 ? "limited" : "error")
+                } catch {
+                  setStatus("error")
+                } finally {
+                  pendingEmail.current = null
+                }
+              },
+              "expired-callback": verificationFailed,
+              "error-callback": verificationFailed,
             })
+            setReady(true)
           })
         }} />}
         {(!siteKey || status === "error" || status === "limited") && <p role="status">{status === "limited" ? t.limited : t.error}</p>}

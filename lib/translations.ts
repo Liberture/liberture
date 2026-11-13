@@ -1712,6 +1712,7 @@ const habitsEn = {
     },
     newsletter: {
       title: "Liberture newsletter",
+      protection: "This site is protected by reCAPTCHA.",
       description: "Get articles and updates from Liberture by email.",
       email: "Email address",
       subscribe: "Subscribe",
@@ -4793,6 +4794,7 @@ const habitsEs: HabitsDictionary = {
     },
     newsletter: {
       title: "Boletín de Liberture",
+      protection: "Este sitio está protegido por reCAPTCHA.",
       description: "Recibe artículos y novedades de Liberture por correo.",
       email: "Correo electrónico",
       subscribe: "Suscribirme",
