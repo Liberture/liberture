@@ -1,3 +1,5 @@
+import { profileBiography } from "@/lib/profile-biography"
+import { PersonCard } from "@/components/people/person-card"
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { Badge } from '@/components/ui/badge'
@@ -77,7 +79,7 @@ export default async function PillarPage({ params }: PageProps) {
       }),
       prisma.person.findMany({
         where: { pillars: { contains: pillar } },
-        select: { id: true, name: true, slug: true, bio: true, title: true, imageUrl: true, featured: true },
+        select: { id: true, name: true, slug: true, bio: true, title: true, pillars: true, imageUrl: true, featured: true },
         orderBy: [{ featured: 'desc' }, { name: 'asc' }],
       }),
       prisma.book.findMany({
@@ -155,16 +157,7 @@ export default async function PillarPage({ params }: PageProps) {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {people.slice(0, 6).map((person: any) => (
-                  <Link key={person.id} href={`/people/${person.slug}`}>
-                    <Card className="h-full hover:border-purple-500/50 transition-colors">
-                      <CardContent className="p-5">
-                        {person.featured && <Badge className="mb-2 bg-purple-500/20 text-purple-400 border-purple-500/30">Featured</Badge>}
-                        <h3 className="font-semibold mb-1">{person.name}</h3>
-                        {person.title && <p className="text-xs text-muted-foreground mb-2">{person.title}</p>}
-                        <p className="text-sm text-muted-foreground line-clamp-2">{person.bio}</p>
-                      </CardContent>
-                    </Card>
-                  </Link>
+                  <PersonCard key={person.id} featuredLabel="Featured" person={{ ...person, bio: profileBiography(person) }} />
                 ))}
               </div>
             </div>

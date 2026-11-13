@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     title: "Liberture | Biological Operating System",
     description:
       "A unified platform combining data-driven insights, coaching, and tools to help you unlock peak performance.",
-    url: "https://liberture.com",
+    url: "./",
     siteName: "Liberture",
     locale: "en_US",
     type: "website",
@@ -87,7 +87,7 @@ export const metadata: Metadata = {
       { url: "/favicon.ico", sizes: "32x32" },
       { url: "/icon.svg", type: "image/svg+xml" },
       { url: "/pwa-icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon.png", sizes: "512x512", type: "image/png" },
+      { url: "/pwa-icon-512.png", sizes: "512x512", type: "image/png" },
     ],
     shortcut: "/favicon.ico",
     apple: "/apple-icon.png",

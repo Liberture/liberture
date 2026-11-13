@@ -1,10 +1,7 @@
+import { PersonCard } from "@/components/people/person-card"
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
-import { ProfileMarkdown } from "@/components/people/profile-markdown";
-import { ProfilePortrait } from "@/components/people/profile-portrait";
 import { profileBiography } from "@/lib/profile-biography";
-import { PillarTag } from "@/components/habits/marketplace/pillar-tag";
-import { PILLAR_IDS } from "@/lib/habits/pillars";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -64,45 +61,7 @@ export default async function PeoplePage({
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {people.map((person) => {
-              const pillars = (person.pillars || '').split(',').map(p => p.trim().toLowerCase()).filter(Boolean);
-              
-              return (
-                <Link
-                  key={person.id}
-                  href={`/people/${person.slug}`}
-                  className="group relative overflow-hidden rounded-2xl border border-slate-700 bg-slate-900/50 p-6 transition-all hover:border-purple-500 hover:shadow-xl hover:shadow-purple-500/20"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                  <div className="relative">
-                    {person.featured && (
-                      <div className="absolute top-0 right-0 bg-purple-500 text-white text-xs px-2 py-1 rounded-bl-lg rounded-tr-lg">
-                        Featured
-                      </div>
-                    )}
-                    
-                    <ProfilePortrait person={person} compact />
-                    <h2 className="text-2xl font-bold mb-2 group-hover:text-purple-400 transition-colors">
-                      {person.name}
-                    </h2>
-                    
-                    <p className="text-purple-400 text-sm mb-3">{person.title}</p>
-                    
-                    <ProfileMarkdown preview>{profileBiography(person)}</ProfileMarkdown>
-                    
-                    <div className="flex flex-wrap gap-2">
-                      {PILLAR_IDS.filter(id => pillars.includes(id)).slice(0, 3).map(id => <PillarTag key={id} pillar={id} />)}
-                    </div>
-
-                    {person.followers && (
-                      <div className="mt-4 text-sm text-slate-500">
-                        {person.followers}
-                      </div>
-                    )}
-                  </div>
-                </Link>
-              );
-            })}
+            {people.map(person => <PersonCard key={person.id} featuredLabel="Featured" person={{ ...person, bio: profileBiography(person) }} />)}
           </div>
 
           {people.length === 0 && (

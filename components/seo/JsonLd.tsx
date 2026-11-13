@@ -1,3 +1,4 @@
+import Link from "next/link"
 type JsonLdProps = {
   data: Record<string, any>;
 };
@@ -27,7 +28,7 @@ export function OrganizationSchema() {
     '@type': 'Organization',
     name: 'Liberture',
     url: 'https://liberture.com',
-    logo: 'https://liberture.com/icons/icon.svg',
+    logo: 'https://liberture.com/icon.svg',
     description: 'The unified platform for human optimization and biohacking',
     sameAs: [
       'https://twitter.com/liberture',
@@ -85,14 +86,9 @@ export function PersonSchema({
     schema.image = image;
   }
 
-  if (website) {
-    schema.sameAs = [website];
-    if (twitter) {
-      schema.sameAs.push(`https://twitter.com/${twitter}`);
-    }
-  } else if (twitter) {
-    schema.sameAs = [`https://twitter.com/${twitter}`];
-  }
+  const handle = twitter?.replace(/^https?:\/\/(?:www\.)?(?:x|twitter)\.com\//i,"").replace(/^@/,"").replace(/\/$/,"")
+  const sameAs = [website, handle && /^\w{1,15}$/.test(handle) ? `https://x.com/${handle}` : undefined].filter(Boolean)
+  if (sameAs.length) schema.sameAs = sameAs
 
   return <JsonLd data={schema} />;
 }
@@ -165,11 +161,11 @@ export function ArticleSchema({
       name: 'Liberture',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://liberture.com/icons/icon.svg',
+        url: 'https://liberture.com/icon.svg',
       },
     },
     author: {
-      '@type': 'Organization',
+      '@type': author === 'Liberture' ? 'Organization' : 'Person',
       name: author,
     },
   };
@@ -202,7 +198,11 @@ export function BreadcrumbSchema({ items }: { items: Array<{ name: string; url: 
     })),
   };
 
-  return <JsonLd data={schema} />;
+  return <><nav aria-label="Breadcrumb" className="relative mx-auto w-full max-w-6xl px-4 pt-5 text-xs text-muted-foreground">
+    <ol className="flex flex-wrap items-center gap-2">{items.map(({name,url},i) => <li key={url} className="flex items-center gap-2">
+      {i > 0 && <span aria-hidden>/</span>}{i === items.length-1 ? <span aria-current="page">{name}</span> : <Link className="hover:underline" href={new URL(url).pathname}>{name}</Link>}
+    </li>)}</ol>
+  </nav><JsonLd data={schema} /></>;
 }
 
 // WebApplication Schema (for games/interactive apps)

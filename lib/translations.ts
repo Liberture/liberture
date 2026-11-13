@@ -1668,6 +1668,10 @@ const habitsEn = {
       habits: "Habits",
       tabs: { overview: "Overview", routine: "Routine", resources: "Resources", evidence: "Evidence" },
       closeProtocolAria: "Close protocol",
+      downloadPdf: "Download PDF",
+      preparingPdf: "Preparing PDF…",
+      downloadError: "Could not download the PDF. Try again.",
+
       close: "Close",
       habitCount: {
         one: "{count} habit",
@@ -4658,6 +4662,10 @@ const habitsEs: HabitsDictionary = {
       habits: "Hábitos",
       tabs: { overview: "Resumen", routine: "Rutina", resources: "Recursos", evidence: "Evidencia" },
       closeProtocolAria: "Cerrar protocolo",
+      downloadPdf: "Descargar PDF",
+      preparingPdf: "Preparando PDF…",
+      downloadError: "No se pudo descargar el PDF. Inténtalo de nuevo.",
+
       close: "Cerrar",
       habitCount: {
         one: "{count} hábito",

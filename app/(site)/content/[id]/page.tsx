@@ -1,6 +1,7 @@
-"use client"
-
-import { use, useEffect, useState } from "react"
+import { getContent } from "@/lib/seo/public-records"
+import { detailMetadata } from "@/lib/seo/detail-metadata"
+import { BreadcrumbSchema } from "@/components/seo/JsonLd"
+import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -8,55 +9,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Star, Clock, Users } from "lucide-react"
 import { PILLAR_STYLES, PILLAR_ICON_MAP, normalizePillarId } from "@/lib/pillars"
 
-export default function ContentPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
-  const [content, setContent] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    fetch(`/api/content/${id}`)
-      .then(res => {
-        if (!res.ok) throw new Error('Not found')
-        return res.json()
-      })
-      .then(data => {
-        setContent(data)
-        setLoading(false)
-      })
-      .catch(err => {
-        console.error('Failed to load content:', err)
-        setLoading(false)
-      })
-  }, [id])
-
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">Loading...</div>
-      </div>
-    )
-  }
-
-  if (!content) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">Content not found</div>
-        <Link href="/protocols">
-          <Button variant="outline" className="mt-4">
-            Back to Protocols
-          </Button>
-        </Link>
-      </div>
-    )
-  }
-
+type Props = {params: Promise<{id:string}>}
+export async function generateMetadata({params}: Props) {
+  const {id} = await params
+  const content = await getContent(id)
+  if (!content) notFound()
+  return detailMetadata(`/content/${id}`,content.title,content.description,"website")
+}
+export default async function ContentPage({params}: Props) {
+  const {id} = await params
+  const content = await getContent(id)
+  if (!content) notFound()
   const normalizedPillar = normalizePillarId(content.pillar)
   const PillarIcon = PILLAR_ICON_MAP[normalizedPillar]
   const pillarStyle = PILLAR_STYLES[normalizedPillar]
 
   return (
     <main className="container mx-auto px-4 py-8 max-w-6xl">
-      {/* Back Button */}
+      <BreadcrumbSchema items={[{name:"Liberture",url:"https://liberture.com"},{name:content.title,url:`https://liberture.com/content/${id}`}]} />
       <Link href="/protocols">
         <Button variant="ghost" className="mb-6">
           <ArrowLeft className="mr-2 h-4 w-4" />
