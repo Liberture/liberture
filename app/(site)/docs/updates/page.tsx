@@ -1,3 +1,4 @@
+import { docsMetadata } from "@/lib/seo/localized-metadata"
 import { CopyBlock } from "@/components/habits/docs/copy-block"
 import { DocsCallout, DocsSection, DocsSteps, DocsTitle } from "@/components/habits/docs/docs-parts"
 import { TOOL_COUNT, TOOLS_VERSION } from "@/lib/habits/api/operations"
@@ -6,7 +7,6 @@ import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { getServerOrigin } from "@/lib/habits/request-origin"
 import { formatMessage } from "@/lib/i18n-format"
 
-export const metadata = { title: "Get new tools · Liberture docs" }
 
 /** How to refresh ChatGPT and Claude after new tools ship. Linked from Settings and from get_today. */
 export default async function UpdatesDocsPage() {
@@ -47,4 +47,8 @@ export default async function UpdatesDocsPage() {
       </DocsSection>
     </>
   )
+}
+
+export function generateMetadata() {
+  return docsMetadata("updates")
 }

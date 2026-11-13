@@ -1,3 +1,4 @@
+import { translatedAlternates } from "@/lib/seo/translated-routes"
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
@@ -7,25 +8,27 @@ import { FAQSchema } from "@/components/seo/JsonLd"
 import { GetStartedActions } from "@/components/habits/get-started-actions"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { findProtocol } from "@/lib/habits/protocols/catalog"
-import { SITE_URL, screenshotSize, screenshotSrc } from "@/lib/guides"
+import { screenshotSize, screenshotSrc } from "@/lib/guides"
 import { translations } from "@/lib/translations"
 
-const url = `${SITE_URL}/get-started`
-const en = translations.en.habits.getStarted
-
-export const metadata: Metadata = {
-  title: en.metaTitle,
-  description: en.metaDescription,
-  alternates: { canonical: url },
-  openGraph: {
-    title: en.metaTitle,
-    description: en.metaDescription,
-    url,
-    siteName: "Liberture",
-    type: "website",
-    images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: en.metaTitle }],
-  },
-  twitter: { card: "summary_large_image", title: en.metaTitle, description: en.metaDescription, images: ["/og-image.jpg"] },
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale()
+  const t = translations[locale].habits.getStarted
+  const alternates = translatedAlternates("/get-started", locale)
+  return {
+    title: t.metaTitle,
+    description: t.metaDescription,
+    alternates,
+    openGraph: {
+      title: t.metaTitle,
+      description: t.metaDescription,
+      url: alternates.canonical,
+      siteName: "Liberture",
+      type: "website",
+      images: [{ url: "/og-image.jpg", width: 1200, height: 630, alt: t.metaTitle }],
+    },
+    twitter: { card: "summary_large_image", title: t.metaTitle, description: t.metaDescription, images: ["/og-image.jpg"] },
+  }
 }
 
 /** Free, easy, evidence-backed: the protocols worth starting with. */
@@ -39,7 +42,7 @@ export default async function GetStartedPage() {
 
   return (
     <div className="relative px-4 py-12 sm:py-16">
-      <FAQSchema questions={en.faq.map((f) => ({ question: f.q, answer: f.a }))} />
+      <FAQSchema questions={t.faq.map((f) => ({ question: f.q, answer: f.a }))} />
       <div className="relative z-10 mx-auto max-w-6xl">
         <div className="grid items-center gap-10 lg:grid-cols-2">
           <header>

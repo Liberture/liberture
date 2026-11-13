@@ -1,3 +1,4 @@
+import { docsMetadata } from "@/lib/seo/localized-metadata"
 import Link from "next/link"
 import { ArrowRight, MessageSquareQuote } from "lucide-react"
 
@@ -72,4 +73,8 @@ export default async function DocsOverviewPage() {
       </DocsSection>
     </>
   )
+}
+
+export function generateMetadata() {
+  return docsMetadata("overview")
 }

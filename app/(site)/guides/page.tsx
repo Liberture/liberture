@@ -1,3 +1,4 @@
+import { translatedAlternates } from "@/lib/seo/translated-routes"
 import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
@@ -9,32 +10,35 @@ import { SITE_URL, guideOgImage, guidesFor, screenshotSize, screenshotSrc } from
 import { formatMessage } from "@/lib/i18n-format"
 import { translations } from "@/lib/translations"
 
-const url = `${SITE_URL}/guides`
-const en = translations.en.habits.guides
-
-export const metadata: Metadata = {
-  title: en.metaTitle,
-  description: en.metaDescription,
-  alternates: { canonical: url },
-  openGraph: {
-    title: en.metaTitle,
-    description: en.metaDescription,
-    url,
-    siteName: "Liberture",
-    type: "website",
-    images: [{ url: guideOgImage(en.articles[0].slug), width: 1200, height: 630, alt: en.metaTitle }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: en.metaTitle,
-    description: en.metaDescription,
-    images: [guideOgImage(en.articles[0].slug)],
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale()
+  const t = translations[locale].habits.guides
+  const alternates = translatedAlternates("/guides", locale)
+  return {
+    title: t.metaTitle,
+    description: t.metaDescription,
+    alternates,
+    openGraph: {
+      title: t.metaTitle,
+      description: t.metaDescription,
+      url: alternates.canonical,
+      siteName: "Liberture",
+      type: "website",
+      images: [{ url: guideOgImage(t.articles[0].slug), width: 1200, height: 630, alt: t.metaTitle }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: t.metaTitle,
+      description: t.metaDescription,
+      images: [guideOgImage(t.articles[0].slug)],
+    },
+  }
 }
 
 export default async function GuidesPage() {
   const locale = await getRequestLocale()
   const t = guidesFor(locale)
+  const url = translatedAlternates("/guides", locale).canonical
 
   return (
     <div className="relative px-4 py-16">
@@ -42,21 +46,21 @@ export default async function GuidesPage() {
         data={{
           "@context": "https://schema.org",
           "@type": "CollectionPage",
-          name: en.metaTitle,
-          description: en.metaDescription,
+          name: t.metaTitle,
+          description: t.metaDescription,
           url,
           mainEntity: {
             "@type": "ItemList",
-            itemListElement: en.articles.map((a, i) => ({
+            itemListElement: t.articles.map((a, i) => ({
               "@type": "ListItem",
               position: i + 1,
-              url: `${SITE_URL}/guides/${a.slug}`,
+              url: translatedAlternates(`/guides/${a.slug}`, locale).canonical,
               name: a.title,
             })),
           },
         }}
       />
-      <BreadcrumbSchema items={[{ name: "Liberture", url: SITE_URL }, { name: en.title, url }]} />
+      <BreadcrumbSchema items={[{ name: "Liberture", url: SITE_URL }, { name: t.title, url }]} />
 
       <div className="relative z-10 mx-auto max-w-6xl">
         <header className="mx-auto max-w-3xl text-center">
@@ -71,7 +75,7 @@ export default async function GuidesPage() {
             return (
               <li key={article.slug}>
                 <Link
-                  href={`/guides/${article.slug}`}
+                  href={`/guides/${article.slug}?lang=${locale}`}
                   className="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-card/85 backdrop-blur-sm transition-colors hover:border-white/25"
                 >
                   <div className="relative aspect-[16/10] overflow-hidden border-b border-white/10 bg-background">

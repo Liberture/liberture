@@ -1,3 +1,4 @@
+import { docsMetadata } from "@/lib/seo/localized-metadata"
 import Link from "next/link"
 
 import { CopyBlock } from "@/components/habits/docs/copy-block"
@@ -7,7 +8,6 @@ import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { getServerOrigin } from "@/lib/habits/request-origin"
 import { DocsScreenshot } from "@/components/habits/docs/docs-screenshot"
 
-export const metadata = { title: "Claude · Liberture docs" }
 
 export default async function ClaudeDocsPage() {
   const [locale, origin] = await Promise.all([getRequestLocale(), getServerOrigin()])
@@ -54,4 +54,8 @@ export default async function ClaudeDocsPage() {
       </DocsSection>
     </>
   )
+}
+
+export function generateMetadata() {
+  return docsMetadata("claude")
 }

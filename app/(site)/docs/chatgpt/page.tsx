@@ -1,3 +1,4 @@
+import { docsMetadata } from "@/lib/seo/localized-metadata"
 import { ExternalLink } from "lucide-react"
 
 import { CopyBlock } from "@/components/habits/docs/copy-block"
@@ -8,7 +9,6 @@ import { getSiteSetting } from "@/lib/habits/oauth/store"
 import { getServerOrigin } from "@/lib/habits/request-origin"
 import { DocsScreenshot } from "@/components/habits/docs/docs-screenshot"
 
-export const metadata = { title: "ChatGPT · Liberture docs" }
 
 export default async function ChatGptDocsPage() {
   const [locale, origin, gptUrl] = await Promise.all([
@@ -65,4 +65,8 @@ export default async function ChatGptDocsPage() {
       </DocsSection>
     </>
   )
+}
+
+export function generateMetadata() {
+  return docsMetadata("chatgpt")
 }

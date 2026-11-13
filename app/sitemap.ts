@@ -1,3 +1,4 @@
+import { hasTranslatedContent, languageAlternates } from "@/lib/seo/translated-routes"
 import { profilePath } from "@/lib/directory/profile-path"
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
@@ -98,7 +99,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]);
 
   return [
-    ...staticEntries,
+    ...staticEntries.flatMap(entry => {
+      const path = new URL(entry.url).pathname
+      if (!hasTranslatedContent(path)) return [entry]
+      const languages = languageAlternates(path)
+      return [{ ...entry, url: languages["x-default"] }, ...(["en", "es"] as const).map(locale => ({
+        ...entry,
+        url: languages[locale],
+        images: entry.images?.map(image => image.replace("/screenshots/en/", `/screenshots/${locale}/`)),
+      }))].map(item => ({ ...item, alternates: { languages } }))
+    }),
     ...content.map(item => ({url:`${baseUrl}/content/${encodeURIComponent(item.id)}`,lastModified:item.updatedAt})),
 
     ...articles.map((article) => ({

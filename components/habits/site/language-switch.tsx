@@ -6,6 +6,7 @@ import { FieldSelect, FieldOption } from "@/components/ui/select"
 import { useTranslations } from "@/components/i18n/locale-provider"
 
 import { LOCALE_COOKIE, LOCALES, type Locale } from "@/lib/habits/i18n"
+import { hasTranslatedContent } from "@/lib/seo/translated-routes"
 import { cn } from "@/lib/utils"
 
 interface LanguageSwitchProps {
@@ -23,7 +24,14 @@ export function LanguageSwitch({ locale, label, className }: LanguageSwitchProps
   const choose = (next: Locale) => {
     if (next === locale) return
     document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`
-    startTransition(() => router.refresh())
+    const url = new URL(window.location.href)
+    if (hasTranslatedContent(url.pathname)) {
+      url.searchParams.set("lang", next)
+      // A document navigation refreshes the root language and client dictionary together.
+      window.location.assign(url.pathname + url.search + url.hash)
+    } else {
+      startTransition(() => router.refresh())
+    }
   }
 
   return (

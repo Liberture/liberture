@@ -1,8 +1,10 @@
+import { translatedAlternates } from "@/lib/seo/translated-routes"
+import { getRequestLocale } from "@/lib/habits/i18n/server"
 import type { Metadata } from "next"
 import { BreadcrumbSchema, JsonLd } from "@/components/seo/JsonLd"
 import { translations } from "@/lib/translations"
 
-const url = "https://liberture.com/how-it-works"
+const path = "/how-it-works"
 
 // Next merges metadata shallowly — a child `openGraph`/`twitter` object replaces
 // the root one outright, so the shared image has to be repeated here.
@@ -13,59 +15,66 @@ const ogImage = {
   alt: "Liberture — a habit tracker you actually own",
 }
 
-export const metadata: Metadata = {
-  title: "How It Works | Talk to Your Habits",
-  description: "Sign in, add one link to ChatGPT or Claude, and talk to your habit tracker by chat or voice: log habits, hear your streaks, get protocols worth trying.",
-  alternates: {
-    canonical: url,
-  },
-  openGraph: {
-    title: "How It Works | Liberture",
-    description: "Connect ChatGPT or Claude to your Liberture habit tracker and talk to your habits, in chat or by voice.",
-    url,
-    siteName: "Liberture",
-    locale: "en_US",
-    type: "website",
-    images: [ogImage],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "How It Works | Liberture",
-    description: "Connect ChatGPT or Claude to your habit tracker and talk to your habits.",
-    images: ["/og-image.jpg"],
-    site: "@liberture",
-    creator: "@liberture",
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getRequestLocale()
+  const t = translations[locale].habits
+  const title = t.landing.how.heading
+  const description = t.docs.overview.lead
+  const alternates = translatedAlternates(path, locale)
+  return {
+    title,
+    description,
+    alternates,
+    openGraph: {
+      title,
+      description,
+      url: alternates.canonical,
+      siteName: "Liberture",
+      locale: locale === "en" ? "en_US" : "es_ES",
+      type: "website",
+      images: [ogImage],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/og-image.jpg"],
+      site: "@liberture",
+      creator: "@liberture",
+    },
+  }
 }
 
-// Mirrors the three setup steps rendered on the page (translations → habits.docs.overview.steps).
-const howToSchema = {
-  "@context": "https://schema.org",
-  "@type": "HowTo",
-  name: "How Liberture works",
-  description:
-    "Connect ChatGPT or Claude to your Liberture habit tracker so it can read your habits and log them for you, in text or voice.",
-  url,
-  step: translations.en.habits.docs.overview.steps.map((step, i) => ({
-    "@type": "HowToStep",
-    position: i + 1,
-    name: step.title,
-    text: step.body,
-  })),
-}
-
-export default function HowItWorksLayout({
+export default async function HowItWorksLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const locale = await getRequestLocale()
+  const t = translations[locale].habits
+  const url = translatedAlternates(path, locale).canonical
+  // Mirrors the three setup steps rendered on the page (translations → habits.docs.overview.steps).
+  const howToSchema = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: t.landing.how.heading,
+    description: t.docs.overview.lead,
+    url,
+    step: t.docs.overview.steps.map((step, i) => ({
+      "@type": "HowToStep",
+      position: i + 1,
+      name: step.title,
+      text: step.body,
+    })),
+  }
+
   return (
     <>
       <JsonLd data={howToSchema} />
       <BreadcrumbSchema
         items={[
           { name: "Home", url: "https://liberture.com" },
-          { name: "How It Works", url },
+          { name: t.landing.how.heading, url },
         ]}
       />
       {children}

@@ -1,3 +1,4 @@
+import { docsMetadata } from "@/lib/seo/localized-metadata"
 import { CopyBlock } from "@/components/habits/docs/copy-block"
 import { DocsSection, DocsTitle } from "@/components/habits/docs/docs-parts"
 import { API_OPERATIONS } from "@/lib/habits/api/operations"
@@ -6,7 +7,6 @@ import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { getServerOrigin } from "@/lib/habits/request-origin"
 import { cn } from "@/lib/utils"
 
-export const metadata = { title: "API reference · Liberture docs" }
 
 const METHOD_STYLE: Record<string, string> = {
   GET: "bg-sleep/15 text-sleep",
@@ -57,4 +57,8 @@ export default async function ApiDocsPage() {
       <p className="mt-2 text-sm text-muted-foreground">{t.more}</p>
     </>
   )
+}
+
+export function generateMetadata() {
+  return docsMetadata("api")
 }

@@ -1,10 +1,10 @@
+import { docsMetadata } from "@/lib/seo/localized-metadata"
 import { DocsList, DocsSection, DocsTitle } from "@/components/habits/docs/docs-parts"
 import { API_SCOPES } from "@/lib/habits/api-scopes"
 import { getDictionary } from "@/lib/habits/i18n"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { DocsScreenshot } from "@/components/habits/docs/docs-screenshot"
 
-export const metadata = { title: "Permissions · Liberture docs" }
 
 export default async function PermissionsDocsPage() {
   const locale = await getRequestLocale()
@@ -50,4 +50,8 @@ export default async function PermissionsDocsPage() {
       </DocsSection>
     </>
   )
+}
+
+export function generateMetadata() {
+  return docsMetadata("permissions")
 }

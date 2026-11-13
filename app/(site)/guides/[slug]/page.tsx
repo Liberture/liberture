@@ -20,6 +20,7 @@ import {
   sectionId,
 } from "@/lib/guides"
 import { formatMessage } from "@/lib/i18n-format"
+import { translatedAlternates } from "@/lib/seo/translated-routes"
 import { cn } from "@/lib/utils"
 
 interface GuidePageProps {
@@ -30,18 +31,18 @@ export function generateStaticParams() {
   return GUIDE_SLUGS.map((slug) => ({ slug }))
 }
 
-// Metadata stays English: the URL is the same for every language and search
-// engines index the English version.
 export async function generateMetadata({ params }: GuidePageProps): Promise<Metadata> {
   const { slug } = await params
-  const guide = findGuide("en", slug)
+  const locale = await getRequestLocale()
+  const guide = findGuide(locale, slug)
   if (!guide) return {}
-  const url = `${SITE_URL}/guides/${slug}`
+  const alternates = translatedAlternates(`/guides/${slug}`, locale)
+  const url = alternates.canonical
   const image = { url: guideOgImage(slug), width: 1200, height: 630, alt: guide.title }
   return {
     title: guide.title,
     description: guide.description,
-    alternates: { canonical: url },
+    alternates,
     openGraph: {
       title: guide.title,
       description: guide.description,
@@ -81,11 +82,11 @@ export default async function GuidePage({ params }: GuidePageProps) {
   const { slug } = await params
   const locale = await getRequestLocale()
   const guide = findGuide(locale, slug)
-  const guideEn = findGuide("en", slug)
-  if (!guide || !guideEn) notFound()
+  if (!guide) notFound()
 
   const t = guidesFor(locale)
-  const url = `${SITE_URL}/guides/${slug}`
+  const alternates = translatedAlternates(`/guides/${slug}`, locale)
+  const url = alternates.canonical
   const related = guide.related.map((s) => findGuide(locale, s)).filter((g): g is NonNullable<typeof g> => Boolean(g))
 
   return (
@@ -94,39 +95,39 @@ export default async function GuidePage({ params }: GuidePageProps) {
         data={{
           "@context": "https://schema.org",
           "@type": "Article",
-          headline: guideEn.title,
-          description: guideEn.description,
-          image: guideImages(guideEn),
+          headline: guide.title,
+          description: guide.description,
+          image: guideImages(guide, locale),
           datePublished: GUIDES_UPDATED,
           dateModified: GUIDES_UPDATED,
           author: { "@type": "Organization", name: "Liberture", url: SITE_URL },
           publisher: { "@type": "Organization", name: "Liberture", url: SITE_URL },
           mainEntityOfPage: url,
-          inLanguage: "en",
+          inLanguage: locale,
         }}
       />
-      {guideEn.howTo && guideEn.steps.length > 0 ? (
+      {guide.howTo && guide.steps.length > 0 ? (
         <JsonLd
           data={{
             "@context": "https://schema.org",
             "@type": "HowTo",
-            name: guideEn.title,
-            description: guideEn.description,
-            image: `${SITE_URL}${screenshotSrc("en", guideEn.hero)}`,
-            step: guideEn.steps.map((text, i) => ({ "@type": "HowToStep", position: i + 1, name: text, text })),
+            name: guide.title,
+            description: guide.description,
+            image: `${SITE_URL}${screenshotSrc(locale, guide.hero)}`,
+            step: guide.steps.map((text, i) => ({ "@type": "HowToStep", position: i + 1, name: text, text })),
           }}
         />
       ) : null}
       <BreadcrumbSchema
         items={[
           { name: "Liberture", url: SITE_URL },
-          { name: "Guides", url: `${SITE_URL}/guides` },
-          { name: guideEn.title, url },
+          { name: t.title, url: translatedAlternates("/guides", locale).canonical },
+          { name: guide.title, url },
         ]}
       />
 
       <div className="relative z-10 mx-auto max-w-3xl">
-        <Link href="/guides" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+        <Link href={`/guides?lang=${locale}`} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" aria-hidden />
           {t.allGuides}
         </Link>
@@ -204,7 +205,7 @@ export default async function GuidePage({ params }: GuidePageProps) {
               {related.map((r) => (
                 <li key={r.slug}>
                   <Link
-                    href={`/guides/${r.slug}`}
+                    href={`/guides/${r.slug}?lang=${locale}`}
                     className="block h-full rounded-xl border border-white/10 bg-card/70 p-4 transition-colors hover:border-white/25"
                   >
                     <p className="font-semibold text-foreground">{r.title}</p>
