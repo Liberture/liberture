@@ -6,17 +6,16 @@ import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { getDictionary } from "@/lib/habits/i18n"
 import { ArticleCard } from "@/components/directory/article-card"
 import { CardCarousel } from "@/components/ui/card-carousel"
-import { Input } from "@/components/ui/input"
+import { ArticleSearch } from "@/components/directory/article-search"
+import { ArticleTopicTags } from "@/components/directory/article-topic-tags"
 import { DirectoryLayout } from "@/components/directory/layout"
 import { sectionTrail } from "@/components/seo/section-breadcrumbs"
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
-import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Clock, ExternalLink, Calendar, User, Search } from 'lucide-react'
+import { Clock, ExternalLink, Calendar, User } from 'lucide-react'
 import Link from 'next/link'
-import { PILLAR_ICON_MAP } from '@/lib/pillars'
 import { ArticleSchema, BreadcrumbSchema } from '@/components/seo/JsonLd'
 import type { Metadata } from 'next'
 
@@ -90,9 +89,9 @@ export default async function ArticlePage({ params }: PageProps) {
   }
 
   const tags = articleTags(article.tags)
-  const [locale, categories, candidates] = await Promise.all([
+  const [locale, entries, candidates] = await Promise.all([
     getRequestLocale(),
-    prisma.article.findMany({ distinct: ["pillar"], select: { pillar: true }, orderBy: { pillar: "asc" } }),
+    prisma.article.findMany({ select: { slug: true, title: true, tags: true, pillar: true }, orderBy: { title: "asc" } }),
     prisma.article.findMany({
       where: { slug: { not: slug }, OR: [
         { pillar: article.pillar },
@@ -102,6 +101,7 @@ export default async function ArticlePage({ params }: PageProps) {
       orderBy: [{ publishedAt: "desc" }, { slug: "asc" }],
     }),
   ])
+  const categories = [...new Set(entries.map(entry => entry.pillar).filter(Boolean))].sort()
   const copy = getDictionary(locale).app.articleReader
   const topicSet = new Set(tags.map(tag => tag.toLowerCase()))
   const currentPillar = article.pillar
@@ -113,7 +113,10 @@ export default async function ArticlePage({ params }: PageProps) {
   const firstLine = body?.split("\n", 1)[0]
   const markdown = firstLine?.replace(/^#\s+/, "").trim() === article.title && firstLine.startsWith("# ")
     ? body?.slice(firstLine.length).trimStart() : body
-  const Icon = article.pillar ? PILLAR_ICON_MAP[article.pillar as keyof typeof PILLAR_ICON_MAP] : null
+  const externalSource = URL.canParse(article.url) ? new URL(article.url) : null
+  const showSource = externalSource && ["https:", "http:"].includes(externalSource.protocol)
+    && !/(^|\.)liberture\.com$/i.test(externalSource.hostname)
+    && !/^liberture(?: team)?$/i.test(article.author.trim())
   const articleUrl = `https://liberture.com/articles/${slug}`
 
   return (
@@ -133,19 +136,9 @@ export default async function ArticlePage({ params }: PageProps) {
           <div className="mt-6 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_16rem]">
           <article className="min-w-0">
           <div className="space-y-6 mb-12">
-            {article.pillar && Icon && (
-              <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-sm">
-                  <Icon className="h-4 w-4 mr-1" />
-                  {article.pillar}
-                </Badge>
-                {tags.slice(0, 3).map((tag) => (
-                  <Badge key={tag} variant="secondary" className="text-xs">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            )}
+            <div className="flex flex-wrap items-center gap-2">
+              <ArticleTopicTags topics={[article.pillar, ...tags.slice(0, 3)]} />
+            </div>
 
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
               {article.title}
@@ -192,7 +185,7 @@ export default async function ArticlePage({ params }: PageProps) {
             </CardContent>
           </Card>
 
-          {article.url && (
+          {showSource && (
             <Card className="mb-8 border-primary/20 bg-primary/5">
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
@@ -203,7 +196,7 @@ export default async function ArticlePage({ params }: PageProps) {
                       This article was originally published at:
                     </p>
                     <a
-                      href={article.url}
+                      href={externalSource.href}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm text-primary hover:underline break-all"
@@ -212,7 +205,7 @@ export default async function ArticlePage({ params }: PageProps) {
                     </a>
                   </div>
                   <Button variant="outline" size="sm" asChild>
-                    <a href={article.url} target="_blank" rel="noopener noreferrer">
+                    <a href={externalSource.href} target="_blank" rel="noopener noreferrer">
                       Visit Source
                     </a>
                   </Button>
@@ -226,29 +219,18 @@ export default async function ArticlePage({ params }: PageProps) {
               <CardContent className="p-6">
                 <h3 className="font-semibold mb-4 text-sm">Related Topics</h3>
                 <div className="flex flex-wrap gap-2">
-                  {tags.map((tag) => (
-                    <Badge key={tag} variant="secondary">
-                      {tag}
-                    </Badge>
-                  ))}
+                  <ArticleTopicTags topics={tags} />
                 </div>
               </CardContent>
             </Card>
           )}
           </article>
           <aside className="space-y-5 rounded-xl border bg-card p-5 lg:sticky lg:top-24">
-            <form action="/directory" role="search">
-              <label htmlFor="article-search" className="mb-2 block font-semibold">{copy.search}</label>
-              <input type="hidden" name="type" value="articles" />
-              <div className="flex gap-1">
-                <Input id="article-search" placeholder={copy.searchPlaceholder} type="search" name="q" />
-                <Button size="icon" variant="secondary" aria-label={copy.search}><Search /></Button>
-              </div>
-            </form>
+            <ArticleSearch entries={entries} />
             <div className="flex items-center justify-between"><span className="font-semibold">{copy.language}</span><LanguageSwitch locale={locale} label={copy.language} /></div>
             <nav aria-label={copy.categories}>
               <h2 className="mb-2 font-semibold">{copy.categories}</h2>
-              <ul className="flex flex-wrap gap-2">{categories.filter(row => row.pillar).map(({ pillar }) => (
+              <ul className="flex flex-wrap gap-2">{categories.map((pillar) => (
                 <li key={pillar}><Link href={`/articles?pillar=${encodeURIComponent(pillar)}`} className="text-sm capitalize text-primary hover:underline">{pillar}</Link></li>
               ))}</ul>
             </nav>

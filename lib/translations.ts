@@ -1664,6 +1664,12 @@ const habitsEn = {
     // E
     articleReader: {
       searchPlaceholder: "Title or topic…",
+      topics: "Topics",
+      articles: "Articles",
+      description: "Explore research and practical guides across the six Liberture pillars.",
+      all: "All verticals",
+      more: "Show more articles",
+      empty: "No articles match your search.",
       search: "Search articles",
       language: "Language",
       categories: "Categories",
@@ -4671,6 +4677,12 @@ const habitsEs: HabitsDictionary = {
     // E
     articleReader: {
       searchPlaceholder: "Título o tema…",
+      topics: "Temas",
+      articles: "Artículos",
+      description: "Explora investigaciones y guías prácticas de los seis pilares de Liberture.",
+      all: "Todas las áreas",
+      more: "Ver más artículos",
+      empty: "No hay artículos que coincidan con tu búsqueda.",
       search: "Buscar artículos",
       language: "Idioma",
       categories: "Categorías",
