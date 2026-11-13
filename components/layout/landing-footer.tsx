@@ -3,7 +3,6 @@ import Link from "next/link"
 import { MicroterrainRidge } from "@/components/patterns"
 import { translations } from "@/lib/translations"
 import { LibertureWordmark } from "@/components/branding/LibertureWordmark"
-import { LanguageSwitch } from "@/components/habits/site/language-switch"
 import type { Locale } from "@/lib/translations"
 
 const linkClass = "text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -69,7 +68,6 @@ export function LandingFooter({ locale }: { locale: Locale }) {
               <LibertureWordmark height={28} />
             </Link>
             <p className="text-sm text-muted-foreground">{f.tagline}</p>
-            <LanguageSwitch locale={locale} label={t.habits.site.language} className="mt-4" />
           </div>
 
           {/* Pillars */}
