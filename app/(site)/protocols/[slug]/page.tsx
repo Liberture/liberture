@@ -16,5 +16,5 @@ export async function generateMetadata({params}: Props) {
 export default async function Page({params}: Props) {
   const record = await getProtocol((await params).slug)
   if (!record) notFound()
-  return <Details protocol={record} />
+  return Details({ protocol: record })
 }
