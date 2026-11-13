@@ -11,11 +11,7 @@ import { useTranslations } from "@/components/i18n/locale-provider"
 
 type Entry = { slug: string; title: string; tags: string }
 
-function resultsUrl(query: string) {
-  return "/articles?" + new URLSearchParams({ q: query })
-}
-
-export function ArticleSearch({ entries, initialQuery = "", pillar }: { entries: Entry[]; initialQuery?: string; pillar?: string }) {
+export function ArticleSearch({ entries, initialQuery = "", pillar, sort }: { entries: Entry[]; initialQuery?: string; pillar?: string; sort?: string }) {
   const copy = useTranslations().habits.app.articleReader
   const router = useRouter()
   const [query, setQuery] = useState(initialQuery)
@@ -33,6 +29,13 @@ export function ArticleSearch({ entries, initialQuery = "", pillar }: { entries:
   const topics = ready ? [...new Set(entries.flatMap(entry => articleTags(entry.tags)).map(tag => tag.toLowerCase()))]
     .filter(tag => tag.includes(term)).sort().slice(0, 4) : []
   const articles = ready ? entries.filter(entry => entry.title.toLowerCase().includes(term)).slice(0, 5) : []
+  function resultsUrl(value: string) {
+    const params = new URLSearchParams()
+    if (value.trim()) params.set("q", value.trim())
+    if (pillar) params.set("pillar", pillar)
+    if (sort && sort !== "newest") params.set("sort", sort)
+    return "/articles?" + params
+  }
   const groups = [
     { label: copy.topics, items: topics.map(tag => ({ name: tag, href: resultsUrl(tag) })) },
     { label: copy.articles, items: articles.map(entry => ({ name: entry.title, href: "/articles/" + entry.slug })) },
@@ -41,13 +44,11 @@ export function ArticleSearch({ entries, initialQuery = "", pillar }: { entries:
   const open = items.length > 0
   return <form action="/articles" role="search" className="relative" onSubmit={event => {
     event.preventDefault()
-    const params = new URLSearchParams()
-    if (query.trim()) params.set("q", query.trim())
-    if (pillar) params.set("pillar", pillar)
-    router.push(open && items[active] ? items[active].href : "/articles?" + params)
+    router.push(open && items[active] ? items[active].href : resultsUrl(query))
     setFocused(false)
   }}>
-    <label htmlFor="article-search" className="mb-2 block font-semibold">{copy.search}</label>
+    <label htmlFor="article-search" className="sr-only">{copy.search}</label>
+    {sort && <input type="hidden" name="sort" value={sort} />}
     {pillar && <input type="hidden" name="pillar" value={pillar} />}
     <div className="relative">
       <Input id="article-search" name="q" type="search" role="combobox" autoComplete="off"
