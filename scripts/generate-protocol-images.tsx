@@ -211,6 +211,42 @@ function scheduleLabel(protocol: CatalogProtocol, i: number): string {
 
 // ---------------------------------------------------------------- the picture
 
+function artworkSvg(random: () => number, color: string, icon: string, height: number, art: {cx:number; cy:number}, title: string, description: string) {
+  const orbit = LOGO_DOTS.map((dot, i) => {
+    const a = (i / LOGO_DOTS.length) * Math.PI * 2 + random() * 0.4
+    const r = 205 + random() * 20
+    return `<circle cx="${(art.cx + r * Math.cos(a)).toFixed(1)}" cy="${(art.cy + r * Math.sin(a)).toFixed(1)}" r="${(7 + random() * 5).toFixed(1)}" fill="${dot}" filter="url(#soft)"/>`
+  }).join("")
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${height}" viewBox="0 0 ${W} ${height}" font-family="Inter, 'Helvetica Neue', Arial, sans-serif" role="img" aria-labelledby="t d">
+<title id="t">${esc(title)}</title>
+<desc id="d">${esc(description)}</desc>
+<defs>
+  <radialGradient id="glow" cx="${art.cx}" cy="${art.cy}" r="520" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="${color}" stop-opacity="0.34"/>
+    <stop offset="0.55" stop-color="${color}" stop-opacity="0.08"/>
+    <stop offset="1" stop-color="${color}" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#07071a"/>
+    <stop offset="1" stop-color="#160d33"/>
+  </linearGradient>
+  <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#1d1840"/>
+    <stop offset="1" stop-color="#0f0c24"/>
+  </linearGradient>
+  <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter>
+  <filter id="halo" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="22"/></filter>
+</defs>
+<rect width="${W}" height="${height}" fill="url(#bg)"/>
+<rect width="${W}" height="${height}" fill="url(#glow)"/>
+${contourField(random, art.cx, art.cy, color)}
+<circle cx="${art.cx}" cy="${art.cy}" r="120" fill="${color}" fill-opacity="0.35" filter="url(#halo)"/>
+<rect x="${art.cx - 112}" y="${art.cy - 112}" width="224" height="224" rx="48" fill="url(#tile)" stroke="${color}" stroke-opacity="0.55" stroke-width="2"/>
+<g transform="translate(${art.cx - 72} ${art.cy - 72}) scale(6)" fill="none" stroke="${color}" stroke-linecap="round" stroke-linejoin="round">${icon}</g>
+${orbit}`
+}
+
 export function protocolSvg(protocol: CatalogProtocol, label: "PROTOCOL" | "HABIT" | "READER" = "PROTOCOL"): string {
   const random = rng(protocol.slug)
   const color = PILLAR_HEX[protocol.pillar]
@@ -248,12 +284,6 @@ export function protocolSvg(protocol: CatalogProtocol, label: "PROTOCOL" | "HABI
     })
     .join("")
 
-  const orbit = LOGO_DOTS.map((dot, i) => {
-    const a = (i / LOGO_DOTS.length) * Math.PI * 2 + random() * 0.4
-    const r = 205 + random() * 20
-    return `<circle cx="${(art.cx + r * Math.cos(a)).toFixed(1)}" cy="${(art.cy + r * Math.sin(a)).toFixed(1)}" r="${(7 + random() * 5).toFixed(1)}" fill="${dot}" filter="url(#soft)"/>`
-  }).join("")
-
   const logo = [
     [0, 0], [16, 0], [24, 13], [16, 26], [0, 26], [-8, 13],
   ]
@@ -263,33 +293,7 @@ export function protocolSvg(protocol: CatalogProtocol, label: "PROTOCOL" | "HABI
   const pillarLabel = `${PILLAR_LABELS[protocol.pillar].toUpperCase()} ${label}`
   const meta = [protocol.difficulty, protocol.duration].filter(Boolean).join(" · ")
 
-  const artwork = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${height}" viewBox="0 0 ${W} ${height}" font-family="Inter, 'Helvetica Neue', Arial, sans-serif" role="img" aria-labelledby="t d">
-<title id="t">${esc(protocol.name)} — ${esc(PILLAR_LABELS[protocol.pillar])} ${label.toLowerCase()}</title>
-<desc id="d">${esc(protocol.tagline)}</desc>
-<defs>
-  <radialGradient id="glow" cx="${art.cx}" cy="${art.cy}" r="520" gradientUnits="userSpaceOnUse">
-    <stop offset="0" stop-color="${color}" stop-opacity="0.34"/>
-    <stop offset="0.55" stop-color="${color}" stop-opacity="0.08"/>
-    <stop offset="1" stop-color="${color}" stop-opacity="0"/>
-  </radialGradient>
-  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" stop-color="#07071a"/>
-    <stop offset="1" stop-color="#160d33"/>
-  </linearGradient>
-  <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" stop-color="#1d1840"/>
-    <stop offset="1" stop-color="#0f0c24"/>
-  </linearGradient>
-  <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter>
-  <filter id="halo" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="22"/></filter>
-</defs>
-<rect width="${W}" height="${height}" fill="url(#bg)"/>
-<rect width="${W}" height="${height}" fill="url(#glow)"/>
-${contourField(random, art.cx, art.cy, color)}
-<circle cx="${art.cx}" cy="${art.cy}" r="120" fill="${color}" fill-opacity="0.35" filter="url(#halo)"/>
-<rect x="${art.cx - 112}" y="${art.cy - 112}" width="224" height="224" rx="48" fill="url(#tile)" stroke="${color}" stroke-opacity="0.55" stroke-width="2"/>
-<g transform="translate(${art.cx - 72} ${art.cy - 72}) scale(6)" fill="none" stroke="${color}" stroke-linecap="round" stroke-linejoin="round">${icon}</g>
-${orbit}`
+  const artwork = artworkSvg(random, color, icon, height, art, protocol.name, protocol.tagline)
   if (label === "READER") return `${artwork}</svg>`
 
   return `${artwork}
@@ -322,7 +326,41 @@ async function render(svg: string, base: string): Promise<number> {
   return png.length + webp.length + Buffer.byteLength(svg)
 }
 
+const articleIcons: [RegExp, string][] = [
+  [/sauna|heat (therapy|stress)/i, "Heater"], [/contrast therapy/i, "Thermometer"],
+  [/cold|ice bath/i, "Snowflake"], [/breath|vagus/i, "Wind"], [/hrv|heart rate/i, "HeartPulse"],
+  [/gut|microbiome|fiber/i, "Sprout"], [/fasting|time-restricted/i, "Timer"], [/sleep|circadian/i, "MoonStar"],
+  [/sunlight|sunshine|vitamin d/i, "Sun"], [/red light/i, "Lamp"], [/bitcoin/i, "Bitcoin"],
+  [/index|interest|invest/i, "ChartNoAxesCombined"], [/tax|income|financial|money|retirement|4%/i, "Wallet"],
+  [/zone 2|endurance|interval/i, "Activity"], [/strength|muscle|lifts|creatine/i, "Dumbbell"],
+  [/mobility|stretch|movement|fascia|yoga/i, "PersonStanding"], [/journal|writing/i, "NotebookPen"],
+  [/deep work|focus|flow states/i, "Focus"], [/meditation|mindfulness/i, "Flower2"],
+  [/hydration|electrolyte/i, "Droplets"], [/mushroom|rhodiola|adaptogen/i, "Leaf"],
+  [/cell|autophagy|nad\+/i, "Microscope"], [/magnesium|omega-3|nootropic|theanine/i, "FlaskConical"],
+  [/nutrition|food|meal|macronutrient/i, "Utensils"], [/brain|cognitive|mental|dopamine/i, "Brain"],
+]
+
 async function main() {
+  if (process.argv.includes("--articles")) {
+    const { prisma } = await import("../lib/prisma")
+    try {
+      const articles = await prisma.article.findMany({ select: { slug: true, title: true, pillar: true } })
+      const dir = path.join(process.cwd(), "public", "articles", "images")
+      await mkdir(dir, { recursive: true })
+      sharp.concurrency(1)
+      for (const article of articles) {
+        if (!/^[a-z0-9_-]+$/i.test(article.slug)) throw new Error("Invalid article slug: " + article.slug)
+        const pillar = Object.hasOwn(PILLAR_HEX, article.pillar) ? article.pillar as PillarId : "exercise"
+        const iconName = articleIcons.find(([topic]) => topic.test(article.title))?.[1] ?? PILLAR_FALLBACK_ICON[pillar]
+        const svg = artworkSvg(rng(article.slug), PILLAR_HEX[pillar], iconInner(iconName), 420, { cx: W / 2, cy: 210 }, article.title, "")
+        await sharp(Buffer.from(svg + "</svg>")).webp({ quality: 84 }).toFile(path.join(dir, article.slug + ".webp"))
+      }
+      console.log("Generated article covers:", articles.length)
+    } finally {
+      await prisma.$disconnect()
+    }
+    return
+  }
   await mkdir(path.join(OUT, "habits"), { recursive: true })
   const readerDir = path.join(OUT, "readers")
   await mkdir(readerDir, { recursive: true })
