@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils"
 
 import { DifficultyTag } from "./protocol-card"
 import { PillarTag } from "./pillar-chip"
-import { ProtocolPicture } from "@/components/protocols/protocol-picture"
+import { ProtocolArtwork } from "@/components/habits/marketplace/protocol-artwork"
 
 /**
  * Full-text protocol view. This is the "read before you commit" surface — the
@@ -28,7 +28,7 @@ export function ProtocolReader({
 }: {
   protocol: CatalogProtocol | null
   selected: boolean
-  onToggle: () => void
+  onToggle?: () => void
   onClose: () => void
   shareable?: boolean
   addLabel?: { add: string; added: string }
@@ -156,7 +156,7 @@ export function ProtocolReader({
             </header>
 
             <div className="flex-1 space-y-6 overflow-y-auto p-6">
-              <ProtocolPicture slug={protocol.slug} loading="eager" className="rounded-xl border border-white/10" />
+              <ProtocolArtwork slug={protocol.slug} loading="eager" className="rounded-xl border border-white/10" />
               <Section title="Why this works">
                 <p className="text-sm leading-relaxed text-muted-foreground">{protocol.why}</p>
               </Section>
@@ -252,7 +252,7 @@ export function ProtocolReader({
                 </div>
               ) : null}
 
-              <button
+              {onToggle && <button
                 type="button"
                 onClick={onToggle}
                 className={cn(
@@ -273,7 +273,7 @@ export function ProtocolReader({
                     {addLabel?.add ?? "Add to my tracker"}
                   </>
                 )}
-              </button>
+              </button>}
             </footer>
           </motion.div>
         </motion.div>

@@ -15,7 +15,7 @@ interface ProtocolCardProps {
   protocol: CatalogProtocol
   adopted: boolean
   onRead: () => void
-  onAdopt: () => void
+  onAdopt?: () => void
 }
 
 export function ProtocolCard({ protocol, adopted, onRead, onAdopt }: ProtocolCardProps) {
@@ -87,14 +87,14 @@ export function ProtocolCard({ protocol, adopted, onRead, onAdopt }: ProtocolCar
           </div>
         </dl>
 
-        <button type="button" onClick={onAdopt} disabled={adopted}
+        {onAdopt && <button type="button" onClick={onAdopt} disabled={adopted}
           aria-label={addLabel} title={addLabel}
           className={cn(
             "relative z-10 inline-flex size-10 shrink-0 items-center justify-center rounded-full border shadow-sm focus-visible:ring-2 focus-visible:ring-ring",
             adopted ? cn("border-border bg-card", styles.text) : "border-primary bg-primary text-primary-foreground hover:brightness-110"
           )}>
           {adopted ? <Check className="size-5" aria-hidden /> : <Plus className="size-5" aria-hidden />}
-        </button>
+        </button>}
       </div>
     </article>
   )

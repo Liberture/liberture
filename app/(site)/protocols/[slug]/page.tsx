@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Target, AlertTriangle, Package, Lightbulb, BookOpen, Link2, Shuffle } from "lucide-react";
 import { ArticleSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
+import { ProtocolArtwork } from "@/components/habits/marketplace/protocol-artwork";
 import { protocolImage } from "@/lib/habits/protocols/images";
 
 type RelatedProtocol = {
@@ -150,17 +151,7 @@ export default function ProtocolPage() {
           {/* Protocol picture (scripts/generate-protocol-images.tsx) */}
           {image && (
             <figure className="mb-10 overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-black/40">
-              <picture>
-                <source srcSet={image.webp} type="image/webp" />
-                <img
-                  src={image.png}
-                  alt={image.alt}
-                  width={image.width}
-                  height={image.height}
-                  className="block h-auto w-full"
-                  fetchPriority="high"
-                />
-              </picture>
+              <ProtocolArtwork slug={protocol.slug} loading="eager" />
             </figure>
           )}
 

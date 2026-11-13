@@ -7,7 +7,8 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { ArrowRight, Check, Search, SlidersHorizontal } from "lucide-react"
 
 import { IslandRidge, RippleBloom } from "@/components/patterns"
-import { ProtocolCard } from "@/components/tracker/protocol-card"
+import { ProtocolCard } from "@/components/habits/marketplace/protocol-card"
+import { findProtocol } from "@/lib/habits/protocols/catalog"
 import { ProtocolReader } from "@/components/tracker/protocol-reader"
 import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
 import { useHabitsSession } from "@/components/habits/session-provider"
@@ -21,11 +22,9 @@ const PILLARS = translations.en.common.pillars
 
 export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }) {
   const router = useRouter()
-  const { isSignedIn, openSignIn } = useHabitsSession()
+  const { isSignedIn } = useHabitsSession()
   const [adopted, setAdopted] = useState<Set<string>>(new Set())
   const [hydrated, setHydrated] = useState(false)
-  // A pick made while signed out, added once sign-in completes.
-  const [pendingSlug, setPendingSlug] = useState<string | null>(null)
   const [query, setQuery] = useState("")
   const [pillar, setPillar] = useState<Filter>("all")
   const [reading, setReading] = useState<string | null>(null)
@@ -62,12 +61,6 @@ export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }
     if (res.ok) setAdopted((prev) => new Set(prev).add(slug))
   }, [])
 
-  useEffect(() => {
-    if (!isSignedIn || !pendingSlug) return
-    setPendingSlug(null)
-    void adopt(pendingSlug)
-  }, [isSignedIn, pendingSlug, adopt])
-
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase()
     return protocols.filter((p) => {
@@ -92,11 +85,6 @@ export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }
     // Already tracked: the tracker is where it lives now.
     if (selected.has(slug)) {
       router.push("/tracker")
-      return
-    }
-    if (!isSignedIn) {
-      setPendingSlug(slug)
-      openSignIn({ next: null })
       return
     }
     void adopt(slug)
@@ -196,23 +184,27 @@ export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }
         ) : (
           <motion.div layout className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <AnimatePresence mode="popLayout">
-              {visible.map((protocol) => (
-                <motion.div
-                  key={protocol.slug}
-                  layout
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.97 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <ProtocolCard
-                    protocol={protocol}
-                    selected={selected.has(protocol.slug)}
-                    onRead={() => setReading(protocol.slug)}
-                    onToggle={() => toggle(protocol.slug)}
-                  />
-                </motion.div>
-              ))}
+              {visible.map((protocol) => {
+                const catalog = findProtocol(protocol.slug)
+                if (!catalog) return null
+                return (
+                  <motion.div
+                    key={protocol.slug}
+                    layout
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.97 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ProtocolCard
+                      protocol={{ ...catalog, name: protocol.name, tagline: protocol.tagline, difficulty: protocol.difficulty, duration: protocol.duration, pillar: protocol.pillar }}
+                      adopted={selected.has(protocol.slug)}
+                      onRead={() => setReading(protocol.slug)}
+                      onAdopt={isSignedIn ? () => toggle(protocol.slug) : undefined}
+                    />
+                  </motion.div>
+                )
+              })}
             </AnimatePresence>
           </motion.div>
         )}
@@ -221,14 +213,10 @@ export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }
       <ProtocolReader
         protocol={reading ? protocols.find((p) => p.slug === reading) ?? null : null}
         selected={reading ? selected.has(reading) : false}
-        onToggle={() => reading && toggle(reading)}
+        onToggle={isSignedIn && reading ? () => toggle(reading) : undefined}
         onClose={() => setReading(null)}
         shareable
-        addLabel={
-          isSignedIn
-            ? { add: "Add to my tracker", added: "In your tracker — open it" }
-            : { add: "Sign in & add to my tracker", added: "In your tracker — open it" }
-        }
+        addLabel={{ add: "Add to my tracker", added: "In your tracker — open it" }}
       />
     </div>
   )

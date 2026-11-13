@@ -67,7 +67,7 @@ async function loadProtocols(): Promise<CatalogProtocol[]> {
 
     const habitsBySlug = new Map(CATALOG_PROTOCOLS.map((p) => [p.slug, p.habits]))
 
-    return rows
+    const trackable = rows
       .map((row) => ({
         slug: row.slug,
         name: row.name,
@@ -84,6 +84,7 @@ async function loadProtocols(): Promise<CatalogProtocol[]> {
       }))
       // Without a habit breakdown a protocol can't be added or tracked.
       .filter((p) => p.habits.length > 0)
+    return trackable.length ? trackable : CATALOG_PROTOCOLS
   } catch (error) {
     console.error("protocols: database unavailable, using bundled catalog", error)
     return CATALOG_PROTOCOLS
