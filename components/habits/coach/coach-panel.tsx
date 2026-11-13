@@ -561,7 +561,7 @@ export function CoachPanel({
 
       {canManageConnection ? (
         <AppDialog open={managing} onClose={() => setManaging(false)} title={t.manageConnection} size="md">
-          <CoachAdmin apiKey={apiKey} embedded />
+          <CoachAdmin apiKey={apiKey} />
         </AppDialog>
       ) : null}
 

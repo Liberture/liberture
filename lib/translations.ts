@@ -1689,8 +1689,6 @@ const habitsEn = {
       marketplace: "Marketplace",
       social: "Social posts",
       comments: "Comments",
-      enrichment: "Enrichment history",
-      coach: "Coach connection",
     },
     adminUsers: {
       users: "Users",
@@ -4797,8 +4795,6 @@ const habitsEs: HabitsDictionary = {
       marketplace: "Marketplace",
       social: "Publicaciones sociales",
       comments: "Comentarios",
-      enrichment: "Historial de enriquecimiento",
-      coach: "Conexión del coach",
     },
     adminUsers: {
       users: "Usuarios",
