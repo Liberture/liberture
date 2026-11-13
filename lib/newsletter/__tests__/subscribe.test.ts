@@ -19,10 +19,10 @@ describe("newsletter subscriptions", () => {
         body: JSON.stringify({ email: " Member@example.org ", token: "response" })
       }))
     }
-    verify.mockResolvedValueOnce(Response.json({ success: true, hostname: "other.example" }))
+    verify.mockResolvedValueOnce(new Response(JSON.stringify({ success: true, hostname: "other.example" })))
     expect((await submit()).status).toBe(403)
     expect(list.createMany).not.toHaveBeenCalled()
-    verify.mockImplementation(async () => Response.json({ success: true, hostname: "liberture.com" }))
+    verify.mockImplementation(async () => new Response(JSON.stringify({ success: true, hostname: "liberture.com" })))
     list.findFirst.mockResolvedValueOnce(null).mockResolvedValue({ id: "already-registered" })
     expect((await submit()).status).toBe(204)
     expect(list.createMany.mock.calls[0][0].data[0].email).toBe("member@example.org")
