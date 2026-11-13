@@ -1,7 +1,6 @@
 ignoredBuiltDependencies:
   - '@prisma/client'
   - '@prisma/engines'
-  - better-sqlite3
   - prisma
 # Patched versions of transitive dependencies flagged by `pnpm audit --prod`
 # Keep shared utility and CSS dependencies on their patched releases.

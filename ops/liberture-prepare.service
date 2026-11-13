@@ -9,7 +9,6 @@ Group=liberture
 WorkingDirectory=/srv/liberture/staged
 EnvironmentFile=/etc/liberture/app.env
 ExecStart=/usr/bin/node node_modules/prisma/build/index.js db push --skip-generate
-ExecStart=-/usr/bin/node node_modules/tsx/dist/cli.mjs scripts/seed-directory-quick.ts
 ExecStart=-/usr/bin/node node_modules/tsx/dist/cli.mjs scripts/seed-marketplace-protocols.ts
 NoNewPrivileges=true
 PrivateTmp=true

@@ -60,6 +60,8 @@ pnpm exec tsx scripts/seed-marketplace-protocols.ts   # protocol library
 pnpm dev
 ```
 
+Directory records and article bodies live in PostgreSQL. Use the Directory section in the admin panel to create and edit entries, or restore a database backup for a populated local preview.
+
 | Variable | Purpose |
 |---|---|
 | `DATABASE_URL` | PostgreSQL connection string (shared by Prisma and the tracker) |

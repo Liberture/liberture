@@ -5,6 +5,7 @@ node_modules
 npm-debug.log*
 pnpm-debug.log*
 backups
-prisma/dev.db
-prisma/liberture.db.backup
+prisma/**/*.db
+prisma/**/*.db-*
+prisma/**/*.db.backup
 tsconfig.tsbuildinfo
