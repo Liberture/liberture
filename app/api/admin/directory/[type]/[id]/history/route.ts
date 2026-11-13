@@ -21,7 +21,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ type
   }
 
   const rows = await prisma.directoryRevision.findMany({
-    where: { entityType: type, entityId: id, id: cursor ? { lt: BigInt(cursor) } : undefined },
+    where: { entityType: type === "projects" || type === "organizations" ? { in: ["organizations", "projects"] } : type, entityId: id, id: cursor ? { lt: BigInt(cursor) } : undefined },
     select: { id: true, source: true, actor: true, createdAt: true, changes: true },
     orderBy: { id: "desc" },
     take: pageSize + 1,

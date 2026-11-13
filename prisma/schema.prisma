@@ -168,9 +168,40 @@ model Organization {
   updatedAt    DateTime
   publications String?
   wikipedia    String?
+  directoryKind String @default("organization")
+  profilePeople ProfilePerson[]
+  projectOrganizations ProjectOrganization[] @relation("ProjectProfile")
+  organizationProjects ProjectOrganization[] @relation("OrganizationProfile")
+
+  @@index([directoryKind, name])
+}
+
+model ProjectOrganization {
+  projectId String
+  organizationId String
+  role String
+  sourceUrl String
+  project Organization @relation("ProjectProfile", fields: [projectId], references: [id], onDelete: Cascade)
+  organization Organization @relation("OrganizationProfile", fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, organizationId, role])
+  @@index([organizationId])
+}
+
+model ProfilePerson {
+  profileId String
+  personId String
+  role String
+  sourceUrl String
+  profile Organization @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, personId, role])
+  @@index([personId])
 }
 
 model Person {
+  directoryProfiles ProfilePerson[]
   id             String   @id
   slug           String   @unique
   name           String
@@ -620,4 +651,9 @@ model DirectoryRevision {
   createdAt  DateTime @default(now()) @db.Timestamptz(3)
 
   @@index([entityType, entityId, id])
+}
+
+model DirectoryDataMigration {
+  name String @id
+  appliedAt DateTime @default(now()) @db.Timestamptz(3)
 }

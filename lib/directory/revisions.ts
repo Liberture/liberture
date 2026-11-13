@@ -1,6 +1,6 @@
 import type { Prisma, PrismaClient } from "@prisma/client"
 
-export const directoryTypes = ["people", "organizations", "protocols", "books", "articles"] as const
+export const directoryTypes = ["people", "organizations", "projects", "protocols", "books", "articles"] as const
 
 type EditContext = { source: "manual" | "ai", actor: string }
 
