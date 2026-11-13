@@ -1,6 +1,6 @@
-import { DirectoryLayout } from "@/components/directory/layout"
 "use client";
 
+import { DirectoryLayout } from "@/components/directory/layout"
 import { BackLink } from "@/components/seo/back-link"
 import { sectionTrail } from "@/components/seo/section-breadcrumbs"
 import { useState } from "react";
