@@ -129,7 +129,7 @@ function normalizeLoginError(err: unknown, fallback: string, t: SignInStrings): 
 export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogProps) {
   const t = useTranslations().habits.app.signInDialog
   const [hasExtension, setHasExtension] = useState(false)
-  const [subMode, setSubMode] = useState<"select" | "nip46" | "nsec">("select")
+  const [subMode, setSubMode] = useState<"select" | "nip46" | "bunker" | "nsec">("select")
   const [bunkerInput, setBunkerInput] = useState("")
   const [connectUri, setConnectUri] = useState("")
   const [waitingForScan, setWaitingForScan] = useState(false)
@@ -161,7 +161,7 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
 
   useEffect(() => {
     if (subMode !== "nip46") return
-    if (connectUri) return
+    let slowTimer: number | undefined
 
     let cancelled = false
 
@@ -181,14 +181,16 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
         setWaitingForScan(true)
         setShowSlowHint(false)
 
-        const slowTimer = window.setTimeout(() => setShowSlowHint(true), 10000)
+        slowTimer = window.setTimeout(() => setShowSlowHint(true), 10000)
         const signer = await handle.ready
         window.clearTimeout(slowTimer)
 
         if (cancelled) return
 
         const pubkey = await signer.getPublicKey()
+        if (cancelled) return
         await performChallengeAuth(signer, pubkey, t)
+        if (cancelled) return
         // Signed in: the session is the cookie, the relay connection isn't needed.
         await signer.close()
         localStorage.removeItem(AUTH_IN_PROGRESS_KEY)
@@ -205,6 +207,7 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
           setWaitingForScan(false)
         }
       } finally {
+        window.clearTimeout(slowTimer)
         if (!cancelled) {
           setIsLoading(false)
           setShowSlowHint(false)
@@ -216,10 +219,13 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
 
     return () => {
       cancelled = true
+      window.clearTimeout(slowTimer)
       handleRef.current?.cancel()
       handleRef.current = null
     }
   }, [subMode]) // Obelisk-style one-shot QR generation; connectUri intentionally excluded.
+
+  useEffect(() => () => { handleRef.current?.cancel() }, [])
 
   const handleNip07Login = async () => {
     setIsLoading(true)
@@ -251,22 +257,30 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
     setIsLoading(true)
     setError("")
     setAuthChallengeUrl(null)
+    const attempt = { cancel: () => { active = false } }
+    let active = true
+    let signer: Awaited<ReturnType<typeof fromBunkerUri>> | undefined
+    handleRef.current = attempt
     try {
-      const signer = await fromBunkerUri(uri, {
-        onAuthChallenge: (url) => setAuthChallengeUrl(url),
+      signer = await fromBunkerUri(uri, {
+        onAuthChallenge: (url) => { if (active) setAuthChallengeUrl(url) },
       })
+      if (!active) return
       const pubkey = await signer.getPublicKey()
+      if (!active) return
       await performChallengeAuth(signer, pubkey, t)
-      await signer.close()
+      if (!active) return
       onAuthenticated({
         type: "nip46",
         pubkey,
         npub: hexToNpub(pubkey),
       })
     } catch (err) {
-      setError(normalizeLoginError(err, t.errorRemoteSignerFailed, t))
+      if (active) setError(normalizeLoginError(err, t.errorRemoteSignerFailed, t))
     } finally {
-      setIsLoading(false)
+      await signer?.close()
+      if (handleRef.current === attempt) handleRef.current = null
+      if (active) setIsLoading(false)
     }
   }
 
@@ -755,6 +769,16 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
                   </a>
                 )}
 
+                {subMode === "bunker" ? (
+                  <form className="space-y-3" onSubmit={e => { e.preventDefault(); void handleBunkerUrlLogin() }}>
+                    <label htmlFor="login-bunker" className="text-sm">{t.promptBunker}</label>
+                    <Input id="login-bunker" autoFocus autoComplete="off" spellCheck={false} value={bunkerInput}
+                      placeholder="bunker://…" onChange={e => setBunkerInput(e.target.value)} />
+                    <Button disabled={isLoading || !trimmedBunkerInput} className="w-full">
+                      {isLoading && <Loader2 className="size-4 animate-spin" />} {t.remoteSignerTitle}
+                    </Button>
+                  </form>
+                ) : (
                 <div className="space-y-4">
                   <div className="rounded-lg border border-border bg-background p-3 space-y-3">
                     <div className="space-y-2 text-center">
@@ -807,12 +831,13 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
                         variant="ghost"
                         size="sm"
                         onClick={() => {
-                          const uri = window.prompt(t.promptBunker)?.trim() || ""
-                          if (!uri) return
-                          setBunkerInput(uri)
-                          void handleBunkerUrlLogin(uri)
+                          setSubMode("bunker")
+                          setWaitingForScan(false)
+                          setIsLoading(false)
+                          setAuthChallengeUrl(null)
+                          setConnectUri("")
+                          setError("")
                         }}
-                        disabled={isLoading}
                       >
                         {t.manualBunker}
                       </Button>
@@ -833,6 +858,8 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
                     </div>
                   )}
                 </div>
+
+                )}
 
                 {error && (
                   <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
