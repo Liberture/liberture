@@ -2,12 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { DialogTabs } from "@/components/habits/ui/dialog-tabs";
 import { ProfileMarkdown } from "@/components/people/profile-markdown";
 import { ProfilePortrait } from "@/components/people/profile-portrait";
 import Link from "next/link";
-import { Globe, Twitter, Instagram, Youtube, Mic, BookOpen, MessageSquare, Zap } from "lucide-react";
+import { Globe, Twitter, Instagram, Youtube, Mic, BookOpen, MessageSquare, Zap, User, Trophy, Library } from "lucide-react";
 import { PersonSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
+
+const sections = ["About", "Achievements", "Publications", "Speaking", "Protocols", "Books"] as const;
+type Section = typeof sections[number];
+const icons = { About: User, Achievements: Trophy, Publications: BookOpen, Speaking: MessageSquare, Protocols: Zap, Books: Library };
+const labels = { About: "About", Achievements: "Achievements", Publications: "Publications", Speaking: "Speaking", Protocols: "Protocols", Books: "Books" };
 
 type Book = {
   id: string;
@@ -60,6 +65,7 @@ type Person = {
 
 export default function PersonPage() {
   const params = useParams();
+  const [selected, setSelected] = useState<Section>("About");
   const router = useRouter();
   
   const handleBack = () => {
@@ -123,6 +129,10 @@ export default function PersonPage() {
   const publications = person.publications ? JSON.parse(person.publications) : [];
   const speakingEvents = person.speakingEvents ? JSON.parse(person.speakingEvents) : [];
   const pillars = (person.pillars || '').split(',').map(p => p.trim()).filter(Boolean);
+
+  const counts = { About: 1, Achievements: achievements.length, Publications: publications.length, Speaking: speakingEvents.length, Protocols: person.Protocol?.length, Books: person.Book?.length };
+  const available = sections.filter(section => counts[section]);
+  const tab = available.includes(selected) ? selected : "About";
 
   return (
     <>
@@ -224,58 +234,20 @@ export default function PersonPage() {
             </div>
           </div>
 
-          <Tabs key={person.slug} defaultValue="About">
-            <div className="overflow-x-auto">
-              <TabsList aria-label="Profile sections">
-                <TabsTrigger value="About">About</TabsTrigger>
-                {Boolean(achievements.length) && <TabsTrigger value="Achievements">Achievements</TabsTrigger>}
-                {Boolean(publications.length) && <TabsTrigger value="Publications">Publications</TabsTrigger>}
-                {Boolean(speakingEvents.length) && <TabsTrigger value="Speaking">Speaking</TabsTrigger>}
-                {Boolean(person.Protocol?.length) && <TabsTrigger value="Protocols">Protocols</TabsTrigger>}
-                {Boolean(person.Book?.length) && <TabsTrigger value="Books">Books</TabsTrigger>}
-              </TabsList>
-            </div>
-            <TabsContent value="About" className="data-[state=active]:grid gap-6 md:grid-cols-[2fr_1fr]">
-              {/* Bio */}
+          <div className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+            <div className="min-w-0">
+              <DialogTabs ids={available} tab={tab} onChange={setSelected} icons={icons} labels={labels} label="Profile sections" idBase="profile" />
+              <section role="tabpanel" id={`profile-panel-${tab}`} aria-labelledby={`profile-tab-${tab}`} tabIndex={0}>
+              {tab === "About" && (
               <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
                 <h2 className="text-2xl font-bold mb-4">About</h2>
                 <ProfileMarkdown>{person.bio}</ProfileMarkdown>
               </div>
 
-              <div className="space-y-6">
-                {/* Pillars */}
-                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                  <h3 className="text-xl font-bold mb-4">Focus Areas</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {pillars.map((pillar, i) => (
-                      <span
-                        key={i}
-                        className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 text-sm font-medium border border-purple-500/30"
-                      >
-                        {pillar}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Expertise */}
-                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                  <h3 className="text-xl font-bold mb-3">Expertise</h3>
-                  <p className="text-slate-300">{person.expertise}</p>
-                </div>
-
-                {/* Followers */}
-                {person.followers && (
-                  <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                    <h3 className="text-xl font-bold mb-3">Reach</h3>
-                    <p className="text-slate-300">{person.followers}</p>
-                  </div>
-                )}
-              </div>
-            </TabsContent>
+              )}
             {/* Achievements */}
-              {achievements.length > 0 && (
-                <TabsContent value="Achievements" className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+              {tab === "Achievements" && (
+                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
                   <h2 className="text-2xl font-bold mb-4">Key Achievements</h2>
                   <ul className="space-y-3">
                     {achievements.map((achievement: string, i: number) => (
@@ -285,11 +257,11 @@ export default function PersonPage() {
                       </li>
                     ))}
                   </ul>
-                </TabsContent>
+                </div>
               )}
             {/* Publications */}
-              {publications.length > 0 && (
-                <TabsContent value="Publications" className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+              {tab === "Publications" && (
+                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
                   <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
                     <BookOpen className="w-6 h-6 text-green-400" />
                     Publications & Research
@@ -302,11 +274,11 @@ export default function PersonPage() {
                       </li>
                     ))}
                   </ul>
-                </TabsContent>
+                </div>
               )}
             {/* Speaking Events */}
-              {speakingEvents.length > 0 && (
-                <TabsContent value="Speaking" className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+              {tab === "Speaking" && (
+                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
                   <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
                     <MessageSquare className="w-6 h-6 text-cyan-400" />
                     Speaking & Appearances
@@ -319,17 +291,17 @@ export default function PersonPage() {
                       </li>
                     ))}
                   </ul>
-                </TabsContent>
+                </div>
               )}
             {/* Protocols */}
-              {person.Protocol && person.Protocol.length > 0 && (
-                <TabsContent value="Protocols" className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+              {tab === "Protocols" && (
+                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
                   <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
                     <Zap className="w-6 h-6 text-green-400" />
                     Protocols by {person.name}
                   </h2>
                   <div className="space-y-4">
-                    {person.Protocol.map((protocol: Protocol) => (
+                    {person.Protocol?.map((protocol: Protocol) => (
                       <Link
                         key={protocol.id}
                         href={`/protocols/${protocol.slug}`}
@@ -366,17 +338,17 @@ export default function PersonPage() {
                       </Link>
                     ))}
                   </div>
-                </TabsContent>
+                </div>
               )}
             {/* Books */}
-              {person.Book && person.Book.length > 0 && (
-                <TabsContent value="Books" className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+              {tab === "Books" && (
+                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
                   <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
                     <BookOpen className="w-6 h-6 text-orange-400" />
                     Books by {person.name}
                   </h2>
                   <div className="space-y-4">
-                    {person.Book.map((book: Book) => (
+                    {person.Book?.map((book: Book) => (
                       <Link
                         key={book.id}
                         href={`/books/${book.slug}`}
@@ -415,9 +387,41 @@ export default function PersonPage() {
                       </Link>
                     ))}
                   </div>
-                </TabsContent>
+                </div>
               )}
-          </Tabs>
+              </section>
+            </div>
+              <aside aria-label="Profile details" className="space-y-6">
+                {/* Pillars */}
+                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+                  <h3 className="text-xl font-bold mb-4">Focus Areas</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {pillars.map((pillar, i) => (
+                      <span
+                        key={i}
+                        className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 text-sm font-medium border border-purple-500/30"
+                      >
+                        {pillar}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Expertise */}
+                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+                  <h3 className="text-xl font-bold mb-3">Expertise</h3>
+                  <p className="text-slate-300">{person.expertise}</p>
+                </div>
+
+                {/* Followers */}
+                {person.followers && (
+                  <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+                    <h3 className="text-xl font-bold mb-3">Reach</h3>
+                    <p className="text-slate-300">{person.followers}</p>
+                  </div>
+                )}
+              </aside>
+          </div>
         </div>
       </div>
       </div>
