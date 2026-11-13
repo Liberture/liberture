@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { Star } from "lucide-react"
+import { splitBookTitle } from "@/lib/directory/book-title"
 import { BookAuthor } from "./book-author"
 import { BookCover } from "./book-cover"
 import type { Book } from "@prisma/client"
@@ -14,6 +15,7 @@ type BookPreview = Pick<Book, "slug" | "title" | "author" | "description" | "pil
 
 export function BookCard({ book }: { book: BookPreview }) {
   const href = `/books/${book.slug}`
+  const { title, subtitle } = splitBookTitle(book.title)
   const pillars = profilePillars(book.pillars)
   return (
     <article className="flex h-full flex-col gap-3 rounded-2xl border border-border bg-card p-5 hover:border-primary/60">
@@ -21,7 +23,8 @@ export function BookCard({ book }: { book: BookPreview }) {
         <BookCover src={book.imageUrl} title={book.title} compact />
         <div className="min-w-0">
           {book.featured && <span className="text-xs font-semibold text-primary">Featured</span>}
-          <h3 className="text-lg font-semibold leading-tight"><Link href={href} className="hover:underline">{book.title}</Link></h3>
+          <h3 className="text-lg font-semibold leading-tight"><Link href={href} className="hover:underline">{title}</Link></h3>
+          {subtitle && <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{subtitle}</p>}
           <p className="mt-1 text-sm text-muted-foreground"><BookAuthor book={book} /></p>
         </div>
       </div>

@@ -6,6 +6,7 @@ import { DirectoryInfobox, DirectoryLayout } from "@/components/directory/layout
 import { BookCover } from "@/components/directory/book-cover"
 import { ProfileMarkdown } from "@/components/people/profile-markdown"
 import { sectionTrail } from "@/components/seo/section-breadcrumbs"
+import { splitBookTitle } from "@/lib/directory/book-title"
 import { BookAuthor } from "@/components/directory/book-author"
 import { entries } from "@/lib/directory/organization-entries"
 import { ExternalLink } from "lucide-react";
@@ -37,6 +38,7 @@ type Book = {
 export default function BookDetails({ book, locale }: { book: Book; locale: Locale }) {
   const text = getDictionary(locale).bookDetails
   const keyTakeaways = entries(book.keyTakeaways);
+  const { title, subtitle } = splitBookTitle(book.title)
   const pillars = profilePillars(book.pillars);
 
   return (
@@ -51,9 +53,12 @@ export default function BookDetails({ book, locale }: { book: Book; locale: Loca
         url={`https://liberture.com/books/${book.slug}`}
         image={book.imageUrl || undefined}
       />
-      <BreadcrumbSchema compact items={[...sectionTrail("books"), {name:book.title, url:`https://liberture.com/books/${book.slug}`}]} />
+      <BreadcrumbSchema compact items={[...sectionTrail("books"), {name:title, url:`https://liberture.com/books/${book.slug}`}]} />
 
-      <h1 className="my-7 text-balance text-4xl font-bold sm:text-5xl">{book.title}</h1>
+      <header className="my-7">
+        <h1 className="text-balance text-4xl font-bold sm:text-5xl">{title}</h1>
+        {subtitle && <p className="mt-3 max-w-3xl text-pretty text-lg text-muted-foreground">{subtitle}</p>}
+      </header>
       <div className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_minmax(15rem,0.42fr)]">
         <DirectoryInfobox label={text.heading}>
           <BookCover src={book.imageUrl} title={book.title} />
