@@ -4,11 +4,33 @@
 
 import { PrismaClient } from '@prisma/client'
 import crypto from 'crypto'
+import readingNotes from '../data/article-reading-notes.json'
 
 const prisma = new PrismaClient()
 
 async function main() {
   console.log('🌱 Seeding directory data...\n')
+
+  // Repair legacy metadata-only records, preserving any subsequently edited body.
+  const articles = await prisma.article.findMany({
+    where: { slug: { in: Object.keys(readingNotes) } },
+    select: { id: true, slug: true, content: true },
+  })
+  const repairs = articles.filter(article => !article.content?.trim()).map(article => {
+    const content = readingNotes[article.slug as keyof typeof readingNotes]
+    return prisma.article.updateMany({
+      where: { id: article.id, content: article.content },
+      data: {
+        content,
+        author: 'Liberture',
+        description: content.split(/(?<=\.) /)[0],
+        readTime: Math.max(1, Math.ceil(content.split(/\s+/).length / 200)),
+        url: '',
+        external: false,
+      },
+    })
+  })
+  if (repairs.length) await prisma.$transaction(repairs)
 
   // People
   console.log('👥 Creating People...')
