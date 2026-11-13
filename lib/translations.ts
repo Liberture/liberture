@@ -1687,7 +1687,7 @@ const habitsEn = {
     directoryEditor: {
       details: "Details", content: "Content", links: "Links and media", history: "History",
       name: "Name", title: "Title", expertise: "Expertise", pillars: "Pillars (comma-separated)",
-      bio: "Biography", website: "Website", wikipedia: "Wikipedia", twitter: "X / Twitter",
+      summary: "Directory card summary", bio: "Biography", website: "Website", wikipedia: "Wikipedia", twitter: "X / Twitter",
       instagram: "Instagram", youtube: "YouTube", podcast: "Podcast", type: "Organization type",
       founded: "Founded", keyPeople: "Key people", description: "Description", imageUrl: "Image URL",
       author: "Author", year: "Publication year", rating: "Rating", amazonUrl: "Amazon URL",
@@ -4818,7 +4818,7 @@ const habitsEs: HabitsDictionary = {
     directoryEditor: {
       details: "Detalles", content: "Contenido", links: "Enlaces y medios", history: "Historial",
       name: "Nombre", title: "Título", expertise: "Especialidad", pillars: "Pilares (separados por comas)",
-      bio: "Biografía", website: "Sitio web", wikipedia: "Wikipedia", twitter: "X / Twitter",
+      summary: "Resumen para la tarjeta", bio: "Biografía", website: "Sitio web", wikipedia: "Wikipedia", twitter: "X / Twitter",
       instagram: "Instagram", youtube: "YouTube", podcast: "Pódcast", type: "Tipo de organización",
       founded: "Fundación", keyPeople: "Personas clave", description: "Descripción", imageUrl: "URL de la imagen",
       author: "Autor", year: "Año de publicación", rating: "Valoración", amazonUrl: "URL de Amazon",

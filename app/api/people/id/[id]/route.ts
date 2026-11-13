@@ -16,25 +16,32 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
     
-    // Update person
-    const person = await withDirectoryEdit(prisma, requestEditContext(request, authUser.userId), tx => tx.person.update({
-      where: { id },
-      data: {
-        updatedAt: new Date(),
-        name: body.name,
-        title: body.title,
-        bio: body.bio,
-        pillars: body.pillars,
-        expertise: body.expertise,
-        followers: body.followers === "" ? null : body.followers,
-        website: body.website === "" ? null : body.website,
-        wikipedia: body.wikipedia === "" ? null : body.wikipedia,
-        twitter: body.twitter === "" ? null : body.twitter,
-        instagram: body.instagram === "" ? null : body.instagram,
-        youtube: body.youtube === "" ? null : body.youtube,
-        podcast: body.podcast === "" ? null : body.podcast,
-      },
-    }));
+    const person = await withDirectoryEdit(prisma, requestEditContext(request, authUser.userId), async tx => {
+      let summary = body.summary === "" ? null : body.summary
+      if (body.bio !== undefined && summary === undefined) {
+        const [existing] = await tx.$queryRaw<Array<{ bio: string }>>`SELECT bio FROM "Person" WHERE id = ${id} FOR UPDATE`
+        if (existing && existing.bio !== body.bio) summary = null
+      }
+      return tx.person.update({
+        where: { id },
+        data: {
+          updatedAt: new Date(),
+          name: body.name,
+          title: body.title,
+          bio: body.bio,
+          summary,
+          pillars: body.pillars,
+          expertise: body.expertise,
+          followers: body.followers === "" ? null : body.followers,
+          website: body.website === "" ? null : body.website,
+          wikipedia: body.wikipedia === "" ? null : body.wikipedia,
+          twitter: body.twitter === "" ? null : body.twitter,
+          instagram: body.instagram === "" ? null : body.instagram,
+          youtube: body.youtube === "" ? null : body.youtube,
+          podcast: body.podcast === "" ? null : body.podcast,
+        },
+      })
+    });
 
     return NextResponse.json(person);
   } catch (error) {

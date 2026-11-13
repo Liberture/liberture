@@ -14,7 +14,7 @@ import { isEntryField, invalidEntries, OrganizationEntryInput } from "./organiza
 import { DirectoryRelationshipsInput, invalidRelationships, relationshipField, relationshipPayload } from "./directory-relationships-input"
 import { EditHistory } from "./edit-history"
 
-const longText = new Set(["bio", "description", "content", "steps", "benefits", "risks"])
+const longText = new Set(["summary", "bio", "description", "content", "steps", "benefits", "risks"])
 const numberFields = new Set(["year", "rating", "readTime"])
 const difficulties = ["beginner", "intermediate", "advanced"] as const
 

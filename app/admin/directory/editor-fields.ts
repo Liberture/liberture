@@ -9,7 +9,7 @@ const organizationGroups = {
 export const editorGroups = {
   people: {
     details: ["name", "title", "expertise", "pillars"],
-    content: ["bio"],
+    content: ["summary", "bio"],
     links: ["website", "wikipedia", "twitter", "instagram", "youtube", "podcast"],
   },
   organizations: { ...organizationGroups, relationships: ["relatedPeople"] },
