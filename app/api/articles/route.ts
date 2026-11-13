@@ -23,6 +23,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Title and description are required" }, { status: 400 })
     }
 
+    if (typeof content !== "string" || !content.trim()) {
+      return NextResponse.json({ error: "Article content is required to publish" }, { status: 400 })
+    }
+
     let slug = slugify(title)
     const existing = await prisma.article.findUnique({ where: { slug } })
     if (existing) slug = `${slug}-${Date.now().toString(36)}`
@@ -37,9 +41,9 @@ export async function POST(request: NextRequest) {
         tags: tags || "",
         author: author || "Liberture",
         readTime: readTime ? parseInt(readTime) : 5,
-        url: url || `/articles/${slug}`,
+        url: url || "",
         slug,
-        content: content || "",
+        content: content.trim(),
         publishedAt: now,
         updatedAt: now,
       },
