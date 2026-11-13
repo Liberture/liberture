@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
 
 import { prisma } from "@/lib/prisma"
-import { CATALOG_PROTOCOLS } from "@/lib/tracker/catalog"
-import type { CatalogProtocol } from "@/lib/tracker/types"
+import { CATALOG_PROTOCOLS, findProtocol, type CatalogProtocol } from "@/lib/habits/protocols/catalog"
+import { normalizeSources } from "@/lib/habits/protocols/sources"
 import type { PillarId } from "@/lib/translations"
 
 import { ProtocolsBrowser } from "./protocols-browser"
@@ -65,25 +65,22 @@ async function loadProtocols(): Promise<CatalogProtocol[]> {
     })
     if (rows.length === 0) return CATALOG_PROTOCOLS
 
-    const habitsBySlug = new Map(CATALOG_PROTOCOLS.map((p) => [p.slug, p.habits]))
-
-    const trackable = rows
-      .map((row) => ({
-        slug: row.slug,
+    const trackable = rows.flatMap(row => {
+      const catalog = findProtocol(row.slug)
+      if (!catalog) return []
+      return [{
+        ...catalog,
         name: row.name,
-        tagline: row.description,
         description: row.description,
-        why: row.why ?? "",
+        why: row.why ?? catalog.why,
         pillar: row.pillar as PillarId,
-        difficulty: DIFFICULTY[row.difficulty] ?? "moderate",
-        duration: row.duration ?? "Ongoing",
+        difficulty: DIFFICULTY[row.difficulty] ?? catalog.difficulty,
+        duration: row.duration ?? catalog.duration,
         benefits: parseList(row.benefits),
         risks: parseList(row.risks),
-        evidence: parseList(row.references),
-        habits: habitsBySlug.get(row.slug) ?? [],
-      }))
-      // Without a habit breakdown a protocol can't be added or tracked.
-      .filter((p) => p.habits.length > 0)
+        evidence: row.references ? normalizeSources(parseList(row.references)) : catalog.evidence,
+      }]
+    })
     return trackable.length ? trackable : CATALOG_PROTOCOLS
   } catch (error) {
     console.error("protocols: database unavailable, using bundled catalog", error)

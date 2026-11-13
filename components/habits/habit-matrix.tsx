@@ -1,5 +1,6 @@
 "use client"
 
+import { HelpTooltip } from "@/components/ui/tooltip"
 import { memo, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { differenceInCalendarDays, format, isSameMonth, startOfDay, subDays } from "date-fns"
 import { CalendarRange } from "lucide-react"
@@ -247,11 +248,9 @@ export function HabitMatrix({ habits, completions, onToggleCompletion, weekStart
               {rows.map((habit) => {
                 const { pct, hit, scheduled } = rateFor(habit)
                 return (
-                  <div
-                    key={habit.id}
+                  <HelpTooltip key={habit.id} label={formatMessage(habit.schedule?.type === "times_per_week" ? t.rowTitleWeekly : t.rowTitle, { name: habit.name, hit, scheduled })}><div
                     className="flex items-center gap-2.5 px-4"
                     style={{ height: rowHeight }}
-                    title={formatMessage(habit.schedule?.type === "times_per_week" ? t.rowTitleWeekly : t.rowTitle, { name: habit.name, hit, scheduled })}
                   >
                     <span
                       className="h-2.5 w-2.5 shrink-0 rounded-full"
@@ -264,7 +263,7 @@ export function HabitMatrix({ habits, completions, onToggleCompletion, weekStart
                     <span className="shrink-0 font-mono text-xs tabular-nums text-muted-foreground">
                       {pct}%
                     </span>
-                  </div>
+                  </div></HelpTooltip>
                 )
               })}
             </div>
@@ -404,11 +403,9 @@ const MatrixRow = memo(function MatrixRow({
         const hover = (): void => onHover({ day, habitName: habit.name, status })
 
         return (
-          <button
-            key={dateStr}
+          <HelpTooltip key={dateStr} label={`${habit.name} — ${format(day, "EEE d MMM yyyy", { locale: dateLocale })} — ${status}`}><button
             type="button"
             onClick={() => onToggleCompletion(habit.id, day)}
-            title={`${habit.name} — ${format(day, "EEE d MMM yyyy", { locale: dateLocale })} — ${status}`}
             onPointerEnter={hover}
             onFocus={hover}
             aria-label={formatMessage(isDone ? t.cellCompleted : t.cellNotCompleted, {
@@ -433,7 +430,7 @@ const MatrixRow = memo(function MatrixRow({
               // rather than a confetti of per-habit hexes.
               backgroundColor: isDone ? color : undefined,
             }}
-          />
+          /></HelpTooltip>
         )
       })}
     </div>

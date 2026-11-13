@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { ProfileMarkdown } from "@/components/people/profile-markdown";
 import { ProfilePortrait } from "@/components/people/profile-portrait";
 import { profileBiography } from "@/lib/profile-biography";
+import { PillarTag } from "@/components/habits/marketplace/pillar-tag";
+import { PILLAR_IDS } from "@/lib/habits/pillars";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -63,7 +65,7 @@ export default async function PeoplePage({
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {people.map((person) => {
-              const pillars = (person.pillars || '').split(',').map(p => p.trim()).filter(Boolean);
+              const pillars = (person.pillars || '').split(',').map(p => p.trim().toLowerCase()).filter(Boolean);
               
               return (
                 <Link
@@ -89,14 +91,7 @@ export default async function PeoplePage({
                     <ProfileMarkdown preview>{profileBiography(person)}</ProfileMarkdown>
                     
                     <div className="flex flex-wrap gap-2">
-                      {pillars.slice(0, 3).map((pillar, i) => (
-                        <span
-                          key={i}
-                          className="px-2 py-1 rounded-full bg-purple-500/20 text-purple-400 text-xs font-medium border border-purple-500/30"
-                        >
-                          {pillar}
-                        </span>
-                      ))}
+                      {PILLAR_IDS.filter(id => pillars.includes(id)).slice(0, 3).map(id => <PillarTag key={id} pillar={id} />)}
                     </div>
 
                     {person.followers && (

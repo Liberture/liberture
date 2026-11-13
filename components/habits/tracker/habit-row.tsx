@@ -1,5 +1,6 @@
 "use client"
 
+import { HelpTooltip } from "@/components/ui/tooltip"
 import { memo } from "react"
 import { Check, FileText, Flame, Pencil } from "lucide-react"
 
@@ -146,8 +147,7 @@ export const HabitRow = memo(function HabitRow({
 
       <div className="relative z-10 flex shrink-0 flex-col items-end gap-2">
         {streak.current > 0 ? (
-          <span
-            title={plural(streak.unit === "weeks" ? t.streakWeeks : t.streakDays, streak.current)}
+          <HelpTooltip label={plural(streak.unit === "weeks" ? t.streakWeeks : t.streakDays, streak.current)}><span
             className="inline-flex items-center gap-1 rounded-full border border-exercise/30 bg-exercise/10 px-2.5 py-1 text-xs font-semibold text-exercise"
           >
             <Flame className="h-3.5 w-3.5" aria-hidden />
@@ -157,7 +157,7 @@ export const HabitRow = memo(function HabitRow({
             <span className="sr-only">
               {plural(streak.unit === "weeks" ? t.streakWeeks : t.streakDays, streak.current)}
             </span>
-          </span>
+          </span></HelpTooltip>
         ) : null}
 
         {/* Always visible: these used to appear on hover, which put them out of

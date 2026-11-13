@@ -1,6 +1,6 @@
 "use client"
 
-import { useId, useRef, useState, type ReactNode } from "react"
+import { useRef, useState, type ReactNode } from "react"
 import {
   Archive,
   ArchiveRestore,
@@ -17,7 +17,7 @@ import {
   Trash2,
   X,
 } from "lucide-react"
-import { DialogTabs } from "./ui/dialog-tabs"
+import { Tabs, TabOptions, TabsContent } from "@/components/ui/tabs"
 import { AppDialog } from "@/components/habits/ui/app-dialog"
 import { notify } from "@/components/habits/ui/toast"
 import type { DataEntryField, Habit, HabitCompletion, HabitTag, ImplementationIntention } from "@/lib/habits/types"
@@ -171,7 +171,6 @@ function Choice<T extends string | number>({
 export function HabitDialog({ mode, habit, completions = [], weekStartsOn = 1, onCreate, onUpdate, onDelete, onArchive, onUnarchive, onClose, defaultTime }: HabitDialogProps) {
   const translations = useTranslations().habits.app
   const t = translations.habitDialog
-  const idBase = useId()
   const [tab, setTab] = useState<(typeof EDIT_TABS)[number]>("details")
   const common = translations.common
   const COMMON_TRIGGERS = t.triggers
@@ -651,6 +650,7 @@ export function HabitDialog({ mode, habit, completions = [], weekStartsOn = 1, o
   )
 
   return (
+    <Tabs variant="embedded" value={tab} onValueChange={value => setTab(value as typeof tab)}>
     <AppDialog
       open
       onClose={onClose}
@@ -679,8 +679,8 @@ export function HabitDialog({ mode, habit, completions = [], weekStartsOn = 1, o
           </div>
           {mode === "edit" && (
             <div className="px-4 sm:px-6">
-              <DialogTabs ids={EDIT_TABS} tab={tab} onChange={setTab} icons={EDIT_ICONS}
-                labels={t.tabs} label={t.titleEdit} idBase={idBase} />
+              <TabOptions ids={EDIT_TABS} icons={EDIT_ICONS}
+                labels={t.tabs} label={t.titleEdit} />
             </div>
           )}
         </>
@@ -713,12 +713,12 @@ export function HabitDialog({ mode, habit, completions = [], weekStartsOn = 1, o
       )}
     >
       {mode === "edit" && habit ? (
-        <div role="tabpanel" id={`${idBase}-panel-${tab}`} aria-labelledby={`${idBase}-tab-${tab}`} tabIndex={0} className="space-y-4 outline-none">
+        <TabsContent value={tab} className="space-y-4">
           {tab === "details" && detailsPanel}
           {tab === "schedule" && schedulePanel}
           {tab === "tracking" && <>{priorityAndTagsPanel}{dataEntryPanel}{intentionPanel}</>}
           {tab === "analytics" && <HabitAnalytics habit={habit} completions={completions} weekStartsOn={weekStartsOn} />}
-        </div>
+        </TabsContent>
       ) : (
         <div className="space-y-4">
           {detailsPanel}
@@ -742,6 +742,7 @@ export function HabitDialog({ mode, habit, completions = [], weekStartsOn = 1, o
         </div>
       )}
     </AppDialog>
+    </Tabs>
   )
 }
 

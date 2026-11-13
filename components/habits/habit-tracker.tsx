@@ -1,5 +1,6 @@
 "use client"
 
+import { HelpTooltip } from "@/components/ui/tooltip"
 import { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { format, subDays, startOfDay } from "date-fns"
 import { Check, CircleAlert, Loader2, Sparkles, Archive, Rows3, LayoutGrid, CalendarRange } from "lucide-react"
@@ -365,9 +366,9 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
   const statusLabel = statusKind === "saving" ? t.saving : statusKind === "saved" ? t.saved
     : isDirty ? (cachedLocally ? t.saveFailedCached : t.saveFailedKeepOpen) : t.saveFailed
   const saveStatus = statusKind && (
-    <span title={statusLabel} className="inline-flex size-full" aria-hidden>
+    <HelpTooltip label={statusLabel}><span className="inline-flex size-full" aria-hidden>
       <StatusIcon className={cn("size-full", pending && "animate-spin")} />
-    </span>
+    </span></HelpTooltip>
   )
 
   const editingHabit = editingHabitForDialog ? habits.find((h) => h.id === editingHabitForDialog) : undefined

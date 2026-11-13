@@ -1,5 +1,6 @@
 "use client"
 
+import { HelpTooltip } from "@/components/ui/tooltip"
 import { motion } from "framer-motion"
 import { stagger, transition, hover } from "@/lib/animations"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -69,15 +70,14 @@ export function AnimatedArticleGrid({ articles, pillar }: Props) {
                   <span className="text-xs text-muted-foreground truncate">{article.author}</span>
                   <div className="flex items-center gap-3">
                     {article.url && (
-                      <a
+                      <HelpTooltip label="View source"><a
                         href={article.url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                        title="View source"
                       >
                         <ExternalLink className="h-3 w-3" />
-                      </a>
+                      </a></HelpTooltip>
                     )}
                     <Link href={`/articles/${article.slug}`} className="text-xs text-primary hover:underline font-medium">
                       Read

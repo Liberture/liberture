@@ -1,5 +1,6 @@
 "use client"
 
+import { HelpTooltip } from "@/components/ui/tooltip"
 import { useEffect, useId, useMemo, useRef } from "react"
 import { format } from "date-fns"
 import { ArrowRight, Check, Sunrise } from "lucide-react"
@@ -157,11 +158,9 @@ export function MorningDashboard({
                   so the bar says *what* is left, not just how much. */}
               <div className="flex h-2 gap-0.5 overflow-hidden rounded-full bg-white/[0.06]">
                 {perPillar.map(({ pillar, total: count, done }) => (
-                  <div
-                    key={pillar}
+                  <HelpTooltip key={pillar} label={`${t.pillars[pillar]}: ${done}/${count}`}><div
                     className="relative h-full overflow-hidden rounded-full bg-white/[0.04]"
                     style={{ flexGrow: count }}
-                    title={`${t.pillars[pillar]}: ${done}/${count}`}
                   >
                     <div
                       className="h-full rounded-full transition-[width] duration-700 ease-out"
@@ -170,7 +169,7 @@ export function MorningDashboard({
                         backgroundColor: PILLAR_HEX[pillar],
                       }}
                     />
-                  </div>
+                  </div></HelpTooltip>
                 ))}
               </div>
 

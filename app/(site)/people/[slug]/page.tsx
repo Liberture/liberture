@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { DialogTabs } from "@/components/habits/ui/dialog-tabs";
+import { Tabs, TabOptions, TabsContent } from "@/components/ui/tabs";
 import { ProfileMarkdown } from "@/components/people/profile-markdown";
 import { ProfilePortrait } from "@/components/people/profile-portrait";
+import { ProfileSocials } from "@/components/people/profile-socials";
+import { PillarTag } from "@/components/habits/marketplace/pillar-tag";
+import { PILLAR_IDS } from "@/lib/habits/pillars";
 import Link from "next/link";
-import { Globe, Twitter, Instagram, Youtube, Mic, BookOpen, MessageSquare, Zap, User, Trophy, Library } from "lucide-react";
+import { BookOpen, MessageSquare, Zap, User, Trophy, Library } from "lucide-react";
 import { PersonSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
 
 const sections = ["About", "Achievements", "Publications", "Speaking", "Protocols", "Books"] as const;
@@ -46,7 +49,6 @@ type Person = {
   bio: string;
   pillars: string;
   expertise: string;
-  followers: string | null;
   website: string | null;
   wikipedia: string | null;
   twitter: string | null;
@@ -128,7 +130,7 @@ export default function PersonPage() {
   const achievements = person.achievements ? JSON.parse(person.achievements) : [];
   const publications = person.publications ? JSON.parse(person.publications) : [];
   const speakingEvents = person.speakingEvents ? JSON.parse(person.speakingEvents) : [];
-  const pillars = (person.pillars || '').split(',').map(p => p.trim()).filter(Boolean);
+  const pillars = (person.pillars || '').split(',').map(p => p.trim().toLowerCase()).filter(Boolean);
 
   const counts = { About: 1, Achievements: achievements.length, Publications: publications.length, Speaking: speakingEvents.length, Protocols: person.Protocol?.length, Books: person.Book?.length };
   const available = sections.filter(section => counts[section]);
@@ -168,86 +170,18 @@ export default function PersonPage() {
             <h1 className="text-5xl font-bold mb-2">{person.name}</h1>
             <p className="text-2xl text-purple-400 mb-4">{person.title}</p>
             
-            {/* Social Links */}
-            <div className="flex flex-wrap items-center gap-4">
-              {person.wikipedia && !(person.slug.startsWith("dan-s-kennedy") && person.wikipedia.endsWith("/Dan_Kennedy_(author)")) && (
-                <a 
-                  href={person.wikipedia} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors font-medium"
-                >
-                  <BookOpen className="w-5 h-5" />
-                  <span>Wikipedia</span>
-                </a>
-              )}
-              {person.website && (
-                <a 
-                  href={person.website} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-slate-300 hover:text-white transition-colors"
-                >
-                  <Globe className="w-5 h-5" />
-                  <span>Website</span>
-                </a>
-              )}
-              {person.twitter && (
-                <a 
-                  href={`https://twitter.com/${person.twitter}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-slate-300 hover:text-white transition-colors"
-                >
-                  <Twitter className="w-5 h-5" />
-                  <span>@{person.twitter}</span>
-                </a>
-              )}
-              {person.instagram && (
-                <a 
-                  href={`https://instagram.com/${person.instagram}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-slate-300 hover:text-white transition-colors"
-                >
-                  <Instagram className="w-5 h-5" />
-                  <span>@{person.instagram}</span>
-                </a>
-              )}
-              {person.youtube && (
-                <a 
-                  href={`https://youtube.com/${person.youtube}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-slate-300 hover:text-white transition-colors"
-                >
-                  <Youtube className="w-5 h-5" />
-                  <span>YouTube</span>
-                </a>
-              )}
-              {person.podcast && (
-                <div className="flex items-center gap-2 text-slate-300">
-                  <Mic className="w-5 h-5" />
-                  <span>{person.podcast}</span>
-                </div>
-              )}
-            </div>
+            <ProfileSocials person={person} />
           </div>
 
           <div className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-            <div className="min-w-0">
-              <DialogTabs ids={available} tab={tab} onChange={setSelected} icons={icons} labels={labels} label="Profile sections" idBase="profile" />
-              <section role="tabpanel" id={`profile-panel-${tab}`} aria-labelledby={`profile-tab-${tab}`} tabIndex={0}>
-              {tab === "About" && (
-              <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+            <Tabs value={tab} onValueChange={value => setSelected(value as Section)}>
+              <TabOptions ids={available} icons={icons} labels={labels} label="Profile sections" />
+              <TabsContent value="About">
                 <h2 className="text-2xl font-bold mb-4">About</h2>
                 <ProfileMarkdown>{person.bio}</ProfileMarkdown>
-              </div>
-
-              )}
+              </TabsContent>
             {/* Achievements */}
-              {tab === "Achievements" && (
-                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+              <TabsContent value="Achievements">
                   <h2 className="text-2xl font-bold mb-4">Key Achievements</h2>
                   <ul className="space-y-3">
                     {achievements.map((achievement: string, i: number) => (
@@ -257,11 +191,9 @@ export default function PersonPage() {
                       </li>
                     ))}
                   </ul>
-                </div>
-              )}
+                </TabsContent>
             {/* Publications */}
-              {tab === "Publications" && (
-                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+              <TabsContent value="Publications">
                   <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
                     <BookOpen className="w-6 h-6 text-green-400" />
                     Publications & Research
@@ -274,11 +206,9 @@ export default function PersonPage() {
                       </li>
                     ))}
                   </ul>
-                </div>
-              )}
+                </TabsContent>
             {/* Speaking Events */}
-              {tab === "Speaking" && (
-                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+              <TabsContent value="Speaking">
                   <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
                     <MessageSquare className="w-6 h-6 text-cyan-400" />
                     Speaking & Appearances
@@ -291,11 +221,9 @@ export default function PersonPage() {
                       </li>
                     ))}
                   </ul>
-                </div>
-              )}
+                </TabsContent>
             {/* Protocols */}
-              {tab === "Protocols" && (
-                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+              <TabsContent value="Protocols">
                   <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
                     <Zap className="w-6 h-6 text-green-400" />
                     Protocols by {person.name}
@@ -338,11 +266,9 @@ export default function PersonPage() {
                       </Link>
                     ))}
                   </div>
-                </div>
-              )}
+                </TabsContent>
             {/* Books */}
-              {tab === "Books" && (
-                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+              <TabsContent value="Books">
                   <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
                     <BookOpen className="w-6 h-6 text-orange-400" />
                     Books by {person.name}
@@ -387,23 +313,14 @@ export default function PersonPage() {
                       </Link>
                     ))}
                   </div>
-                </div>
-              )}
-              </section>
-            </div>
+                </TabsContent>
+            </Tabs>
               <aside aria-label="Profile details" className="space-y-6">
                 {/* Pillars */}
                 <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
                   <h3 className="text-xl font-bold mb-4">Focus Areas</h3>
                   <div className="flex flex-wrap gap-2">
-                    {pillars.map((pillar, i) => (
-                      <span
-                        key={i}
-                        className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 text-sm font-medium border border-purple-500/30"
-                      >
-                        {pillar}
-                      </span>
-                    ))}
+                    {PILLAR_IDS.filter(id => pillars.includes(id)).map(id => <PillarTag key={id} pillar={id} />)}
                   </div>
                 </div>
 
@@ -413,13 +330,6 @@ export default function PersonPage() {
                   <p className="text-slate-300">{person.expertise}</p>
                 </div>
 
-                {/* Followers */}
-                {person.followers && (
-                  <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                    <h3 className="text-xl font-bold mb-3">Reach</h3>
-                    <p className="text-slate-300">{person.followers}</p>
-                  </div>
-                )}
               </aside>
           </div>
         </div>

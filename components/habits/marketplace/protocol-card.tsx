@@ -1,5 +1,6 @@
 "use client"
 
+import { HelpTooltip } from "@/components/ui/tooltip"
 import { BookOpenCheck, Check, Clock, ListChecks, Plus, Wallet } from "lucide-react"
 
 import { PILLAR_STYLES } from "@/lib/habits/pillars"
@@ -38,8 +39,7 @@ export function ProtocolCard({ protocol, adopted, onRead, onAdopt }: ProtocolCar
       <div className="flex flex-wrap items-center gap-2">
         <PillarTag pillar={protocol.pillar} />
         <DifficultyTag difficulty={protocol.difficulty} />
-        <span
-          title={labels.costSummary(protocol.cost, protocol.costTier)}
+        <HelpTooltip label={labels.costSummary(protocol.cost, protocol.costTier)}><span
           className={cn(
             "inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium",
             protocol.costTier === "free"
@@ -48,7 +48,7 @@ export function ProtocolCard({ protocol, adopted, onRead, onAdopt }: ProtocolCar
           )}
         >
           {labels.costTier[protocol.costTier]}
-        </span>
+        </span></HelpTooltip>
         {protocol.featured && !adopted ? (
           <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
             {t.featured}
@@ -87,14 +87,14 @@ export function ProtocolCard({ protocol, adopted, onRead, onAdopt }: ProtocolCar
           </div>
         </dl>
 
-        {onAdopt && <button type="button" onClick={onAdopt} disabled={adopted}
-          aria-label={addLabel} title={addLabel}
+        {onAdopt && <HelpTooltip label={addLabel}><button type="button" onClick={onAdopt} disabled={adopted}
+          aria-label={addLabel}
           className={cn(
             "relative z-10 inline-flex size-10 shrink-0 items-center justify-center rounded-full border shadow-sm focus-visible:ring-2 focus-visible:ring-ring",
             adopted ? cn("border-border bg-card", styles.text) : "border-primary bg-primary text-primary-foreground hover:brightness-110"
           )}>
           {adopted ? <Check className="size-5" aria-hidden /> : <Plus className="size-5" aria-hidden />}
-        </button>}
+        </button></HelpTooltip>}
       </div>
     </article>
   )
@@ -122,13 +122,12 @@ export function CatalogHabitCard({ habit, adopted, onAdopt }: HabitCardProps) {
       <div className="flex flex-wrap items-center gap-2">
         <PillarTag pillar={habit.pillar} />
         {habit.readingContent?.enabled ? (
-          <span
-            title={t.readToCompleteHint}
+          <HelpTooltip label={t.readToCompleteHint}><span
             className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/40 px-2 py-1 text-xs font-medium text-muted-foreground"
           >
             <BookOpenCheck className="h-3 w-3" aria-hidden />
             {t.readToComplete}
-          </span>
+          </span></HelpTooltip>
         ) : null}
       </div>
 

@@ -1,5 +1,6 @@
 "use client"
 
+import { HelpTooltip } from "@/components/ui/tooltip"
 import Link from "next/link"
 import { motion, useReducedMotion } from "framer-motion"
 import {
@@ -174,7 +175,7 @@ export function HowItWorks({ dict, origin }: HowItWorksProps) {
         </div>
 
         <Tabs defaultValue="claude" className="w-full">
-          <TabsList className="mb-6 grid w-full grid-cols-2 sm:inline-flex sm:w-auto">
+          <TabsList aria-label={how.connectTitle}>
             <TabsTrigger value="claude" className="gap-2">
               <ClaudeLogo className="h-4 w-4" />
               Claude
@@ -216,9 +217,7 @@ export function HowItWorks({ dict, origin }: HowItWorksProps) {
             {API_SCOPES.map((key) => {
               const off = DEFAULT_OFF.has(key)
               return (
-                <li
-                  key={key}
-                  title={scopes[key].allows}
+                <HelpTooltip key={key} label={scopes[key].allows}><li
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium",
                     off ? "border-exercise/40 bg-exercise/10 text-exercise" : "border-nutrition/30 bg-nutrition/10 text-nutrition"
@@ -227,7 +226,7 @@ export function HowItWorks({ dict, origin }: HowItWorksProps) {
                   {off ? <Lock className="h-3 w-3" aria-hidden /> : <CheckCircle2 className="h-3 w-3" aria-hidden />}
                   {scopes[key].name}
                   {off ? <span className="text-[10px] uppercase tracking-wide opacity-80">· {how.offByDefault}</span> : null}
-                </li>
+                </li></HelpTooltip>
               )
             })}
           </ul>

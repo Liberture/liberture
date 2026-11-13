@@ -1,5 +1,6 @@
 "use client"
 
+import { HelpTooltip } from "@/components/ui/tooltip"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { BadgeCheck, Check, Copy } from "lucide-react"
 
@@ -123,15 +124,14 @@ export function ProfileTab({
                   onBlur={() => setNpubFocused(false)}
                   className="min-w-0 bg-transparent font-mono text-xs text-muted-foreground"
                 />
-                <button
+                <HelpTooltip label={copied ? t.copied : t.copyNpub}><button
                   type="button"
                   onClick={copyNpub}
                   aria-label={copied ? t.copied : t.copyNpub}
-                  title={copied ? t.copied : t.copyNpub}
                   className="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   {copied ? <Check aria-hidden className="size-3.5 text-nutrition" /> : <Copy aria-hidden className="size-3.5" />}
-                </button>
+                </button></HelpTooltip>
               </div>
             )}
           </div>
@@ -192,12 +192,10 @@ export function ProfileTab({
                 const selected = focus.includes(habit.id)
                 const full = !selected && focus.length >= MAX_FOCUS
                 return (
-                  <button
-                    key={habit.id}
+                  <HelpTooltip key={habit.id} label={full ? formatMessage(t.profile.focusLimitReached, { max: MAX_FOCUS }) : undefined}><button
                     type="button"
                     aria-pressed={selected}
                     disabled={full}
-                    title={full ? formatMessage(t.profile.focusLimitReached, { max: MAX_FOCUS }) : undefined}
                     onClick={() => toggleFocus(habit.id)}
                     className={cn(
                       "inline-flex max-w-full items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors disabled:opacity-40",
@@ -209,7 +207,7 @@ export function ProfileTab({
                   >
                     {selected ? <Check className="h-3.5 w-3.5 shrink-0" aria-hidden /> : null}
                     <span className="truncate">{habit.name}</span>
-                  </button>
+                  </button></HelpTooltip>
                 )
               })}
             </div>
