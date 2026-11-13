@@ -1,5 +1,6 @@
 "use client"
 
+import { DirectoryGrid } from "@/components/directory/layout"
 import { FieldSelect, FieldOption } from "@/components/ui/select"
 import { memo, useCallback, useMemo, useState } from "react"
 import { ArrowDownUp, Store } from "lucide-react"
@@ -126,7 +127,7 @@ export const MarketplaceView = memo(function MarketplaceView({ habits = EMPTY_HA
         {protocols.length === 0 ? (
           <EmptyShelf>{t.noProtocols}</EmptyShelf>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <DirectoryGrid>
             {protocols.map((protocol) => (
               <ProtocolCard
                 key={protocol.slug}
@@ -136,7 +137,7 @@ export const MarketplaceView = memo(function MarketplaceView({ habits = EMPTY_HA
                 onAdopt={onAdoptProtocol && (() => onAdoptProtocol(protocol))}
               />
             ))}
-          </div>
+          </DirectoryGrid>
         )}
       </section>
 
@@ -148,7 +149,7 @@ export const MarketplaceView = memo(function MarketplaceView({ habits = EMPTY_HA
           {standalone.length === 0 ? (
             <EmptyShelf>{t.noHabits}</EmptyShelf>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <DirectoryGrid>
               {standalone.map((habit) => (
                 <CatalogHabitCard
                   key={habit.slug}
@@ -157,7 +158,7 @@ export const MarketplaceView = memo(function MarketplaceView({ habits = EMPTY_HA
                   onAdopt={() => onAdoptHabit(habit)}
                 />
               ))}
-            </div>
+            </DirectoryGrid>
           )}
         </section>
       ) : null}

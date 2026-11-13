@@ -1,3 +1,4 @@
+import { DirectoryLayout, DirectoryHeader, DirectoryGrid } from "@/components/directory/layout"
 import { BackLink } from "@/components/seo/back-link"
 import { PersonCard } from "@/components/people/person-card"
 import { Metadata } from "next";
@@ -44,24 +45,19 @@ export default async function PeoplePage({
   const hasPrevPage = currentPage > 1;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white">
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-6xl mx-auto">
+    <DirectoryLayout>
           <div className="mb-8">
             <BackLink fallback="/directory" />
           </div>
 
-          <h1 className="text-5xl font-bold mb-4">People</h1>
-          <p className="text-xl text-slate-300 mb-4">
-            Leading biohackers, researchers, and pioneers in human optimization.
-          </p>
+          <DirectoryHeader title="People" description="Leading biohackers, researchers, and pioneers in human optimization." />
           <p className="text-sm text-slate-400 mb-12">
             Showing {skip + 1}–{Math.min(skip + ITEMS_PER_PAGE, totalCount)} of {totalCount} people
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <DirectoryGrid>
             {people.map(person => <PersonCard key={person.id} featuredLabel="Featured" person={{ ...person, bio: profileSummary(person) }} />)}
-          </div>
+          </DirectoryGrid>
 
           {people.length === 0 && (
             <div className="text-center py-12">
@@ -95,8 +91,6 @@ export default async function PeoplePage({
               )}
             </div>
           )}
-        </div>
-      </div>
-    </div>
+    </DirectoryLayout>
   );
 }

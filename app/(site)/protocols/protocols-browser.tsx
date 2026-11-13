@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 import { ArrowRight, Check } from "lucide-react"
-import { IslandRidge, RippleBloom } from "@/components/patterns"
+import { DirectoryLayout, DirectoryHeader } from "@/components/directory/layout"
 import { MarketplaceView } from "@/components/habits/marketplace/marketplace-view"
 import { useHabitsSession } from "@/components/habits/session-provider"
 import type { CatalogProtocol } from "@/lib/habits/protocols/catalog"
@@ -43,23 +43,10 @@ export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }
   }, [])
 
   return (
-    <div className="relative min-h-screen overflow-hidden py-12 px-4">
-      <IslandRidge placement="corner" gradient="neon" size="420px" className="-left-24 -top-16" opacity={0.13} />
-      <RippleBloom placement="corner" gradient="plasma" size="380px" className="-right-20 top-1/3" opacity={0.11} />
-
-      <div className="container relative mx-auto max-w-7xl">
+    <DirectoryLayout>
         <MarketplaceView catalog={protocols} adopted={adopted} shareable
           onAdoptProtocol={isSignedIn ? protocol => void adopt(protocol.slug) : undefined} heading={<>
-        <header className="mx-auto max-w-3xl text-center">
-          <span className="text-sm font-medium uppercase tracking-wider text-primary">
-            The Protocol Library
-          </span>
-          <h1 className="mt-2 text-4xl font-bold md:text-5xl">Protocols</h1>
-          <p className="mt-4 text-lg text-muted-foreground">
-            Structured routines with the evidence attached. Explore them, share what works,
-            download a protocol to keep — or add one and it becomes daily habits in your tracker.
-          </p>
-        </header>
+        <DirectoryHeader eyebrow="The Protocol Library" title="Protocols" description="Structured routines with the evidence attached. Explore them, share what works, download a protocol to keep — or add one and it becomes daily habits in your tracker." />
 
           {hydrated && adopted.size > 0 ? (
             <Link
@@ -72,7 +59,6 @@ export function ProtocolsBrowser({ protocols }: { protocols: CatalogProtocol[] }
             </Link>
           ) : null}
         </>} />
-      </div>
-    </div>
+    </DirectoryLayout>
   )
 }

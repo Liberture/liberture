@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { HelpTooltip } from "@/components/ui/tooltip"
 import { BookOpenCheck, Check, Clock, ListChecks, Plus, Wallet } from "lucide-react"
 
@@ -12,14 +13,17 @@ import { formatMessage, plural } from "@/lib/i18n-format"
 import { DifficultyTag, PillarTag, useCatalogLabels } from "./pillar-tag"
 import { ProtocolArtwork } from "./protocol-artwork"
 
+const readStyle = "text-left after:absolute after:inset-0 after:cursor-pointer after:rounded-xl focus-visible:after:ring-2 focus-visible:after:ring-ring"
+
 interface ProtocolCardProps {
   protocol: CatalogProtocol
   adopted: boolean
-  onRead: () => void
+  href?: string
+  onRead?: () => void
   onAdopt?: () => void
 }
 
-export function ProtocolCard({ protocol, adopted, onRead, onAdopt }: ProtocolCardProps) {
+export function ProtocolCard({ protocol, adopted, onRead, onAdopt, href }: ProtocolCardProps) {
   const t = useTranslations().habits.app.protocolCard
   const labels = useCatalogLabels()
   const styles = PILLAR_STYLES[protocol.pillar]
@@ -58,10 +62,12 @@ export function ProtocolCard({ protocol, adopted, onRead, onAdopt }: ProtocolCar
 
       <div className="space-y-2">
         <h3 className="text-lg font-bold leading-snug text-foreground">
+          {href ? <Link href={href} className={readStyle}>{protocol.name}</Link> : (
           <button type="button" onClick={onRead} aria-haspopup="dialog"
-            className="text-left after:absolute after:inset-0 after:cursor-pointer after:rounded-xl focus-visible:after:ring-2 focus-visible:after:ring-ring">
+            className={readStyle}>
             {protocol.name}
           </button>
+          )}
         </h3>
         <p className="line-clamp-3 text-sm text-muted-foreground">{protocol.tagline}</p>
         {protocol.author ? (

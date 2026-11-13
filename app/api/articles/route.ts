@@ -1,3 +1,4 @@
+import { articleTags } from "@/lib/article-tags"
 import { NextResponse } from "next/server"
 import { NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
@@ -101,7 +102,7 @@ export async function GET(request: NextRequest) {
     // Parse tags from comma-separated to array
     const parsed = articles.map(a => ({
       ...a,
-      tags: a.tags.split(',').map(t => t.trim()).filter(Boolean),
+      tags: articleTags(a.tags),
     }))
 
     return NextResponse.json({ articles: parsed })

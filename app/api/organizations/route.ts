@@ -53,6 +53,9 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         name: true,
+        type: true,
+        featured: true,
+        founded: true,
         slug: true,
         description: true,
         pillars: true,

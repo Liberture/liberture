@@ -1,3 +1,4 @@
+import { DirectoryLayout } from "@/components/directory/layout"
 
 
 
@@ -35,7 +36,7 @@ export default function BookDetails({ book }: { book: Book }) {
   const pillars = (book.pillars || '').split(',').map(p => p.trim()).filter(Boolean);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white">
+    <DirectoryLayout>
       {/* JSON-LD Schema */}
       <BookSchema
         title={book.title}
@@ -48,8 +49,7 @@ export default function BookDetails({ book }: { book: Book }) {
       />
       <BreadcrumbSchema items={[...sectionTrail("books"), {name:book.title, url:`https://liberture.com/books/${book.slug}`}]} />
       
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-5xl mx-auto">
+      <div className="mx-auto max-w-5xl">
           <div className="mb-8">
             <BackLink fallback="/books" />
           </div>
@@ -164,7 +164,6 @@ export default function BookDetails({ book }: { book: Book }) {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+    </DirectoryLayout>
   );
 }

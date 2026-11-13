@@ -1,3 +1,12 @@
+import Markdown from "react-markdown"
+import { articleTags } from "@/lib/article-tags"
+import { LanguageSwitch } from "@/components/habits/site/language-switch"
+import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { getDictionary } from "@/lib/habits/i18n"
+import { ArticleCard } from "@/components/directory/article-card"
+import { CardCarousel } from "@/components/ui/card-carousel"
+import { Input } from "@/components/ui/input"
+import { DirectoryLayout } from "@/components/directory/layout"
 import { BackLink } from "@/components/seo/back-link"
 import { sectionTrail } from "@/components/seo/section-breadcrumbs"
 import { notFound } from 'next/navigation'
@@ -5,7 +14,7 @@ import { prisma } from '@/lib/prisma'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Clock, ExternalLink, Calendar, User, ArrowLeft } from 'lucide-react'
+import { Clock, ExternalLink, Calendar, User, Search } from 'lucide-react'
 import Link from 'next/link'
 import { PILLAR_ICON_MAP } from '@/lib/pillars'
 import { ArticleSchema, BreadcrumbSchema } from '@/components/seo/JsonLd'
@@ -78,12 +87,35 @@ export default async function ArticlePage({ params }: PageProps) {
     notFound()
   }
 
-  const tags = article.tags.split(',').map(t => t.trim()).filter(Boolean)
+  const tags = articleTags(article.tags)
+  const [locale, categories, candidates] = await Promise.all([
+    getRequestLocale(),
+    prisma.article.findMany({ distinct: ["pillar"], select: { pillar: true }, orderBy: { pillar: "asc" } }),
+    prisma.article.findMany({
+      where: { slug: { not: slug }, OR: [
+        { pillar: article.pillar },
+        ...tags.map(tag => ({ tags: { contains: tag, mode: "insensitive" as const } })),
+      ] },
+      select: { slug: true, title: true, description: true, pillar: true, tags: true, author: true, readTime: true },
+      orderBy: [{ publishedAt: "desc" }, { slug: "asc" }],
+    }),
+  ])
+  const copy = getDictionary(locale).app.articleReader
+  const topicSet = new Set(tags.map(tag => tag.toLowerCase()))
+  const currentPillar = article.pillar
+  const related = candidates.map(candidate => ({
+    article: candidate,
+    score: Number(candidate.pillar === currentPillar) + articleTags(candidate.tags).filter(tag => topicSet.has(tag.toLowerCase())).length,
+  })).filter(item => item.score > 0).sort((a, b) => b.score - a.score).slice(0, 9)
+  const body = article.content?.trim()
+  const firstLine = body?.split("\n", 1)[0]
+  const markdown = firstLine?.replace(/^#\s+/, "").trim() === article.title && firstLine.startsWith("# ")
+    ? body?.slice(firstLine.length).trimStart() : body
   const Icon = article.pillar ? PILLAR_ICON_MAP[article.pillar as keyof typeof PILLAR_ICON_MAP] : null
   const articleUrl = `https://liberture.com/articles/${slug}`
 
   return (
-    <div className="min-h-screen py-12">
+    <DirectoryLayout>
       <ArticleSchema
         title={article.title}
         description={article.description || ''}
@@ -94,10 +126,11 @@ export default async function ArticlePage({ params }: PageProps) {
       />
       <BreadcrumbSchema items={[...sectionTrail("articles"), {name:article.title, url:articleUrl}]} />
 
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
+      <div className="mx-auto max-w-6xl">
           <BackLink fallback="/articles" />
 
+          <div className="mt-6 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_16rem]">
+          <article className="min-w-0">
           <div className="space-y-6 mb-12">
             {article.pillar && Icon && (
               <div className="flex items-center gap-2">
@@ -145,11 +178,10 @@ export default async function ArticlePage({ params }: PageProps) {
 
           <Card className="mb-8">
             <CardContent className="prose prose-lg dark:prose-invert max-w-none p-8">
-              {article.content ? (
-                <div
-                  dangerouslySetInnerHTML={{ __html: article.content }}
-                  className="whitespace-pre-wrap"
-                />
+              {markdown ? (
+                <div className="space-y-4 leading-relaxed break-words [&_h2]:mt-8 [&_h2]:text-2xl [&_h2]:font-bold [&_h3]:text-xl [&_h3]:font-semibold [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6 [&_a]:text-primary [&_a]:underline [&_pre]:overflow-auto">
+                  <Markdown skipHtml>{markdown}</Markdown>
+                </div>
               ) : (
                 <p className="text-muted-foreground">
                   Content not available. Please visit the source article.
@@ -201,8 +233,29 @@ export default async function ArticlePage({ params }: PageProps) {
               </CardContent>
             </Card>
           )}
+          </article>
+          <aside className="space-y-5 rounded-xl border bg-card p-5 lg:sticky lg:top-24">
+            <form action="/directory" role="search">
+              <label htmlFor="article-search" className="mb-2 block font-semibold">{copy.search}</label>
+              <input type="hidden" name="type" value="articles" />
+              <div className="flex gap-1">
+                <Input id="article-search" type="search" name="q" />
+                <Button size="icon" variant="secondary" aria-label={copy.search}><Search /></Button>
+              </div>
+            </form>
+            <div className="flex items-center justify-between"><span className="font-semibold">{copy.language}</span><LanguageSwitch locale={locale} label={copy.language} /></div>
+            <nav aria-label={copy.categories}>
+              <h2 className="mb-2 font-semibold">{copy.categories}</h2>
+              <ul className="flex flex-wrap gap-2">{categories.filter(row => row.pillar).map(({ pillar }) => (
+                <li key={pillar}><Link href={`/articles?pillar=${encodeURIComponent(pillar)}`} className="text-sm capitalize text-primary hover:underline">{pillar}</Link></li>
+              ))}</ul>
+            </nav>
+          </aside>
+          </div>
+          {related.length > 0 && <CardCarousel title={copy.related} previousLabel={copy.previous} nextLabel={copy.next}>
+            {related.map(({ article }) => <li key={article.slug} className="[&>a]:block [&>a]:h-full"><ArticleCard article={article} /></li>)}
+          </CardCarousel>}
         </div>
-      </div>
-    </div>
+    </DirectoryLayout>
   )
 }

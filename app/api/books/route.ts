@@ -70,6 +70,10 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         title: true,
+        rating: true,
+        featured: true,
+        pages: true,
+        Person: { select: { name: true, slug: true } },
         slug: true,
         description: true,
         author: true,
