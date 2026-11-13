@@ -1,12 +1,12 @@
 # Production operations
 
-GitHub Actions tests and builds each push to `master`. A restricted SSH key lets `liberture-deploy` install a release under `/srv/liberture/releases`, prepare the app database, and restart only the Liberture service. The deploy switches the `current` symlink and checks a database-backed endpoint. If that check fails, it reactivates the previous release. Database schema changes persist across a code rollback. See the [workflow](../../.github/workflows/deploy.yml) and [host commands and units](../../ops/).
+GitHub Actions tests, builds and deploys the tagged commit when a stable [GitHub Release](releases.md) is published. A restricted SSH key lets `liberture-deploy` install a release under `/srv/liberture/releases`, prepare the app database, and restart only the Liberture service. The deploy switches the `current` symlink and checks a database-backed endpoint. If that check fails, it reactivates the previous release. Database schema changes persist across a code rollback. See the [workflow](../../.github/workflows/deploy.yml) and [host commands and units](../../ops/).
 
 The web service runs as `liberture` on loopback behind the reverse proxy. Systemd loads the database URL, mail key and stable Web Push keys from the root-only `/etc/liberture/app.env`. Update runtime secrets there and restart `liberture.service`. CI uses a dedicated deployment key and a pinned SSH host key.
 
 ## Sign-in and user administration
 
-Nostr proves control of the signing key. With managed authentication enabled, Better Auth owns the web sessions and roles used by [/admin/users](https://liberture.com/admin/users). Each imported identity uses the original tracker ID, so habits, history and assistant connections keep their existing owner. Imported identities use internal addresses ending in `@accounts.invalid`. The newsletter list is separate.
+Nostr proves control of the signing key. Better Auth owns the web sessions and roles used by [/admin/users](https://liberture.com/admin/users). Each imported identity uses the original tracker ID, so habits, history and assistant connections keep their existing owner. Imported identities use internal addresses ending in `@accounts.invalid`. The newsletter list is separate.
 
 Deploy the release with managed authentication disabled first. For cutover, stop `liberture.service`, take a fresh database backup, set `BETTER_AUTH_URL` to the public origin and a stable randomly generated `BETTER_AUTH_SECRET` of at least 32 characters in `/etc/liberture/app.env`, then run the migration under the application account with its normal environment:
 

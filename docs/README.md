@@ -4,6 +4,7 @@ For local setup, start with the [repository README](../README.md). For the publi
 
 ## Operations
 
+- [Releases and versioning](operations/releases.md) explains how to tag and publish a production release.
 - [Production operations](operations/production.md) covers deployment, sign-in, third-party services, database backups and restore checks.
 - [Reminders](operations/reminders.md) covers Web Push configuration, delivery and troubleshooting.
 
