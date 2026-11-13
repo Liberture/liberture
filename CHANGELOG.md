@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1
+
+Released 2026-11-13.
+
+- **Books.** Book cards show available covers and every assigned vertical in its own color across the directory, library, author profiles and pillar pages.
+
 ## 0.2.0
 
 Released 2026-11-13.

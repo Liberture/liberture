@@ -16,6 +16,8 @@ export const getPerson = cache(async (slug: string) => {
           description: true,
           year: true,
           pages: true,
+          author: true,
+          featured: true,
           rating: true,
           amazonUrl: true,
           imageUrl: true,

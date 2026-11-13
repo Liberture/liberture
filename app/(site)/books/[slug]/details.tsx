@@ -1,3 +1,5 @@
+import { PillarTag } from "@/components/habits/marketplace/pillar-tag"
+import { profilePillars } from "@/lib/pillars"
 import { DirectoryLayout } from "@/components/directory/layout"
 
 
@@ -33,7 +35,7 @@ type Book = {
 
 export default function BookDetails({ book }: { book: Book }) {
   const keyTakeaways = book.keyTakeaways ? JSON.parse(book.keyTakeaways) : [];
-  const pillars = (book.pillars || '').split(',').map(p => p.trim()).filter(Boolean);
+  const pillars = profilePillars(book.pillars);
 
   return (
     <DirectoryLayout>
@@ -143,14 +145,7 @@ export default function BookDetails({ book }: { book: Book }) {
               <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
                 <h3 className="text-xl font-bold mb-4">Topics</h3>
                 <div className="flex flex-wrap gap-2">
-                  {pillars.map((pillar, i) => (
-                    <span 
-                      key={i}
-                      className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 text-sm font-medium border border-purple-500/30"
-                    >
-                      {pillar}
-                    </span>
-                  ))}
+                  {pillars.map(id => <PillarTag key={id} pillar={id} />)}
                 </div>
               </div>
 

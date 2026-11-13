@@ -1,3 +1,4 @@
+import { BookCard } from "@/components/directory/book-card"
 import { OrganizationCard } from "@/components/directory/org-card"
 import { getDictionary } from "@/lib/habits/i18n"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
@@ -6,7 +7,7 @@ import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { BookOpen, TrendingUp, Users, Building2, Zap, FileText, ArrowRight, Star, Clock } from 'lucide-react'
+import { BookOpen, TrendingUp, Users, Building2, Zap, FileText, ArrowRight, Clock } from 'lucide-react'
 import Link from 'next/link'
 import { MotionContainer, MotionItem, MotionStats, MotionSection, AnimatedArticleGrid, AnimatedOtherPillars } from '@/components/animations'
 import { PillarIcon } from '@/components/pillars/PillarIcon'
@@ -86,7 +87,7 @@ export default async function PillarPage({ params }: PageProps) {
       }),
       prisma.book.findMany({
         where: { pillars: { contains: pillar } },
-        select: { id: true, title: true, slug: true, author: true, description: true, rating: true, year: true, imageUrl: true, featured: true },
+        select: { id: true, title: true, slug: true, author: true, pillars: true, pages: true, description: true, rating: true, year: true, imageUrl: true, featured: true },
         orderBy: [{ featured: 'desc' }, { rating: 'desc' }],
       }),
       prisma.organization.findMany({
@@ -184,24 +185,7 @@ export default async function PillarPage({ params }: PageProps) {
                 </Link>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {books.slice(0, 6).map((book: any) => (
-                  <Link key={book.id} href={`/books/${book.slug}`}>
-                    <Card className="h-full hover:border-orange-500/50 transition-colors">
-                      <CardContent className="p-5">
-                        {book.featured && <Badge className="mb-2 bg-orange-500/20 text-orange-400 border-orange-500/30">Featured</Badge>}
-                        <h3 className="font-semibold mb-1 line-clamp-1">{book.title}</h3>
-                        <p className="text-xs text-muted-foreground mb-2">{book.author}{book.year ? ` (${book.year})` : ''}</p>
-                        {book.rating && (
-                          <div className="flex items-center gap-1 mb-2">
-                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                            <span className="text-xs">{book.rating.toFixed(1)}</span>
-                          </div>
-                        )}
-                        <p className="text-sm text-muted-foreground line-clamp-2">{book.description}</p>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
+                {books.slice(0, 6).map(book => <BookCard key={book.id} book={book} />)}
               </div>
             </div>
           </div>

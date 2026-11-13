@@ -1,3 +1,4 @@
+import { BookCard } from "@/components/directory/book-card"
 "use client";
 
 import { DirectoryLayout } from "@/components/directory/layout"
@@ -20,6 +21,8 @@ const icons = { About: User, Achievements: Trophy, Publications: BookOpen, Speak
 const labels = { About: "About", Achievements: "Achievements", Publications: "Publications", Speaking: "Speaking", Protocols: "Protocols", Books: "Books" };
 
 type Book = {
+  author: string;
+  featured: boolean;
   id: string;
   slug: string;
   title: string;
@@ -206,44 +209,7 @@ export default function PersonDetails({ person, children }: { person: Person; ch
                     Books by {person.name}
                   </h2>
                   <div className="space-y-4">
-                    {person.Book?.map((book: Book) => (
-                      <Link
-                        key={book.id}
-                        href={`/books/${book.slug}`}
-                        className="block p-4 rounded-lg border border-slate-700 hover:border-orange-500 bg-slate-800/50 hover:bg-slate-800 transition-all group"
-                      >
-                        <div className="flex gap-4">
-                          {book.imageUrl && (
-                            <div className="flex-shrink-0 w-16 h-24 bg-slate-700 rounded overflow-hidden">
-                              <img
-                                src={book.imageUrl}
-                                alt={book.title}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <h3 className="font-semibold text-lg mb-1 group-hover:text-orange-400 transition-colors line-clamp-2">
-                              {book.title}
-                            </h3>
-                            <div className="flex items-center gap-3 text-sm text-slate-400 mb-2">
-                              {book.year && <span>{book.year}</span>}
-                              {book.pages && <span>•</span>}
-                              {book.pages && <span>{book.pages} pages</span>}
-                              {book.rating && <span>•</span>}
-                              {book.rating && (
-                                <span className="flex items-center gap-1">
-                                  ⭐ {book.rating.toFixed(1)}
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-slate-400 text-sm line-clamp-2">
-                              {book.description}
-                            </p>
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
+                    {person.Book?.map(book => <BookCard key={book.id} book={book} />)}
                   </div>
                 </TabsContent>
             </Tabs>
