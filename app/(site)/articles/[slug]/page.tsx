@@ -1,5 +1,6 @@
 import { CoverArtwork } from "@/components/habits/marketplace/protocol-artwork"
 import Markdown from "react-markdown"
+import { profilePillars } from "@/lib/pillars"
 import { articleTags } from "@/lib/article-tags"
 import { LanguageSwitch } from "@/components/habits/site/language-switch"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
@@ -101,8 +102,8 @@ export default async function ArticlePage({ params }: PageProps) {
       orderBy: [{ publishedAt: "desc" }, { slug: "asc" }],
     }),
   ])
-  const categories = [...new Set(entries.map(entry => entry.pillar).filter(Boolean))].sort()
-  const copy = getDictionary(locale).app.articleReader
+  const categories = [...new Set(entries.flatMap(entry => profilePillars(entry.pillar)))].sort()
+  const { articleReader: copy, pillarTag } = getDictionary(locale).app
   const topicSet = new Set(tags.map(tag => tag.toLowerCase()))
   const currentPillar = article.pillar
   const related = candidates.map(candidate => ({
@@ -231,7 +232,7 @@ export default async function ArticlePage({ params }: PageProps) {
             <nav aria-label={copy.categories}>
               <h2 className="mb-2 font-semibold">{copy.categories}</h2>
               <ul className="flex flex-wrap gap-2">{categories.map((pillar) => (
-                <li key={pillar}><Link href={`/articles?pillar=${encodeURIComponent(pillar)}`} className="text-sm capitalize text-primary hover:underline">{pillar}</Link></li>
+                <li key={pillar}><Link href={`/articles?pillar=${encodeURIComponent(pillar)}`} className="text-sm capitalize text-primary hover:underline">{pillarTag.pillars[pillar]}</Link></li>
               ))}</ul>
             </nav>
           </aside>
