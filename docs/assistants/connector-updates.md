@@ -1,6 +1,6 @@
 # Connector updates: getting new tools to ChatGPT and Claude
 
-ChatGPT and Claude load Liberture's MCP tool list (`tools/list`) when the connector is added or refreshed, and keep that copy. Tools published afterwards stay invisible until the user refreshes the connector by hand. The server can't push the change: it is stateless JSON with no session or stream, so `notifications/tools/list_changed` isn't available (see the Later item in `ROADMAP.md`).
+ChatGPT and Claude load Liberture's MCP tool list (`tools/list`) when the connector is added or refreshed, and keep that copy. Tools published afterwards stay invisible until the user refreshes the connector by hand. The server can't push the change: it is stateless JSON with no session or stream, so `notifications/tools/list_changed` isn't available.
 
 So Liberture keeps track instead. It records which tool list each connection last loaded, and tells the user and the assistant when that list is behind.
 

@@ -40,7 +40,7 @@ The connector URL is the same for everyone: `https://liberture.com/mcp`.
 
 Then ask "what's left today?". Technical reference: [/docs](https://liberture.com/docs) (MCP tools, scopes, the `/api/v1` REST API and the OpenAPI schema).
 
-When new tools ship, ChatGPT and Claude keep their old tool list until you refresh the connector. Settings → Assistants shows when each one is behind; steps: [/docs/updates](https://liberture.com/docs/updates). How the tracking works: [docs/CONNECTOR-UPDATES.md](docs/CONNECTOR-UPDATES.md).
+When new tools ship, ChatGPT and Claude keep their old tool list until you refresh the connector. Settings → Assistants shows when each one is behind; steps: [/docs/updates](https://liberture.com/docs/updates). How the tracking works: [connector updates](docs/assistants/connector-updates.md).
 
 ## Tech stack
 
@@ -67,8 +67,10 @@ pnpm dev
 | `ADMIN_SECRET` | Optional. Bearer secret for the tracker's admin endpoints |
 | `HABIT_TRACKER_TIME_ZONE` | Optional. Default time zone for "today" in the assistant API |
 | `RESEND_API_KEY` | Optional. Transactional email |
-| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | Optional. Web Push for reminders and coach check-ins with the app closed (`node scripts/generate-vapid-keys.mjs`). See [docs/REMINDERS.md](docs/REMINDERS.md) |
+| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | Optional. Web Push for reminders and coach check-ins with the app closed (`node scripts/generate-vapid-keys.mjs`). See [push reminders](docs/operations/reminders.md) |
 | `REMINDER_SCHEDULER` | Optional. `off` disables the server reminder scheduler |
+
+Repository guides for operators, contributors and integration maintainers are in the [documentation index](docs/README.md).
 
 ## Project layout
 
@@ -85,11 +87,11 @@ prisma/            schema (content and habit tables)
 
 ## Deployment
 
-For production configuration, backup scheduling, and restore checks, see [Production operations](DEPLOYMENT_SUMMARY.md).
+For production configuration, backup scheduling, and restore checks, see [Production operations](docs/operations/production.md).
 
 Pushing to `master` deploys liberture.com through `.github/workflows/deploy.yml`. A Docker setup (`Dockerfile`, `compose.liberture-habits.yaml`) runs the same app with its own Postgres.
 
-Reminders that arrive with the app closed need VAPID keys in the server environment; setup, behaviour and testing are in [docs/REMINDERS.md](docs/REMINDERS.md).
+Reminders that arrive with the app closed need VAPID keys in the server environment; setup, behaviour and testing are in [push reminders](docs/operations/reminders.md).
 
 ## License
 

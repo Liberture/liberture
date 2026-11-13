@@ -14,7 +14,7 @@ It prints three lines. Add them to the server environment:
 
 | Deployment | Where |
 |---|---|
-| liberture.com (systemd) | Keep the existing `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` in the host runtime environment. See [Production operations](../DEPLOYMENT_SUMMARY.md). |
+| liberture.com (systemd) | Keep the existing `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` in the host runtime environment. See [Production operations](production.md). |
 | Docker (`compose.liberture-habits.yaml`) | `.env.liberture-habits`, then `up -d --no-deps app` |
 | Local | `.env` |
 

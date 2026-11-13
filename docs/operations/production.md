@@ -1,6 +1,6 @@
 # Production operations
 
-GitHub Actions tests and builds each push to `master`. A restricted SSH key lets `liberture-deploy` install a release under `/srv/liberture/releases`, prepare the app database, and restart only the Liberture service. The deploy switches the `current` symlink and checks a database-backed endpoint. If that check fails, it reactivates the previous release. Database schema changes persist across a code rollback. See the [workflow](.github/workflows/deploy.yml) and [host commands and units](ops/).
+GitHub Actions tests and builds each push to `master`. A restricted SSH key lets `liberture-deploy` install a release under `/srv/liberture/releases`, prepare the app database, and restart only the Liberture service. The deploy switches the `current` symlink and checks a database-backed endpoint. If that check fails, it reactivates the previous release. Database schema changes persist across a code rollback. See the [workflow](../../.github/workflows/deploy.yml) and [host commands and units](../../ops/).
 
 The web service runs as `liberture` on loopback behind the reverse proxy. Systemd loads the database URL, mail key and stable Web Push keys from the root-only `/etc/liberture/app.env`. Update runtime secrets there and restart `liberture.service`. CI uses a dedicated deployment key and a pinned SSH host key.
 
@@ -25,9 +25,9 @@ If the migration fails, the transaction rolls back and the legacy service can re
 | Service | Use and configuration |
 |---|---|
 | Google reCAPTCHA | The public newsletter loads invisible reCAPTCHA v2 when the signup section enters view and verifies on submission. Register a key pair for Invisible reCAPTCHA v2. Configure `RECAPTCHA_SITE_KEY`, `RECAPTCHA_SECRET_KEY`, and `RECAPTCHA_HOSTNAMES` in the web service environment. Subscribers are searchable under `/admin/subscribers`. |
-| Resend | The [mail helpers](lib/resend.ts) send from `hello@liberture.com`. The production service reads `RESEND_API_KEY` from its runtime environment. Manage the sending-only key for `liberture.com` in the Liberture Resend account. |
-| Google Books | The [Goodreads enrichment script](scripts/goodreads-scraper/step3-enrich-and-normalize.ts) reads `GOOGLE_BOOKS_API_KEY` from the environment where the scraper runs. Its Google Cloud key is restricted to the Books API. |
-| Web Push | Browser reminders use stable VAPID keys from the web service’s runtime environment. See [Push reminders](docs/REMINDERS.md). |
+| Resend | The [mail helpers](../../lib/resend.ts) send from `hello@liberture.com`. The production service reads `RESEND_API_KEY` from its runtime environment. Manage the sending-only key for `liberture.com` in the Liberture Resend account. |
+| Google Books | The [Goodreads enrichment script](../../scripts/goodreads-scraper/step3-enrich-and-normalize.ts) reads `GOOGLE_BOOKS_API_KEY` from the environment where the scraper runs. Its Google Cloud key is restricted to the Books API. |
+| Web Push | Browser reminders use stable VAPID keys from the web service’s runtime environment. See [Push reminders](reminders.md). |
 | Hetzner Object Storage | The backup service stores PostgreSQL dumps in a private bucket. The schedule, retention and restore procedure are below. |
 
 ## Database backups
