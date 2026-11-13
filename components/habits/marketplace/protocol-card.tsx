@@ -37,8 +37,13 @@ export function ProtocolCard({ protocol, adopted, onRead, onAdopt, href }: Proto
         adopted ? cn(styles.border, styles.background) : "border-border bg-card/60 hover:border-border/80"
       )}
     >
-      <div className="-mx-5 -mt-5 overflow-hidden rounded-t-xl border-b border-border">
+      <div className="relative -mx-5 -mt-5 overflow-hidden rounded-t-xl border-b border-border">
         <ProtocolArtwork slug={protocol.slug} loading="lazy" />
+        {protocol.featured && !adopted ? (
+          <span className="pointer-events-none absolute right-2 top-2 inline-flex items-center rounded-full border border-primary/30 bg-card px-2.5 py-1 text-xs font-medium text-primary">
+            {t.featured}
+          </span>
+        ) : null}
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <PillarTag pillar={protocol.pillar} />
@@ -53,11 +58,6 @@ export function ProtocolCard({ protocol, adopted, onRead, onAdopt, href }: Proto
         >
           {labels.costTier[protocol.costTier]}
         </span></HelpTooltip>
-        {protocol.featured && !adopted ? (
-          <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-            {t.featured}
-          </span>
-        ) : null}
       </div>
 
       <div className="space-y-2">

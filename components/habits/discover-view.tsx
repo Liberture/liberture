@@ -51,7 +51,7 @@ export function DiscoverView({
   const active: DiscoverTab = coachConfigured ? tab : "catalog"
 
   const catalog = (
-    <MarketplaceView habits={habits} onAdoptProtocol={onAdoptProtocol} onAdoptHabit={onAdoptHabit} />
+    <MarketplaceView trackerLayout habits={habits} onAdoptProtocol={onAdoptProtocol} onAdoptHabit={onAdoptHabit} />
   )
 
   if (!coachConfigured) return catalog

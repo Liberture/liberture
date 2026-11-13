@@ -188,7 +188,7 @@ export function HabitMatrix({ habits, completions, onToggleCompletion, weekStart
 
   if (habits.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-border bg-card/40 p-10 text-center">
+      <div className="flex-1 rounded-xl border border-dashed border-border bg-card/40 p-10 text-center">
         <CalendarRange className="mx-auto mb-3 h-8 w-8 text-muted-foreground" aria-hidden />
         <p className="text-sm text-muted-foreground">{t.empty}</p>
       </div>
@@ -196,7 +196,7 @@ export function HabitMatrix({ habits, completions, onToggleCompletion, weekStart
   }
 
   return (
-    <section className="overflow-hidden rounded-xl border border-border bg-card/60 shadow-sm backdrop-blur-sm">
+    <section className="flex flex-1 flex-col overflow-hidden rounded-xl border border-border bg-card/60 shadow-sm backdrop-blur-sm">
       <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-5 py-4">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <div className="flex items-center gap-2">
@@ -230,7 +230,7 @@ export function HabitMatrix({ habits, completions, onToggleCompletion, weekStart
         </div>
       </header>
 
-      <div className="flex">
+      <div className="flex flex-1">
         {/* Habit names stay put while the day columns scroll. */}
         <div className="w-[280px] shrink-0 border-r border-border">
           <div className="h-8 border-b border-border/50" aria-hidden />

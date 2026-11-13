@@ -1,13 +1,12 @@
 "use client"
 
-import { Card } from "@/components/habits/ui/card"
-import { Badge } from "@/components/habits/ui/badge"
+import { HelpTooltip } from "@/components/ui/tooltip"
 import { Flame, Award, Clock } from "lucide-react"
 import { StreakData } from "@/lib/habits/types"
 import { getNextMilestone } from "@/lib/habits/habit-utils"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "@/components/i18n/locale-provider"
-import { formatMessage } from "@/lib/i18n-format"
+import { formatMessage, plural } from "@/lib/i18n-format"
 
 interface StreakDisplayProps {
   streakData: StreakData
@@ -25,8 +24,20 @@ export function StreakDisplay({ streakData, compact = false }: StreakDisplayProp
   const compactNumberClass = (value: number) =>
     cn("font-semibold leading-tight text-foreground tabular-nums", value >= 100 ? "text-base" : "text-lg")
 
+  if (compact) {
+    const units = weeks ? t.weeks : t.days
+    const label = formatMessage(t.summary, { current: plural(units, current), best: plural(units, longest) })
+    return (
+      <HelpTooltip label={label}>
+        <button type="button" aria-label={label} className="inline-flex items-center gap-1 rounded px-1 py-1 text-sm font-semibold tabular-nums">
+          <Flame aria-hidden className="size-4 text-exercise" /> {current}
+        </button>
+      </HelpTooltip>
+    )
+  }
+
   return (
-    <div className={cn("flex max-w-full flex-wrap items-center gap-y-1", compact ? "justify-center gap-x-2 [&>.w-px]:hidden [&_svg]:size-4" : "gap-x-3")}>
+    <div className="flex max-w-full flex-wrap items-center gap-x-3 gap-y-1">
       {/* Current Streak */}
       <div className="flex min-w-0 items-center gap-2">
         <div className="relative flex-shrink-0">

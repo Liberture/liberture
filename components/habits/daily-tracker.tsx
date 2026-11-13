@@ -1,7 +1,9 @@
 "use client"
 
 import { memo, useCallback, useMemo, useState } from "react"
-import { addDays, differenceInCalendarDays, format, isSameDay, isValid, parseISO, startOfDay } from "date-fns"
+import { Calendar } from "@/components/habits/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/habits/ui/popover"
+import { addDays, differenceInCalendarDays, format, isSameDay, startOfDay } from "date-fns"
 import { CalendarDays, ChevronLeft, ChevronRight, Compass, Flame, Plus, Store, TrendingUp } from "lucide-react"
 
 import { HabitRow } from "@/components/habits/tracker/habit-row"
@@ -207,7 +209,8 @@ export const DailyTracker = memo(function DailyTracker({
   const progress = todays.length === 0 ? 0 : Math.round((doneToday / todays.length) * 100)
 
   const isToday = isSameDay(viewDate, new Date())
-  const todayStr = format(new Date(), "yyyy-MM-dd")
+  const [calendarOpen, setCalendarOpen] = useState(false)
+  const today = startOfDay(new Date())
   const label = isToday
     ? t.today
     : viewDate.toLocaleDateString(locale, { weekday: "long", month: "short", day: "numeric" })
@@ -272,23 +275,29 @@ export const DailyTracker = memo(function DailyTracker({
               >
                 <ChevronRight className="h-4 w-4" aria-hidden />
               </button>
-              {/* Jump to any past day. The native picker is the accessible,
-                  touch-friendly one on every platform. */}
-              <label className="relative flex cursor-pointer items-center rounded-lg border border-white/10 p-2 text-muted-foreground transition-colors focus-within:ring-2 focus-within:ring-ring hover:border-white/25 hover:text-foreground">
-                <CalendarDays className="h-4 w-4" aria-hidden />
-                <span className="sr-only">{t.pickDate}</span>
-                <input
-                  type="date"
-                  value={viewDateStr}
-                  max={todayStr}
-                  onChange={(event) => {
-                    const picked = parseISO(event.target.value)
-                    if (!isValid(picked)) return
-                    setOffset(Math.min(0, differenceInCalendarDays(picked, startOfDay(new Date()))))
-                  }}
-                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                />
-              </label>
+              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <button type="button" aria-label={t.pickDate} className="rounded-lg border border-white/10 p-2 text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring">
+                    <CalendarDays className="size-4" aria-hidden />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="end" aria-label={t.pickDate} className="w-auto p-3">
+                  <Calendar
+                    mode="single"
+                    required
+                    autoFocus
+                    selected={viewDate}
+                    defaultMonth={viewDate}
+                    endMonth={today}
+                    disabled={{ after: today }}
+                    weekStartsOn={weekStartsOn}
+                    onSelect={day => {
+                      setOffset(differenceInCalendarDays(day, today))
+                      setCalendarOpen(false)
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
               {!isToday ? (
                 <button
                   type="button"

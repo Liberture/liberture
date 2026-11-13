@@ -604,3 +604,14 @@
   from { opacity: .2; transform: translateY(var(--slide-from)); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+@media (hover: hover) and (pointer: fine) {
+  tr:not(:has(.week-edit-region:hover, .week-row-actions:focus-within)) .week-edit {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .week-row-actions:not(:hover):not(:focus-within) {
+    background: transparent;
+  }
+}

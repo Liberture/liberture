@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { BarChart3, CalendarCheck, CalendarDays, Store, ListTodo } from "lucide-react"
 
-export type ActiveView = "habits" | "todos" | "calendar" | "stats" | "discover"
+export type ActiveView = "habits" | "todos" | "calendar" | "stats" | "catalog"
 export type DiscoverTab = "catalog" | "coach"
 
 /**
@@ -16,7 +16,7 @@ export const VIEWS: Array<{ id: ActiveView; icon: typeof CalendarCheck }> = [
   { id: "todos", icon: ListTodo },
   { id: "calendar", icon: CalendarDays },
   { id: "stats", icon: BarChart3 },
-  { id: "discover", icon: Store },
+  { id: "catalog", icon: Store },
 ]
 
 const VIEW_ORDER: ActiveView[] = VIEWS.map((v) => v.id)
@@ -39,8 +39,9 @@ function readRequestedView(): RequestedView {
   const params = new URLSearchParams(window.location.search)
   const requested = params.get("view")
   const tab: DiscoverTab = params.get("tab") === "coach" ? "coach" : "catalog"
-  if (requested === "market") return { ...fallback, view: "discover", tab: "catalog" }
-  if (requested === "coach") return { ...fallback, view: "discover", tab: "coach" }
+  if (requested === "discover") return { ...fallback, view: "catalog", tab }
+  if (requested === "market") return { ...fallback, view: "catalog", tab: "catalog" }
+  if (requested === "coach") return { ...fallback, view: "catalog", tab: "coach" }
   if (requested === "morning") return { ...fallback, morning: true }
   if (VIEW_ORDER.includes(requested as ActiveView)) return { ...fallback, view: requested as ActiveView, tab }
   return fallback
@@ -70,7 +71,7 @@ export function useTrackerView(coachConfigured: boolean) {
     url.searchParams.set("view", activeView)
     // The requested tab, not the effective one: the coach status arrives
     // asynchronously and must not strip `tab=coach` before it does.
-    if (activeView === "discover" && discoverTab === "coach") url.searchParams.set("tab", "coach")
+    if (activeView === "catalog" && discoverTab === "coach") url.searchParams.set("tab", "coach")
     else url.searchParams.delete("tab")
     const next = `${url.pathname}${url.search}${url.hash}`
     if (next !== `${window.location.pathname}${window.location.search}${window.location.hash}`) {

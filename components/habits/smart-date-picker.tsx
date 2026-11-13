@@ -1,9 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { Calendar as CalendarIcon, Check, ChevronRight, ChevronLeft, X } from "lucide-react"
-import { format, addDays, startOfToday, startOfTomorrow, isSameDay, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isValid } from "date-fns"
+import { Calendar as CalendarIcon, X } from "lucide-react"
+import { format, startOfToday, startOfTomorrow, isSameDay, parseISO, isToday, isValid } from "date-fns"
 import { cn } from "@/lib/utils"
+import { Calendar } from "@/components/habits/ui/calendar"
 import { Button } from "@/components/habits/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/habits/ui/popover"
 import { useIsMobile } from "@/hooks/use-mobile"
@@ -142,27 +143,13 @@ function DatePickerContent({
   const t = useTranslations().habits.app.smartDatePicker
   const dateLocale = useDateLocale()
   const [view, setView] = React.useState<"quick" | "calendar">("quick")
-  const [currentMonth, setCurrentMonth] = React.useState(new Date())
-
-  const days = React.useMemo(() => {
-    try {
-      const start = startOfMonth(currentMonth)
-      const end = endOfMonth(currentMonth)
-      if (!isValid(start) || !isValid(end)) return []
-      return eachDayOfInterval({ start, end })
-    } catch {
-      return []
-    }
-  }, [currentMonth])
-
-  const nextMonth = () => setCurrentMonth(addDays(endOfMonth(currentMonth), 1))
-  const prevMonth = () => setCurrentMonth(addDays(startOfMonth(currentMonth), -1))
+  const selected = parseISO(value)
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between border-b border-border pb-2">
         <h4 className="font-medium text-sm">
-          {view === "quick" ? t.suggested : isValid(currentMonth) ? format(currentMonth, "MMMM yyyy", { locale: dateLocale }) : t.calendar}
+          {view === "quick" ? t.suggested : t.calendar}
         </h4>
         <Button type="button"
           variant="ghost" 
@@ -219,53 +206,16 @@ function DatePickerContent({
             </button>
         </div>
       ) : (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <Button type="button" variant="outline" size="icon" className="h-7 w-7" onClick={prevMonth} aria-label={t.prevMonth}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <span className="text-xs font-medium">{isValid(currentMonth) ? format(currentMonth, "MMM yyyy", { locale: dateLocale }) : ""}</span>
-            <Button type="button" variant="outline" size="icon" className="h-7 w-7" onClick={nextMonth} aria-label={t.nextMonth}>
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-          
-          <div className="grid grid-cols-7 gap-1">
-            {t.weekdayInitials.map((d, i) => (
-              <div key={i} className="text-[10px] font-bold text-center text-muted-foreground py-1">
-                {d}
-              </div>
-            ))}
-            {/* Empty cells for padding */}
-            {isValid(currentMonth) && Array.from({ length: startOfMonth(currentMonth).getDay() }).map((_, i) => (
-              <div key={`pad-${i}`} />
-            ))}
-            {days.map((day) => {
-              const dateStr = format(day, "yyyy-MM-dd")
-              const isSelected = value === dateStr
-              return (
-                <button
-                  type="button"
-                  key={dateStr}
-                  onClick={() => {
-                    onChange(dateStr)
-                    onClose()
-                  }}
-                  className={cn(
-                    "h-8 w-full text-xs rounded-md transition-all flex items-center justify-center",
-                    isSelected 
-                      ? "bg-primary text-primary-foreground font-bold" 
-                      : isToday(day)
-                        ? "bg-primary/10 text-primary border border-primary/20"
-                        : "hover:bg-muted"
-                  )}
-                >
-                  {day.getDate()}
-                </button>
-              )
-            })}
-          </div>
-        </div>
+        <Calendar
+          mode="single"
+          selected={isValid(selected) ? selected : undefined}
+          defaultMonth={isValid(selected) ? selected : undefined}
+          onSelect={day => {
+            if (!day) return
+            onChange(format(day, "yyyy-MM-dd"))
+            onClose()
+          }}
+        />
       )}
     </div>
   )

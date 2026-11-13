@@ -9,8 +9,7 @@ import { Check, CircleAlert, Loader2, Archive, BookOpen, Rows3, LayoutGrid, Cale
 import Link from "@/components/i18n/localized-link"
 import { LibertureLogoStatic } from "@/components/branding"
 import { HabitGrid } from "@/components/habits/habit-grid"
-import { AddHabitDialog } from "@/components/habits/add-habit-dialog"
-import { EditHabitDialog } from "@/components/habits/edit-habit-dialog"
+import { HabitDialog } from "@/components/habits/habit-dialog"
 import { AccountHeader } from "@/components/habits/account-header"
 import { takePostLoginIntent } from "@/lib/habits/post-login-intent"
 import { TodoList } from "@/components/habits/todo-list"
@@ -108,8 +107,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
   const [coachConfigured, setCoachConfigured] = useState(false)
   const { activeView, discoverTab, setDiscoverTab, switchActiveView, viewOrder, morningRequested } = useTrackerView(coachConfigured)
 
-  const [editingHabitForDialog, setEditingHabitForDialog] = useState<string | null>(null)
-  const [showAddDialog, setShowAddDialog] = useState(false)
+  const [habitDialog, setHabitDialog] = useState<{ habitId?: string } | null>(null)
   const [settingsTab, setSettingsTab] = useState<SettingsTab | null>(null)
   const [editingTodoId, setEditingTodoId] = useState<string | null>(null)
   const [showArchived, setShowArchived] = useState(false)
@@ -290,9 +288,9 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
   const archivedCount = useMemo(() => habits.filter((h) => h.archived).length, [habits])
   const calendarHabits = useMemo(() => habits.filter((h) => !h.archived), [habits])
 
-  const openAddDialog = useCallback(() => setShowAddDialog(true), [])
-  const openHabitEditor = useCallback((habitId: string) => setEditingHabitForDialog(habitId), [])
-  const openDiscover = useCallback(() => switchActiveView("discover", "catalog"), [switchActiveView])
+  const openAddDialog = useCallback(() => setHabitDialog({}), [])
+  const openHabitEditor = useCallback((habitId: string) => setHabitDialog({ habitId }), [])
+  const openDiscover = useCallback(() => switchActiveView("catalog", "catalog"), [switchActiveView])
   const selectView = useCallback((view: ActiveView) => switchActiveView(view), [switchActiveView])
 
   /** "Log data" on a habit row: always the data-entry modal for that day. */
@@ -378,7 +376,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
     </span></HelpTooltip>
   )
 
-  const editingHabit = editingHabitForDialog ? habits.find((h) => h.id === editingHabitForDialog) : undefined
+  const editingHabit = habitDialog?.habitId ? habits.find((h) => h.id === habitDialog.habitId) : undefined
   const editingTodo = editingTodoId ? todos.find((item) => item.id === editingTodoId) : undefined
 
   const renderView = (view: ActiveView) => {
@@ -421,15 +419,15 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
               </TabsTrigger>
             ))}
           </TabsList>
-          <div className={cn("col-start-2 row-start-1 min-w-0 space-y-4 md:space-y-6", effectiveLayout !== "day" && "self-center")}>
+          <div className={cn("col-start-2 row-start-1 min-w-0 space-y-4 md:space-y-6", effectiveLayout !== "day" && "self-center lg:flex lg:flex-col lg:self-stretch")}>
             {onboardingState.handedOffToAssistant && !onboardingState.assistantCardDismissed && (
               <AssistantStartCard connected={connectedKinds} onDismiss={actions.dismissAssistantCard} />
             )}
 
             <BackupReminder habits={habits} lastBackupAt={storageData?.lastBackupAt} onExport={actions.exportData} />
 
-            <TabsContent value={effectiveLayout}>
-              <div ref={layoutContent} key={effectiveLayout} data-slide={slideDirection} className="habit-layout-content space-y-4 md:space-y-6">
+            <TabsContent value={effectiveLayout} className={effectiveLayout !== "day" ? "lg:flex lg:flex-1 lg:flex-col" : undefined}>
+              <div ref={layoutContent} key={effectiveLayout} data-slide={slideDirection} className={cn("habit-layout-content space-y-4 md:space-y-6", effectiveLayout !== "day" && "lg:flex lg:flex-1 lg:flex-col")}>
                 {effectiveLayout === "day" ? (
                   <DailyTracker key={tourIds !== null ? "tour" : "tracker"}
                     habits={habits}
@@ -617,24 +615,20 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
 
       <MobileNav activeView={activeView} onSelect={selectView} status={saveStatus} />
 
-      {showAddDialog && (
-        <AddHabitDialog
-          onSave={actions.addHabit}
-          onClose={() => setShowAddDialog(false)}
-          defaultTime={preferences.defaultReminderTime}
-        />
-      )}
-
-      {editingHabit && (
-        <EditHabitDialog
+      {habitDialog && (!habitDialog.habitId || editingHabit) && (
+        <HabitDialog
+          key={editingHabit?.id ?? "create"}
+          mode={editingHabit ? "edit" : "create"}
           habit={editingHabit}
           completions={completions}
           weekStartsOn={preferences.weekStartsOn ?? 1}
-          onSave={actions.updateHabit}
+          defaultTime={preferences.defaultReminderTime}
+          onCreate={actions.addHabit}
+          onUpdate={actions.updateHabit}
           onDelete={actions.deleteHabitById}
           onArchive={actions.archiveHabit}
           onUnarchive={actions.unarchiveHabit}
-          onClose={() => setEditingHabitForDialog(null)}
+          onClose={() => setHabitDialog(null)}
         />
       )}
 

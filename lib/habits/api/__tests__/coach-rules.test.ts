@@ -35,7 +35,7 @@ describe("morning check-in", () => {
     const message = morningCheckIn(data(), [], at("07:30"))!
     expect(message.title).toBe("Two priorities for today")
     expect(message.body).toBe("Meditate at 07:00 · Pay rent (overdue). First step: sit for 2 minutes.")
-    expect(message.url).toBe("/tracker?view=discover")
+    expect(message.url).toBe("/tracker?view=catalog")
     expect(message.body).not.toContain("Old habit")
   })
 

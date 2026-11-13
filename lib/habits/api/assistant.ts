@@ -60,7 +60,7 @@ export function catalogLinks(kind: "protocol" | "habit" | "custom", slug: string
   }
   // Liberture's public library only carries part of the catalog; the rest is
   // readable in the tracker's marketplace.
-  if (!PUBLIC_PROTOCOL_SLUGS.has(protocolSlug)) return { infoUrl: `${origin}/tracker?view=market`, imageUrl }
+  if (!PUBLIC_PROTOCOL_SLUGS.has(protocolSlug)) return { infoUrl: `${origin}/tracker?view=catalog`, imageUrl }
   return { infoUrl: `${origin}/protocols/${protocolSlug}`, imageUrl }
 }
 

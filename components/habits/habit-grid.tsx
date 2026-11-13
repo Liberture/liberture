@@ -126,18 +126,17 @@ function byTime(a: Habit, b: Habit): number {
 const PILLAR_RANK = new Map(PILLAR_IDS.map((pillar, index) => [pillar, index]))
 
 /**
- * The five info columns on the left of the desktop table. They're resizable so
+ * The info columns on the left of the desktop table. They're resizable so
  * a wide habit name or a narrow screen can trade space against the day columns;
  * drag a divider left to shrink its column and hand the room to the days.
  */
-type InfoColKey = "habit" | "actions" | "time" | "schedule" | "streak"
+type InfoColKey = "habit" | "time" | "schedule" | "streak"
 
 const INFO_COLS: Array<{ key: InfoColKey; min: number; default: number }> = [
-  { key: "habit", min: 140, default: 210 },
-  { key: "actions", min: 56, default: 96 },
+  { key: "habit", min: 140, default: 306 },
   { key: "time", min: 56, default: 76 },
   { key: "schedule", min: 70, default: 112 },
-  { key: "streak", min: 100, default: 158 },
+  { key: "streak", min: 64, default: 80 },
 ]
 
 const DAY_COL_WIDTH = 46
@@ -148,20 +147,26 @@ const DEFAULT_WIDTHS = Object.fromEntries(INFO_COLS.map((c) => [c.key, c.default
 
 const PREVIOUS_DEFAULTS: Partial<ColWidths> = { habit: 280, time: 88, streak: 264 }
 
-const WIDTHS_STORAGE_KEY = "habit-grid:info-col-widths:v2"
+const WIDTHS_STORAGE_KEY = "habit-grid:info-col-widths:v3"
 
 function loadWidths(): ColWidths {
   if (typeof window === "undefined") return DEFAULT_WIDTHS
   try {
     const saved = window.localStorage.getItem(WIDTHS_STORAGE_KEY)
-    const raw = saved ?? window.localStorage.getItem("habit-grid:info-col-widths")
+    const v2 = window.localStorage.getItem("habit-grid:info-col-widths:v2")
+    const raw = saved ?? v2 ?? window.localStorage.getItem("habit-grid:info-col-widths")
     if (!raw) return DEFAULT_WIDTHS
-    const parsed = JSON.parse(raw) as Partial<Record<InfoColKey, unknown>>
+    const parsed = JSON.parse(raw) as Partial<Record<InfoColKey | "actions", unknown>>
     const next = { ...DEFAULT_WIDTHS }
+    const previousDefaults: Partial<ColWidths> = v2 ? { streak: 158 } : PREVIOUS_DEFAULTS
     for (const col of INFO_COLS) {
       const value = parsed[col.key]
-      if (typeof value === "number" && Number.isFinite(value) && (saved !== null || value !== PREVIOUS_DEFAULTS[col.key])) {
-        next[col.key] = Math.max(col.min, Math.round(value))
+      if (typeof value !== "number" || !Number.isFinite(value)) continue
+      if (saved === null && value === previousDefaults[col.key]) continue
+      next[col.key] = Math.max(col.min, Math.round(value))
+      if (saved === null && col.key === "habit") {
+        const actions = parsed.actions
+        next.habit += typeof actions === "number" && Number.isFinite(actions) ? Math.max(56, Math.round(actions)) : 96
       }
     }
     return next
@@ -187,11 +192,11 @@ const MobileHabitCard = memo(function MobileHabitCard({
   return (
     <div
       className={cn(
-        "rounded-xl border border-border bg-card p-4 shadow-sm active:scale-[0.98] transition-transform",
+        "rounded-xl border border-border bg-card p-3 shadow-sm active:scale-[0.98] transition-transform",
         habit.archived && "opacity-60"
       )}
     >
-      <div className="flex items-start justify-between mb-3">
+      <div className="flex items-start justify-between mb-2">
         <div className="flex items-center gap-2 flex-1 min-w-0">
           <HelpTooltip label={t.pillars[pillar]}><div
             className="h-3 w-3 rounded-full flex-shrink-0"
@@ -257,9 +262,9 @@ const MobileHabitCard = memo(function MobileHabitCard({
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-3 text-xs">
+      <div className="flex items-center justify-between mb-2 text-xs">
         <span className="text-muted-foreground">{scheduleText}</span>
-        <StreakDisplay
+        <StreakDisplay compact
           streakData={{
             current,
             // calculateStreak already folds in the stored longest when its unit matches.
@@ -359,7 +364,7 @@ const DesktopHabitRow = memo(function DesktopHabitRow({
 
   return (
     <tr className={cn("border-b border-border/50 transition-colors hover:bg-accent/30", habit.archived && "opacity-60")}>
-      <td className="sticky left-0 z-20 overflow-hidden bg-card/95 backdrop-blur-sm px-4 py-3 border-r border-border/50">
+      <td className="week-edit-region sticky left-0 z-20 overflow-hidden bg-card/95 backdrop-blur-sm px-3 py-1 border-r border-border/50">
         <div className="flex min-w-0 items-center gap-3">
           <HelpTooltip label={t.pillars[pillar]}><div
             className="h-3.5 w-3.5 flex-shrink-0 rounded-full shadow-sm"
@@ -403,13 +408,11 @@ const DesktopHabitRow = memo(function DesktopHabitRow({
             )}
           </div>
         </div>
-      </td>
-      <td className="overflow-hidden px-3 py-3">
-        <div className="flex items-center justify-center gap-1.5">
+        <div className="week-row-actions absolute right-1 top-1/2 flex -translate-y-1/2 items-center gap-1 rounded-lg bg-card">
           {habit.archived && onUnarchiveHabit && (
             <HelpTooltip label={t.restoreHabit}><button
               onClick={() => onUnarchiveHabit(habit.id)}
-              className="flex h-10 items-center gap-1.5 px-3 rounded-lg border border-primary/50 bg-primary/10 hover:bg-primary/20 transition-colors text-primary text-xs font-medium group"
+              className="flex h-8 items-center gap-1 px-2 rounded-lg border border-primary/50 bg-primary/10 hover:bg-primary/20 transition-colors text-primary text-xs font-medium group"
             >
               <ArchiveRestore className="h-3.5 w-3.5" />
               {t.restore}
@@ -417,18 +420,18 @@ const DesktopHabitRow = memo(function DesktopHabitRow({
           )}
           <HelpTooltip label={t.editHabit}><button
             onClick={() => onEditHabit?.(habit.id)}
-            className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-secondary/50 hover:bg-primary/10 hover:border-primary transition-colors group"
+            className="week-edit flex size-8 items-center justify-center rounded-lg border border-border bg-card hover:border-primary"
             aria-label={formatMessage(t.editHabitNamed, { name: habit.name })}
           >
             <Pencil className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
           </button></HelpTooltip>
         </div>
       </td>
-      <td className="overflow-hidden truncate whitespace-nowrap px-4 py-3 text-sm text-muted-foreground font-mono">{habit.time}</td>
-      <td className="overflow-hidden truncate whitespace-nowrap px-4 py-3">
+      <td className="week-edit-region overflow-hidden truncate whitespace-nowrap px-2 py-1 text-sm text-muted-foreground font-mono">{habit.time}</td>
+      <td className="week-edit-region overflow-hidden truncate whitespace-nowrap px-2 py-1">
         <span className="text-xs text-muted-foreground">{scheduleText}</span>
       </td>
-      <td className="overflow-hidden px-1 py-3">
+      <td className="overflow-hidden px-1 py-1">
         <div className="flex flex-col items-center">
           <StreakDisplay compact
             streakData={{
@@ -505,7 +508,7 @@ const DesktopHabitRow = memo(function DesktopHabitRow({
         )
 
         return (
-          <td key={di.iso} className={cn("px-1 py-2", di.isTodayFlag && "bg-muted/40")}>
+          <td key={di.iso} className={cn("px-1 py-1", di.isTodayFlag && "bg-muted/40")}>
             {hasData ? (
               <HabitDataTooltip completion={completion!} habit={habit}>
                 {cellButton}
@@ -702,9 +705,8 @@ export function HabitGrid({
     INFO_COLS.reduce((sum, col) => sum + colWidths[col.key], 0) + dateInfos.length * DAY_COL_WIDTH
 
   const sortToggle = (
-    // inline-flex + self-start so the pill hugs its two buttons; as a plain
-    // `flex` block it stretched to the full width of the sticky Habit column.
-    <div className="inline-flex w-fit self-start items-center gap-0.5 rounded-lg bg-background/70 p-0.5">
+    <div role="group" aria-label={t.organizeBy} className="flex items-center gap-1 text-xs">
+      <span className="mr-1 font-medium text-muted-foreground">{t.organizeBy}</span>
       {([
         ["time", t.sortTime, t.sortByTime, Clock],
         ["category", t.sortCategory, t.sortByCategory, Layers],
@@ -727,19 +729,20 @@ export function HabitGrid({
     </div>
   )
 
+  const toolbar = (
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      {sortToggle}
+      <Button onClick={onAddHabit} size="sm" className="h-8 gap-1.5 px-3 text-xs">
+        <Plus className="size-3.5" /> {isMobile ? t.add : t.addHabit}
+      </Button>
+    </div>
+  )
+
   if (isMobile) {
     return (
       <div className="space-y-3">
-        <div className="flex items-center justify-between gap-2">
-          <h2 className="text-base font-semibold text-foreground">{t.yourHabits}</h2>
-          <div className="flex items-center gap-2">
-            {sortToggle}
-            <Button onClick={onAddHabit} size="sm" className="gap-1 h-10 text-xs">
-              <Plus className="h-3 w-3" />
-              {t.add}
-            </Button>
-          </div>
-        </div>
+        <h2 className="text-base font-semibold text-foreground">{t.yourHabits}</h2>
+        {toolbar}
 
         {habits.length === 0 ? (
           <div className="py-12 text-center rounded-xl border border-border bg-card">
@@ -787,7 +790,8 @@ export function HabitGrid({
   }
 
   return (
-    <div className="mx-auto w-full overflow-hidden rounded-xl border border-border bg-card shadow-sm" style={{ maxWidth: tableWidth + 2 }}>
+    <div className="mx-auto w-full flex-1 overflow-hidden rounded-xl border border-border bg-card shadow-sm" style={{ maxWidth: tableWidth + 2 }}>
+      <div className="border-b border-border px-3 py-2">{toolbar}</div>
       <div data-no-swipe className="overflow-x-auto custom-scrollbar horizontal-touch-scroll">
         <table className="table-fixed border-separate border-spacing-0" style={{ width: tableWidth }}>
           <colgroup>
@@ -801,34 +805,15 @@ export function HabitGrid({
           <thead>
             <tr className="border-b border-border bg-muted/30">
               <th className="group/col sticky left-0 z-30 bg-muted/95 backdrop-blur-sm px-4 py-3 text-left text-sm font-semibold text-foreground relative">
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between gap-3">
-                    <span>{t.columns.habit}</span>
-                    <Button onClick={onAddHabit} size="sm" className="h-8 gap-1.5 bg-primary px-3 text-xs text-primary-foreground hover:bg-primary/90">
-                      <Plus className="h-3.5 w-3.5" />
-                      {t.addHabit}
-                    </Button>
-                  </div>
-                  {sortToggle}
-                </div>
+                {t.columns.habit}
                 {resizeHandle(INFO_COLS[0])}
               </th>
-              <th className="group/col relative truncate px-3 py-3 text-center text-sm font-semibold text-muted-foreground">
-                {t.columns.actions}
-                {resizeHandle(INFO_COLS[1])}
-              </th>
-              <th className="group/col relative truncate px-4 py-3 text-left text-sm font-semibold text-muted-foreground">
-                {t.columns.time}
-                {resizeHandle(INFO_COLS[2])}
-              </th>
-              <th className="group/col relative truncate px-4 py-3 text-left text-sm font-semibold text-muted-foreground">
-                {t.columns.schedule}
-                {resizeHandle(INFO_COLS[3])}
-              </th>
-              <th className="group/col relative truncate px-4 py-3 text-center text-sm font-semibold text-muted-foreground">
-                {t.columns.streak}
-                {resizeHandle(INFO_COLS[4])}
-              </th>
+              {INFO_COLS.slice(1).map(col => (
+                <th key={col.key} className={cn("group/col relative px-2 py-2 text-sm font-semibold text-muted-foreground", col.key === "streak" ? "text-center" : "text-left")}>
+                  <span className="block truncate">{t.columns[col.key]}</span>
+                  {resizeHandle(col)}
+                </th>
+              ))}
               {dateInfos.map((di) => (
                 <th key={di.iso} className={cn("px-1 py-2 text-center text-xs font-medium", di.isTodayFlag && "bg-muted/70")}>
                   <div className={cn("text-muted-foreground font-medium", di.isTodayFlag && "text-primary font-bold")}>
@@ -854,7 +839,7 @@ export function HabitGrid({
                   {startsGroup(index) && (
                     <tr>
                       <td
-                        colSpan={5 + dateInfos.length}
+                        colSpan={INFO_COLS.length + dateInfos.length}
                         className={cn(
                           "border-y border-border/50 bg-muted/40 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide",
                           PILLAR_STYLES[pillar].text

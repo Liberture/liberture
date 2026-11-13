@@ -9,7 +9,6 @@ import {
   CalendarDays,
   ChartColumn,
   ListChecks,
-  ChevronDown,
   Minus,
   NotebookPen,
   Plus,
@@ -76,8 +75,9 @@ const DEFAULT_COLOR = "#6366f1"
 /** Colours the user never chose deliberately, so switching area may repaint them. */
 const AUTO_COLORS = new Set<string>([DEFAULT_COLOR, ...PILLAR_IDS.map((p) => PILLAR_HEX[p])])
 
-const EDIT_TABS = ["details", "schedule", "tracking", "analytics"] as const
-const EDIT_ICONS = { details: NotebookPen, schedule: CalendarDays, tracking: ListChecks, analytics: ChartColumn }
+const FORM_TABS = ["details", "schedule", "tracking"] as const
+const EDIT_TABS = [...FORM_TABS, "analytics"] as const
+const TAB_ICONS = { details: NotebookPen, schedule: CalendarDays, tracking: ListChecks, analytics: ChartColumn }
 
 const DESCRIPTION_MAX = 500
 
@@ -210,11 +210,6 @@ export function HabitDialog({ mode, habit, completions = [], weekStartsOn = 1, o
   const [intentionBehavior, setIntentionBehavior] = useState(habit?.implementationIntention?.behavior ?? "")
   const [intentionObstacles, setIntentionObstacles] = useState<Array<{ obstacle: string; strategy: string }>>(
     habit?.implementationIntention?.obstacles ?? [],
-  )
-
-  // Extras start open only when the habit already uses one of them.
-  const [showMore, setShowMore] = useState(
-    Boolean(habit && (habit.dataEntry?.enabled || habit.implementationIntention || (habit.tags?.length ?? 0) > 0))
   )
 
   // Anything changed since the dialog opened? Drives the discard guard.
@@ -677,12 +672,10 @@ export function HabitDialog({ mode, habit, completions = [], weekStartsOn = 1, o
               <X className="h-4 w-4" />
             </button>
           </div>
-          {mode === "edit" && (
-            <div className="px-4 sm:px-6">
-              <TabOptions ids={EDIT_TABS} icons={EDIT_ICONS}
-                labels={t.tabs} label={t.titleEdit} />
-            </div>
-          )}
+          <div className="px-4 sm:px-6">
+            <TabOptions ids={mode === "edit" ? EDIT_TABS : FORM_TABS} icons={TAB_ICONS}
+              labels={t.tabs} label={mode === "edit" ? t.titleEdit : t.titleCreate} />
+          </div>
         </>
       }
       footer={(
@@ -712,35 +705,12 @@ export function HabitDialog({ mode, habit, completions = [], weekStartsOn = 1, o
         </div>
       )}
     >
-      {mode === "edit" && habit ? (
-        <TabsContent value={tab} className="space-y-4">
-          {tab === "details" && detailsPanel}
-          {tab === "schedule" && schedulePanel}
-          {tab === "tracking" && <>{priorityAndTagsPanel}{dataEntryPanel}{intentionPanel}</>}
-          {tab === "analytics" && <HabitAnalytics habit={habit} completions={completions} weekStartsOn={weekStartsOn} />}
-        </TabsContent>
-      ) : (
-        <div className="space-y-4">
-          {detailsPanel}
-          {schedulePanel}
-          <button
-            type="button"
-            onClick={() => setShowMore((open) => !open)}
-            aria-expanded={showMore}
-            className="flex w-full items-center justify-between rounded-xl border border-border bg-secondary/60 px-4 py-3 text-left transition-colors hover:bg-secondary"
-          >
-            <span>
-              <span className="flex items-center gap-2 text-sm font-semibold text-foreground">
-                <Sparkles className="h-4 w-4 text-primary" />
-                {t.moreOptions}
-              </span>
-              <span className="block text-xs text-muted-foreground">{t.moreOptionsHint}</span>
-            </span>
-            <ChevronDown className={cn("h-4 w-4 shrink-0 text-muted-foreground transition-transform", showMore && "rotate-180")} />
-          </button>
-          {showMore && <>{priorityAndTagsPanel}{dataEntryPanel}{intentionPanel}</>}
-        </div>
-      )}
+      <TabsContent value={tab} className="space-y-4">
+        {tab === "details" && detailsPanel}
+        {tab === "schedule" && schedulePanel}
+        {tab === "tracking" && <>{priorityAndTagsPanel}{dataEntryPanel}{intentionPanel}</>}
+        {tab === "analytics" && habit && <HabitAnalytics habit={habit} completions={completions} weekStartsOn={weekStartsOn} />}
+      </TabsContent>
     </AppDialog>
     </Tabs>
   )

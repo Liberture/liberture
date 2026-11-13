@@ -27,9 +27,9 @@
       "icons": [{ "src": "/pwa-icon-192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
-      "name": "Discover habits",
-      "short_name": "Discover",
-      "url": "/tracker?view=discover",
+      "name": "Habit catalog",
+      "short_name": "Catalog",
+      "url": "/tracker?view=catalog",
       "icons": [{ "src": "/pwa-icon-192.png", "sizes": "192x192", "type": "image/png" }]
     }
   ],

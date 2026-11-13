@@ -1518,7 +1518,7 @@
         "add": "Agregar"
       },
       "marketplaceView": {
-        "title": "Mercado",
+        "title": "Catálogo",
         "description": "Protocolos respaldados por evidencia, de investigadores y profesionales con nombre y apellido. Cada uno muestra cuánto cuesta y en qué se basa — leé la investigación y después agregalo. Todo lo que adoptes se vuelve un hábito común que podés editar, reprogramar o borrar.",
         "searchPlaceholder": "Buscá protocolos, autores, equipamiento…",
         "searchAria": "Buscar en el catálogo",
@@ -2838,6 +2838,7 @@
         "data": "Datos",
         "resizeColumn": "Cambiar el ancho de la columna {column}",
         "resizeHint": "Arrastrá para cambiar el ancho · doble clic para restablecer ({width}px)",
+        "organizeBy": "Organizar por:",
         "sortTime": "Hora",
         "sortCategory": "Categoría",
         "sortByTime": "Ordenar por hora",
@@ -3033,6 +3034,9 @@
         }
       },
       "streakDisplay": {
+        "summary": "Racha actual: {current}. Récord personal: {best}.",
+        "days": { "one": "{count} día", "other": "{count} días" },
+        "weeks": { "one": "{count} semana", "other": "{count} semanas" },
         "current": "Actual",
         "best": "Mejor",
         "currentWeeks": "Semanas",
@@ -3166,14 +3170,14 @@
           "todos": "Tareas",
           "calendar": "Calendario",
           "stats": "Estadísticas",
-          "discover": "Mercado"
+          "catalog": "Catálogo"
         },
         "viewTitles": {
           "habits": "Hábitos",
           "todos": "Lista de tareas",
           "calendar": "Calendario",
           "stats": "Estadísticas",
-          "discover": "Mercado"
+          "catalog": "Catálogo"
         },
         "layouts": {
           "day": "Día",
@@ -3202,7 +3206,7 @@
         "addedPartial": "Se añadieron {added} de {name} — {skipped} ya estaban"
       },
       "discoverView": {
-        "tabsLabel": "Mercado",
+        "tabsLabel": "Catálogo",
         "tabs": {
           "catalog": "Catálogo",
           "coach": "Coach"

@@ -1518,10 +1518,10 @@
         "add": "Add"
       },
       "marketplaceView": {
-        "title": "Marketplace",
+        "title": "Catalog",
         "description": "Evidence-backed protocols from named researchers and practitioners. Every entry shows what it costs and what it's based on — read the research, then add one. Everything you adopt becomes an ordinary habit you can edit, reschedule, or delete.",
         "searchPlaceholder": "Search protocols, authors, equipment…",
-        "searchAria": "Search the marketplace",
+        "searchAria": "Search the catalog",
         "showResults": "Show results",
         "sortAria": "Sort protocols",
         "all": "All",
@@ -2838,6 +2838,7 @@
         "data": "Data",
         "resizeColumn": "Resize {column} column",
         "resizeHint": "Drag to resize · double-click to reset ({width}px)",
+        "organizeBy": "Organize by:",
         "sortTime": "Time",
         "sortCategory": "Category",
         "sortByTime": "Sort by time",
@@ -3033,6 +3034,9 @@
         }
       },
       "streakDisplay": {
+        "summary": "Current streak: {current}. Personal best: {best}.",
+        "days": { "one": "{count} day", "other": "{count} days" },
+        "weeks": { "one": "{count} week", "other": "{count} weeks" },
         "current": "Current",
         "best": "Best",
         "currentWeeks": "Weeks",
@@ -3166,14 +3170,14 @@
           "todos": "Todos",
           "calendar": "Calendar",
           "stats": "Stats",
-          "discover": "Marketplace"
+          "catalog": "Catalog"
         },
         "viewTitles": {
           "habits": "Habits",
           "todos": "Todo List",
           "calendar": "Calendar",
           "stats": "Statistics",
-          "discover": "Marketplace"
+          "catalog": "Catalog"
         },
         "layouts": {
           "day": "Day",
@@ -3202,7 +3206,7 @@
         "addedPartial": "Added {added} from {name} — {skipped} already tracked"
       },
       "discoverView": {
-        "tabsLabel": "Marketplace",
+        "tabsLabel": "Catalog",
         "tabs": {
           "catalog": "Catalog",
           "coach": "Coach"
