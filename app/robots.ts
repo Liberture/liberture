@@ -11,7 +11,6 @@ const disallow = [
   '/tracker',
   '/oauth/',
   '/mcp',
-  '/coming-soon',
 ];
 
 export default function robots(): MetadataRoute.Robots {
