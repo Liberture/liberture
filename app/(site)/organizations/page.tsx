@@ -1,6 +1,5 @@
 import { DirectoryLayout, DirectoryHeader, DirectoryGrid } from "@/components/directory/layout"
 import { OrganizationCard } from "@/components/directory/org-card"
-import { BackLink } from "@/components/seo/back-link"
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
@@ -45,10 +44,6 @@ export default async function OrganizationsPage({
 
   return (
     <DirectoryLayout>
-          <div className="mb-8">
-            <BackLink fallback="/directory" />
-          </div>
-
           <DirectoryHeader title="Organizations" description="Labs, companies, and communities advancing biohacking and longevity research." />
           <p className="text-sm text-slate-400 mb-12">
             Showing {skip + 1}–{Math.min(skip + ITEMS_PER_PAGE, totalCount)} of {totalCount} organizations
