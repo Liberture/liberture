@@ -75,21 +75,21 @@ async function fetchProfile(pubkey: string): Promise<NostrProfile | null> {
 }
 
 export function useNostrProfile(pubkey: string | null): NostrProfile | null {
-  const [profile, setProfile] = useState<NostrProfile | null>(null)
+  const [entry, setEntry] = useState<{ pubkey: string; profile: NostrProfile } | null>(null)
 
   useEffect(() => {
     if (!pubkey || !/^[0-9a-f]{64}$/.test(pubkey)) {
-      setProfile(null)
+      setEntry(null)
       return
     }
     const cached = readCache(pubkey)
-    if (cached) setProfile(cached.profile)
+    if (cached) setEntry({ pubkey, profile: cached.profile })
     if (cached && Date.now() - cached.at < REFRESH_MS) return
 
     let cancelled = false
     fetchProfile(pubkey).then((fresh) => {
       if (cancelled || !fresh) return
-      setProfile(fresh)
+      setEntry({ pubkey, profile: fresh })
       try {
         localStorage.setItem(CACHE_PREFIX + pubkey, JSON.stringify({ at: Date.now(), profile: fresh } satisfies CacheEntry))
       } catch {
@@ -101,5 +101,5 @@ export function useNostrProfile(pubkey: string | null): NostrProfile | null {
     }
   }, [pubkey])
 
-  return profile
+  return entry && entry.pubkey === pubkey ? entry.profile : null
 }

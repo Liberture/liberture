@@ -10,7 +10,8 @@ import { SettingRow, SettingsCard, settingsInputClass } from "@/components/habit
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage } from "@/lib/i18n-format"
 import { hexToNpub, shortenNpub } from "@/lib/habits/nostr/crypto"
-import { displayNip05, useNostrProfile } from "@/lib/habits/nostr/use-nostr-profile"
+import { useHabitsSession } from "@/components/habits/session-provider"
+import { displayNip05 } from "@/lib/habits/nostr/use-nostr-profile"
 import type { Habit, UserProfile } from "@/lib/habits/types"
 import { cn } from "@/lib/utils"
 
@@ -40,7 +41,7 @@ export function ProfileTab({
   onNostrMigration,
 }: ProfileTabProps) {
   const t = useTranslations().habits.app.settingsDialog
-  const nostrProfile = useNostrProfile(isNostrAuth ? pubkey : null)
+  const { profile: nostrProfile } = useHabitsSession()
   const [copied, setCopied] = useState(false)
   const [migratedNpub, setMigratedNpub] = useState<string | null>(null)
   const [name, setName] = useState(profile?.name ?? "")

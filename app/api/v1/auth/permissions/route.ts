@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getDb } from "@/lib/habits/db"
-import { verifiedTrackerUserId } from "@/lib/habits/app-auth"
+import { withTrackerOwner } from "@/lib/habits/api/with-tracker-owner"
 import { effectivePermissions, sanitizePermissions } from "@/lib/habits/api-scopes"
 
 /**
@@ -9,15 +9,10 @@ import { effectivePermissions, sanitizePermissions } from "@/lib/habits/api-scop
  * session) — the hti_ token reads its scopes from /api/v1/assistant but can
  * never change them.
  */
-export async function GET(request: Request) {
-  const userId = await verifiedTrackerUserId(request)
-  if (userId === null) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
+export const GET = withTrackerOwner(async (userId) => {
   const [row] = await getDb()`SELECT data->'integrationPermissions' AS permissions FROM habit_users WHERE id = ${userId}`
   return NextResponse.json({ permissions: effectivePermissions(row?.permissions) }, { headers: { "Cache-Control": "private, no-store" } })
-}
+})
 
 /**
  * PUT /api/v1/auth/permissions
@@ -25,12 +20,7 @@ export async function GET(request: Request) {
  * Merges into the stored scopes. Written with jsonb_set, next to the token,
  * so the browser's blob save can never revert it.
  */
-export async function PUT(request: Request) {
-  const userId = await verifiedTrackerUserId(request)
-  if (userId === null) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
+export const PUT = withTrackerOwner(async (userId, request) => {
   let body: { permissions?: unknown }
   try {
     body = await request.json()
@@ -58,4 +48,4 @@ export async function PUT(request: Request) {
     console.error("Failed to update integration permissions:", error)
     return NextResponse.json({ error: "Failed to save permissions" }, { status: 500 })
   }
-}
+})

@@ -1,11 +1,10 @@
 import { publicPageMetadata } from "@/lib/seo/public-page-metadata"
-import { getTranslations as getUiCopy } from "next-intl/server"
+import { getLocale, getTranslations as getUiCopy } from "next-intl/server"
 import Link from "@/components/i18n/localized-link"
 
 import { LegalPage } from "@/components/habits/site/legal-page"
 import { getSiteSetting } from "@/lib/habits/oauth/store"
 import { getSiteMessages } from "@/lib/i18n/messages.server"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
 
 export function generateMetadata() {
   return publicPageMetadata("/support", "support")
@@ -14,7 +13,7 @@ export function generateMetadata() {
 export default async function SupportPage() {
   const uiCopy = await getUiCopy("publicCopy.support")
 
-  const [email, locale] = await Promise.all([getSiteSetting("contact_email").catch(() => null), getRequestLocale()])
+  const [email, locale] = await Promise.all([getSiteSetting("contact_email").catch(() => null), getLocale()])
   const dict = (await getSiteMessages()).habits
   return (
     <LegalPage locale={locale} dict={dict} title={uiCopy("support")}>

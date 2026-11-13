@@ -15,7 +15,7 @@ import { catalogProtocols } from "@/lib/habits/protocols/localized-catalog"
 import type { Author } from "@/lib/habits/protocols/authors"
 import { protocolImage } from "@/lib/habits/protocols/images"
 import { getSiteMessages } from "@/lib/i18n/messages.server"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { getLocale } from "next-intl/server"
 
 type RelatedProtocol = {
   kind: string;
@@ -68,7 +68,7 @@ export default async function ProtocolDetails({ protocol }: { protocol: Protocol
     group.push(relation)
     related.set(relation.protocol.slug, group)
   }
-  const locale = await getRequestLocale()
+  const locale = await getLocale()
   const catalog = catalogProtocols(locale).find(p => p.slug === protocol.slug)
   const credits = [catalog?.author, ...(catalog?.coAuthors ?? [])].filter((author): author is Author => Boolean(author))
   const authors = credits.filter(author => author.kind === "person").map(author => ({

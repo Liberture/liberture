@@ -5,7 +5,7 @@ import { notFound } from "next/navigation"
 import { ArrowLeft, ArrowRight, Clock } from "lucide-react"
 
 import { BreadcrumbSchema, JsonLd } from "@/components/seo/JsonLd"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { getLocale } from "next-intl/server"
 import {
   GUIDES_UPDATED,
   GUIDE_SLUGS,
@@ -33,7 +33,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: GuidePageProps): Promise<Metadata> {
   const { slug } = await params
-  const locale = await getRequestLocale()
+  const locale = await getLocale()
   const guide = findGuide(locale, slug)
   if (!guide) return {}
   const alternates = translatedAlternates(`/guides/${slug}`, locale)
@@ -80,7 +80,7 @@ function Screenshot({ locale, imageKey, alt, caption, priority = false }: { loca
 
 export default async function GuidePage({ params }: GuidePageProps) {
   const { slug } = await params
-  const locale = await getRequestLocale()
+  const locale = await getLocale()
   const guide = findGuide(locale, slug)
   if (!guide) notFound()
 

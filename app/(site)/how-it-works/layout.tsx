@@ -1,5 +1,5 @@
 import { translatedAlternates } from "@/lib/seo/translated-routes"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { getLocale } from "next-intl/server"
 import type { Metadata } from "next"
 import { BreadcrumbSchema, JsonLd } from "@/components/seo/JsonLd"
 import { getSiteMessages } from "@/lib/i18n/messages.server"
@@ -16,7 +16,7 @@ const ogImage = {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getRequestLocale()
+  const locale = await getLocale()
   const t = (await getSiteMessages()).habits
   const title = t.landing.how.heading
   const description = t.docs.overview.lead
@@ -50,7 +50,7 @@ export default async function HowItWorksLayout({
 }: {
   children: React.ReactNode
 }) {
-  const locale = await getRequestLocale()
+  const locale = await getLocale()
   const t = (await getSiteMessages()).habits
   const url = translatedAlternates(path, locale).canonical
   // Mirrors the three setup steps rendered on the page (translations → habits.docs.overview.steps).

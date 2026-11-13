@@ -5,14 +5,14 @@ import { captchaSiteKey } from "@/lib/newsletter/captcha"
 import { SiteBreadcrumbs } from "@/components/seo/site-breadcrumbs"
 import type { ReactNode } from "react"
 
-import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { getLocale } from "next-intl/server"
 import { LandingFooter } from "@/components/layout/landing-footer"
 import { LandingNav } from "@/components/layout/landing-nav"
 import { AnimatedBackground } from "@/components/illustrations/AnimatedBackground"
 // import { PageTransition } from "@/components/animations/PageTransition"
 
 export default async function SiteLayout({ children }: { children: ReactNode }) {
-  const locale = await getRequestLocale()
+  const locale = await getLocale()
   const slugs = locale === "es" ? await getEntitySlugMap() : new Map<string, string>()
   return (
     <LocalizedLinksProvider slugs={slugs}>

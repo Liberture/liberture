@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react"
 import Link from "@/components/i18n/localized-link"
 import { BookOpen, Check, Copy, Download, ExternalLink, FileCode2, Key, RefreshCw, Trash2, Unplug } from "lucide-react"
 
+import { useHabitsSession } from "@/components/habits/session-provider"
 import { Switch } from "@/components/habits/ui/switch"
 import { notify } from "@/components/habits/ui/toast"
 import { API_SCOPES, DEFAULT_OFF, type ApiScope } from "@/lib/habits/api-scopes"
@@ -57,18 +58,6 @@ function ago(iso: string | null, t: AssistantAccessCopy): string {
   const hours = Math.round(minutes / 60)
   if (hours < 48) return formatMessage(t.usedHoursAgo, { count: hours })
   return formatMessage(t.usedDaysAgo, { count: Math.round(hours / 24) })
-}
-
-/** Owner auth: the ht_ key as Bearer, or the Nostr session cookie. */
-function useOwnerRequest(apiKey: string) {
-  return useCallback(
-    (path: string, init: RequestInit = {}) => {
-      const headers = new Headers(init.headers)
-      if (apiKey) headers.set("Authorization", `Bearer ${apiKey}`)
-      return fetch(path, { ...init, headers, credentials: "same-origin" })
-    },
-    [apiKey]
-  )
 }
 
 function useCopy() {
@@ -126,7 +115,7 @@ function CopyBox({ value, field, copiedField, onCopy, tone = "default" }: {
 export function AssistantConnectSection({ apiKey, isNostrAuth }: AssistantAccessSectionProps) {
   const t = useTranslations().habits.app.assistantAccessSection
   const SCOPE_COPY = t.scopes
-  const ownerRequest = useOwnerRequest(apiKey)
+  const { ownerRequest } = useHabitsSession()
   const [platform, setPlatform] = useState<AssistantPlatform>("claude")
   const [gptUrl, setGptUrl] = useState<string | null>(null)
   const [tools, setTools] = useState<{ count: number; version: string } | null>(null)
@@ -325,7 +314,7 @@ export function AssistantConnectSection({ apiKey, isNostrAuth }: AssistantAccess
  */
 export function DeveloperSection({ apiKey, isNostrAuth }: AssistantAccessSectionProps) {
   const t = useTranslations().habits.app.assistantAccessSection
-  const ownerRequest = useOwnerRequest(apiKey)
+  const { ownerRequest } = useHabitsSession()
   const { copiedField, copy } = useCopy()
   const mcpUrl = useMcpUrl()
   const [downloading, setDownloading] = useState(false)

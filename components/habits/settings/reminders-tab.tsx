@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Bell, BellRing, ChevronDown, Send } from "lucide-react"
 
 import { SettingRow, SettingsCard, SettingsDivider, settingsButtonClass } from "@/components/habits/settings/settings-ui"
@@ -39,11 +39,7 @@ export function RemindersTab({ enabled, onToggle, receipts, onReceiptsToggle }: 
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null)
   const [showDiagnostics, setShowDiagnostics] = useState(false)
   const locale = useLocale()
-  const { auth } = useHabitsSession()
-  const authHeaders = useMemo<Record<string, string>>(
-    (): Record<string, string> => (auth.apiKey ? { Authorization: `Bearer ${auth.apiKey}` } : {}),
-    [auth.apiKey]
-  )
+  const { authHeaders } = useHabitsSession()
   const [pushState, setPushState] = useState<PushState>("checking")
   const [subscribed, setSubscribed] = useState(false)
   const [pushBusy, setPushBusy] = useState(false)

@@ -3,7 +3,7 @@ import { CopyBlock } from "@/components/habits/docs/copy-block"
 import { DocsSection, DocsTitle } from "@/components/habits/docs/docs-parts"
 import { API_OPERATIONS } from "@/lib/habits/api/operations"
 import { getSiteMessages } from "@/lib/i18n/messages.server"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { getLocale } from "next-intl/server"
 import { getServerOrigin } from "@/lib/habits/request-origin"
 import { cn } from "@/lib/utils"
 
@@ -15,7 +15,7 @@ const METHOD_STYLE: Record<string, string> = {
 }
 
 export default async function ApiDocsPage() {
-  const [locale, origin] = await Promise.all([getRequestLocale(), getServerOrigin()])
+  const [locale, origin] = await Promise.all([getLocale(), getServerOrigin()])
   const dict = (await getSiteMessages()).habits
   const t = dict.docs.api
   const copy = { copyLabel: dict.docs.copy, copiedLabel: dict.docs.copied }

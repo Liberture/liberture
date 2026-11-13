@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { requestOrigin } from "@/lib/habits/api/assistant"
 import { buildClaudeSkillZip } from "@/lib/habits/assistant-kit"
-import { verifiedTrackerUserId } from "@/lib/habits/app-auth"
+import { withTrackerOwner } from "@/lib/habits/api/with-tracker-owner"
 import { createConnection } from "@/lib/habits/oauth/store"
 
 /**
@@ -9,10 +9,7 @@ import { createConnection } from "@/lib/habits/oauth/store"
  * own permanent token inside. Each download is a separate connection, listed
  * in Settings and revocable on its own, so it never disturbs other assistants.
  */
-export async function POST(request: Request) {
-  const userId = await verifiedTrackerUserId(request)
-  if (userId === null) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-
+export const POST = withTrackerOwner(async (userId, request) => {
   const { accessToken } = await createConnection({ userId, name: "Claude skill", kind: "skill" })
   const zip = buildClaudeSkillZip({ baseUrl: requestOrigin(request), token: accessToken })
   return new NextResponse(new Uint8Array(zip), {
@@ -22,4 +19,4 @@ export async function POST(request: Request) {
       "Cache-Control": "no-store",
     },
   })
-}
+})

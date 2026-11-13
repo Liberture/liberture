@@ -6,13 +6,13 @@ import { ArrowRight, BookOpen } from "lucide-react"
 
 import { FAQSchema } from "@/components/seo/JsonLd"
 import { GetStartedActions } from "@/components/habits/get-started-actions"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { getLocale } from "next-intl/server"
 import { findProtocol } from "@/lib/habits/protocols/catalog"
 import { screenshotSize, screenshotSrc } from "@/lib/guides"
 import { getSiteMessages } from "@/lib/i18n/messages.server"
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getRequestLocale()
+  const locale = await getLocale()
   const t = (await getSiteMessages()).habits.getStarted
   const alternates = translatedAlternates("/get-started", locale)
   return {
@@ -35,7 +35,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const STARTERS = ["morning-sunlight-exposure", "daily-walking-baseline", "deep-work-blocks", "daily-mindfulness-meditation"]
 
 export default async function GetStartedPage() {
-  const locale = await getRequestLocale()
+  const locale = await getLocale()
   const t = (await getSiteMessages()).habits.getStarted
   const shot = screenshotSize("tracker-today")
   const starters = STARTERS.map((slug) => findProtocol(slug)).filter((p): p is NonNullable<typeof p> => Boolean(p))

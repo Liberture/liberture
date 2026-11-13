@@ -48,18 +48,19 @@ export function parsePublicPath(pathname: string) {
 
 export function localizedPath(path: string, locale: Locale, spanishEntitySlug?: string) {
   const route = parsePublicPath(path)
-  if (!route || route.locale) return path
-  if (!route.section) return "/" + locale
-  const section = locale === "es" ? sections[route.section] : route.section
-  const slug = locale === "es" ? children[route.section]?.[route.slug] ?? spanishEntitySlug ?? route.slug : route.slug
-  return "/" + locale + "/" + section + (slug ? "/" + slug : "")
+  if (!route || route.locale === "es") return path
+  if (locale === "en") return route.internalPath
+  if (!route.section) return "/es"
+  const section = sections[route.section]
+  const slug = children[route.section]?.[route.slug] ?? spanishEntitySlug ?? route.slug
+  return "/es/" + section + (slug ? "/" + slug : "")
 }
 
 export function localizedHref(href: string, locale: Locale, slugs: ReadonlyMap<string, string>) {
   if (!href.startsWith("/") || href.startsWith("//")) return href
   const url = new URL(href, "https://liberture.com")
   const route = parsePublicPath(url.pathname)
-  if (!route || route.locale) return href
+  if (!route || route.locale === "es") return href
   url.searchParams.delete("lang")
-  return localizedPath(url.pathname, locale, slugs.get(url.pathname)) + url.search + url.hash
+  return localizedPath(route.internalPath, route.locale ?? locale, slugs.get(route.internalPath)) + url.search + url.hash
 }

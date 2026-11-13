@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getDb } from "@/lib/habits/db"
-import { verifiedTrackerUserId } from "@/lib/habits/app-auth"
+import { withTrackerOwner } from "@/lib/habits/api/with-tracker-owner"
 import { withCompletionStarts } from "@/lib/habits/habit-utils"
 import { userToday } from "@/lib/habits/api/time-zone"
 import { runHabitHistoryImport, type HabitHistoryImportRequest } from "@/lib/habits/import/run-habit-history-import"
@@ -11,10 +11,7 @@ import type { StorageData } from "@/lib/habits/types"
  * The same import as /api/v1/import/habit-history, signed in with the app's
  * own session (or legacy API key) and only ever into that account.
  */
-export async function POST(request: Request) {
-  const userId = await verifiedTrackerUserId(request)
-  if (userId === null) return NextResponse.json({ error: "Sign in required" }, { status: 401 })
-
+export const POST = withTrackerOwner(async (userId, request) => {
   let body: HabitHistoryImportRequest & { timeZone?: unknown }
   try {
     body = await request.json()
@@ -35,4 +32,4 @@ export async function POST(request: Request) {
     console.error("Habit history import failed:", error)
     return NextResponse.json({ error: "The import stopped with an error. Anything already written stays, and running it again is safe: it only adds what is missing." }, { status: 500 })
   }
-}
+}, "Sign in required")

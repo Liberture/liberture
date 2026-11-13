@@ -1,8 +1,7 @@
 import { unstable_cache } from "next/cache"
 import type { Metadata } from "next"
 
-import { getRequestLocale } from "@/lib/habits/i18n/server"
-import { getTranslations } from "next-intl/server"
+import { getLocale, getTranslations } from "next-intl/server"
 import { translatedAlternates } from "@/lib/seo/translated-routes"
 import { directoryClientForLocale } from "@/lib/i18n/directory-records.server"
 import { catalogProtocols } from "@/lib/habits/protocols/localized-catalog"
@@ -13,7 +12,7 @@ import type { Locale, PillarId } from "@/lib/translations"
 import { ProtocolsBrowser } from "./protocols-browser"
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getRequestLocale()
+  const locale = await getLocale()
   const t = await getTranslations("habits.protocolLibrary")
   const title = t("seoTitle")
   const description = t("description")
@@ -62,7 +61,7 @@ const publishedProtocols = unstable_cache(
  * catalog by slug — the same source the seeder writes from.
  */
 async function loadProtocols(): Promise<CatalogProtocol[]> {
-  const locale = await getRequestLocale()
+  const locale = await getLocale()
   const bundled = catalogProtocols(locale)
   try {
     const rows = await publishedProtocols(locale)

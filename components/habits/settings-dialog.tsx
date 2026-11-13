@@ -176,7 +176,6 @@ export function SettingsDialog({
             onLogout={onLogout}
             isNostrAuth={isNostrAuth}
             onCloseSettings={onClose}
-            apiKey={apiKey}
           />
         )}
       </TabsContent>

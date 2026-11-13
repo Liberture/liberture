@@ -6,11 +6,11 @@ import { ChatGPTLogo, ClaudeLogo } from "@/components/habits/brand-logos"
 
 import { DocsList, DocsSection, DocsSteps, DocsTitle } from "@/components/habits/docs/docs-parts"
 import { getSiteMessages } from "@/lib/i18n/messages.server"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { getLocale } from "next-intl/server"
 import { DocsScreenshot } from "@/components/habits/docs/docs-screenshot"
 
 export default async function DocsOverviewPage() {
-  const locale = await getRequestLocale()
+  const locale = await getLocale()
   const dict = (await getSiteMessages()).habits
   const t = dict.docs.overview
 

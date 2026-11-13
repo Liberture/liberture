@@ -7,7 +7,7 @@ import { getDb } from "@/lib/habits/db"
 import { verifyApiKey } from "@/lib/habits/integration-auth"
 import { adoptedProtocolSlugs, adoptedSlugs, catalogHabitToHabit } from "@/lib/habits/protocols/adopt"
 import { isLocale } from "@/lib/habits/i18n"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { getLocale } from "next-intl/server"
 import { catalogProtocols } from "@/lib/habits/protocols/localized-catalog"
 import { CATALOG_PROTOCOLS } from "@/lib/habits/protocols/catalog"
 
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
   }
-  const locale = isLocale(requestedLocale) ? requestedLocale : await getRequestLocale()
+  const locale = isLocale(requestedLocale) ? requestedLocale : await getLocale()
   const protocol = typeof slug === "string" ? catalogProtocols(locale).find(p => p.slug === slug) : undefined
   if (!protocol) return NextResponse.json({ error: "Unknown protocol" }, { status: 404 })
 

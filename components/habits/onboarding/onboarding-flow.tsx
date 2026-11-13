@@ -14,10 +14,9 @@ interface OnboardingFlowProps {
   onComplete: (habits: Habit[], onboardingData: OnboardingState) => void
   onSkip: () => void
   /** Owner auth, for the connect step's live "Connected" check. */
-  apiKey: string
 }
 
-export function OnboardingFlow({ onComplete, onSkip, apiKey }: OnboardingFlowProps) {
+export function OnboardingFlow({ onComplete, onSkip }: OnboardingFlowProps) {
   const [page, setPage] = useState<1 | 2 | 3 | 4 | 5 | 6>(1)
   const app = useTranslations().habits.app
   return (
@@ -41,7 +40,7 @@ export function OnboardingFlow({ onComplete, onSkip, apiKey }: OnboardingFlowPro
           </div>
 
           {page === 1 ? (
-            <StepConnectAssistant apiKey={apiKey} onNext={() => setPage(2)} />
+            <StepConnectAssistant onNext={() => setPage(2)} />
           ) : (
             <Step1Emotional page={page} onPageChange={setPage}
               onStart={habits => onComplete(habits, { completed: true, currentStep: 6, skipped: false })} />

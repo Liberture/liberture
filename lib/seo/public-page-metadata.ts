@@ -1,10 +1,9 @@
 import type { Metadata } from "next"
-import { getTranslations } from "next-intl/server"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { getLocale, getTranslations } from "next-intl/server"
 import { translatedAlternates } from "./translated-routes"
 
 export async function publicPageMetadata(path: string, key: keyof typeof import("@/messages/ui/en.json")["publicCopy"]["metadata"]): Promise<Metadata> {
-  const [locale, t] = await Promise.all([getRequestLocale(), getTranslations("publicCopy.metadata")])
+  const [locale, t] = await Promise.all([getLocale(), getTranslations("publicCopy.metadata")])
   const title = t(`${key}.title`)
   const description = t(`${key}.description`)
   const alternates = translatedAlternates(path, locale)

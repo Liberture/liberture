@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { verifiedTrackerUserId } from "@/lib/habits/app-auth"
+import { withTrackerOwner } from "@/lib/habits/api/with-tracker-owner"
 import { listConnections } from "@/lib/habits/oauth/store"
 import { syncStatusesFor, type ToolSyncStatus } from "@/lib/habits/api/connector-sync"
 import { TOOL_COUNT, TOOLS_VERSION } from "@/lib/habits/api/operations"
@@ -15,9 +15,7 @@ function toolsSummary(status: ToolSyncStatus | undefined) {
  * Each carries `tools`: when it last loaded the tool list and what it's missing
  * (null if it never has), so Settings can say "refresh ChatGPT to get N new tools".
  */
-export async function GET(request: Request) {
-  const userId = await verifiedTrackerUserId(request)
-  if (userId === null) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+export const GET = withTrackerOwner(async (userId) => {
   const [connections, syncs] = await Promise.all([
     listConnections(userId),
     syncStatusesFor(userId).catch(() => new Map<string, ToolSyncStatus>()),
@@ -30,4 +28,4 @@ export async function GET(request: Request) {
     },
     { headers: { "Cache-Control": "no-store" } }
   )
-}
+})

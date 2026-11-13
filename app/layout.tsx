@@ -7,13 +7,11 @@ import type { Metadata, Viewport } from "next"
 import { Inter, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { NextIntlClientProvider } from "next-intl"
-import { getTranslations } from "next-intl/server"
+import { getLocale, getTranslations } from "next-intl/server"
 import { currentPageAlternates } from "@/lib/i18n/route-metadata.server"
 import { ServiceWorkerRegister } from "@/components/habits/service-worker-register"
 import { HabitsSessionProvider } from "@/components/habits/session-provider"
-import { NostrAuthProvider } from "@/lib/habits/nostr/auth-context"
 import { ThemeProvider } from "@/components/providers/theme-provider"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { CookieConsent } from "@/components/legal/CookieConsent"
 import { OrganizationSchema, WebSiteSchema } from "@/components/seo/JsonLd"
 import "./globals.css"
@@ -24,7 +22,7 @@ const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" })
 
 export async function generateMetadata(): Promise<Metadata> {
   const [locale, t, alternates] = await Promise.all([
-    getRequestLocale(), getTranslations("siteMetadata"), currentPageAlternates(),
+    getLocale(), getTranslations("siteMetadata"), currentPageAlternates(),
   ])
   const title = t("title")
   const description = t("description")
@@ -86,7 +84,7 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const [locale, t] = await Promise.all([getRequestLocale(), getTranslations("siteMetadata")])
+  const [locale, t] = await Promise.all([getLocale(), getTranslations("siteMetadata")])
   let impersonatedName: string | undefined
   if (managedAuthEnabled()) {
     const jar = await cookies()
@@ -107,9 +105,7 @@ export default async function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark" themes={["dark"]} enableSystem={false} disableTransitionOnChange>
           <NextIntlClientProvider>
             {impersonatedName && <ImpersonationNotice name={impersonatedName} />}
-            <NostrAuthProvider>
-              <HabitsSessionProvider><TooltipProvider delayDuration={250}>{children}</TooltipProvider></HabitsSessionProvider>
-            </NostrAuthProvider>
+            <HabitsSessionProvider><TooltipProvider delayDuration={250}>{children}</TooltipProvider></HabitsSessionProvider>
             <ServiceWorkerRegister />
             <CookieConsent />
             <Analytics />

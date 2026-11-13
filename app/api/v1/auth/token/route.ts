@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getDb } from "@/lib/habits/db"
-import { verifiedTrackerUserId } from "@/lib/habits/app-auth"
+import { withTrackerOwner } from "@/lib/habits/api/with-tracker-owner"
 import crypto from "crypto"
 
 /**
@@ -8,12 +8,7 @@ import crypto from "crypto"
  * Create an integration token. Stores hash inside the JSONB data blob.
  * Token is returned only once — store it safely.
  */
-export async function POST(request: Request) {
-  const userId = await verifiedTrackerUserId(request)
-  if (userId === null) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
+export const POST = withTrackerOwner(async (userId) => {
   try {
     // Creating a token intentionally rotates/replaces any existing token.
     // The token is shown once, so Settings must be able to recover from a
@@ -31,18 +26,13 @@ export async function POST(request: Request) {
     console.error("Failed to create integration token:", error)
     return NextResponse.json({ error: "Failed to create token" }, { status: 500 })
   }
-}
+})
 
 /**
  * DELETE /api/v1/auth/token
  * Revoke the integration token.
  */
-export async function DELETE(request: Request) {
-  const userId = await verifiedTrackerUserId(request)
-  if (userId === null) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
+export const DELETE = withTrackerOwner(async (userId) => {
   try {
     const sql = getDb()
     
@@ -53,18 +43,13 @@ export async function DELETE(request: Request) {
     console.error("Failed to revoke integration token:", error)
     return NextResponse.json({ error: "Failed to revoke token" }, { status: 500 })
   }
-}
+})
 
 /**
  * GET /api/v1/auth/token
  * Check token status (does not return the token itself).
  */
-export async function GET(request: Request) {
-  const userId = await verifiedTrackerUserId(request)
-  if (userId === null) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
+export const GET = withTrackerOwner(async (userId) => {
   const [row] = await getDb()`
     SELECT (data #>> '{integrationToken,hash}') IS NOT NULL AS has_token,
            data #>> '{integrationToken,prefix}' AS prefix
@@ -74,4 +59,4 @@ export async function GET(request: Request) {
     hasToken: row?.has_token ?? false,
     prefix: row?.prefix ? `${row.prefix}...` : null,
   }, { headers: { "Cache-Control": "private, no-store" } })
-}
+})

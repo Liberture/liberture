@@ -8,14 +8,13 @@ import { BadgeCheck, ChevronDown, Download, LogOut, Mic, Settings, UserRound } f
 import type { SettingsTab } from "@/components/habits/settings/settings-tabs"
 import { AppDialog } from "@/components/habits/ui/app-dialog"
 import { settingsButtonClass } from "@/components/habits/settings/settings-ui"
-import { displayNip05, useNostrProfile } from "@/lib/habits/nostr/use-nostr-profile"
+import { useHabitsSession } from "@/components/habits/session-provider"
+import { displayNip05 } from "@/lib/habits/nostr/use-nostr-profile"
 import { cn } from "@/lib/utils"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage } from "@/lib/i18n-format"
 
 interface AccountHeaderProps {
-  /** Hex pubkey for Nostr accounts; null for the older API-key accounts. */
-  pubkey: string | null
   /** The tracker's own profile name, used when the Nostr profile has none. */
   fallbackName?: string | null
   /** Opens Settings, on the given tab when there is one. */
@@ -60,9 +59,9 @@ export function Avatar({ src, name, size }: { src: string | null; name: string; 
   )
 }
 
-export function AccountMenuTrigger({ pubkey, fallbackName, compact = false }: Pick<AccountHeaderProps, "pubkey" | "fallbackName" | "compact">) {
+export function AccountMenuTrigger({ fallbackName, compact = false }: Pick<AccountHeaderProps, "fallbackName" | "compact">) {
   const t = useTranslations().habits.app.accountHeader
-  const profile = useNostrProfile(pubkey)
+  const { profile } = useHabitsSession()
   const name = profile?.name ?? fallbackName ?? t.yourAccount
   const address = profile?.nip05 ? displayNip05(profile.nip05) : null
   return (
@@ -102,7 +101,7 @@ export function AccountMenuTrigger({ pubkey, fallbackName, compact = false }: Pi
  * export, sign out. Phones also get a Settings button at the other end of the
  * header, since the menu is one tap further away there.
  */
-export function AccountHeader({ pubkey, fallbackName, onOpenSettings, onExport, onLogout, compact = false }: AccountHeaderProps) {
+export function AccountHeader({ fallbackName, onOpenSettings, onExport, onLogout, compact = false }: AccountHeaderProps) {
   const t = useTranslations().habits.app.accountHeader
   const common = useTranslations().habits.app.common
   const [confirmingSignOut, setConfirmingSignOut] = useState(false)
@@ -122,7 +121,7 @@ export function AccountHeader({ pubkey, fallbackName, onOpenSettings, onExport, 
   return (
     <div className={cn("flex min-w-0 items-center", compact && "w-full justify-between gap-2")}>
       <DropdownMenu.Root>
-        <AccountMenuTrigger pubkey={pubkey} fallbackName={fallbackName} compact={compact} />
+        <AccountMenuTrigger fallbackName={fallbackName} compact={compact} />
         <DropdownMenu.Portal>
           <DropdownMenu.Content
             // The card sits at the left of the phone header and the right of the desktop one.

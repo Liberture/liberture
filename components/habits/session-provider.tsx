@@ -1,10 +1,10 @@
 "use client"
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 
 import { SignInDialog, type AuthResult, type AuthType } from "@/components/habits/sign-in-dialog"
-import { useNostrAuth } from "@/lib/habits/nostr/auth-context"
+import { useNostrProfile, type NostrProfile } from "@/lib/habits/nostr/use-nostr-profile"
 
 // Storage keys shared with the tracker (kept from Liberture Habits so existing sessions restore).
 // The Nostr session itself is an httpOnly cookie; these only say how the user signed in.
@@ -21,6 +21,51 @@ export interface HabitsAuthState {
 
 const SIGNED_OUT: HabitsAuthState = { type: null, apiKey: null, pubkey: null }
 
+// Older builds kept secrets in localStorage: the session token, the bunker URI
+// (with its pairing secret), and the hand-rolled NIP-46 client's keys. Gone on load.
+const LEGACY_KEYS = [
+  'habit-tracker-nostr-session',
+  'habit-tracker-nostr-auth',
+  'habit-tracker-nip46-connection',
+  'nostr_dev_logs',
+  'nostr_dev_logging_settings',
+]
+const LEGACY_KEY_PREFIXES = ['habit-tracker-nip46-local-key:']
+
+async function restoreSession(signal: AbortSignal): Promise<HabitsAuthState> {
+  const type = localStorage.getItem(AUTH_TYPE_STORAGE)
+  const hadSession = !!localStorage.getItem('habit-tracker-nostr-session')
+  for (const key of LEGACY_KEYS) localStorage.removeItem(key)
+  for (let i = localStorage.length - 1; i >= 0; i--) {
+    const key = localStorage.key(i)
+    if (key && LEGACY_KEY_PREFIXES.some(prefix => key.startsWith(prefix))) localStorage.removeItem(key)
+  }
+
+  const apiKey = type === "api-key" && localStorage.getItem(API_KEY_STORAGE)
+  if (apiKey) {
+    const response = await fetch("/api/auth/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ apiKey }),
+      signal,
+    })
+    if (response.ok) return { ...SIGNED_OUT, type: "api-key", apiKey }
+    if (!signal.aborted && [400, 401, 403].includes(response.status)) clearAuthStorage()
+  } else if (type === "nip07" || type === "nip46" || type === "nsec" || hadSession || localStorage.getItem(NOSTR_PUBKEY_STORAGE)) {
+    const response = await fetch("/api/auth/nostr/session", { credentials: "same-origin", signal })
+    if (response.ok) {
+      const session = await response.json()
+      if (!signal.aborted && session.valid && session.pubkey) {
+        const method = type === "nip46" || type === "nsec" ? type : "nip07"
+        localStorage.setItem(AUTH_TYPE_STORAGE, method)
+        localStorage.setItem(NOSTR_PUBKEY_STORAGE, session.pubkey)
+        return { ...SIGNED_OUT, type: method, pubkey: session.pubkey }
+      }
+    }
+  }
+  return SIGNED_OUT
+}
+
 interface OpenSignInOptions {
   /** Where to go once signed in. Defaults to /tracker. Pass null to stay on the page. */
   next?: string | null
@@ -30,6 +75,9 @@ interface HabitsSessionValue {
   isChecking: boolean
   isSignedIn: boolean
   auth: HabitsAuthState
+  profile: NostrProfile | null
+  authHeaders: Record<string, string>
+  ownerRequest: (path: string, init?: RequestInit) => Promise<Response>
   openSignIn: (options?: OpenSignInOptions) => void
   logout: () => Promise<void>
 }
@@ -59,7 +107,7 @@ function safeNext(next: string | null | undefined): string | null {
  */
 export function HabitsSessionProvider({ children }: { children: ReactNode }) {
   const router = useRouter()
-  const nostrAuth = useNostrAuth()
+  const restoration = useRef<AbortController | null>(null)
   const [auth, setAuth] = useState<HabitsAuthState>(SIGNED_OUT)
   const [isChecking, setIsChecking] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -83,44 +131,27 @@ export function HabitsSessionProvider({ children }: { children: ReactNode }) {
     openSignIn({ next: next ?? "/tracker" })
   }, [openSignIn])
 
-  // Restore a legacy API key session on mount.
   useEffect(() => {
-    const restore = async () => {
-      if (localStorage.getItem(AUTH_TYPE_STORAGE) === "api-key") {
-        const storedKey = localStorage.getItem(API_KEY_STORAGE)
-        if (storedKey) {
-          try {
-            const response = await fetch("/api/auth/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ apiKey: storedKey }),
-            })
-            if (response.ok) setAuth({ ...SIGNED_OUT, type: "api-key", apiKey: storedKey })
-            else clearAuthStorage()
-          } catch {
-            clearAuthStorage()
-          }
-        }
-      }
-      setIsChecking(false)
+    const controller = new AbortController()
+    restoration.current = controller
+    const timeout = setTimeout(() => controller.abort(), 10000)
+    restoreSession(controller.signal).then(restored => {
+      if (!controller.signal.aborted) setAuth(restored)
+    }).catch(() => {}).finally(() => {
+      clearTimeout(timeout)
+      if (restoration.current === controller) setIsChecking(false)
+    })
+    return () => {
+      restoration.current = null
+      controller.abort()
+      clearTimeout(timeout)
     }
-    restore()
   }, [])
-
-  // Follow the Nostr provider once it has restored (or not) the session.
-  useEffect(() => {
-    if (nostrAuth.isLoading) return
-    setIsChecking(false)
-    if (nostrAuth.isAuthenticated && nostrAuth.pubkey) {
-      const type = nostrAuth.authMethod === "nip07" ? "nip07" : "nip46"
-      localStorage.setItem(AUTH_TYPE_STORAGE, type)
-      localStorage.setItem(NOSTR_PUBKEY_STORAGE, nostrAuth.pubkey)
-      setAuth({ ...SIGNED_OUT, type, pubkey: nostrAuth.pubkey })
-    }
-  }, [nostrAuth.isAuthenticated, nostrAuth.isLoading, nostrAuth.pubkey, nostrAuth.authMethod])
 
   const handleAuthenticated = useCallback(
     (result: AuthResult) => {
+      restoration.current?.abort()
+      setIsChecking(false)
       if (result.type === "api-key" && result.apiKey) {
         localStorage.setItem(AUTH_TYPE_STORAGE, "api-key")
         localStorage.setItem(API_KEY_STORAGE, result.apiKey)
@@ -150,24 +181,24 @@ export function HabitsSessionProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     // Revokes the server-side session (cookie) before clearing local state.
-    await nostrAuth.logout()
+    restoration.current?.abort()
+    await fetch("/api/auth/nostr/session", { method: "DELETE", credentials: "same-origin" }).catch(() => {})
     clearAuthStorage()
     setAuth(SIGNED_OUT)
     router.push("/")
-  }, [nostrAuth, router])
+  }, [router])
 
-  const value = useMemo<HabitsSessionValue>(
-    () => ({
-      isChecking: isChecking || nostrAuth.isLoading,
-      // The Nostr provider can report a restored session one render before
-      // `auth` catches up; count it as signed in so pages don't flash sign-in.
-      isSignedIn: auth.type !== null || (nostrAuth.isAuthenticated && !!nostrAuth.pubkey),
-      auth,
-      openSignIn,
-      logout,
-    }),
-    [auth, isChecking, nostrAuth.isLoading, nostrAuth.isAuthenticated, nostrAuth.pubkey, openSignIn, logout]
-  )
+  const profile = useNostrProfile(auth.pubkey)
+  const authHeaders = useMemo((): Record<string, string> => auth.apiKey ? { Authorization: `Bearer ${auth.apiKey}` } : {}, [auth.apiKey])
+  const ownerRequest = useCallback((path: string, init: RequestInit = {}) => {
+    const headers = new Headers(init.headers)
+    if (authHeaders.Authorization) headers.set("Authorization", authHeaders.Authorization)
+    return fetch(path, { ...init, headers, mode: "same-origin", credentials: "same-origin" })
+  }, [authHeaders])
+
+  const value = useMemo<HabitsSessionValue>(() => ({
+    isChecking, isSignedIn: auth.type !== null, auth, profile, authHeaders, ownerRequest, openSignIn, logout,
+  }), [isChecking, auth, profile, authHeaders, ownerRequest, openSignIn, logout])
 
   return (
     <HabitsSessionContext.Provider value={value}>

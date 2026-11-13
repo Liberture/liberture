@@ -3,14 +3,14 @@ import type { ReactNode } from "react"
 
 import { DocsNav } from "@/components/habits/docs/docs-nav"
 import { getSiteMessages } from "@/lib/i18n/messages.server"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { getLocale } from "next-intl/server"
 
 export function generateMetadata() {
   return docsMetadata("overview")
 }
 
 export default async function DocsLayout({ children }: { children: ReactNode }) {
-  const locale = await getRequestLocale()
+  const locale = await getLocale()
   const dict = (await getSiteMessages()).habits
   const nav = [
     { href: "/docs", label: dict.docs.sidebar.overview },

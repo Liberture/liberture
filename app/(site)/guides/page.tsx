@@ -5,13 +5,13 @@ import Link from "@/components/i18n/localized-link"
 import { ArrowRight, Clock } from "lucide-react"
 
 import { BreadcrumbSchema, JsonLd } from "@/components/seo/JsonLd"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { getLocale } from "next-intl/server"
 import { SITE_URL, guideOgImage, guidesFor, screenshotSize, screenshotSrc } from "@/lib/guides"
 import { formatMessage } from "@/lib/i18n-format"
 import { getSiteMessages } from "@/lib/i18n/messages.server"
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getRequestLocale()
+  const locale = await getLocale()
   const t = (await getSiteMessages()).habits.guides
   const alternates = translatedAlternates("/guides", locale)
   return {
@@ -36,7 +36,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function GuidesPage() {
-  const locale = await getRequestLocale()
+  const locale = await getLocale()
   const t = guidesFor(locale)
   const url = translatedAlternates("/guides", locale).canonical
 

@@ -1,4 +1,4 @@
-import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { getLocale } from "next-intl/server"
 import { localizedPageUrl } from "@/lib/i18n/page-url.server"
 import { notFound, permanentRedirect } from "next/navigation"
 import { getBook } from "@/lib/seo/public-records"
@@ -18,6 +18,6 @@ export default async function Page({params}: Props) {
   const { slug } = await params
   const record = await getBook(slug)
   if (!record) notFound()
-  if (slug !== record.slug) permanentRedirect(new URL(await localizedPageUrl(`/books/${record.slug}`, await getRequestLocale())).pathname)
+  if (slug !== record.slug) permanentRedirect(new URL(await localizedPageUrl(`/books/${record.slug}`, await getLocale())).pathname)
   return Details({book: record})
 }

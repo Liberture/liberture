@@ -1,12 +1,11 @@
 import { PILLAR_IDS, PILLAR_STYLES, type PillarId as Pillar } from "@/lib/habits/pillars"
 import { translatedAlternates } from "@/lib/seo/translated-routes"
-import { getTranslations as getUiCopy } from "next-intl/server"
+import { getLocale, getTranslations as getUiCopy } from "next-intl/server"
 import { DirectoryProtocol } from "@/components/directory/protocol-card"
 import { ArticleCard } from "@/components/directory/article-card"
 import { BookCard } from "@/components/directory/book-card"
 import { OrganizationCard } from "@/components/directory/org-card"
 import { getSiteMessages } from "@/lib/i18n/messages.server"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { PersonCard } from "@/components/people/person-card"
 import { notFound } from 'next/navigation'
 import { directoryPrisma as prisma } from '@/lib/i18n/directory-records.server'
@@ -35,7 +34,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const pillar = PILLAR_IDS.find(p => p === pillarParam)
   
   if (!pillar) notFound()
-  const locale = await getRequestLocale()
+  const locale = await getLocale()
   const config = await getTranslationsForPillar(pillar)
   const alternates = translatedAlternates("/pillars/" + pillar, locale)
   return {

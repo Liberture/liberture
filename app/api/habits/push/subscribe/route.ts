@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 
 import { verifiedTrackerUserId } from "@/lib/habits/app-auth"
+import { withTrackerOwner } from "@/lib/habits/api/with-tracker-owner"
 import { isPushSubscriptionInput, pushConfigured, removeSubscription, replaceSubscription, saveSubscription } from "@/lib/habits/push"
 
 export const runtime = "nodejs"
@@ -50,9 +51,7 @@ export async function POST(request: Request) {
 }
 
 /** DELETE { endpoint }: this device stops getting reminders with the app closed. */
-export async function DELETE(request: Request) {
-  const userId = await verifiedTrackerUserId(request)
-  if (!userId) return NextResponse.json(UNAUTHORIZED, { status: 401 })
+export const DELETE = withTrackerOwner(async (userId, request) => {
   const body = await readJson(request)
   const endpoint = body?.endpoint
   if (typeof endpoint !== "string" || !endpoint) {
@@ -60,4 +59,4 @@ export async function DELETE(request: Request) {
   }
   const removed = await removeSubscription(userId, endpoint)
   return NextResponse.json({ removed })
-}
+}, UNAUTHORIZED.error)

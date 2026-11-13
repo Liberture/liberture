@@ -1,10 +1,9 @@
-import { getTranslations as getUiCopy } from "next-intl/server"
+import { getLocale, getTranslations as getUiCopy } from "next-intl/server"
 import { CoverArtwork } from "@/components/habits/marketplace/protocol-artwork"
 import Markdown from "react-markdown"
 import { profilePillars } from "@/lib/pillars"
 import { articleTags } from "@/lib/article-tags"
 import { LanguageSwitch } from "@/components/habits/site/language-switch"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { getSiteMessages } from "@/lib/i18n/messages.server"
 import { ArticleCard } from "@/components/directory/article-card"
 import { CardCarousel } from "@/components/ui/card-carousel"
@@ -98,7 +97,7 @@ export default async function ArticlePage({ params }: PageProps) {
 
   const tags = articleTags(article.tags)
   const [locale, entries, candidates] = await Promise.all([
-    getRequestLocale(),
+    getLocale(),
     prisma.article.findMany({ select: { slug: true, title: true, tags: true, pillar: true }, orderBy: { title: "asc" } }),
     prisma.article.findMany({
       where: { slug: { not: slug }, OR: [

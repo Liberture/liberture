@@ -22,34 +22,30 @@ type State =
   | { kind: "done" }
   | { kind: "error"; message: string }
 
-/** Owner auth the same way Settings does it: ht_ key, or the Nostr session cookie. */
-function ownerFetch(path: string, init: RequestInit = {}): Promise<Response> {
-  const apiKey = localStorage.getItem("habit-tracker-api-key")
-  const headers = new Headers(init.headers)
-  if (apiKey && localStorage.getItem("habit-tracker-auth-type") === "api-key") headers.set("Authorization", `Bearer ${apiKey}`)
-  return fetch(path, { ...init, headers, credentials: "same-origin" })
-}
-
 const fill = (text: string, app: string, host = "") => text.replaceAll("{app}", app).replaceAll("{host}", host)
 
 export function ConsentScreen({ params, appName, host, t }: ConsentScreenProps) {
   const [state, setState] = useState<State>({ kind: "checking" })
 
+  const { isChecking, ownerRequest, openSignIn } = useHabitsSession()
   useEffect(() => {
-    ownerFetch("/api/oauth/whoami")
-      .then(async (r) => {
-        if (!r.ok) return setState({ kind: "signed-out" })
-        const d = await r.json()
-        setState({ kind: "ready", name: d.name, permissions: d.permissions })
+    if (isChecking) return
+    const controller = new AbortController()
+    setState({ kind: "checking" })
+    ownerRequest("/api/oauth/whoami", { signal: controller.signal })
+      .then(async response => {
+        const user = response.ok ? await response.json() : null
+        if (!controller.signal.aborted) setState(user ? { kind: "ready", name: user.name, permissions: user.permissions } : { kind: "signed-out" })
       })
-      .catch(() => setState({ kind: "signed-out" }))
-  }, [])
+      .catch(() => { if (!controller.signal.aborted) setState({ kind: "signed-out" }) })
+    return () => controller.abort()
+  }, [isChecking, ownerRequest])
 
   const decide = useCallback(
     async (decision: "approve" | "deny") => {
       setState({ kind: "working" })
       try {
-        const r = await ownerFetch("/api/oauth/approve", {
+        const r = await ownerRequest("/api/oauth/approve", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ ...params, decision }),
@@ -65,10 +61,9 @@ export function ConsentScreen({ params, appName, host, t }: ConsentScreenProps) 
         setState({ kind: "error", message: "Network error" })
       }
     },
-    [params]
+    [params, ownerRequest]
   )
 
-  const { openSignIn } = useHabitsSession()
   const signIn = () => {
     // The session provider sends us back here (full load) once signed in.
     openSignIn({ next: window.location.pathname + window.location.search })

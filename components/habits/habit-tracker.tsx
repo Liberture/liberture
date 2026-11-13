@@ -10,6 +10,7 @@ import Link from "@/components/i18n/localized-link"
 import { LibertureLogoStatic } from "@/components/branding"
 import { HabitGrid } from "@/components/habits/habit-grid"
 import { HabitDialog } from "@/components/habits/habit-dialog"
+import { useHabitsSession } from "@/components/habits/session-provider"
 import { AccountHeader } from "@/components/habits/account-header"
 import { takePostLoginIntent } from "@/lib/habits/post-login-intent"
 import { TodoList } from "@/components/habits/todo-list"
@@ -54,27 +55,19 @@ const LAYOUTS: Array<{ id: HabitsLayout; icon: typeof Rows3; desktopOnly?: boole
   { id: "matrix", icon: CalendarRange, desktopOnly: true },
 ]
 
-interface HabitTrackerProps {
-  apiKey: string
-  isNostrAuth?: boolean
-  onLogout: () => void
-}
-
 /**
  * The signed-in app shell: header, one responsive view track (Habits · Todos ·
  * Calendar · Stats · Discover), the bottom bar on phones, and every dialog —
  * each rendered once. Data and sync live in useTrackerData, writes in
  * useTrackerActions, view/URL state in useTrackerView.
  */
-export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTrackerProps) {
+export function HabitTracker() {
+  const { auth, authHeaders, logout: onLogout } = useHabitsSession()
+  const apiKey = auth.apiKey ?? ""
+  const isNostrAuth = auth.pubkey !== null
+  const nostrPubkey = auth.pubkey
   const t = useTranslations().habits.app.habitTracker
-  const authHeaders = useMemo<Record<string, string>>(() => {
-    const headers: Record<string, string> = {}
-    if (apiKey) headers.Authorization = `Bearer ${apiKey}`
-    return headers
-  }, [apiKey])
-
-  const data = useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMessage: t.staleCopyRejected, accountResetMessage: t.accountResetElsewhere })
+  const data = useTrackerData({ apiKey, draftOwner: nostrPubkey ?? apiKey, authHeaders, staleCopyMessage: t.staleCopyRejected, accountResetMessage: t.accountResetElsewhere })
   const actions = useTrackerActions(data)
   const {
     habits, completions, todos, projects, calendarEvents, storageData, onboardingState,
@@ -87,7 +80,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
   // (connect in ChatGPT/Claude, sign up on the approve page) skips the wizard:
   // setup happens in that assistant's first chat. Wait briefly for the check
   // so the wizard doesn't flash; if it fails, fall back to the wizard.
-  const connections = useAssistantConnections(apiKey)
+  const connections = useAssistantConnections()
   const connectedKinds = useMemo(
     () => (connections ?? []).map((c) => assistantKind(c.name)).filter((k): k is "chatgpt" | "claude" => k !== null),
     [connections],
@@ -151,17 +144,6 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
     } catch {}
     setSettingsTab("assistants")
   }, [isLoading, onboardingState.completed])
-
-  // For the header's Nostr profile (picture, name, NIP-05).
-  const [nostrPubkey, setNostrPubkey] = useState<string | null>(null)
-  useEffect(() => {
-    if (!isNostrAuth) return
-    try {
-      setNostrPubkey(localStorage.getItem("habit-tracker-nostr-pubkey"))
-    } catch {
-      setNostrPubkey(null)
-    }
-  }, [isNostrAuth])
 
   // Nostr migration state: fetch the link status for legacy API-key users.
   const [linkedNostrPubkey, setLinkedNostrPubkey] = useState<string | null>(null)
@@ -360,7 +342,6 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
           setTourIds(selected.map(habit => habit.id))
         }}
         onSkip={actions.handleOnboardingSkip}
-        apiKey={apiKey}
       />
     )
   }
@@ -573,7 +554,6 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
           <div className="min-w-0 w-full lg:w-auto lg:justify-self-end lg:max-w-full">
             <AccountHeader
               compact={isMobile}
-              pubkey={nostrPubkey}
               fallbackName={storageData?.profile?.name}
               onOpenSettings={openSettings}
               onExport={actions.exportData}

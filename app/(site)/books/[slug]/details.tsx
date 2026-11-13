@@ -1,6 +1,5 @@
 import { localizedPageUrl } from "@/lib/i18n/page-url.server"
-import { getMessages } from "next-intl/server"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { getLocale, getMessages } from "next-intl/server"
 import type { Catalog } from "@/lib/translations"
 import { PillarTag } from "@/components/habits/marketplace/pillar-tag"
 import { profilePillars } from "@/lib/pillars"
@@ -40,7 +39,7 @@ type Book = {
 };
 
 export default async function BookDetails({ book }: { book: Book }) {
-  const locale = await getRequestLocale()
+  const locale = await getLocale()
   const { bookDetails: text, app: { protocolCard } } = (await getMessages() as unknown as Catalog).habits
   const contributors = await bookContributors(book.author, book.Person)
   const keyTakeaways = entries(book.keyTakeaways);

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { z } from "zod"
 import { getDb } from "@/lib/habits/db"
-import { verifiedTrackerUserId } from "@/lib/habits/app-auth"
+import { withTrackerOwner } from "@/lib/habits/api/with-tracker-owner"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -34,9 +34,7 @@ async function database() {
   return sql
 }
 
-export async function GET(request: Request) {
-  const userId = await verifiedTrackerUserId(request)
-  if (userId === null) return NextResponse.json({ error: "Sign in to view your chat history." }, { status: 401 })
+export const GET = withTrackerOwner(async (userId) => {
   const sql = await database()
   const rows = await sql`SELECT * FROM habit_coach_messages WHERE user_id = ${userId} ORDER BY created_at, message_id`
   const latest = [...rows].reverse().find((row) => row.conversation_id)
@@ -48,11 +46,9 @@ export async function GET(request: Request) {
       createdAt: Number(row.created_at), updatedAt: Number(row.updated_at),
     })),
   }, { headers: { "Cache-Control": "no-store" } })
-}
+}, "Sign in to view your chat history.")
 
-export async function PUT(request: Request) {
-  const userId = await verifiedTrackerUserId(request)
-  if (userId === null) return NextResponse.json({ error: "Sign in to save your chat history." }, { status: 401 })
+export const PUT = withTrackerOwner(async (userId, request) => {
   const body = await request.text()
   if (body.length > 2_000_000) return NextResponse.json({ error: "Chat history is too large." }, { status: 413 })
   let input: z.infer<typeof historySchema>
@@ -74,4 +70,4 @@ export async function PUT(request: Request) {
     }
   })
   return NextResponse.json({ saved: true })
-}
+}, "Sign in to save your chat history.")

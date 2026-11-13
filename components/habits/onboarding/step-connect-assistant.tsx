@@ -8,10 +8,10 @@ import { AssistantStartButtons } from "@/components/habits/assistant/assistant-s
 import { assistantKind, useAssistantConnections } from "@/components/habits/assistant/use-assistant-connections"
 import { useTranslations } from "@/components/i18n/locale-provider"
 
-export function StepConnectAssistant({ apiKey, onNext }: { apiKey: string; onNext: () => void }) {
+export function StepConnectAssistant({ onNext }: { onNext: () => void }) {
   const t = useTranslations().habits.app.onboardingConnectAssistant
   const [platform, setPlatform] = useState<AssistantPlatform>("claude")
-  const connections = useAssistantConnections(apiKey, true)
+  const connections = useAssistantConnections(true)
   const connected = (connections ?? []).map((c) => assistantKind(c.name)).filter((k): k is "chatgpt" | "claude" => k !== null)
   const anyConnected = (connections ?? []).length > 0
 

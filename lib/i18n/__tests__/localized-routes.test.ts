@@ -16,7 +16,7 @@ describe("public language URLs", () => {
   it("round-trips translated sections, guides and pillars", () => {
     for (const path of ["/", "/books", "/pillars/exercise", "/docs/permissions", "/guides/read-your-habit-statistics"]) {
       for (const locale of ["es", "en"] as const) {
-        expect(parsePublicPath(localizedPath(path, locale))).toMatchObject({ internalPath: path, locale })
+        expect(parsePublicPath(localizedPath(path, locale))).toMatchObject({ internalPath: path, locale: locale === "es" ? "es" : undefined })
       }
     }
   })
@@ -25,9 +25,25 @@ describe("public language URLs", () => {
     const slugs = new Map([["/articles/training", "entrenamiento"]])
     expect(localizedHref("/articles/training?q=x#read", "es", slugs)).toBe("/es/articulos/entrenamiento?q=x#read")
     expect(languageAlternates("/articles/training", "entrenamiento")).toEqual({
-      en: "https://liberture.com/en/articles/training", es: "https://liberture.com/es/articulos/entrenamiento",
-      "x-default": "https://liberture.com/en/articles/training",
+      en: "https://liberture.com/articles/training", es: "https://liberture.com/es/articulos/entrenamiento",
+      "x-default": "https://liberture.com/articles/training",
     })
+  })
+
+  it("serves unprefixed English even when the browser prefers Spanish", async () => {
+    const response = await proxy(new NextRequest("https://liberture.com/books", {
+      headers: { "accept-language": "es", cookie: "lang=es" },
+    }))
+    expect(response.headers.get("location")).toBeNull()
+    expect(response.headers.get("x-middleware-request-x-liberture-page-language")).toBe("en")
+  })
+
+  it("permanently redirects old English URLs and preserves the query", async () => {
+    for (const [old, path] of [["/en", "/"], ["/en/books", "/books"]]) {
+      const result = await proxy(new NextRequest("https://liberture.com" + old + "?q=test"))
+      expect(result.status).toBe(308)
+      expect(result.headers.get("location")).toBe("https://liberture.com" + path + "?q=test")
+    }
   })
 
   it("leaves functional endpoints and static assets untouched", () => {
@@ -40,7 +56,7 @@ describe("public language URLs", () => {
     const spanish = await proxy(new NextRequest("https://liberture.com/articles/training?q=x&lang=es"))
     expect(spanish.headers.get("location")).toBe("https://liberture.com/es/articulos/entrenamiento?q=x")
     const english = await proxy(new NextRequest("https://liberture.com/es/articulos/entrenamiento?q=x&lang=en"))
-    expect(english.headers.get("location")).toBe("https://liberture.com/en/articles/training?q=x")
+    expect(english.headers.get("location")).toBe("https://liberture.com/articles/training?q=x")
   })
 
   it("serves the Spanish record at its canonical URL independently of a conflicting cookie", async () => {

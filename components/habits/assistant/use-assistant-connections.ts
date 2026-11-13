@@ -1,5 +1,7 @@
 "use client"
 
+import { useHabitsSession } from "@/components/habits/session-provider"
+
 import { useCallback, useEffect, useState } from "react"
 
 export interface AssistantConnection {
@@ -14,19 +16,20 @@ export interface AssistantConnection {
  * With `poll`, it rechecks every 4 s and when the window regains focus — for
  * the connect step, where approving happens in another tab.
  */
-export function useAssistantConnections(apiKey: string, poll = false): AssistantConnection[] | null {
+export function useAssistantConnections(poll = false): AssistantConnection[] | null {
+  const { ownerRequest } = useHabitsSession()
   const [connections, setConnections] = useState<AssistantConnection[] | null>(null)
 
   const check = useCallback(async () => {
     try {
-      const res = await fetch("/api/v1/connections", { headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : undefined, credentials: "same-origin" })
+      const res = await ownerRequest("/api/v1/connections")
       if (!res.ok) return
       const data = (await res.json()) as { connections?: AssistantConnection[] }
       setConnections((data.connections ?? []).map(({ id, name }) => ({ id, name })))
     } catch {
       // Offline or signed out: stay unknown.
     }
-  }, [apiKey])
+  }, [ownerRequest])
 
   useEffect(() => {
     check()

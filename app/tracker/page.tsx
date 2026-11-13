@@ -9,7 +9,7 @@ import { useHabitsSession } from "@/components/habits/session-provider"
 
 /** The signed-in habit tracker. Signed-out visitors get the sign-in dialog. */
 export default function TrackerPage() {
-  const { isChecking, isSignedIn, auth, openSignIn, logout } = useHabitsSession()
+  const { isChecking, isSignedIn, auth, openSignIn } = useHabitsSession()
   const t = useTranslations().habits.app.shell
 
   useEffect(() => {
@@ -39,11 +39,9 @@ export default function TrackerPage() {
     )
   }
 
-  const isNostrAuth = auth.type !== "api-key"
-
   return (
     <main className="lb-wash min-h-screen">
-      <HabitTracker apiKey={auth.apiKey ?? ""} isNostrAuth={isNostrAuth} onLogout={logout} />
+      <HabitTracker key={auth.pubkey ?? auth.apiKey} />
     </main>
   )
 }

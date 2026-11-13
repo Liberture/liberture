@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { verifiedTrackerUserId } from "@/lib/habits/app-auth"
+import { withTrackerOwner } from "@/lib/habits/api/with-tracker-owner"
 import { getDb } from "@/lib/habits/db"
 import { getDictionary, isLocale, LOCALE_COOKIE } from "@/lib/habits/i18n"
 import { pushConfigured, sendPush } from "@/lib/habits/push"
@@ -15,9 +15,7 @@ function cookieLocale(request: Request): string | undefined {
 }
 
 /** POST: sends a real push from the server to every device of the caller, so delivery with the app closed can be proven. */
-export async function POST(request: Request) {
-  const userId = await verifiedTrackerUserId(request)
-  if (!userId) return NextResponse.json({ error: "Valid API key or Nostr session required." }, { status: 401 })
+export const POST = withTrackerOwner(async (userId, request) => {
   if (!pushConfigured()) {
     return NextResponse.json({ error: "Push notifications are not configured on this server.", code: "push_not_configured" }, { status: 503 })
   }
@@ -29,4 +27,4 @@ export async function POST(request: Request) {
 
   const result = await sendPush(userId, { title: t.testTitle, body: t.testBody, tag: "habit-server-test", url: REMINDER_URL })
   return NextResponse.json({ ...result, devices: result.sent + result.failed + result.removed })
-}
+}, "Valid API key or Nostr session required.")

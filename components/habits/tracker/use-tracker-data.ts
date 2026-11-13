@@ -91,7 +91,7 @@ export type ResolvedPreferences = typeof DEFAULT_PREFERENCES & UserPreferences
 
 interface UseTrackerDataOptions {
   apiKey: string
-  isNostrAuth: boolean
+  draftOwner: string
   authHeaders: Record<string, string>
   /** Toast when a save finds the account was reset on another device. */
   accountResetMessage: string
@@ -99,7 +99,7 @@ interface UseTrackerDataOptions {
   staleCopyMessage: string
 }
 
-export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMessage, accountResetMessage }: UseTrackerDataOptions) {
+export function useTrackerData({ apiKey, draftOwner, authHeaders, staleCopyMessage, accountResetMessage }: UseTrackerDataOptions) {
   const [habits, setHabits] = useState<Habit[]>([])
   const [completions, setCompletions] = useState<HabitCompletion[]>([])
   // Days logged before a habit was created (the assistant backfilling "I did it
@@ -151,15 +151,6 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
   const [storageData, setStorageData] = useState<StorageData | null>(null)
 
   const markDirty = useCallback(() => setIsDirty(true), [])
-
-  const draftOwner = useCallback(() => {
-    if (!isNostrAuth) return apiKey
-    try {
-      return localStorage.getItem("habit-tracker-nostr-pubkey") ?? ""
-    } catch {
-      return ""
-    }
-  }, [apiKey, isNostrAuth])
 
   // Apply a server payload to local state (used by the initial load and by
   // silent background refreshes). Runs the legacy-format migrations inline.
@@ -278,7 +269,7 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
         console.error("Failed to load data:", error)
       } finally {
         const draft = readUnsavedDraft()
-        if (draft?.owner && draft.owner === draftOwner()) {
+        if (draft?.owner && draft.owner === draftOwner) {
           data = draft.data
           setIsDirty(true)
           setCachedLocally(true)
@@ -326,7 +317,7 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
   // remains authoritative once it acknowledges the same draft.
   useEffect(() => {
     if (isLoading || !isDirty) return
-    const owner = draftOwner()
+    const owner = draftOwner
     if (!owner) return
     const baseData = storageData ? { ...storageData } : {}
     delete (baseData as Record<string, unknown>).pomodoro
@@ -472,7 +463,7 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
     const sentCalendarEvents = calendarEvents
     const sentMetaVersion = metaVersionRef.current
     const cachedDraft = readUnsavedDraft()
-    const sentDraftVersion = cachedDraft?.owner === draftOwner() ? cachedDraft.cachedAt : null
+    const sentDraftVersion = cachedDraft?.owner === draftOwner ? cachedDraft.cachedAt : null
 
     setSaveResult(null)
     setIsSaving(true)
@@ -564,7 +555,7 @@ export function useTrackerData({ apiKey, isNostrAuth, authHeaders, staleCopyMess
         setIsDirty(false)
         // The save landed, so the local safety copy for this version is spent.
         const draft = readUnsavedDraft()
-        if (draft?.owner === draftOwner() && draft.cachedAt === sentDraftVersion) {
+        if (draft?.owner === draftOwner && draft.cachedAt === sentDraftVersion) {
           localStorage.removeItem(UNSAVED_DRAFT_KEY)
           setCachedLocally(false)
         }

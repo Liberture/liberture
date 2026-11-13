@@ -49,10 +49,9 @@ interface DataTabProps {
   /** Closes Settings itself (after clearing everything). */
   onCloseSettings: () => void
   /** Legacy API key, for the merge-history request; Nostr sessions use the cookie. */
-  apiKey?: string
 }
 
-export function DataTab({ habits, lastBackupAt, onExport, onImport, onDeleteAccount, onLogout, isNostrAuth, onCloseSettings, apiKey }: DataTabProps) {
+export function DataTab({ habits, lastBackupAt, onExport, onImport, onDeleteAccount, onLogout, isNostrAuth, onCloseSettings }: DataTabProps) {
   const copy = useTranslations().habits.app
   const t = copy.settingsDialog
   const locale = useLocale()
@@ -218,7 +217,7 @@ export function DataTab({ habits, lastBackupAt, onExport, onImport, onDeleteAcco
         />
       </SettingsCard>
 
-      {merging && <MergeHistoryDialog backup={merging} habits={habits} apiKey={apiKey} onClose={closeMerge} />}
+      {merging && <MergeHistoryDialog backup={merging} habits={habits} onClose={closeMerge} />}
 
       <AppDialog
         open={preview !== null}

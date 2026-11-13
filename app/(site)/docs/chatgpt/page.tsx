@@ -4,7 +4,7 @@ import { ExternalLink } from "lucide-react"
 import { CopyBlock } from "@/components/habits/docs/copy-block"
 import { DocsCallout, DocsSection, DocsSteps, DocsTitle } from "@/components/habits/docs/docs-parts"
 import { getSiteMessages } from "@/lib/i18n/messages.server"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { getLocale } from "next-intl/server"
 import { getSiteSetting } from "@/lib/habits/oauth/store"
 import { getServerOrigin } from "@/lib/habits/request-origin"
 import { DocsScreenshot } from "@/components/habits/docs/docs-screenshot"
@@ -12,7 +12,7 @@ import { DocsScreenshot } from "@/components/habits/docs/docs-screenshot"
 
 export default async function ChatGptDocsPage() {
   const [locale, origin, gptUrl] = await Promise.all([
-    getRequestLocale(),
+    getLocale(),
     getServerOrigin(),
     getSiteSetting("chatgpt_gpt_url").catch(() => null),
   ])

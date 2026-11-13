@@ -1,7 +1,7 @@
 import { localizeProtocolDuration } from "@/lib/constants/protocol-durations"
 import { Prisma } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { getLocale } from "next-intl/server"
 import type { Locale } from "@/lib/translations"
 
 type Shape = Record<string, unknown>
@@ -56,7 +56,7 @@ function clientFor(getLocale: () => Promise<Locale>) {
   })
 }
 
-export const directoryPrisma = clientFor(getRequestLocale)
+export const directoryPrisma = clientFor(getLocale)
 const english = clientFor(async () => "en")
 const spanish = clientFor(async () => "es")
 

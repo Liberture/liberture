@@ -1,5 +1,7 @@
 "use client"
 
+import { useHabitsSession } from "@/components/habits/session-provider"
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { AlertCircle, Loader2, MessageSquarePlus, Send, Settings2, Sparkles, Square } from "lucide-react"
 
@@ -155,13 +157,7 @@ export function CoachPanel({
   const pendingRef = useRef<{ question: string; recommendations: Recommendation[] } | null>(null)
 
   const authQuery = apiKey ? `?apiKey=${encodeURIComponent(apiKey)}` : ""
-  // Nostr users authenticate with the session cookie and send no header, the
-  // same split the rest of the app uses.
-  const authHeaders = useMemo<Record<string, string>>(() => {
-    const headers: Record<string, string> = {}
-    if (apiKey) headers.Authorization = `Bearer ${apiKey}`
-    return headers
-  }, [apiKey])
+  const { authHeaders } = useHabitsSession()
 
   useEffect(() => {
     let cancelled = false

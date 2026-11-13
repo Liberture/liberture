@@ -1,5 +1,7 @@
 "use client"
 
+import { useHabitsSession } from "@/components/habits/session-provider"
+
 import { FieldSelect, FieldOption } from "@/components/ui/select"
 import { useCallback, useEffect, useState } from "react"
 import { GitMerge } from "lucide-react"
@@ -31,7 +33,6 @@ interface ImportResult {
 interface MergeHistoryDialogProps {
   backup: { fileName: string; data: unknown }
   habits: Habit[]
-  apiKey?: string
   onClose: () => void
 }
 
@@ -49,8 +50,9 @@ function timeZone(): string | undefined {
  * ambiguous is matched for them), previews again on every change, and only
  * then writes. The tracker picks the new history up through its live refresh.
  */
-export function MergeHistoryDialog({ backup, habits, apiKey, onClose }: MergeHistoryDialogProps) {
+export function MergeHistoryDialog({ backup, habits, onClose }: MergeHistoryDialogProps) {
   const t = useTranslations().habits.app.settingsDialog.data.merge
+  const { ownerRequest } = useHabitsSession()
   const common = useTranslations().habits.app.common
   const [result, setResult] = useState<ImportResult | null>(null)
   const [choices, setChoices] = useState<Record<string, string>>({})
@@ -59,9 +61,9 @@ export function MergeHistoryDialog({ backup, habits, apiKey, onClose }: MergeHis
 
   const send = useCallback(
     async (dryRun: boolean, mapping: Record<string, string>): Promise<ImportResult | null> => {
-      const response = await fetch("/api/import/habit-history", {
+      const response = await ownerRequest("/api/import/habit-history", {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}) },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           data: backup.data,
           dryRun,
@@ -73,7 +75,7 @@ export function MergeHistoryDialog({ backup, habits, apiKey, onClose }: MergeHis
       if (!response.ok) return null
       return (await response.json()) as ImportResult
     },
-    [backup, apiKey]
+    [backup, ownerRequest]
   )
 
   useEffect(() => {
