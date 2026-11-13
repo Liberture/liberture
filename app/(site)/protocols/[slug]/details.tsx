@@ -7,6 +7,8 @@ import { ArticleSchema, BreadcrumbSchema } from "@/components/seo/JsonLd"
 import type { Byline } from "@/lib/seo/protocol-credits"
 import { sectionTrail } from "@/components/seo/section-breadcrumbs"
 import { ProtocolArtwork } from "@/components/habits/marketplace/protocol-artwork"
+import { SourceLink } from "@/components/habits/marketplace/source-link"
+import { normalizeSource } from "@/lib/habits/protocols/sources"
 import { ProtocolFacts, ProtocolHabits } from "@/components/habits/marketplace/protocol-facts"
 import { findProtocol } from "@/lib/habits/protocols/catalog"
 import type { Author } from "@/lib/habits/protocols/authors"
@@ -127,7 +129,12 @@ export default async function ProtocolDetails({ protocol }: { protocol: Protocol
             </TabsContent>
             {catalog && <TabsContent value="habits"><ProtocolHabits protocol={catalog} /></TabsContent>}
             <TabsContent value="evidence" className="space-y-5">
-              <ProtocolList title={copy.sources} items={references} />
+              <section>
+                <h2 className="mb-2 font-semibold">{copy.sources}</h2>
+                <ul className="list-disc space-y-3 pl-6 leading-relaxed">
+                  {references.map((reference, index) => <li key={index}><SourceLink source={normalizeSource(reference)} /></li>)}
+                </ul>
+              </section>
             </TabsContent>
           </Tabs>
         </div>
