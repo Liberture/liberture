@@ -26,6 +26,7 @@ export async function PATCH(
         founded: body.founded === "" ? null : body.founded,
         website: body.website,
         resources: body.resources === "" ? null : body.resources,
+        publications: body.publications === "" ? null : body.publications,
         keyPeople: body.keyPeople === "" ? null : body.keyPeople,
         imageUrl: body.imageUrl === "" ? null : body.imageUrl,
         wikipedia: body.wikipedia === "" ? null : body.wikipedia,

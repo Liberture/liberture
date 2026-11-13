@@ -1,5 +1,5 @@
 import type { Organization } from "@prisma/client"
-import Image from "next/image"
+import { OrganizationLogo } from "@/components/directory/organization-logo"
 import { BookOpen, Building2, ExternalLink, Files, Users } from "lucide-react"
 import { DirectoryLayout } from "@/components/directory/layout"
 import { PillarTag } from "@/components/habits/marketplace/pillar-tag"
@@ -7,37 +7,11 @@ import { ProfileMarkdown } from "@/components/people/profile-markdown"
 import { JsonLd, BreadcrumbSchema } from "@/components/seo/JsonLd"
 import { sectionTrail } from "@/components/seo/section-breadcrumbs"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getRequestLocale } from "@/lib/habits/i18n/server"
+import type { Locale } from "@/lib/translations"
 import { profilePillars } from "@/lib/pillars"
-import { organizationLabels } from "./labels"
+import { getDictionary } from "@/lib/habits/i18n"
 
-function httpUrl(value: unknown): string | undefined {
-  if (typeof value !== "string") return
-  try {
-    const url = new URL(value)
-    if (url.protocol === "https:" || url.protocol === "http:") return url.href
-  } catch {
-    return
-  }
-}
-
-type Entry = { title: string; url?: string }
-
-function entries(raw: string | null): Entry[] {
-  if (!raw?.trim()) return []
-  let values: unknown
-  try {
-    values = JSON.parse(raw)
-  } catch {
-    values = raw.split(/\r?\n/)
-  }
-  const list = Array.isArray(values) ? values : [values]
-  return list.flatMap((value): Entry[] => {
-    if (typeof value === "string" && value.trim()) return [{ title: value.trim(), url: httpUrl(value.trim()) }]
-    if (value && typeof value.title === "string" && value.title.trim()) return [{ title: value.title.trim(), url: httpUrl(value.url) }]
-    return []
-  })
-}
+import { httpUrl, entries, type Entry } from "@/lib/directory/organization-entries"
 
 function EntryList({ items }: { items: Entry[] }) {
   return <ul className="divide-y divide-border">{items.map(({ title, url }, index) =>
@@ -49,8 +23,8 @@ function EntryList({ items }: { items: Entry[] }) {
   )}</ul>
 }
 
-export default async function OrganizationDetails({ organization }: { organization: Organization }) {
-  const t = organizationLabels[await getRequestLocale()]
+export default function OrganizationDetails({ organization, locale }: { organization: Organization; locale: Locale }) {
+  const t = getDictionary(locale).app.organizationProfile
   const website = httpUrl(organization.website)
   const wikipedia = httpUrl(organization.wikipedia)
   const image = organization.imageUrl?.startsWith("/") && !organization.imageUrl.startsWith("//") ? organization.imageUrl : httpUrl(organization.imageUrl)
@@ -72,7 +46,7 @@ export default async function OrganizationDetails({ organization }: { organizati
     <h1 className="my-7 text-balance text-4xl font-bold sm:text-5xl">{organization.name}</h1>
     <div className="grid items-start gap-6 md:grid-cols-[minmax(0,1fr)_minmax(15rem,0.42fr)]">
       <aside className="min-w-0 space-y-5 rounded-xl border border-border bg-card p-5 md:sticky md:top-24 md:col-start-2 md:row-start-1" aria-label={t.profile}>
-        {image && <Image src={image} alt={organization.name} width={160} height={80} unoptimized className="h-16 w-auto max-w-full object-contain object-left" />}
+        <OrganizationLogo src={image ?? null} name={organization.name} />
         <dl className="space-y-3 text-sm">
           {organization.type && <div><dt className="text-muted-foreground">{t.type}</dt><dd className="capitalize">{organization.type}</dd></div>}
           {organization.founded && <div><dt className="text-muted-foreground">{t.founded}</dt><dd>{organization.founded}</dd></div>}

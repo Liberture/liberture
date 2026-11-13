@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { useLocale } from "@/components/i18n/locale-provider"
-import { labels, fieldLabel } from "./editor-fields"
+import { useLocale, useTranslations } from "@/components/i18n/locale-provider"
+import { fieldLabel } from "./editor-fields"
 
 type Revision = {
   id: string
@@ -21,7 +21,7 @@ function display(value: unknown, empty: string) {
 
 export function EditHistory({ url }: { url: string }) {
   const locale = useLocale()
-  const t = labels[locale]
+  const t = useTranslations().habits.app.directoryEditor
   const [entries, setEntries] = useState<Revision[]>([])
   const [cursor, setCursor] = useState<string | null>(null)
   const [request, setRequest] = useState<{ cursor?: string }>({})
