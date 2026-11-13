@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0
+
+Released 2026-11-13.
+
+- **Lightning funding.** New challenges use the Nostr WoT mainnet Cashu mint at mint.nostrwot.com. Players pay a Lightning invoice and can resume a pending deposit from the same browser. Each stake is limited to 10,000 sats. Existing test challenges retain their original mint for payouts and refunds.
+- **Moderation and invitations.** Two players can fund immediately after the second player joins. For arbitration, select a Nostr moderator who has registered their browser-held Cashu key. Invite a player by private link, profile search or npub. The tracker uses layered SVG cashew characters for sparring, victories and draws.
+- **Sign-in.** The login dialog supports pasting a bunker URI while QR pairing is pending and uses nostr-tools 2.26.0.
+- **Operations.** Apply the moderator registry migration. Nostr WoT operates the mint behind a rate-limited gateway with a dedicated LNbits wallet accessed through the existing proxy. Restore the mint database and key material together. Preserve mint availability and challenge records when rolling back the tracker.
+
 ## 0.4.0
 
 Released 2026-11-13.

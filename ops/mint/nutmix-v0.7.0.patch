@@ -1,0 +1,58 @@
+diff --git a/cmd/nutmix/main.go b/cmd/nutmix/main.go
+index 898af41..afe31c4 100644
+--- a/cmd/nutmix/main.go
++++ b/cmd/nutmix/main.go
+@@ -179,7 +179,7 @@ func main() {
+ 
+ 	// Define a custom http.Server
+ 	srv := new(http.Server)
+-	srv.Addr = PORT
++	srv.Addr = "127.0.0.1" + PORT
+ 	srv.Handler = r
+ 	srv.ReadTimeout = 3 * time.Second
+ 	srv.WriteTimeout = 4 * time.Second
+diff --git a/internal/lightning/lnbits.go b/internal/lightning/lnbits.go
+index 00f6884..a5158b3 100644
+--- a/internal/lightning/lnbits.go
++++ b/internal/lightning/lnbits.go
+@@ -32,10 +32,10 @@ type LNBitsDetailErrorData struct {
+ type lnbitsInvoiceRequest struct {
+ 	Unit       string `json:"unit,omitempty"`
+ 	CheckingId string `json:"checking_id,omitempty"`
+-	Memo       string `json:"memo"`
+-	Bolt11     string `json:"bolt11"`
+-	Amount     uint64 `json:"amount"`
+-	Expiry     int64  `json:"expiry"`
++	Memo       string `json:"memo,omitempty"`
++	Bolt11     string `json:"bolt11,omitempty"`
++	Amount     uint64 `json:"amount,omitempty"`
++	Expiry     int64  `json:"-"`
+ 	Out        bool   `json:"out"`
+ }
+ 
+@@ -91,6 +91,7 @@ func (l *LnbitsWallet) lnbitsRequest(ctx context.Context, method string, endpoin
+ 		return fmt.Errorf("http.NewRequestWithContext: %w", err)
+ 	}
+ 	req.Header.Set("X-Api-Key", l.Key)
++	req.Header.Set("Content-Type", "application/json")
+ 
+ 	resp, err := client.Do(req)
+ 	if err != nil {
+@@ -160,7 +161,7 @@ func (l LnbitsWallet) PayInvoice(melt_quote cashu.MeltRequestDB, zpayInvoice *zp
+ 	reqInvoice := lnbitsInvoiceRequest{
+ 		Out:        true,
+ 		Bolt11:     melt_quote.Request,
+-		Amount:     amount.Amount,
++		Amount:     0,
+ 		Unit:       "",
+ 		Memo:       "",
+ 		Expiry:     0,
+@@ -283,7 +284,7 @@ func (l LnbitsWallet) RequestInvoice(amount cashu.Amount, description *string) (
+ 	var lnbitsInvoice struct {
+ 		PaymentHash    string `json:"payment_hash"`
+ 		PaymentRequest string `json:"payment_request"`
+-		Bolt11         string `json:"bolt11"`
++		Bolt11         string `json:"bolt11,omitempty"`
+ 	}
+ 	err = l.LnbitsRequest("POST", "/api/v1/payments", reqInvoice, &lnbitsInvoice)
+ 	if err != nil {

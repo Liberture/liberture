@@ -20,6 +20,7 @@ export interface ChallengeTerms {
 }
 
 export interface Challenge extends ChallengeTerms {
+  arbitration?: "registered" | "none"
   role: Role
   members: Partial<Record<Role, Member>>
   stage: ChallengeStage

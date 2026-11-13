@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { useHabitsSession } from "@/components/habits/session-provider"
 import type { Challenge } from "@/lib/challenges/types"
+import { MAX_STAKE, TEST_MINT } from "@/lib/challenges/mints"
 import { InviteTarget } from "./invite-target"
 import { ChallengeDetail } from "./detail"
 import { Field, panel, rememberWallet, useAction, useChallengeClient } from "./common"
@@ -14,7 +15,8 @@ import { Field, panel, rememberWallet, useAction, useChallengeClient } from "./c
 export function ChallengesView() {
   const t = useTranslations("challenges")
   const { request, isChecking } = useChallengeClient()
-  const { profile } = useHabitsSession()
+  const { profile, auth } = useHabitsSession()
+  const [registered, setRegistered] = useState(false)
   const [items, setItems] = useState<Challenge[] | null>(null)
   const [selected, setSelected] = useState<Challenge | null>(null)
   const [creating, setCreating] = useState(false)
@@ -59,7 +61,19 @@ export function ChallengesView() {
         </h2>
         {!creating && <Button onClick={() => setCreating(true)}>{t("new")}</Button>}
       </header>
-      <p className="text-sm text-muted-foreground">{t("testMint")}</p>
+      <p className="text-sm text-muted-foreground">{t("liveMint")}</p>
+      {auth.pubkey && !creating && <details className={panel}>
+        <summary>{t("registerModerator")}</summary><p>{t("registerExplanation")}</p>
+        <Button disabled={busy || registered} onClick={()=>void run(async()=>{
+          const {challengePublicKey}=await import("@/lib/challenges/cashu")
+          const owner="moderator-"+auth.pubkey
+          const pubkey=challengePublicKey(owner)
+          rememberWallet(pubkey,owner)
+          await request("/moderator","POST",{pubkey,name:(profile?.name || auth.pubkey!.slice(0,12)).slice(0,48)})
+          setRegistered(true)
+        })}>{t(registered?"registered":"registerModerator")}</Button>
+        {error && <p role="alert">{error}</p>}
+      </details>}
       {creating ? (
         <form
           className={panel}
@@ -81,7 +95,7 @@ export function ChallengesView() {
                 stake: Number(body.stake),
                 durationDays: Number(body.durationDays),
                 playerNpub: String(body.playerNpub).trim() || undefined,
-                moderatorNpub: String(body.moderatorNpub).trim() || undefined,
+                moderatorNpub: String(body.moderatorNpub ?? "").trim() || undefined,
               })
               setLinks(response.invites)
               setCreating(false)
@@ -103,11 +117,11 @@ export function ChallengesView() {
           </label>
           <div className="grid grid-cols-2 gap-3">
             <Field
-              label={t("stake")}
+              label={t("liveStake")}
               name="stake"
               type="number"
               min={1}
-              max={500000}
+              max={MAX_STAKE}
               defaultValue={10000}
               required
             />
@@ -146,7 +160,7 @@ export function ChallengesView() {
           >
             <strong>{item.title}</strong>
             <p className="text-sm text-muted-foreground">
-              {t(item.stage)} · {t("satsEach", { amount: item.stake })}
+              {t(item.stage)} · {t(item.mint === TEST_MINT ? "satsEach" : "liveSats", { amount: item.stake })}
             </p>
           </button>
         ))

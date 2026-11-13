@@ -4,16 +4,17 @@ import {
   type OutputDataLike, type Proof, type SerializedOutputData, type SerializedSwapPreview,
 } from "@cashu/cashu-ts"
 
-export const TEST_MINT = "https://testnut.cashu.space"
+import { LIVE_MINT, TEST_MINT } from "./mints"
 export type CashuRole = "creator" | "player" | "moderator"
 export type CashuPlayer = Exclude<CashuRole, "moderator">
 export type CashuOutcome = CashuPlayer | "draw"
 export type CashuPlan = SerializedSwapPreview
 export interface CashuTerms {
+  mint: string
   id: string
   stake: number
   refundAt: number
-  keys: Record<CashuRole, string>
+  keys: Record<CashuPlayer, string> & {moderator?: string}
 }
 
 function ensure(condition: unknown, message: string): asserts condition {
@@ -47,28 +48,36 @@ export function importChallengeKey(owner: string, key: string) {
   localStorage.setItem(keyStorage(owner), key.toLowerCase())
 }
 
-let walletCache: { since: number; ready: Promise<Wallet> } | undefined
-function getWallet() {
-  if (!walletCache || Date.now() - walletCache.since > 300_000) {
-    const wallet = new Wallet(TEST_MINT)
-    const ready = wallet.loadMint().then(() => wallet)
-    walletCache = { since: Date.now(), ready }
-    void ready.catch(() => { if (walletCache?.ready === ready) walletCache = undefined })
-  }
-  return walletCache.ready
+const wallets = new Map<string, { since: number; ready: Promise<Wallet> }>()
+function getWallet(mint: string) {
+  ensure(mint === LIVE_MINT || mint === TEST_MINT, "Unsupported challenge mint")
+  const cached = wallets.get(mint)
+  if (cached && Date.now() - cached.since < 300000) return cached.ready
+  const wallet = new Wallet(mint)
+  const ready = wallet.loadMint().then(() => {
+    for (const nut of [9, 11, 12] as const) ensure(wallet.getMintInfo().isSupported(nut).supported, "Mint does not support the required spending conditions")
+    return wallet
+  })
+  wallets.set(mint, { since: Date.now(), ready })
+  void ready.catch(() => { if (wallets.get(mint)?.ready === ready) wallets.delete(mint) })
+  return ready
+}
+
+function signingKeys(terms: CashuTerms) {
+  return [terms.keys.creator, terms.keys.player, ...(terms.keys.moderator ? [terms.keys.moderator] : [])]
 }
 
 function checkTerms(terms: CashuTerms) {
-  const keys = roles.map(role => terms.keys[role])
+  const keys = signingKeys(terms)
   ensure(terms.id && Number.isSafeInteger(terms.stake) && terms.stake > 0 &&
     Number.isSafeInteger(terms.refundAt) && terms.refundAt > 0, "Invalid challenge terms")
   ensure(keys.every(key => /^(02|03)[0-9a-f]{64}$/.test(key) && pointFromHex(key)) &&
-    new Set(keys.map(key => key.slice(2))).size === roles.length, "Challenge requires three distinct signing keys")
+    new Set(keys.map(key => key.slice(2))).size === keys.length, "Challenge requires distinct signing keys")
 }
 
 function escrowTags(terms: CashuTerms, depositor: CashuPlayer) {
   return [
-    ["locktime", String(terms.refundAt)], ["pubkeys", terms.keys.player, terms.keys.moderator],
+    ["locktime", String(terms.refundAt)], ["pubkeys", ...signingKeys(terms).slice(1)],
     ["n_sigs", "2"], ["refund", terms.keys[depositor]], ["sigflag", "SIG_ALL"], ["challenge", terms.id],
   ]
 }
@@ -80,14 +89,14 @@ function checkLock(secret: string, key: string, tags: string[][]) {
     JSON.stringify(lock[1].tags ?? []) === JSON.stringify(tags), "Unexpected Cashu spending conditions")
 }
 
-function encode(proofs: Proof[]) {
-  return getEncodedToken({ mint: TEST_MINT, unit: "sat", proofs })
+function encode(proofs: Proof[], mint: string) {
+  return getEncodedToken({ mint, unit: "sat", proofs })
 }
 
 async function decode(wallet: Wallet, token: string) {
   const result = wallet.decodeToken(token)
-  ensure(result.mint === TEST_MINT && result.unit === "sat" && result.proofs.length > 0 && result.proofs.length <= 128,
-    "Expected test-mint sat proofs")
+  ensure(result.mint === wallet.mint.mintUrl && result.unit === "sat" && result.proofs.length > 0 && result.proofs.length <= 128,
+    "Unexpected mint or unit")
   const proofs = result.proofs
   ensure(new Set(proofs.map(p => p.secret)).size === proofs.length &&
     new Set(proofs.map(p => p.C)).size === proofs.length, "Duplicate Cashu proof")
@@ -98,8 +107,8 @@ async function decode(wallet: Wallet, token: string) {
   return proofs
 }
 
-export async function depositProofIds(token: string) {
-  return (await getWallet()).decodeToken(token).proofs.map(proof => proof.C)
+export async function depositProofIds(token: string, mint: string) {
+  return (await getWallet(mint)).decodeToken(token).proofs.map(proof => proof.C)
 }
 
 async function depositInputs(wallet: Wallet, terms: CashuTerms, depositor: CashuPlayer, token: string) {
@@ -111,7 +120,7 @@ async function depositInputs(wallet: Wallet, terms: CashuTerms, depositor: Cashu
 }
 
 export async function verifyDeposit(terms: CashuTerms, depositor: CashuPlayer, token: string) {
-  const wallet = await getWallet()
+  const wallet = await getWallet(terms.mint)
   const proofs = await depositInputs(wallet, terms, depositor, token)
   ensure((await wallet.groupProofsByState(proofs)).unspent.length === proofs.length, "Deposit has already been used")
 }
@@ -138,38 +147,43 @@ function withWalletLock<T>(name: string, run: () => Promise<T>) {
   return navigator.locks.request(name, run)
 }
 
-interface FundingRecord { quote: string; outputs: SerializedOutputData[]; token?: string }
-export async function fundDeposit(owner: string, terms: CashuTerms, depositor: CashuPlayer) {
+interface FundingRecord { invoice?: string; quote: string; outputs: SerializedOutputData[]; token?: string }
+export async function fundDeposit(owner: string, terms: CashuTerms, depositor: CashuPlayer, onInvoice?: (invoice: string) => void) {
   checkTerms(terms)
   ensure(challengePublicKey(owner) === terms.keys[depositor], "Wrong challenge signing key")
   const name = "liberture:challenge:deposit:" + JSON.stringify([owner, terms.id, depositor])
   return withWalletLock(name, async () => {
-    const wallet = await getWallet()
+    const wallet = await getWallet(terms.mint)
     const existing = localStorage.getItem(name)
     let record: FundingRecord
     if (existing) record = JSON.parse(existing)
     else {
       ensure(Date.now() < terms.refundAt * 1000, "Challenge has expired")
       const outputs = OutputData.createP2PKData({
-        pubkey: roles.map(role => terms.keys[role]), requiredSignatures: 2,
+        pubkey: signingKeys(terms), requiredSignatures: 2,
         locktime: terms.refundAt, refundKeys: [terms.keys[depositor]], sigFlag: "SIG_ALL",
         additionalTags: [["challenge", terms.id]],
       }, terms.stake, wallet.getKeyset())
-      const { quote } = await wallet.createMintQuoteBolt11(terms.stake)
-      record = { quote, outputs: outputs.map(OutputData.serialize) }
+      const { quote, request } = await wallet.createMintQuoteBolt11(terms.stake)
+      record = { quote, invoice: request, outputs: outputs.map(OutputData.serialize) }
       localStorage.setItem(name, JSON.stringify(record))
     }
     if (record.token) return record.token
     const outputs = record.outputs.map(OutputData.deserialize)
     let quote = await wallet.checkMintQuoteBolt11(record.quote)
+    if (quote.state === "UNPAID") onInvoice?.(quote.request)
     for (let i = 0; i < 12 && quote.state === "UNPAID"; i++) {
       await new Promise(resolve => setTimeout(resolve, 1250))
       quote = await wallet.checkMintQuoteBolt11(record.quote)
     }
-    ensure(quote.state !== "UNPAID", "Test mint has not marked the simulated invoice paid. Retry funding.")
+    if (quote.state === "UNPAID" && quote.expiry && quote.expiry <= Date.now()/1000) {
+      localStorage.removeItem(name)
+      throw new Error("Invoice expired. Request a new invoice.")
+    }
+    ensure(quote.state !== "UNPAID", "Invoice awaiting payment.")
     const proofs = await completeOrRestore(wallet, outputs, () =>
       wallet.mintProofsBolt11(terms.stake, quote, {}, { type: "custom", data: outputs }))
-    const token = encode(proofs)
+    const token = encode(proofs, terms.mint)
     await depositInputs(wallet, terms, depositor, token)
     localStorage.setItem(name, JSON.stringify({ ...record, token }))
     return token
@@ -179,7 +193,7 @@ export async function fundDeposit(owner: string, terms: CashuTerms, depositor: C
 const beneficiary = (depositor: CashuPlayer, outcome: CashuOutcome) => outcome === "draw" ? depositor : outcome
 
 export async function createPayoutPlan(terms: CashuTerms, depositor: CashuPlayer, token: string, outcome: CashuOutcome) {
-  const wallet = await getWallet()
+  const wallet = await getWallet(terms.mint)
   const inputs = await depositInputs(wallet, terms, depositor, token)
   const preview = await wallet.prepareSwapToReceive(inputs, { requireDleq: true }, {
     type: "p2pk", options: { pubkey: terms.keys[beneficiary(depositor, outcome)] },
@@ -214,7 +228,7 @@ async function checkedPlan(wallet: Wallet, terms: CashuTerms, depositor: CashuPl
 
 export async function signPayout(owner: string, terms: CashuTerms, depositor: CashuPlayer, token: string,
   outcome: CashuOutcome, plan: CashuPlan) {
-  const wallet = await getWallet()
+  const wallet = await getWallet(terms.mint)
   const preview = await checkedPlan(wallet, terms, depositor, token, outcome, plan)
   const key = exportChallengeKey(owner)
   ensure(roles.some(role => terms.keys[role] === publicKey(key)), "Wrong challenge signing key")
@@ -233,23 +247,23 @@ export function verifyPayoutSignature(plan: CashuPlan, pubkey: string, sig: stri
 
 export async function settleDeposit(terms: CashuTerms, depositor: CashuPlayer, token: string,
   outcome: CashuOutcome, plan: CashuPlan, signatures: string[]) {
-  const wallet = await getWallet()
+  const wallet = await getWallet(terms.mint)
   const preview = await checkedPlan(wallet, terms, depositor, token, outcome, plan)
-  const signers = roles.filter(role => signatures.some(sig => verifyPayoutSignature(plan, terms.keys[role], sig)))
+  const signers = roles.filter(role => terms.keys[role] && signatures.some(sig => verifyPayoutSignature(plan, terms.keys[role]!, sig)))
   const refundAllowed = outcome === "draw" && signers.includes(depositor) && Date.now() >= terms.refundAt * 1000
   ensure(signers.length >= 2 || refundAllowed, "Missing challenge signatures")
   const pkg = SigAll.extractSwapPackage(preview)
   const signed = SigAll.mergeSwapPackage({ ...pkg, witness: { signatures } }, preview)
   const proofs = await completeOrRestore(wallet, preview.keepOutputs!, async () => (await wallet.completeSwap(signed)).keep)
-  return encode(proofs)
+  return encode(proofs, terms.mint)
 }
 
-export async function redeemPayout(owner: string, token: string) {
+export async function redeemPayout(owner: string, token: string, mint: string) {
   const key = exportChallengeKey(owner)
   const digest = hex(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(token))))
   const name = "liberture:challenge:redeem:" + JSON.stringify([owner, digest])
   return withWalletLock(name, async () => {
-    const wallet = await getWallet()
+    const wallet = await getWallet(mint)
     const existing = localStorage.getItem(name)
     let record: { plan: CashuPlan; bearer?: string }
     if (existing) record = JSON.parse(existing)
@@ -263,7 +277,7 @@ export async function redeemPayout(owner: string, token: string) {
     if (record.bearer) return record.bearer
     const preview = deserializeSwapPreview(record.plan)
     const proofs = await completeOrRestore(wallet, preview.keepOutputs!, async () => (await wallet.completeSwap(preview, key)).keep)
-    const bearer = encode(proofs)
+    const bearer = encode(proofs, mint)
     localStorage.setItem(name, JSON.stringify({ ...record, bearer }))
     return bearer
   })

@@ -1,0 +1,9 @@
+[Unit]
+Description=Encrypted backup of the Nostr WoT mint
+After=postgresql.service network-online.target
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/liberture-backup/storage.env
+ExecStart=/usr/local/libexec/nostrwot-mint/backup.sh
+UMask=0077
+PrivateTmp=true

@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
+import { TEST_MINT } from "../mints"
 import { Amount, OutputData, serializeSwapPreview, SigAll, type Proof } from "@cashu/cashu-ts"
 import {
   challengePublicKey, createPayoutPlan, exportChallengeKey, fundDeposit, importChallengeKey,
@@ -52,7 +53,7 @@ describe("challenge wallet", () => {
 
   // Public FakeWallet only. Offline test runs do not require mint availability.
   it.runIf(process.env.TEST_CASHU_MINT === "1")("funds two stakes, arbitrates a winner and restores spent outputs on retry", async () => {
-    const terms: CashuTerms = { id: crypto.randomUUID(), stake: 24, refundAt: Math.floor(Date.now() / 1000) + 600,
+    const terms: CashuTerms = { mint: TEST_MINT, id: crypto.randomUUID(), stake: 24, refundAt: Math.floor(Date.now() / 1000) + 600,
       keys: { creator: challengePublicKey("creator"), player: challengePublicKey("player"), moderator: challengePublicKey("moderator") } }
     for (const depositor of ["creator", "player"] as const) {
       const token = await fundDeposit(depositor, terms, depositor)
@@ -65,9 +66,9 @@ describe("challenge wallet", () => {
       await expect(settleDeposit(terms, depositor, token, "player", plan, [signatures[0], signatures[0]])).rejects.toThrow()
       const payout = await settleDeposit(terms, depositor, token, "player", plan, signatures)
       expect(await settleDeposit(terms, depositor, token, "player", plan, signatures)).toBe(payout)
-      await expect(redeemPayout("creator", payout)).rejects.toThrow()
-      const bearer = await redeemPayout("player", payout)
-      expect(await redeemPayout("player", payout)).toBe(bearer)
+      await expect(redeemPayout("creator", payout, TEST_MINT)).rejects.toThrow()
+      const bearer = await redeemPayout("player", payout, TEST_MINT)
+      expect(await redeemPayout("player", payout, TEST_MINT)).toBe(bearer)
     }
   }, 120000)
 })

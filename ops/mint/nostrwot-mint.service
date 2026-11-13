@@ -1,0 +1,24 @@
+[Unit]
+Description=Nostr WoT Cashu mint
+After=network-online.target postgresql.service
+[Service]
+User=nostrwotmint
+Group=nostrwotmint
+WorkingDirectory=/var/lib/nostrwotmint
+EnvironmentFile=/etc/nostrwot-mint/service.env
+ExecStart=/usr/local/libexec/nostrwot-mint/nutmix
+Restart=on-failure
+RestartSec=10
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+StateDirectory=nostrwotmint
+PrivateTmp=true
+IPAddressDeny=any
+IPAddressAllow=localhost
+MemoryMax=384M
+CPUQuota=50%
+TasksMax=96
+[Install]
+WantedBy=multi-user.target

@@ -21,9 +21,9 @@ const actions = z.discriminatedUnion("action", [
   z.object({ action: z.literal("refund") }),
 ])
 function terms(s: State): CashuTerms {
-  if (!s.expiresAt || !s.members.creator || !s.members.player || !s.members.moderator) fail("stateChanged")
-  return { id: s.id, stake: s.stake, refundAt: s.expiresAt, keys: {
-    creator: s.members.creator.pubkey, player: s.members.player.pubkey, moderator: s.members.moderator.pubkey,
+  if (!s.expiresAt || !s.members.creator || !s.members.player || (!s.members.moderator && s.arbitration !== "none")) fail("stateChanged")
+  return { mint: s.mint, id: s.id, stake: s.stake, refundAt: s.expiresAt, keys: {
+    creator: s.members.creator.pubkey, player: s.members.player.pubkey, moderator: s.members.moderator?.pubkey,
   } }
 }
 async function checked<T>(operation: Promise<T>, code: string) {
@@ -93,10 +93,9 @@ export async function act(s: State, role: Role, payload: unknown) {
     case "fund": {
       const p = playerRole(role)
       if (s.deposits[p] === command.token) return { challenge: view(s, role) }
-      if (stageOf(s) !== "funding" || s.deposits[p]) fail("stateChanged")
+      if (!["funding", "expired"].includes(stageOf(s)) || s.deposits[p]) fail("stateChanged")
       await checked(verifyDeposit(terms(s), p, command.token), "badDeposit")
-      proofIds = await checked(depositProofIds(command.token), "badDeposit")
-      if (expired(s)) fail("stateChanged")
+      proofIds = await checked(depositProofIds(command.token, s.mint), "badDeposit")
       s.deposits[p] = command.token
       break
     }
@@ -109,13 +108,13 @@ export async function act(s: State, role: Role, payload: unknown) {
         if (role === "moderator") s.result = command.result
       } else if (s.votes.creator && s.votes.player) {
         if (s.votes.creator === s.votes.player) s.result = s.votes.creator
-        else s.disputed = true
+        else if (s.arbitration !== "none") s.disputed = true
       }
       break
     }
     case "dispute":
       playerRole(role)
-      if (stageOf(s) !== "active") fail("stateChanged")
+      if (stageOf(s) !== "active" || s.arbitration === "none") fail("stateChanged")
       s.disputed = true
       break
     case "prepare":

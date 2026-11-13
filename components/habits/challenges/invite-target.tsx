@@ -75,7 +75,7 @@ export function InviteTarget({ role }: { role: "player" | "moderator" }) {
             aria-pressed={search === mode}
             onClick={() => setSearch(mode)}
           >
-            {t(mode ? "findProfile" : "byLink")}
+            {t(mode ? "findProfile" : role === "moderator" ? "noModerator" : "byLink")}
           </Button>
         ))}
       </div>
@@ -135,7 +135,7 @@ export function InviteTarget({ role }: { role: "player" | "moderator" }) {
           )}
         </>
       ) : (
-        <p className="text-sm text-muted-foreground">{t("laterLink")}</p>
+        <p className="text-sm text-muted-foreground">{t(role === "moderator" ? "twoPlayers" : "laterLink")}</p>
       )}
     </fieldset>
   )

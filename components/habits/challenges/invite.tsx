@@ -1,5 +1,6 @@
 "use client"
 
+import { TEST_MINT } from "@/lib/challenges/mints"
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
@@ -61,10 +62,10 @@ export function ChallengeInvite() {
           <p>{t("invitedBy", { name: preview.creator, role: t(preview.role) })}</p>
           <p className="whitespace-pre-wrap">{preview.rules}</p>
           <p>
-            {t("satsEach", { amount: preview.stake })} · {t("duration", { days: preview.durationDays })}
+            {t(preview.mint === TEST_MINT ? "satsEach" : "liveSats", { amount: preview.stake })} · {t("duration", { days: preview.durationDays })}
           </p>
           <p className="text-sm text-muted-foreground">
-            {t("testMint")} {t(preview.requiresNostr ? "bound" : "guest")}
+            {t(preview.mint === TEST_MINT ? "testMint" : "liveMint")} {t(preview.requiresNostr ? "bound" : "guest")}
           </p>
           {preview.requiresNostr && !auth.pubkey ? (
             <Button type="button" onClick={() => openSignIn({ next: null })}>

@@ -337,6 +337,7 @@ model ScrapedContent {
 // ---------------------------------------------------------------------------
 
 model HabitUser {
+  challengeModerator TrackerChallengeModerator?
   id                     Int                 @id @default(autoincrement())
   apiKey                 String              @unique(map: "habit_users_api_key_key") @map("api_key")
   integrationTokenHash   String?             @map("integration_token_hash")
@@ -702,4 +703,12 @@ model TrackerChallengeProof {
   challenge   TrackerChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
 
   @@map("tracker_challenge_proofs")
+}
+
+model TrackerChallengeModerator {
+  userId Int @id @map("user_id")
+  pubkey String @unique
+  name String
+  user HabitUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("tracker_challenge_moderators")
 }

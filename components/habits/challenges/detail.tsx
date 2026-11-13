@@ -1,5 +1,7 @@
 "use client"
 
+import { TEST_MINT } from "@/lib/challenges/mints"
+import { QrCode } from "@/components/habits/qr-code"
 import { CashewMatch } from "./cashew-match"
 import { useEffect, useState } from "react"
 import { useLocale, useTranslations } from "next-intl"
@@ -96,19 +98,20 @@ export function ChallengeDetail({
   const myKey = c.members[me]!.pubkey
   function walletId() {
     const id = localStorage.getItem("challenge-wallet-for:" + myKey)
-    if (!id) throw new Error(t("keyHint"))
+    if (!id) throw new Error(t(c.mint === TEST_MINT ? "keyHint" : "liveKeyHint"))
     return id
   }
   function terms() {
-    if (!c.expiresAt || !c.members.player || !c.members.moderator) throw new Error(t("wait"))
+    if (!c.expiresAt || !c.members.player || (!c.members.moderator && c.arbitration !== "none")) throw new Error(t("wait"))
     return {
+      mint: c.mint,
       id: c.id,
       stake: c.stake,
       refundAt: c.expiresAt,
       keys: {
         creator: c.members.creator!.pubkey,
         player: c.members.player.pubkey,
-        moderator: c.members.moderator.pubkey,
+        moderator: c.members.moderator?.pubkey,
       },
     }
   }
@@ -127,6 +130,8 @@ export function ChallengeDetail({
       {text}
     </Button>
   )
+  const [invoice, setInvoice] = useState("")
+  const test = c.mint === TEST_MINT
   const expired = c.stage === "expired"
   const myDeposit = me !== "moderator" && c.deposits[me]
   const myRefund = me !== "moderator" ? c.refunds[me] : undefined
@@ -147,12 +152,12 @@ export function ChallengeDetail({
         <CashewMatch challenge={c} />
         <p className="whitespace-pre-wrap">{c.rules}</p>
         <p>
-          {t("satsEach", { amount: c.stake })} · {t("duration", { days: c.durationDays })}
+          {t(test ? "satsEach" : "liveSats", { amount: c.stake })} · {t("duration", { days: c.durationDays })}
         </p>
-        <p className="text-sm text-muted-foreground">{t("testMint")}</p>
+        <p className="text-sm text-muted-foreground">{t(test ? "testMint" : "liveMint")}</p>
         {c.expiresAt && <p>{t("deadline", { date: new Date(c.expiresAt * 1000).toLocaleString(locale) })}</p>}
         <ul className="divide-y divide-border">
-          {roles.map((role) => (
+          {roles.filter(role => role !== "moderator" || c.arbitration !== "none").map((role) => (
             <li key={role} className="flex justify-between gap-3 py-2">
               <span>{t(role)}</span>
               <strong>
@@ -175,7 +180,7 @@ export function ChallengeDetail({
       {me === "creator" &&
         (["player", "moderator"] as const).map(
           (role) =>
-            !c.members[role] && (
+            !c.members[role] && (role !== "moderator" || c.arbitration !== "none") && (
               <section key={role} className={panel}>
                 <h2 className="font-semibold">{t("inviteRole", { role: t(role) })}</h2>
                 {tokens[role] ? (
@@ -224,12 +229,17 @@ export function ChallengeDetail({
             ),
         )}
       {me !== "moderator" &&
-        c.stage === "funding" &&
+        (c.stage === "funding" || expired && (c.members.moderator || c.arbitration === "none") && c.members.player) &&
         !myDeposit &&
-        button(t("fund", { amount: c.stake }), async () => {
+        button(t(test ? "fund" : expired ? "recoverDeposit" : "liveFund", { amount: c.stake }), async () => {
           const { fundDeposit } = await import("@/lib/challenges/cashu")
-          await act({ action: "fund", token: await fundDeposit(walletId(), terms(), me) })
+          await act({ action: "fund", token: await fundDeposit(walletId(), terms(), me, setInvoice) })
         })}
+      {invoice && !myDeposit && !expired && <section className={panel}>
+        <h2>{t("payInvoice")}</h2><QrCode value={invoice.toUpperCase()} title={t("payInvoice")} className="mx-auto size-56" />
+        <a className="underline" href={"lightning:"+invoice}>{t("openWallet")}</a>
+        <input className="w-full" readOnly aria-label={t("payInvoice")} value={invoice} onFocus={e=>e.target.select()} />
+      </section>}
       {((c.stage === "active" && me !== "moderator") || (c.stage === "disputed" && me === "moderator")) && (
         <section className={panel}>
           <h2 className="font-semibold">{t("chooseOutcome")}</h2>
@@ -246,7 +256,7 @@ export function ChallengeDetail({
             ))}
           </div>
           {choice && button(t("confirmVote"), () => act({ action: "vote", result: choice }))}
-          {c.stage === "active" && (
+          {c.stage === "active" && c.arbitration !== "none" && (
             <Button
               variant="ghost"
               disabled={busy}
@@ -284,7 +294,7 @@ export function ChallengeDetail({
               <>
                 <p>{t("signedCount", { count: signatures })}</p>
                 <p>
-                  {t("fees", {
+                  {t(test ? "fees" : "liveFees", {
                     amount: players.reduce((sum, p) => sum + Number(c.settlements[p]?.plan.fees ?? 0), 0),
                   })}
                 </p>
@@ -334,7 +344,7 @@ export function ChallengeDetail({
             <div key={p}>
               {button(t("redeem", { name: c.members[p]!.name }), async () => {
                 const { redeemPayout } = await import("@/lib/challenges/cashu")
-                download("challenge-" + c.id + "-" + p + ".cashu", await redeemPayout(walletId(), receipt))
+                download("challenge-" + c.id + "-" + p + ".cashu", await redeemPayout(walletId(), receipt, c.mint))
               })}
             </div>
           )
@@ -342,7 +352,7 @@ export function ChallengeDetail({
       })}
       <details className={panel}>
         <summary>{t("backupKey")}</summary>
-        <p className="text-sm">{t("keyHint")}</p>
+        <p className="text-sm">{t(c.mint === TEST_MINT ? "keyHint" : "liveKeyHint")}</p>
         <div className="flex flex-wrap gap-2">
           {button(t("backupKey"), async () => {
             const { exportChallengeKey } = await import("@/lib/challenges/cashu")

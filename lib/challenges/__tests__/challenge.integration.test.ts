@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises"
 import { nip19 } from "nostr-tools"
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest"
 import { POST as create, GET as list } from "@/app/api/challenges/route"
+import { POST as register } from "@/app/api/challenges/moderator/route"
 import { POST as invite } from "@/app/api/challenges/invite/route"
 import { GET, PATCH } from "@/app/api/challenges/[id]/route"
 import { getDb } from "@/lib/habits/db"
@@ -54,6 +55,8 @@ describe.skipIf(!testUrl)("private challenge routes", () => {
     await createNostrSessionsTable()
     moderator = { cookie: SESSION_COOKIE_NAME + "=" + await createSession(modNostr) }
     await db.unsafe(await readFile("prisma/migrations/20261113160000_tracker_challenges/migration.sql", "utf8"))
+    await db.unsafe(await readFile("prisma/migrations/20261113180000_challenge_moderators/migration.sql", "utf8"))
+    expect((await register(req("POST","/moderator",moderator,{name:"M",pubkey:pubkey()}))).status).toBe(200)
   })
   afterAll(async () => { if (db) await db.end(); vi.unstubAllEnvs() })
 
@@ -65,9 +68,15 @@ describe.skipIf(!testUrl)("private challenge routes", () => {
     expect(accepted.status).toBe(200)
     const cookie = accepted.headers.get("set-cookie")!
     expect(cookie).toContain("HttpOnly")
-    expect((await join(invites.moderator, moderator, "M")).status).toBe(200)
+    expect((await accepted.clone().json()).challenge.stage).toBe("funding")
     return { id: challenge.id as string, player: { cookie: cookie.split(";")[0] } }
   }
+  it("starts funding with two players when no moderator was selected", async () => {
+    const {challenge, invites} = await (await create(req("POST","",creator,{title:"Two players",rules:"Walk",name:"A",pubkey:pubkey(),stake:10,durationDays:1}))).json()
+    expect(challenge.arbitration).toBe("none")
+    expect((await (await join(invites.player,{},"B")).json()).challenge.stage).toBe("funding")
+    expect((await join(invites.moderator,{},"M")).status).toBe(404)
+  })
   it("limits discovery and changes to members and validates identities on targeted invitations", async () => {
     expect((await list(req("GET", "", {}))).status).toBe(401)
     expect((await invite(req("POST", "/invite", { origin: "https://unrelated.example" }, {}))).status).toBe(403)
@@ -75,11 +84,9 @@ describe.skipIf(!testUrl)("private challenge routes", () => {
     const params = { params: Promise.resolve({ id: challenge.id }) }
     expect((await GET(req("GET", "/" + challenge.id, outsider), params)).status).toBe(404)
     expect((await (await list(req("GET", "", outsider))).json()).challenges).toEqual([])
-    const preview = await (await invite(req("POST", "/invite", {}, { token: invites.moderator }))).json()
-    expect(preview.invite.requiresNostr).toBe(true)
-    expect(preview.invite.members).toBeUndefined()
-    expect((await join(invites.moderator, {}, "guest")).status).toBe(401)
-    expect((await join(invites.moderator, outsider, "other")).status).toBe(403)
+    expect(challenge.members.moderator.name).toBe("M")
+    expect((await join(invites.moderator, {}, "guest")).status).toBe(409)
+    expect((await join(invites.moderator, outsider, "other")).status).toBe(409)
     expect((await join(invites.player, creator, "A again")).status).toBe(409)
     const rotated = await (await apply(challenge.id, creator, { action: "invite", role: "player" })).json()
     expect((await join(invites.player, {}, "B")).status).toBe(404)

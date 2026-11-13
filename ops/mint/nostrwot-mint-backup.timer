@@ -1,0 +1,7 @@
+[Unit]
+Description=Daily Nostr WoT mint backup
+[Timer]
+OnCalendar=*-*-* 03:10:00 UTC
+Persistent=true
+[Install]
+WantedBy=timers.target
