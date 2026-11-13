@@ -22,6 +22,10 @@ const DB_PILLAR_TO_FRONTEND: Record<string, PillarId> = {
   exercise: "exercise",
 }
 
+export function profilePillars(value: string): PillarId[] {
+  return [...new Set(value.toLowerCase().split(",").map(tag => DB_PILLAR_TO_FRONTEND[tag.trim()]).filter(Boolean))]
+}
+
 export function normalizePillarId(dbPillar: string): PillarId {
   return DB_PILLAR_TO_FRONTEND[dbPillar.toLowerCase()] ?? "work"
 }

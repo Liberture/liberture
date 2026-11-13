@@ -33,7 +33,7 @@ export function LanguageSwitch({ locale, label, className }: LanguageSwitchProps
       disabled={pending}
       aria-label={`${label} · ${names[locale]}`}
       displayValue={locale.toUpperCase()}
-      className={cn("h-8 w-fit px-2 text-xs font-semibold", className)}
+      className={cn("h-9 w-fit border-0 bg-transparent px-2 text-xs font-semibold shadow-none hover:text-primary [&>svg]:hidden", className)}
     >
       {LOCALES.filter(option => option !== locale).map(option => (
         <FieldOption key={option} value={option} lang={option}>{names[option]}</FieldOption>

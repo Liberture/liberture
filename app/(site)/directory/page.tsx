@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Search, Users, Building2, Zap, BookOpen, FileText, ArrowRight } from "lucide-react"
+import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Input } from "@/components/ui/input"
@@ -20,8 +21,16 @@ interface DirectoryItem {
 }
 
 export default function DirectoryPage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [activeFilter, setActiveFilter] = useState<EntityType>("all")
+  const params = useSearchParams()
+  const searchQuery = params.get("q") || ""
+  const requestedType = params.get("type") as EntityType
+  const activeFilter = ["people","organizations","protocols","books","articles"].includes(requestedType) ? requestedType : "all"
+  function updateFilter(key: string, value: string) {
+    const url = new URL(window.location.href)
+    if (value && !(key === "type" && value === "all")) url.searchParams.set(key,value)
+    else url.searchParams.delete(key)
+    window.history.replaceState(window.history.state,"",url)
+  }
   const [allItems, setAllItems] = useState<DirectoryItem[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -172,7 +181,7 @@ export default function DirectoryPage() {
               type="text"
               placeholder="Search by name, description, or tags..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => updateFilter("q", e.target.value)}
               className="pl-12 h-14 text-lg"
             />
           </div>
@@ -188,7 +197,7 @@ export default function DirectoryPage() {
                 key={filter.value}
                 variant={isActive ? "default" : "outline"}
                 size="sm"
-                onClick={() => setActiveFilter(filter.value)}
+                onClick={() => updateFilter("type", filter.value)}
                 className="gap-2"
               >
                 <Icon className={`h-4 w-4 ${isActive ? "" : filter.color}`} />

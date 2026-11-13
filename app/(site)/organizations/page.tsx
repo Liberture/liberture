@@ -1,3 +1,4 @@
+import { BackLink } from "@/components/seo/back-link"
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
@@ -45,9 +46,7 @@ export default async function OrganizationsPage({
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
-            <Link href="/directory" className="text-purple-400 hover:text-purple-300 mb-4 inline-block">
-              ← Back to Directory
-            </Link>
+            <BackLink fallback="/directory" />
           </div>
 
           <h1 className="text-5xl font-bold mb-4">Organizations</h1>
