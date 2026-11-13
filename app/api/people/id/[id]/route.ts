@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { requestEditContext, withDirectoryEdit } from "@/lib/directory/revisions"
 import { getAuthUser, isAdmin } from '@/lib/auth';
 
 export async function PATCH(
@@ -16,23 +17,24 @@ export async function PATCH(
     const body = await request.json();
     
     // Update person
-    const person = await prisma.person.update({
+    const person = await withDirectoryEdit(prisma, requestEditContext(request, authUser.userId), tx => tx.person.update({
       where: { id },
       data: {
+        updatedAt: new Date(),
         name: body.name,
         title: body.title,
         bio: body.bio,
         pillars: body.pillars,
         expertise: body.expertise,
-        followers: body.followers || null,
-        website: body.website || null,
-        wikipedia: body.wikipedia || null,
-        twitter: body.twitter || null,
-        instagram: body.instagram || null,
-        youtube: body.youtube || null,
-        podcast: body.podcast || null,
+        followers: body.followers === "" ? null : body.followers,
+        website: body.website === "" ? null : body.website,
+        wikipedia: body.wikipedia === "" ? null : body.wikipedia,
+        twitter: body.twitter === "" ? null : body.twitter,
+        instagram: body.instagram === "" ? null : body.instagram,
+        youtube: body.youtube === "" ? null : body.youtube,
+        podcast: body.podcast === "" ? null : body.podcast,
       },
-    });
+    }));
 
     return NextResponse.json(person);
   } catch (error) {

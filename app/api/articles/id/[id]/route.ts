@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { requestEditContext, withDirectoryEdit } from "@/lib/directory/revisions"
 import { getAuthUser, isAdmin } from "@/lib/auth"
 
 export async function PATCH(
@@ -15,7 +16,7 @@ export async function PATCH(
     const { id } = await params
     const body = await request.json()
 
-    const article = await prisma.article.update({
+    const article = await withDirectoryEdit(prisma, requestEditContext(request, authUser.userId), tx => tx.article.update({
       where: { id },
       data: {
         title: body.title,
@@ -29,7 +30,7 @@ export async function PATCH(
         external: body.external ?? undefined,
         updatedAt: new Date(),
       },
-    })
+    }))
 
     return NextResponse.json(article)
   } catch (error) {

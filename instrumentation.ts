@@ -11,6 +11,11 @@ export async function register() {
   // Security repair, before anything else: replace Nostr accounts' internal
   // api_key that was derived from the public key (lib/habits/internal-api-key.ts).
   if (process.env.DATABASE_URL) {
+    if (process.env.NEXT_PHASE !== "phase-production-build") {
+      const { ensureDirectoryRevisionSchema } = await import("./lib/directory/revision-schema")
+      await ensureDirectoryRevisionSchema()
+    }
+
     try {
       const [{ getDb }, { rotateDerivedApiKeys }] = await Promise.all([
         import("./lib/habits/db"),

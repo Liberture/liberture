@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { requestEditContext, withDirectoryEdit } from "@/lib/directory/revisions"
 import { getAuthUser, isAdmin } from "@/lib/auth"
 
 export async function PATCH(
@@ -15,22 +16,22 @@ export async function PATCH(
     const { id } = await params
     const body = await request.json()
 
-    const org = await prisma.organization.update({
+    const org = await withDirectoryEdit(prisma, requestEditContext(request, authUser.userId), tx => tx.organization.update({
       where: { id },
       data: {
         name: body.name,
         description: body.description,
         pillars: body.pillars,
         type: body.type,
-        founded: body.founded || null,
+        founded: body.founded === "" ? null : body.founded,
         website: body.website,
-        resources: body.resources || null,
-        keyPeople: body.keyPeople || null,
-        imageUrl: body.imageUrl || null,
-        wikipedia: body.wikipedia || null,
+        resources: body.resources === "" ? null : body.resources,
+        keyPeople: body.keyPeople === "" ? null : body.keyPeople,
+        imageUrl: body.imageUrl === "" ? null : body.imageUrl,
+        wikipedia: body.wikipedia === "" ? null : body.wikipedia,
         updatedAt: new Date(),
       },
-    })
+    }))
 
     return NextResponse.json(org)
   } catch (error) {

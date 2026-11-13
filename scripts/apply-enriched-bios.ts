@@ -1,3 +1,4 @@
+import { withDirectoryEdit } from "../lib/directory/revisions"
 import { PrismaClient } from '@prisma/client';
 import * as fs from 'fs';
 import * as readline from 'readline';
@@ -35,13 +36,13 @@ async function applyEnrichedBios() {
     console.log(`   Enriched: ${entry.enrichedLength} chars`);
 
     try {
-      await prisma.person.update({
+      await withDirectoryEdit(prisma, { actor: "apply-enriched-bios", source: "ai" }, tx => tx.person.update({
         where: { slug: entry.slug },
         data: {
           bio: entry.enrichedBio,
           updatedAt: new Date(),
         },
-      });
+      }));
 
       console.log(`   ✅ Applied`);
       applied++;

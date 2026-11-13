@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { requestEditContext, withDirectoryEdit } from "@/lib/directory/revisions"
 import { getAuthUser, isAdmin } from "@/lib/auth"
+
+function optionalNumber(value: string | number | null | undefined) {
+  if (value === undefined) return undefined
+  return value === null || value === "" ? null : Number(value)
+}
 
 export async function PATCH(
   request: NextRequest,
@@ -15,24 +21,24 @@ export async function PATCH(
     const { id } = await params
     const body = await request.json()
 
-    const book = await prisma.book.update({
+    const book = await withDirectoryEdit(prisma, requestEditContext(request, authUser.userId), tx => tx.book.update({
       where: { id },
       data: {
         title: body.title,
         author: body.author,
         description: body.description,
         pillars: body.pillars,
-        year: body.year ? parseInt(body.year) : null,
-        pages: body.pages ? parseInt(body.pages) : null,
-        isbn: body.isbn || null,
-        amazonUrl: body.amazonUrl || null,
-        goodreadsUrl: body.goodreadsUrl || null,
-        imageUrl: body.imageUrl || null,
-        wikipedia: body.wikipedia || null,
-        rating: body.rating ? parseFloat(body.rating) : null,
+        year: optionalNumber(body.year),
+        pages: optionalNumber(body.pages),
+        isbn: body.isbn === "" ? null : body.isbn,
+        amazonUrl: body.amazonUrl === "" ? null : body.amazonUrl,
+        goodreadsUrl: body.goodreadsUrl === "" ? null : body.goodreadsUrl,
+        imageUrl: body.imageUrl === "" ? null : body.imageUrl,
+        wikipedia: body.wikipedia === "" ? null : body.wikipedia,
+        rating: optionalNumber(body.rating),
         updatedAt: new Date(),
       },
-    })
+    }))
 
     return NextResponse.json(book)
   } catch (error) {

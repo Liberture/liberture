@@ -3,6 +3,7 @@
  * Apply manual enrichment data to Liberture directory
  */
 
+import { withDirectoryEdit } from "../lib/directory/revisions"
 import { PrismaClient } from '@prisma/client'
 import fs from 'fs'
 import path from 'path'
@@ -28,7 +29,7 @@ async function main() {
       continue
     }
     
-    await prisma.person.update({
+    await withDirectoryEdit(prisma, { actor: "apply-enrichment", source: "manual" }, tx => tx.person.update({
       where: { slug: personData.slug },
       data: {
         wikipedia: personData.wikipedia,
@@ -36,7 +37,7 @@ async function main() {
         speakingEvents: JSON.stringify(personData.speakingEvents),
         achievements: JSON.stringify(personData.achievements),
       }
-    })
+    }))
     
     console.log(`  ✅ ${person.name}`)
   }
@@ -53,7 +54,7 @@ async function main() {
       continue
     }
     
-    await prisma.book.update({
+    await withDirectoryEdit(prisma, { actor: "apply-enrichment", source: "manual" }, tx => tx.book.update({
       where: { slug: bookData.slug },
       data: {
         wikipedia: bookData.wikipedia,
@@ -61,7 +62,7 @@ async function main() {
         publications: JSON.stringify(bookData.publications),
         keyTakeaways: JSON.stringify(bookData.keyTakeaways),
       }
-    })
+    }))
     
     console.log(`  ✅ ${book.title}`)
   }

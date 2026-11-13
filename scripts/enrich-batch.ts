@@ -1,3 +1,4 @@
+import { withDirectoryEdit } from "../lib/directory/revisions"
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -124,13 +125,13 @@ async function main() {
       
       if (result) {
         // Update database
-        await prisma.person.update({
+        await withDirectoryEdit(prisma, { actor: "enrich-batch", source: "ai" }, tx => tx.person.update({
           where: { id: person.id },
           data: {
             wikipedia: result.wikipedia,
             achievements: result.achievements.length > 0 
               ? JSON.stringify(result.achievements) 
-              : person.achievements, // Keep existing if no new ones
+              : undefined,
             publications: result.publications.length > 0 
               ? JSON.stringify(result.publications) 
               : undefined,
@@ -138,7 +139,7 @@ async function main() {
               ? JSON.stringify(result.speakingEvents) 
               : undefined,
           },
-        });
+        }));
 
         // Log enrichment
         await prisma.enrichmentLog.create({

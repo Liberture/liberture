@@ -609,3 +609,15 @@ model TrackerBootstrapAdmin {
 
   @@map("tracker_bootstrap_admins")
 }
+
+model DirectoryRevision {
+  id         BigInt   @id @default(autoincrement())
+  entityType String
+  entityId   String
+  source     String
+  actor      String
+  changes    Json
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([entityType, entityId, id])
+}

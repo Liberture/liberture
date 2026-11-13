@@ -7,12 +7,10 @@
  * DATABASE_URL="$DATABASE_URL" PERPLEXITY_API_KEY="$PERPLEXITY_API_KEY" npx tsx /root/.openclaw/workspace/scripts/enrich-people-batch.ts
  */
 
-async function getPrisma() {
-  const { PrismaClient } = await import('/root/liberture/node_modules/.prisma/client/index.js');
-  return new PrismaClient();
-}
+import { PrismaClient } from "@prisma/client"
+import { withDirectoryEdit } from "../lib/directory/revisions"
 
-let prisma: any;
+const prisma = new PrismaClient()
 
 interface EnrichmentResult {
   wikipedia?: string | null;
@@ -114,7 +112,7 @@ async function main() {
   console.log('🔄 Starting batch enrichment...\n');
 
   // Initialize Prisma
-  prisma = await getPrisma();
+
 
   // Fetch people with missing Wikipedia
   const people = await prisma.person.findMany({
@@ -139,13 +137,13 @@ async function main() {
       
       if (result) {
         // Update database
-        await prisma.person.update({
+        await withDirectoryEdit(prisma, { actor: "enrich-people-batch", source: "ai" }, tx => tx.person.update({
           where: { id: person.id },
           data: {
             wikipedia: result.wikipedia,
             achievements: result.achievements.length > 0 
               ? JSON.stringify(result.achievements) 
-              : person.achievements, // Keep existing if no new ones
+              : undefined,
             publications: result.publications.length > 0 
               ? JSON.stringify(result.publications) 
               : undefined,
@@ -153,7 +151,7 @@ async function main() {
               ? JSON.stringify(result.speakingEvents) 
               : undefined,
           },
-        });
+        }));
 
         // Log enrichment
         await prisma.enrichmentLog.create({
