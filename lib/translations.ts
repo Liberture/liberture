@@ -1647,6 +1647,9 @@ const habitsEn = {
       noHabits: "No standalone habits match these filters.",
     },
     // E
+    protocolDetails: {
+      overview: "Overview", practice: "Practice", evidence: "Evidence", benefits: "Benefits", why: "Why it works", equipment: "Equipment", risks: "Risks and warnings", sources: "Sources", steps: "Steps", related: "Related protocols", previous: "Previous protocols", next: "Next protocols", synergy: "Works well with", alternative: "Alternative", by: "By"
+    },
     protocolCard: {
       featured: "Featured",
       habitCount: {
@@ -4664,6 +4667,9 @@ const habitsEs: HabitsDictionary = {
       noHabits: "Ningún hábito suelto coincide con estos filtros.",
     },
     // E
+    protocolDetails: {
+      overview: "Resumen", practice: "Práctica", evidence: "Evidencia", benefits: "Beneficios", why: "Por qué funciona", equipment: "Equipo", risks: "Riesgos y advertencias", sources: "Fuentes", steps: "Pasos", related: "Protocolos relacionados", previous: "Protocolos anteriores", next: "Protocolos siguientes", synergy: "Se complementa con", alternative: "Alternativa", by: "Por"
+    },
     protocolCard: {
       featured: "Destacado",
       habitCount: {
