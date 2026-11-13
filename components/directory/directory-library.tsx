@@ -65,9 +65,9 @@ export function DirectoryLibrary({ catalog, params }: { catalog: Catalog; params
         {PILLAR_IDS.map(id => <FieldOption key={id} value={id}>{pillarTag.pillars[id]}</FieldOption>)}
       </FieldSelect></div>
     </div>
-    <div className="mb-4 flex items-center justify-between gap-2">
-      <h2 className="font-semibold">{title} ({filtered.length})</h2>
-      <FieldSelect aria-label={text.order} prefix={<ArrowUpDown aria-hidden className="size-4" />} value={sort}
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+      <h2 className="whitespace-nowrap font-semibold">{title} ({filtered.length})</h2>
+      <FieldSelect className="ml-auto w-fit max-w-full" aria-label={text.order} prefix={<ArrowUpDown aria-hidden className="size-4" />} value={sort}
         onValueChange={value => update(selected ?? "all", value)}>
         {options.map(([id, label]) => <FieldOption key={id} value={id}>{label}</FieldOption>)}
       </FieldSelect>
