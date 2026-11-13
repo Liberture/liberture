@@ -1,3 +1,4 @@
+import { localizeProtocolDuration } from "@/lib/constants/protocol-durations"
 import { Prisma } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
@@ -31,6 +32,8 @@ function overlay(value: unknown, locale: Locale): unknown {
     // Internal links, asset paths and relationships use the permanent record slug.
     if (field !== "slug" && isObject(translated) && typeof original === "string" && typeof translated[field] === "string") {
       row[field] = translated[field]
+    } else if (field === "duration" && typeof original === "string") {
+      row[field] = localizeProtocolDuration(original, locale)
     } else if (Array.isArray(original) || isObject(original)) {
       row[field] = overlay(original, locale)
     }

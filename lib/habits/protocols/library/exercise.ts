@@ -15,7 +15,7 @@ export const exerciseProtocols: SeedProtocol[] = [
       "Pavel Tsatsouline's central claim is that strength is a skill rather than a product of fatigue. Training the nervous system with many crisp, fresh repetitions — roughly half of what you could manage, several times a day, never grinding — improves motor-unit recruitment and inter-muscular coordination without accumulating the fatigue that forces rest days. You practise the movement instead of destroying the muscle, which is why you can practise it again tomorrow. Training-frequency meta-analyses support the broader principle: spreading the same weekly volume across more sessions tends to produce better strength outcomes than concentrating it.",
     pillar: "exercise",
     difficulty: "beginner",
-    duration: "Ongoing, 4-6 mini-sets/day",
+    durationKey: "ongoing46MiniSetsPerDay",
     creator: "Pavel Tsatsouline",
     authorId: "pavel-tsatsouline",
     featured: true,
@@ -116,7 +116,7 @@ export const exerciseProtocols: SeedProtocol[] = [
       "Walking is the intervention with the fewest excuses attached: no kit, no skill, minimal injury risk, and a dose-response relationship with all-cause mortality that shows up in every large cohort. The benefit curve is steepest at the low end, which means the gap between doing nothing and walking half an hour is far larger than the gap between 8,000 and 12,000 steps. It is also the only aerobic work most people will still be doing in twenty years.",
     pillar: "exercise",
     difficulty: "beginner",
-    duration: "Ongoing, 30-45 min/day",
+    durationKey: "ongoing3045MinPerDay",
     creator: "Physical activity guidelines",
     authorId: "exercise-guidelines",
     featured: true,
@@ -172,7 +172,7 @@ export const exerciseProtocols: SeedProtocol[] = [
       "Muscle mass and strength decline from roughly the fourth decade onward, and the decline accelerates. Resistance training is the only intervention that reliably reverses it, and it carries knock-on effects — bone mineral density, insulin sensitivity, fall risk — that no amount of cardio replaces. Two sessions a week is the point where the evidence becomes unambiguous; the third session adds less than the second, and the second adds far less than the first.",
     pillar: "exercise",
     difficulty: "intermediate",
-    duration: "Ongoing, 2×45 min/week",
+    durationKey: "ongoing2Times45MinPerWeek",
     creator: "WHO guidelines / strength training consensus",
     authorId: "exercise-guidelines",
     steps: [
@@ -243,7 +243,7 @@ export const exerciseProtocols: SeedProtocol[] = [
       "Zone 2 is the intensity at which mitochondrial density and fat oxidation improve most efficiently, and it is the aerobic base that makes higher-intensity work productive rather than merely exhausting. Peter Attia treats it as one of the four pillars of training for the last decade of life. The practical marker is that you can speak in full sentences but would rather not — most people, left to themselves, train above this and get less adaptation for more fatigue.",
     pillar: "exercise",
     difficulty: "intermediate",
-    duration: "Ongoing, 3-4 hrs/week",
+    durationKey: "ongoing34HrsPerWeek",
     creator: "Peter Attia",
     authorId: "peter-attia",
     steps: [
@@ -317,7 +317,7 @@ export const exerciseProtocols: SeedProtocol[] = [
       "VO2 max is among the strongest predictors of all-cause mortality in the fitness literature, and the gap between the bottom quartile and the one above it is enormous — larger than the risk conferred by smoking in some cohorts. The Norwegian 4×4 protocol is the best-studied way to move it. One session a week is enough to make progress; the reason to cap it there is that these sessions are genuinely hard and the recovery cost is real.",
     pillar: "exercise",
     difficulty: "advanced",
-    duration: "Ongoing, 1×40 min/week",
+    durationKey: "ongoing1Times40MinPerWeek",
     creator: "Peter Attia / Norwegian 4×4 protocol",
     authorId: "peter-attia",
     steps: [
@@ -384,7 +384,7 @@ export const exerciseProtocols: SeedProtocol[] = [
       "Loaded carries are among the most transferable things you can train — they load the spine, hips and shoulders in the pattern daily life actually uses, while keeping the aerobic cost moderate. Rucking gets you strength-adjacent stimulus and cardiovascular work in a single session at very low injury risk, and it scales by simply adding weight rather than by learning new movements. Attia's caveat is worth keeping: on flat ground most of a ruck sits below zone 2, so treat it as a supplement to your aerobic work rather than a replacement.",
     pillar: "exercise",
     difficulty: "beginner",
-    duration: "Ongoing, 45-60 min, 1-2×/week",
+    durationKey: "ongoing4560Min12TimesPerWeek",
     creator: "Peter Attia (popularized)",
     authorId: "peter-attia",
     steps: [
@@ -450,7 +450,7 @@ export const exerciseProtocols: SeedProtocol[] = [
       "Grip strength is an oddly powerful correlate of all-cause mortality — not because grip itself is protective, but because it is a cheap proxy for total-body strength and neurological health. Hanging also loads the shoulder in traction, which is the opposite of what a desk does to it. It costs thirty seconds and needs nothing but something to hang from, which puts it in the same category as morning light: too cheap not to do.",
     pillar: "exercise",
     difficulty: "beginner",
-    duration: "Ongoing, 60-90 sec/day",
+    durationKey: "ongoing6090SecPerDay",
     creator: "Strength training consensus",
     authorId: "exercise-guidelines",
     steps: [
@@ -505,7 +505,7 @@ export const exerciseProtocols: SeedProtocol[] = [
       "The swing trains the hip hinge ballistically — the pattern that protects the lower back in everything from lifting a child to picking up shopping — while producing a genuine cardiovascular stimulus in ten minutes. Tsatsouline's framing applies here as it does to Grease the Groove: treat it as practice rather than a workout, keep the sets short and crisp, and you can do it most days rather than twice a week.",
     pillar: "exercise",
     difficulty: "intermediate",
-    duration: "Ongoing, 10 min, 4-5×/week",
+    durationKey: "ongoing10Min45TimesPerWeek",
     creator: "Pavel Tsatsouline",
     authorId: "pavel-tsatsouline",
     steps: [
@@ -573,7 +573,7 @@ export const exerciseProtocols: SeedProtocol[] = [
       "The most common reason a sensible training protocol fails is not injury or scheduling, it is drift: within three weeks 'stop well short of failure' quietly becomes 'go hard when you feel good'. Re-reading the principle costs a minute and is the cheapest defence against that drift. It also does the thing streaks alone cannot — it keeps the reasoning present, not just the tally.",
     pillar: "exercise",
     difficulty: "beginner",
-    duration: "Ongoing, 1 min/day",
+    durationKey: "ongoing1MinPerDay",
     creator: "Pavel Tsatsouline",
     authorId: "pavel-tsatsouline",
     steps: [

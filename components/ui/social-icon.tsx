@@ -3,7 +3,7 @@
 import type { ReactNode } from "react"
 import { HelpTooltip } from "@/components/ui/tooltip"
 
-export function BrandMark({ brand }: { brand: "x" | "wikipedia" | "medium" }) {
+export function BrandMark({ brand }: { brand: "x" | "wikipedia" | "medium" | "linkedin" }) {
   return <span aria-hidden className="block size-5 bg-current" style={{ mask: `url(/brand/social/${brand}.svg) center / contain no-repeat` }} />
 }
 

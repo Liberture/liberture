@@ -3,7 +3,7 @@ import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { translatedAlternates } from "./translated-routes"
 
 export async function docsMetadata(section: "overview" | "chatgpt" | "claude" | "permissions" | "updates" | "api") {
-  const [locale, t] = await Promise.all([getRequestLocale(), getTranslations("habits.docs." + section)])
+  const [locale, t] = await Promise.all([getRequestLocale(), getTranslations(`habits.docs.${section}`)])
   const title = t("title")
   const description = t("lead")
   const alternates = translatedAlternates(section === "overview" ? "/docs" : "/docs/" + section, locale)

@@ -1,3 +1,4 @@
+import type { ProtocolDurationKey } from "@/lib/constants/protocol-durations"
 import type { PillarId } from "@/lib/habits/pillars"
 import type { ReadingContent } from "@/lib/habits/types"
 
@@ -45,7 +46,7 @@ export interface SeedProtocol {
   why: string
   pillar: PillarId
   difficulty: "beginner" | "intermediate" | "advanced"
-  duration: string
+  durationKey: ProtocolDurationKey
   /** Display string kept for back-compat with pre-registry entries. */
   creator: string
   authorId?: AuthorId

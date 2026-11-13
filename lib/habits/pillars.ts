@@ -7,9 +7,8 @@ import type { Habit, HabitTag } from "@/lib/habits/types"
  * The six Liberture pillars. Each has a CSS custom property of the same name in
  * app/globals.css, exposed to Tailwind as `text-work`, `bg-sleep/10`, etc.
  */
-export type PillarId = "work" | "sleep" | "nutrition" | "mind" | "exercise" | "finance"
-
-export const PILLAR_IDS: PillarId[] = ["work", "sleep", "nutrition", "mind", "exercise", "finance"]
+import { PILLAR_IDS, type PillarId } from "@/lib/constants/pillars"
+export { PILLAR_IDS, type PillarId } from "@/lib/constants/pillars"
 
 /** Names as Liberture publishes them — kept identical so the two apps agree. */
 export const PILLAR_LABELS: Record<PillarId, string> = {

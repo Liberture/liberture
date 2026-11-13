@@ -13,7 +13,7 @@ export const financeProtocols: SeedProtocol[] = [
       "Saving whatever is left at the end of the month reliably produces nothing, because spending expands to fill available balance. Moving the money first inverts the default: you are now budgeting the remainder rather than trying to protect a surplus that never materialises. Automation is doing the real work here — the same behavioural-economics finding that powers automatic pension enrolment, where participation jumps dramatically simply because inertia has been pointed in the other direction.",
     pillar: "finance",
     difficulty: "beginner",
-    duration: "One-time setup, ongoing",
+    durationKey: "oneTimeSetupOngoing",
     creator: "Personal finance consensus",
     authorId: "personal-finance-consensus",
     featured: true,
@@ -72,7 +72,7 @@ export const financeProtocols: SeedProtocol[] = [
       "Awareness reduces spending before any budget does, and the reason is that most overspending isn't decided, it accumulates below the threshold of notice. A weekly review makes the pattern visible while it's still recent enough to remember the context. Keeping it explicitly non-judgemental matters more than it sounds: reviews that feel like an audit get skipped, and a skipped review provides no awareness at all.",
     pillar: "finance",
     difficulty: "beginner",
-    duration: "Ongoing, 20 min/week",
+    durationKey: "ongoing20MinPerWeek",
     creator: "Personal finance consensus",
     authorId: "personal-finance-consensus",
     steps: [
@@ -120,7 +120,7 @@ export const financeProtocols: SeedProtocol[] = [
       "The two reliably destructive behaviours in retail investing are trying to time entry and paying high fees, and automation removes both by construction. Dalbar's long-running analysis consistently finds average investor returns trailing the funds they hold, with the gap attributable almost entirely to badly-timed buying and selling. A standing order into a low-cost index fund makes both mistakes structurally difficult, which is a better defence than intending not to make them.",
     pillar: "finance",
     difficulty: "beginner",
-    duration: "One-time setup, ongoing",
+    durationKey: "oneTimeSetupOngoing",
     creator: "Personal finance consensus",
     authorId: "personal-finance-consensus",
     steps: [
@@ -188,7 +188,7 @@ export const financeProtocols: SeedProtocol[] = [
       "Impulse purchasing is driven by an affective spike that decays predictably, and the entire retail environment is built to get a decision out of you before it does. A mandatory delay doesn't require you to resist anything in the moment — it just moves the decision to a point where the spike has passed and you can evaluate the thing rather than the wanting. What people consistently report is not that they buy less of what they want, but that they discover how much of what they wanted they didn't.",
     pillar: "finance",
     difficulty: "beginner",
-    duration: "Ongoing",
+    durationKey: "ongoing",
     creator: "Behavioural finance consensus",
     authorId: "personal-finance-consensus",
     steps: [
@@ -245,7 +245,7 @@ export const financeProtocols: SeedProtocol[] = [
       "Subscriptions exploit the gap between a decision made once and a charge repeated indefinitely, and the amounts are individually small enough to stay below the threshold at which you'd notice them. The useful test isn't whether you use the service — it's whether you would sign up for it today at that price. Most people find several that fail it, and the annual total is routinely in the hundreds.",
     pillar: "finance",
     difficulty: "beginner",
-    duration: "Quarterly, 30 min",
+    durationKey: "quarterly30Min",
     creator: "Personal finance consensus",
     authorId: "personal-finance-consensus",
     steps: [
@@ -302,7 +302,7 @@ export const financeProtocols: SeedProtocol[] = [
       "Most discretionary spending is habitual rather than considered — the coffee, the lunch out, the thing added to an existing order. A no-spend day interrupts the automaticity without requiring you to evaluate each purchase, which is far less effortful than a budget and consequently far more likely to survive. The point is less the money saved on those two days than the discovery of which purchases you never actually decided to make.",
     pillar: "finance",
     difficulty: "beginner",
-    duration: "Ongoing, 2 days/week",
+    durationKey: "ongoing2DaysPerWeek",
     creator: "Personal finance consensus",
     authorId: "personal-finance-consensus",
     steps: [
@@ -351,7 +351,7 @@ export const financeProtocols: SeedProtocol[] = [
       "Six months of expenses is a demoralising target from a standing start, and demoralising targets get abandoned. Breaking it into rungs — $1,000, then one month, then three, then six — works for the same reason the two-minute rule does: each rung is close enough to be believable, and reaching one produces the reinforcement that funds the next. There is also a real utility jump at the first rung, since a small buffer is what stops an unexpected bill turning into debt.",
     pillar: "finance",
     difficulty: "intermediate",
-    duration: "6-24 months to complete",
+    durationKey: "for624MonthsToComplete",
     creator: "Personal finance consensus",
     authorId: "personal-finance-consensus",
     steps: [
@@ -409,7 +409,7 @@ export const financeProtocols: SeedProtocol[] = [
       "Logging works through the same mechanism as food diaries: the act of recording changes the behaviour being recorded, because a purchase you'll have to write down is a purchase you notice yourself making. Doing it by hand rather than through an aggregator matters more than it seems — automatic categorisation removes exactly the friction that produces the awareness. It is deliberately the least sophisticated protocol in this pillar.",
     pillar: "finance",
     difficulty: "beginner",
-    duration: "Ongoing, 2 min/day",
+    durationKey: "ongoing2MinPerDay",
     creator: "Personal finance consensus",
     authorId: "personal-finance-consensus",
     steps: [

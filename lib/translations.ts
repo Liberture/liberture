@@ -1,7 +1,8 @@
 import en from "@/messages/en.json"
 import es from "@/messages/es.json"
 
-export type PillarId = "work" | "sleep" | "nutrition" | "mind" | "exercise" | "finance"
+import type { PillarId } from "@/lib/constants/pillars"
+export type { PillarId } from "@/lib/constants/pillars"
 export type MarketplaceTypeId =
   | "premium"
   | "opensource"
@@ -213,4 +214,4 @@ export type HabitsDictionary = typeof en.habits
 export type Catalog = Translations & { habits: HabitsDictionary }
 
 // Structured arrays include pillar IDs and presentation data used by the existing UI.
-export const translations = { en, es } as Record<Locale, Catalog>
+export const translations = { en, es: es satisfies typeof en } as Record<Locale, Catalog>

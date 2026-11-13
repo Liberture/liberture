@@ -1,7 +1,8 @@
 "use client"
 
+import { translatedLabel } from "@/lib/i18n/translated-label"
 import Link, { useLocalizedHref } from "@/components/i18n/localized-link"
-import { useTranslations } from "next-intl"
+import { useMessages, useTranslations } from "next-intl"
 import { entitySections, parsePublicPath } from "@/lib/i18n/paths"
 import { JsonLd } from "./json-ld-script"
 
@@ -9,11 +10,12 @@ import { JsonLd } from "./json-ld-script"
 export function BreadcrumbSchema({ items: source, compact = false, schemaOnly = false }: { schemaOnly?: boolean; compact?: boolean; items: Array<{ name: string; url: string }> }) {
   const href = useLocalizedHref()
   const t = useTranslations("breadcrumbs")
+  const labels = useMessages().breadcrumbs
   const items = source.map(item => {
     const path = new URL(item.url).pathname
     const route = parsePublicPath(path)
     const key = route?.slug || route?.section
-    const name = key && t.has(key) && (!route?.slug || !entitySections.has(route.section)) ? t(key) : item.name
+    const name = key && (!route?.slug || !entitySections.has(route.section)) ? translatedLabel(labels, key, item.name) : item.name
     return { name, url: new URL(href(path), "https://liberture.com").href }
   })
   const schema = {

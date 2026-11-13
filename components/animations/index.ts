@@ -8,5 +8,4 @@ export {
   MotionPresence,
 } from "./Motion"
 
-export { AnimatedArticleGrid } from "./AnimatedArticleGrid"
 export { AnimatedOtherPillars } from "./AnimatedOtherPillars"

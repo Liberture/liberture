@@ -5,12 +5,19 @@ import { ProfileMarkdown } from "./profile-markdown"
 import { PillarTag } from "@/components/habits/marketplace/pillar-tag"
 import { PILLAR_IDS } from "@/lib/habits/pillars"
 
-type PersonPreview = { slug: string; name: string; title: string; imageUrl: string | null; pillars: string; bio: string; summary?: string | null; featured: boolean }
+export type PersonPreview = { slug: string; name: string; title: string; imageUrl: string | null; pillars: string; bio: string; summary?: string | null; featured: boolean }
 
-export function PersonCard({ person, featuredLabel, role }: { person: PersonPreview; featuredLabel: string; role?: string }) {
+export function PersonCard({ person, featuredLabel, role }: { person: PersonPreview | { name: string }; featuredLabel: string; role?: string }) {
+  const cardClass = "group flex h-full flex-col gap-4 rounded-2xl border border-border bg-card p-5"
+  if (!("slug" in person)) return <div className={cardClass}>
+    <div className="flex items-center gap-3">
+      <ProfilePortrait person={{ name: person.name, imageUrl: null }} compact />
+      <div><h3 className="text-lg font-semibold leading-tight">{person.name}</h3><p className="mt-1 text-xs text-muted-foreground">{role}</p></div>
+    </div>
+  </div>
   const description = person.summary || person.bio
   const tags = person.pillars.toLowerCase().split(",").map(tag => tag.trim() === "mental" ? "mind" : tag.trim())
-  return <Link href={`/people/${person.slug}`} className="group flex h-full flex-col gap-4 rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary">
+  return <Link href={`/people/${person.slug}`} className={`${cardClass} transition-colors hover:border-primary/60 focus-visible:ring-2 focus-visible:ring-primary`}>
     <div className="flex items-center gap-3">
       <ProfilePortrait person={person} compact />
       <div className="min-w-0 flex-1">

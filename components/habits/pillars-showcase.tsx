@@ -1,9 +1,10 @@
 "use client"
+import { useCatalogLabels } from "@/components/habits/marketplace/pillar-tag"
 
 import Link from "@/components/i18n/localized-link"
 import { motion, type TargetAndTransition, type Transition } from "framer-motion"
 
-import { PILLAR_ICON_MAP, PILLAR_IDS, PILLAR_LABELS, PILLAR_STYLES, type PillarId } from "@/lib/habits/pillars"
+import { PILLAR_ICON_MAP, PILLAR_IDS, PILLAR_STYLES, type PillarId } from "@/lib/habits/pillars"
 import { MicroterrainRidge, VortexShell } from "@/components/habits/patterns"
 
 /**
@@ -56,6 +57,7 @@ interface PillarsShowcaseProps {
 }
 
 export function PillarsShowcase({ badge, heading, description, descriptions }: PillarsShowcaseProps) {
+  const { pillar: labels } = useCatalogLabels()
   return (
     <section id="pillars" className="relative scroll-mt-20 overflow-hidden bg-card/30 px-4 py-20">
       <VortexShell placement="corner" gradient="neon" size="440px" className="-left-24 -top-16" opacity={0.17} />
@@ -86,7 +88,7 @@ export function PillarsShowcase({ badge, heading, description, descriptions }: P
                   <motion.div animate={animation.animate} transition={animation.transition} style={{ transformStyle: "preserve-3d" }}>
                     <Icon className={`h-10 w-10 ${text} mb-4`} />
                   </motion.div>
-                  <h3 className={`text-lg font-semibold mb-2 ${text}`}>{PILLAR_LABELS[pillar]}</h3>
+                  <h3 className={`text-lg font-semibold mb-2 ${text}`}>{labels[pillar]}</h3>
                   <p className="text-sm text-muted-foreground">{descriptions[pillar]}</p>
                 </motion.div>
               </Link>

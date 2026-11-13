@@ -1,4 +1,5 @@
-import { useTranslations as useUiCopy } from "next-intl"
+import { translatedLabel } from "@/lib/i18n/translated-label"
+import { useMessages, useTranslations as useUiCopy } from "next-intl"
 import { profilePath } from "@/lib/directory/profile-path"
 import Link from "@/components/i18n/localized-link"
 import { OrganizationLogo } from "./organization-logo"
@@ -9,7 +10,7 @@ import type { Organization } from "@prisma/client"
 export function OrganizationCard({ org }: { org: Pick<Organization, "directoryKind" | "imageUrl" | "slug" | "name" | "type" | "description" | "pillars" | "featured" | "founded"> }) {
   const uiCopy = useUiCopy("publicCopy.orgCard")
 
-  const terms = useUiCopy("directoryTerms")
+  const terms = useMessages().directoryTerms
   const pillars = profilePillars(org.pillars);
 
   return (
@@ -28,7 +29,7 @@ export function OrganizationCard({ org }: { org: Pick<Organization, "directoryKi
           {org.name}
         </h2>
 
-        <p className="text-cyan-400 text-sm mb-3 capitalize">{terms.has(org.type) ? terms(org.type) : org.type}</p>
+        <p className="text-cyan-400 text-sm mb-3 capitalize">{translatedLabel(terms, org.type)}</p>
 
         <p className="text-slate-400 mb-4 line-clamp-3">{org.description}</p>
 

@@ -1,3 +1,4 @@
+import type { PillarId } from "@/lib/constants/pillars"
 import type { Locale } from "@/lib/translations"
 
 const sections: Record<string, string> = {
@@ -11,7 +12,7 @@ const sections: Record<string, string> = {
 
 const children: Record<string, Record<string, string>> = {
   docs: { api: "api", chatgpt: "chatgpt", claude: "claude", permissions: "permisos", updates: "novedades" },
-  pillars: { work: "trabajo", sleep: "sueno", nutrition: "nutricion", mind: "mente", exercise: "ejercicio", finance: "finanzas" },
+  pillars: { work: "trabajo", sleep: "sueno", nutrition: "nutricion", mind: "mente", exercise: "ejercicio", finance: "finanzas" } satisfies Record<PillarId, string>,
   guides: {
     "track-habits-with-chatgpt": "registrar-habitos-con-chatgpt",
     "connect-claude-to-your-habit-tracker": "conectar-claude-al-registro-de-habitos",

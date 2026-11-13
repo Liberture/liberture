@@ -9,6 +9,8 @@ import { BookCover } from "@/components/directory/book-cover"
 import { ProfileMarkdown } from "@/components/people/profile-markdown"
 import { sectionTrail } from "@/components/seo/section-breadcrumbs"
 import { splitBookTitle } from "@/lib/directory/book-title"
+import { bookContributors } from "@/lib/directory/book-contributors"
+import { PersonCard } from "@/components/people/person-card"
 import { BookAuthor } from "@/components/directory/book-author"
 import { entries } from "@/lib/directory/organization-entries"
 import { ExternalLink } from "lucide-react";
@@ -39,7 +41,8 @@ type Book = {
 
 export default async function BookDetails({ book }: { book: Book }) {
   const locale = await getRequestLocale()
-  const text = (await getMessages() as unknown as Catalog).habits.bookDetails
+  const { bookDetails: text, app: { protocolCard } } = (await getMessages() as unknown as Catalog).habits
+  const contributors = await bookContributors(book.author, book.Person)
   const keyTakeaways = entries(book.keyTakeaways);
   const { title, subtitle } = splitBookTitle(book.title)
   const pillars = profilePillars(book.pillars);
@@ -82,6 +85,15 @@ export default async function BookDetails({ book }: { book: Book }) {
             <h2 className="text-2xl font-bold mb-4">{text.about}</h2>
             <ProfileMarkdown>{book.description}</ProfileMarkdown>
           </div>
+
+          {contributors.length > 0 && <section>
+            <h2 className="mb-4 text-2xl font-bold">{text.contributors}</h2>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {contributors.map(({ name, role, profile }) => (
+                <PersonCard key={name} person={profile ?? { name }} role={text[role]} featuredLabel={protocolCard.featured} />
+              ))}
+            </div>
+          </section>}
 
           {/* Key Takeaways */}
           {keyTakeaways.length > 0 && (

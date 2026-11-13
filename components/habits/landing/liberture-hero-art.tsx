@@ -1,10 +1,11 @@
 "use client"
+import { useCatalogLabels } from "@/components/habits/marketplace/pillar-tag"
 
 import Link from "@/components/i18n/localized-link"
 import { motion } from "framer-motion"
 
 import { FoldedDrift, RippleBloom } from "@/components/habits/patterns"
-import { PILLAR_HEX, PILLAR_ICON_MAP, PILLAR_IDS, PILLAR_LABELS, PILLAR_STYLES, type PillarId } from "@/lib/habits/pillars"
+import { PILLAR_HEX, PILLAR_ICON_MAP, PILLAR_IDS, PILLAR_STYLES, type PillarId } from "@/lib/habits/pillars"
 
 /**
  * The Liberture landing hero's background and pillar buttons, taken from
@@ -81,6 +82,7 @@ export function HeroBackground() {
 
 /** The row of animated pillar buttons under the hero's call to action. */
 export function HeroPillarButtons() {
+  const { pillar: labels } = useCatalogLabels()
   return (
     <motion.div
       // Phones: two rows of three. From md up: one centred row, as before.
@@ -114,7 +116,7 @@ export function HeroPillarButtons() {
                   <Icon className={`h-8 w-8 ${PILLAR_STYLES[pillar].text}`} />
                 </motion.div>
               </motion.div>
-              <span className="text-xs text-muted-foreground transition-colors">{PILLAR_LABELS[pillar]}</span>
+              <span className="text-xs text-muted-foreground transition-colors">{labels[pillar]}</span>
             </motion.div>
           </Link>
         )

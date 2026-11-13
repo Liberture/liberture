@@ -6,7 +6,7 @@ import { useLocalizedHref } from "@/components/i18n/localized-link"
 import { useRouter } from "next/navigation"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { FieldOption, FieldSelect } from "@/components/ui/select"
-import { PersonCard } from "@/components/people/person-card"
+import { PersonCard, type PersonPreview } from "@/components/people/person-card"
 import { PILLAR_IDS } from "@/lib/habits/pillars"
 import { profilePillars } from "@/lib/pillars"
 import { articleTags } from "@/lib/article-tags"
@@ -19,7 +19,7 @@ import { OrganizationCard } from "./org-card"
 type Catalog =
   | { section: "articles"; rows: ComponentProps<typeof ArticleCard>["article"][] }
   | { section: "books"; rows: ComponentProps<typeof BookCard>["book"][] }
-  | { section: "people"; rows: (ComponentProps<typeof PersonCard>["person"] & { expertise: string })[] }
+  | { section: "people"; rows: (PersonPreview & { expertise: string })[] }
   | { section: "projects" | "organizations"; rows: ComponentProps<typeof OrganizationCard>["org"][] }
 
 export type ListingParams = { q?: string; pillar?: string; sort?: string; page?: string }

@@ -1,3 +1,4 @@
+import { protocolDurations } from "@/lib/constants/protocol-durations"
 import { readingFromCollection } from "@/lib/habits/philosophy"
 import type { PillarId } from "@/lib/habits/pillars"
 import type { Habit, ReadingContent } from "@/lib/habits/types"
@@ -119,7 +120,7 @@ function toCatalogProtocol(p: SeedProtocol): CatalogProtocol {
     why: p.why,
     pillar,
     difficulty,
-    duration: p.duration,
+    duration: protocolDurations.en[p.durationKey],
     creator: p.creator,
     author,
     coAuthors,

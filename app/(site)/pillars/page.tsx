@@ -1,3 +1,4 @@
+import { PILLAR_IDS } from "@/lib/habits/pillars"
 import { publicPageMetadata } from "@/lib/seo/public-page-metadata"
 import { getTranslations as getUiCopy } from "next-intl/server"
 import { directoryPrisma as prisma } from '@/lib/i18n/directory-records.server'
@@ -27,8 +28,7 @@ export default async function PillarsPage() {
   let countMap: Record<string, number> = {}
   let totalItems = 0
   try {
-    const pillars = ['work', 'sleep', 'nutrition', 'mind', 'exercise', 'finance']
-    const counts = await Promise.all(pillars.map(async (p) => {
+    const counts = await Promise.all(PILLAR_IDS.map(async (p) => {
       const [articles, people, books, orgs, protocols] = await Promise.all([
         prisma.article.count({ where: { pillar: p } }),
         prisma.person.count({ where: { pillars: { contains: p } } }),
@@ -88,7 +88,7 @@ export default async function PillarsPage() {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <AnimatedPillarGrid pillars={PILLAR_STYLES.map(style => ({ ...style, name: uiCopy(style.slug + "Name"), tagline: uiCopy(style.slug + "Tagline"), description: uiCopy(style.slug + "Intro") }))} countMap={countMap} />
+            <AnimatedPillarGrid pillars={PILLAR_STYLES.map(style => ({ ...style, name: uiCopy(`${style.slug}Name`), tagline: uiCopy(`${style.slug}Tagline`), description: uiCopy(`${style.slug}Intro`) }))} countMap={countMap} />
           </div>
         </div>
       </section>

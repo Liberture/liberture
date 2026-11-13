@@ -1,4 +1,5 @@
-import { getTranslations } from "next-intl/server"
+import { translatedLabel } from "@/lib/i18n/translated-label"
+import { getMessages } from "next-intl/server"
 import { localizedPageUrl } from "@/lib/i18n/page-url.server"
 import type { getOrganization } from "@/lib/seo/public-records"
 import { PersonCard } from "@/components/people/person-card"
@@ -30,8 +31,8 @@ function EntryList({ items }: { items: Entry[] }) {
 }
 
 export default async function OrganizationDetails({ organization, locale }: { organization: NonNullable<Awaited<ReturnType<typeof getOrganization>>>; locale: Locale }) {
-  const terms = await getTranslations("directoryTerms")
-  const term = (value: string) => terms.has(value) ? terms(value) : value
+  const terms = (await getMessages()).directoryTerms
+  const term = (value: string) => translatedLabel(terms, value)
   const copy = getDictionary(locale).app
   const t = copy.organizationProfile
   const section = profileSection(organization.directoryKind)

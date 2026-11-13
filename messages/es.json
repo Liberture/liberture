@@ -297,6 +297,9 @@
       "inTracker": "{count} en tu registro"
     },
     "bookDetails": {
+      "contributors": "Autores y colaboradores",
+      "collaborator": "Colaborador",
+      "editor": "Editor",
       "heading": "Datos del libro",
       "author": "Autoría",
       "published": "Publicación",

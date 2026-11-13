@@ -19,7 +19,7 @@ const PILLAR_COLORS = [
   { id: 'mind', name: 'Mind', hex: '#FF78BE', rgb: '255, 120, 190' },
   { id: 'exercise', name: 'Exercise', hex: '#FF823F', rgb: '255, 130, 63' },
   { id: 'finance', name: 'Finance', hex: '#E1A200', rgb: '225, 162, 0' },
-]
+] as const
 
 const BRAND_COLORS = [
   { nameKey: 'assetBackground', hex: '#0a0a0a', rgb: '10, 10, 10', useKey: 'assetMainBackgroundColor' },
@@ -27,7 +27,7 @@ const BRAND_COLORS = [
   { nameKey: 'assetBorder', hex: '#1a1a1a', rgb: '26, 26, 26', useKey: 'assetBordersAndDividers' },
   { nameKey: 'assetTextPrimary', hex: '#ffffff', rgb: '255, 255, 255', useKey: 'assetMainText' },
   { nameKey: 'assetTextMuted', hex: '#999999', rgb: '153, 153, 153', useKey: 'assetSecondaryText' },
-]
+] as const
 
 const LOGO_SIZES = [
   { size: 32, label: '32px', descKey: 'assetFavicon' },
@@ -36,7 +36,7 @@ const LOGO_SIZES = [
   { size: 128, label: '128px', descKey: 'assetLarge' },
   { size: 256, label: '256px', descKey: 'assetXl' },
   { size: 512, label: '512px', descKey: 'assetPrint' },
-]
+] as const
 
 const BANNER_CONFIGS = [
   { id: 'og', nameKey: 'assetOpenGraph', width: 1200, height: 630, descKey: 'assetLinkPreviewsFacebookDiscordSlack' },
@@ -47,7 +47,7 @@ const BANNER_CONFIGS = [
   { id: 'facebook', nameKey: 'assetFacebookCover', width: 820, height: 312, descKey: 'assetPageCoverPhoto' },
   { id: 'pinterest', nameKey: 'assetPinterestPin', width: 1000, height: 1500, descKey: 'assetStandardPinFormat' },
   { id: 'discord', nameKey: 'assetDiscordBanner', width: 960, height: 540, descKey: 'assetServerBannerImage' },
-]
+] as const
 
 // Ids and names follow PillarId; colors are the --work..--finance tokens from
 // globals.css. The cognition/recovery/fueling/mental/physicality spellings are
@@ -59,7 +59,7 @@ const PILLAR_ICON_DATA = [
   { id: 'mind', name: 'Mind', color: '#FF78BE', icon: 'Brain', file: '/media-kit/pillars/mind.svg' },
   { id: 'exercise', name: 'Exercise', color: '#FF823F', icon: 'Dumbbell', file: '/media-kit/pillars/exercise.svg' },
   { id: 'finance', name: 'Finance', color: '#E1A200', icon: 'Wallet', file: '/media-kit/pillars/finance.svg' },
-]
+] as const
 
 const STATIC_ASSETS = [
   { nameKey: 'assetLogoTransparent', file: '/media-kit/logos/liberture-logo-static.svg', dims: '512 x 512', w: 512, h: 512 },
@@ -71,7 +71,7 @@ const STATIC_ASSETS = [
   { nameKey: 'assetAppIcon', file: '/media-kit/icons/liberture-icon-512.svg', dims: '512 x 512', w: 512, h: 512 },
   { nameKey: 'assetPillarsOverview', file: '/media-kit/pillars/liberture-pillars-overview.svg', dims: '1200 x 320', w: 1200, h: 320 },
   { nameKey: 'assetDesignTokens', file: '/media-kit/liberture-design-tokens.json', dims: 'JSON', w: 0, h: 0 },
-]
+] as const
 
 const ICON_SIZES = [
   { size: 16, name: 'favicon-16' },
@@ -784,7 +784,7 @@ export default function MediaKitPage() {
                     </div>
                   </div>
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-lg font-semibold">{pillarCopy(pillar.id + "Name")}</h3>
+                    <h3 className="text-lg font-semibold">{pillarCopy(`${pillar.id}Name`)}</h3>
                     <span className="text-xs font-mono text-muted-foreground">{pillar.color}</span>
                   </div>
                   <div className="flex gap-2">
@@ -848,7 +848,7 @@ export default function MediaKitPage() {
                     className="h-24 rounded-xl mb-4"
                     style={{ backgroundColor: color.hex }}
                   />
-                  <h3 className="text-lg font-semibold mb-2">{pillarCopy(color.id + "Name")}</h3>
+                  <h3 className="text-lg font-semibold mb-2">{pillarCopy(`${color.id}Name`)}</h3>
                   <div className="space-y-2">
                     <CopyBtn text={color.hex} id={`${color.id}-hex`} />
                     <CopyBtn text={`rgb(${color.rgb})`} id={`${color.id}-rgb`} />

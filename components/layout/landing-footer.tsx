@@ -1,4 +1,4 @@
-import { Github, Instagram, Linkedin } from "lucide-react"
+import { Github, Instagram } from "lucide-react"
 import { BrandMark, SocialIcon } from "@/components/ui/social-icon"
 import Link from "@/components/i18n/localized-link"
 
@@ -13,7 +13,7 @@ const SOCIAL = [
   { href: "https://github.com/liberture/liberture", label: "GitHub · liberture/liberture", icon: <Github /> },
   { href: "https://medium.com/liberture", label: "Medium · @liberture", icon: <BrandMark brand="medium" /> },
   { href: "https://x.com/liberture", label: "X · @liberture", icon: <BrandMark brand="x" /> },
-  { href: "https://linkedin.com/company/liberture", label: "LinkedIn · @liberture", icon: <Linkedin /> },
+  { href: "https://linkedin.com/company/liberture", label: "LinkedIn · @liberture", icon: <BrandMark brand="linkedin" /> },
   { href: "https://instagram.com/liberture", label: "Instagram · @liberture", icon: <Instagram /> },
 ]
 

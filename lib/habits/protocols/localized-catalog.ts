@@ -1,3 +1,4 @@
+import { localizeProtocolDuration } from "@/lib/constants/protocol-durations"
 import spanish from "@/messages/catalog-es.json"
 import type { Locale } from "@/lib/translations"
 import { CATALOG_PROTOCOLS, STANDALONE_HABITS, type CatalogHabit, type CatalogProtocol } from "./catalog"
@@ -30,7 +31,7 @@ function translateProtocol(protocol: CatalogProtocol): CatalogProtocol {
   const p = {
     ...protocol,
     name: translate(protocol.name), tagline: translate(protocol.tagline),
-    description: translate(protocol.description), why: translate(protocol.why), duration: translate(protocol.duration),
+    description: translate(protocol.description), why: translate(protocol.why), duration: localizeProtocolDuration(protocol.duration, "es"),
     steps: protocol.steps.map(translate), benefits: protocol.benefits.map(translate),
     risks: protocol.risks.map(translate), equipment: protocol.equipment.map(translate),
     author: protocol.author && authorCopy(protocol.author), coAuthors: protocol.coAuthors.map(authorCopy),

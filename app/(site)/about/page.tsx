@@ -5,7 +5,7 @@ import Link from "@/components/i18n/localized-link"
 import { motion } from "framer-motion"
 import { LandingSection } from "../(landing)/landing-section"
 import { BrandMark, SocialIcon } from "@/components/ui/social-icon"
-import { Globe, Github, Linkedin, Instagram, Brain, Code, Zap, Target, Heart, Sparkles } from "lucide-react"
+import { Globe, Github, Instagram, Brain, Code, Zap, Target, Heart, Sparkles } from "lucide-react"
 import { stagger } from "@/lib/animations"
 
 export default function AboutPage() {
@@ -19,7 +19,7 @@ export default function AboutPage() {
       links: [
         { label: "leonacosta.com", href: "https://leonacosta.com/", icon: <Globe /> },
         { label: "GitHub · leonacostaok", href: "https://github.com/leonacostaok", icon: <Github /> },
-        { label: "LinkedIn · Leon Acosta", href: "https://linkedin.com/in/leonacosta", icon: <Linkedin /> },
+        { label: "LinkedIn · Leon Acosta", href: "https://linkedin.com/in/leonacosta", icon: <BrandMark brand="linkedin" /> },
         { label: "X · @leonacosta_", href: "https://x.com/leonacosta_", icon: <BrandMark brand="x" /> },
       ],
       role: uiCopy("leonRole"),
@@ -33,7 +33,7 @@ export default function AboutPage() {
       links: [
         { label: "fabriok.ar", href: "https://www.fabriok.ar/", icon: <Globe /> },
         { label: "GitHub · fabricio333", href: "https://github.com/fabricio333", icon: <Github /> },
-        { label: "LinkedIn · Fabricio Acosta", href: "https://www.linkedin.com/in/fabricio-acosta-ok/", icon: <Linkedin /> },
+        { label: "LinkedIn · Fabricio Acosta", href: "https://www.linkedin.com/in/fabricio-acosta-ok/", icon: <BrandMark brand="linkedin" /> },
         { label: "Instagram · @lord._.fabri", href: "https://www.instagram.com/lord._.fabri/", icon: <Instagram /> },
       ],
       role: uiCopy("fabricioRole"),

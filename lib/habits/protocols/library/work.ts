@@ -15,7 +15,7 @@ export const workProtocols: SeedProtocol[] = [
       "Every glance at a notification leaves what Sophie Leroy named attention residue — part of your mind stays on the interruption for many minutes afterward, so the cost of a five-second check is nothing like five seconds. Long uninterrupted blocks are the only reliable way to reach the depth where hard problems actually get solved, and two focused hours routinely outproduce eight fragmented ones. The reason this needs scheduling rather than intention is that the fragmented version always feels more productive while you're doing it.",
     pillar: "work",
     difficulty: "intermediate",
-    duration: "Ongoing, 60-90 min/day",
+    durationKey: "ongoing6090MinPerDay",
     creator: "Cal Newport (popularized)",
     authorId: "cal-newport",
     featured: true,
@@ -94,7 +94,7 @@ export const workProtocols: SeedProtocol[] = [
       "Task-switching carries a measurable cognitive cost, and open-ended work sessions invite it constantly. A ticking 25-minute container makes starting easy — anyone can focus for 25 minutes — makes distraction feel expensive, and the brief breaks prevent the vigilance decrement that erodes attention during long unbroken effort. It is a weaker tool than deep work for genuinely hard problems, and a much better one for the days when starting at all is the obstacle.",
     pillar: "work",
     difficulty: "beginner",
-    duration: "Ongoing, any work session",
+    durationKey: "ongoingAnyWorkSession",
     creator: "Francesco Cirillo",
     authorId: "francesco-cirillo",
     steps: [
@@ -152,7 +152,7 @@ export const workProtocols: SeedProtocol[] = [
       "Unfinished tasks occupy attention involuntarily — the Zeigarnik effect — which is why work follows you home even when you aren't doing any. Masicampo and Baumeister showed the intrusion largely disappears not when the task is completed but when a specific plan for it exists. That is exactly what a shutdown ritual manufactures: five minutes of capturing open loops and assigning them a time buys back an evening's worth of attention.",
     pillar: "work",
     difficulty: "beginner",
-    duration: "Ongoing, 5-10 min/day",
+    durationKey: "ongoing510MinPerDay",
     creator: "Cal Newport",
     authorId: "cal-newport",
     steps: [
@@ -211,7 +211,7 @@ export const workProtocols: SeedProtocol[] = [
       "A task list tells you what to do but not when, which leaves the ordering decision to be made repeatedly throughout the day at exactly the moments you're least equipped to make it well. Blocking moves that decision to the evening before, when you can see the whole day at once and aren't tired. Newport's important qualification is that the plan will be wrong — the value is not in predicting the day accurately but in forcing a deliberate choice each time reality diverges from it.",
     pillar: "work",
     difficulty: "intermediate",
-    duration: "Ongoing, 10 min/day",
+    durationKey: "ongoing10MinPerDay",
     creator: "Cal Newport",
     authorId: "cal-newport",
     steps: [
@@ -269,7 +269,7 @@ export const workProtocols: SeedProtocol[] = [
       "Continuous partial attention to a inbox is the purest form of attention residue: you are never fully in the message and never fully out of it. Batching converts an all-day low-grade tax into a bounded task. Studies limiting email checking to three times a day found lower daily stress, and the effect is mostly about the absence of anticipation rather than the time saved — you stop bracing for the next interruption once you know when the next one is.",
     pillar: "work",
     difficulty: "intermediate",
-    duration: "Ongoing, 1-2 blocks/day",
+    durationKey: "ongoing12BlocksPerDay",
     creator: "Cal Newport",
     authorId: "cal-newport",
     steps: [
@@ -327,7 +327,7 @@ export const workProtocols: SeedProtocol[] = [
       "Both James Clear and BJ Fogg converge on the same insight from different directions: the bottleneck in habit formation is almost never capacity, it's initiation. 'Read thirty pages' invites negotiation; 'open the book' does not. Fogg's Behavior Model makes the mechanism explicit — behaviour requires motivation, ability and a prompt simultaneously, and shrinking the behaviour raises ability so far that even a bad-motivation day clears the threshold. On good days you continue past two minutes anyway; on bad days you keep the identity intact, which is the part that actually compounds.",
     pillar: "work",
     difficulty: "beginner",
-    duration: "Ongoing, 2 min",
+    durationKey: "ongoing2Min",
     creator: "James Clear / BJ Fogg",
     authorId: "james-clear",
     coAuthorIds: ["bj-fogg"],
@@ -395,7 +395,7 @@ export const workProtocols: SeedProtocol[] = [
       "Daily planning optimises locally and will happily keep you busy on the wrong things for months. The weekly review is the only routine point at which you're looking at the whole board — which projects have quietly stalled, which commitments you've accumulated without noticing, what you said yes to that you should not have. It is also where the shutdown ritual's captured loops get triaged rather than merely stored.",
     pillar: "work",
     difficulty: "intermediate",
-    duration: "Ongoing, 45-60 min/week",
+    durationKey: "ongoing4560MinPerWeek",
     creator: "David Allen (GTD)",
     authorId: "cal-newport",
     steps: [
@@ -451,7 +451,7 @@ export const workProtocols: SeedProtocol[] = [
       "Newport's argument is that we adopt tools on the any-benefit standard — if it does anything useful at all, we keep it — and almost everything passes that test, which is why the accumulation never stops. The reset works because gradual reduction leaves the underlying habit loop intact while a clean thirty-day break breaks it, and because the reintroduction decision is then made from a position of not currently needing the thing. The success condition is not deleting apps; it's replacing them with something you actually prefer.",
     pillar: "work",
     difficulty: "advanced",
-    duration: "30 days, then ongoing",
+    durationKey: "for30DaysThenOngoing",
     creator: "Cal Newport",
     authorId: "cal-newport",
     steps: [
@@ -519,7 +519,7 @@ export const workProtocols: SeedProtocol[] = [
       "Focus protocols fail through erosion rather than collapse: the phone comes back to the desk, the block shrinks to forty minutes, one tab becomes five. None of those are decisions, which is exactly why re-reading the principle works — it turns an unexamined drift back into a choice. Positioned immediately before the block, it also functions as a starting cue, which is the other thing deep work reliably needs.",
     pillar: "work",
     difficulty: "beginner",
-    duration: "Ongoing, 1 min/day",
+    durationKey: "ongoing1MinPerDay",
     creator: "Cal Newport",
     authorId: "cal-newport",
     steps: [

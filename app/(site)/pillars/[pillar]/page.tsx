@@ -1,5 +1,8 @@
+import { PILLAR_IDS, PILLAR_STYLES, type PillarId as Pillar } from "@/lib/habits/pillars"
 import { translatedAlternates } from "@/lib/seo/translated-routes"
 import { getTranslations as getUiCopy } from "next-intl/server"
+import { DirectoryProtocol } from "@/components/directory/protocol-card"
+import { ArticleCard } from "@/components/directory/article-card"
 import { BookCard } from "@/components/directory/book-card"
 import { OrganizationCard } from "@/components/directory/org-card"
 import { getSiteMessages } from "@/lib/i18n/messages.server"
@@ -9,25 +12,14 @@ import { notFound } from 'next/navigation'
 import { directoryPrisma as prisma } from '@/lib/i18n/directory-records.server'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { BookOpen, TrendingUp, Users, Building2, Zap, FileText, ArrowRight, Clock } from 'lucide-react'
+import { BookOpen, TrendingUp, Users, Building2, Zap, FileText, ArrowRight } from 'lucide-react'
 import Link from '@/components/i18n/localized-link'
-import { MotionContainer, MotionItem, MotionStats, MotionSection, AnimatedArticleGrid, AnimatedOtherPillars } from '@/components/animations'
+import { MotionContainer, MotionItem, MotionStats, MotionSection, AnimatedOtherPillars } from '@/components/animations'
 import { PillarIcon } from '@/components/pillars/PillarIcon'
 import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
 
-const VALID_PILLARS = ['work', 'sleep', 'nutrition', 'mind', 'exercise', 'finance'] as const
-type Pillar = (typeof VALID_PILLARS)[number]
-
-const pillarColors: Record<Pillar, string> = {
-  work: 'from-work/20 to-work/5',
-  sleep: 'from-sleep/20 to-sleep/5',
-  nutrition: 'from-nutrition/20 to-nutrition/5',
-  mind: 'from-mind/20 to-mind/5',
-  exercise: 'from-exercise/20 to-exercise/5',
-  finance: 'from-finance/20 to-finance/5',
-}
 
 interface PageProps {
   params: Promise<{ pillar: string }>
@@ -35,12 +27,12 @@ interface PageProps {
 
 async function getTranslationsForPillar(pillar: Pillar) {
   const t = await getUiCopy("publicCopy.pillars")
-  return { title: t(pillar + "Title"), description: t(pillar + "Description"), color: pillarColors[pillar], tagline: t(pillar + "Tagline") }
+  return { title: t(`${pillar}Title`), description: t(`${pillar}Description`), color: PILLAR_STYLES[pillar].gradient, tagline: t(`${pillar}Tagline`) }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { pillar: pillarParam } = await params
-  const pillar = VALID_PILLARS.find(p => p === pillarParam)
+  const pillar = PILLAR_IDS.find(p => p === pillarParam)
   
   if (!pillar) notFound()
   const locale = await getRequestLocale()
@@ -57,7 +49,7 @@ export default async function PillarPage({ params }: PageProps) {
   const uiCopy = await getUiCopy("publicCopy.pillar")
 
   const { pillar: pillarParam } = await params
-  const pillar = VALID_PILLARS.find(p => p === pillarParam)
+  const pillar = PILLAR_IDS.find(p => p === pillarParam)
   if (!pillar) notFound()
 
   const config = await getTranslationsForPillar(pillar)
@@ -72,7 +64,7 @@ export default async function PillarPage({ params }: PageProps) {
     const [articlesRes, peopleRes, booksRes, orgsRes, protocolsRes] = await Promise.all([
       prisma.article.findMany({
         where: { pillar },
-        select: { id: true, title: true, description: true, tags: true, author: true, readTime: true, url: true, publishedAt: true, slug: true },
+        select: { id: true, title: true, description: true, tags: true, author: true, readTime: true, pillar: true, url: true, publishedAt: true, slug: true },
         orderBy: { publishedAt: 'desc' },
       }),
       prisma.person.findMany({
@@ -107,7 +99,7 @@ export default async function PillarPage({ params }: PageProps) {
 
   const directoryCopy = (await getSiteMessages()).habits.app.directoryProfiles
   const totalItems = articles.length + people.length + books.length + organizations.length + protocols.length
-  const otherPillars = await Promise.all(VALID_PILLARS.filter(p => p !== pillar).map(async p => ({ id: p, config: await getTranslationsForPillar(p) })))
+  const otherPillars = await Promise.all(PILLAR_IDS.filter(p => p !== pillar).map(async p => ({ id: p, config: await getTranslationsForPillar(p) })))
 
   return (
     <div className="min-h-screen">
@@ -200,25 +192,7 @@ export default async function PillarPage({ params }: PageProps) {
                 </Link>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {protocols.slice(0, 6).map((protocol: any) => (
-                  <Link key={protocol.id} href={`/protocols/${protocol.slug}`}>
-                    <Card className="h-full hover:border-green-500/50 transition-colors">
-                      <CardContent className="p-5">
-                        {protocol.featured && <Badge className="mb-2 bg-green-500/20 text-green-400 border-green-500/30">{uiCopy("featured")}</Badge>}
-                        <h3 className="font-semibold mb-1">{protocol.name}</h3>
-                        <div className="flex items-center gap-3 mb-2">
-                          <Badge variant="outline" className="text-xs">{protocol.difficulty}</Badge>
-                          {protocol.duration && (
-                            <span className="text-xs text-muted-foreground flex items-center gap-1">
-                              <Clock className="h-3 w-3" /> {protocol.duration}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground line-clamp-2">{protocol.description}</p>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
+                {protocols.slice(0, 6).map(protocol => <DirectoryProtocol key={protocol.slug} protocol={protocol} />)}
               </div>
             </div>
           </div>
@@ -254,7 +228,9 @@ export default async function PillarPage({ params }: PageProps) {
                 <Link href="/articles" className="text-sm text-primary hover:underline flex items-center gap-1">{uiCopy("viewAll")} <ArrowRight className="h-3 w-3" />
                 </Link>
               </div>
-              <AnimatedArticleGrid articles={articles} pillar={pillar} />
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {articles.map(article => <ArticleCard key={article.slug} article={article} />)}
+              </div>
             </div>
           </div>
         </section>
