@@ -270,6 +270,9 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
   // Matrix needs a wide screen; a phone falls back to the week grid.
   const effectiveLayout: HabitsLayout = tourIds !== null ? "day" : isMobile && habitsLayout === "matrix" ? "week" : habitsLayout
 
+  const layoutContent = useRef<HTMLDivElement>(null)
+  const layoutExit = useRef<Animation | null>(null)
+  useEffect(() => () => layoutExit.current?.cancel(), [])
   const [slideDirection, setSlideDirection] = useState<"up" | "down" | null>(null)
 
   // The time-of-day filter and "show archived" are Habits-view controls only;
@@ -386,11 +389,30 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
           onValueChange={value => {
             const next = LAYOUTS.findIndex(layout => layout.id === value)
             if (next < 0) return
-            setSlideDirection(next > LAYOUTS.findIndex(layout => layout.id === effectiveLayout) ? "up" : "down")
-            updatePreferences({ habitsLayout: LAYOUTS[next].id })
+            layoutExit.current?.cancel()
+            const direction = next > LAYOUTS.findIndex(layout => layout.id === effectiveLayout) ? "up" : "down"
+            const selectLayout = () => {
+              setSlideDirection(direction)
+              updatePreferences({ habitsLayout: LAYOUTS[next].id })
+            }
+            const panel = layoutContent.current
+            if (!panel || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+              selectLayout()
+              return
+            }
+            const exit = panel.animate([
+              { opacity: 1, transform: "translateY(0)" },
+              { opacity: 0, transform: `translateY(${direction === "up" ? "-" : ""}2rem)` },
+            ], { duration: 130, easing: "ease-in", fill: "forwards" })
+            layoutExit.current = exit
+            exit.onfinish = () => {
+              if (layoutExit.current !== exit) return
+              layoutExit.current = null
+              selectLayout()
+            }
           }}>
           <TabsList aria-label={t.layoutLabel}
-            className={cn("group sticky top-1/2 -translate-y-1/2 z-10 mb-0 w-10 max-w-none flex-col items-stretch overflow-hidden rounded-xl border border-border bg-card p-1 shadow-sm transition-[width] duration-200 hover:w-32 has-[:focus-visible]:w-32 motion-reduce:transition-none", effectiveLayout === "day" && "xl:w-32")}>
+            className={cn("group sticky col-start-1 row-start-1 top-1/2 -translate-y-1/2 z-10 mb-0 w-10 max-w-none flex-col items-stretch overflow-hidden rounded-xl border border-border bg-card p-1 shadow-sm transition-[width] duration-200 hover:w-32 has-[:focus-visible]:w-32 motion-reduce:transition-none", effectiveLayout === "day" && "xl:w-32")}>
             {LAYOUTS.filter(layout => !layout.desktopOnly || !isMobile).map(({ id, icon: Icon }) => (
               <TabsTrigger key={id} value={id} aria-label={t.layouts[id]}
                 className="h-8 justify-start gap-2 overflow-hidden rounded-lg px-1.5 data-[state=active]:border-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
@@ -399,7 +421,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
               </TabsTrigger>
             ))}
           </TabsList>
-          <div className="min-w-0 space-y-4 md:space-y-6">
+          <div className={cn("col-start-2 row-start-1 min-w-0 space-y-4 md:space-y-6", effectiveLayout !== "day" && "self-center")}>
             {onboardingState.handedOffToAssistant && !onboardingState.assistantCardDismissed && (
               <AssistantStartCard connected={connectedKinds} onDismiss={actions.dismissAssistantCard} />
             )}
@@ -407,7 +429,7 @@ export function HabitTracker({ apiKey, isNostrAuth = false, onLogout }: HabitTra
             <BackupReminder habits={habits} lastBackupAt={storageData?.lastBackupAt} onExport={actions.exportData} />
 
             <TabsContent value={effectiveLayout}>
-              <div key={effectiveLayout} data-slide={slideDirection} className="habit-layout-content space-y-4 md:space-y-6">
+              <div ref={layoutContent} key={effectiveLayout} data-slide={slideDirection} className="habit-layout-content space-y-4 md:space-y-6">
                 {effectiveLayout === "day" ? (
                   <DailyTracker key={tourIds !== null ? "tour" : "tracker"}
                     habits={habits}
