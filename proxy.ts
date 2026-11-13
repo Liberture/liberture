@@ -6,7 +6,6 @@ import type { NextRequest } from "next/server"
 // Remove a route from this list when its page is ready.
 const COMING_SOON_ROUTES: string[] = [
   // "/marketplace",
-  // "/games",
   // "/protocols",
 ]
 

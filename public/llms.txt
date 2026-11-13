@@ -23,7 +23,6 @@
 - [Protocol library](https://liberture.com/protocols): Explore, share or download structured routines and add their habits to the tracker.
 - [Directory](https://liberture.com/directory): Browse [people](https://liberture.com/people), [books](https://liberture.com/books) and [projects](https://liberture.com/projects) and their [organizations](https://liberture.com/organizations).
 - [Articles](https://liberture.com/articles) and [guides](https://liberture.com/guides): Editorial content and practical instructions.
-- [Games](https://liberture.com/games): Interactive sleep and hydration tools.
 - [About](https://liberture.com/about), [support](https://liberture.com/support), [privacy](https://liberture.com/privacy) and [sitemap](https://liberture.com/sitemap.xml).
 
 ## Public content APIs

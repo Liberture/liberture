@@ -5,6 +5,7 @@
 Released 2026-11-13.
 
 - **Directory content.** Profiles and article reading notes are maintained in PostgreSQL. Retired repository content snapshots, old seed tools and the unused Creator Studio prototype.
+- **Games.** Retired the sleep and hydration simulations and removed their listings.
 - **Operations.** Production deployments now run on published stable GitHub Releases. The workflow checks the tag against the package version and changelog before testing and building.
 - **Upgrading.** Back up the database before upgrading. Existing installations using the older editorial files should finish importing their profile and article content before removing those files.
 
