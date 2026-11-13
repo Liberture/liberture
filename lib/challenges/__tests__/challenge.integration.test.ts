@@ -3,6 +3,8 @@ import { readFile } from "node:fs/promises"
 import { nip19 } from "nostr-tools"
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest"
 import { POST as create, GET as list } from "@/app/api/challenges/route"
+import { publicMatch } from "../server"
+import { GET as backupRecipient } from "@/app/api/challenges/[id]/backup-recipient/route"
 import { POST as register } from "@/app/api/challenges/moderator/route"
 import { POST as invite } from "@/app/api/challenges/invite/route"
 import { GET, PATCH } from "@/app/api/challenges/[id]/route"
@@ -71,6 +73,33 @@ describe.skipIf(!testUrl)("private challenge routes", () => {
     expect((await accepted.clone().json()).challenge.stage).toBe("funding")
     return { id: challenge.id as string, player: { cookie: cookie.split(";")[0] } }
   }
+  it("locks in an offline moderator by npub and starts funding without their acceptance", async () => {
+    const identity = pubkey().slice(2)
+    const response = await create(req("POST","",creator,{title:"Offline referee",rules:"Walk",name:"A",pubkey:pubkey(),stake:10,durationDays:1,moderatorNpub:nip19.npubEncode(identity)}))
+    expect(response.status).toBe(201)
+    const {challenge, invites} = await response.json()
+    expect(challenge.members.moderator.pubkey).toBe("02"+identity)
+    expect((await (await join(invites.player,{},"B")).json()).challenge.stage).toBe("funding")
+    await db`INSERT INTO habit_users(nostr_pubkey) VALUES (${identity})`
+    const account = {cookie:SESSION_COOKIE_NAME+"="+await createSession(identity)}
+    const result = await GET(req("GET","/"+challenge.id,account),{params:Promise.resolve({id:challenge.id})})
+    expect((await result.json()).challenge.role).toBe("moderator")
+    expect((await (await list(req("GET","",account))).json()).challenges.some((c:{id:string})=>c.id===challenge.id)).toBe(true)
+  })
+  it("exposes only spectator fields after the creator shares, and binds backup delivery to the member account", async () => {
+    const { challenge, invites } = await (await make()).json()
+    const params = {params:Promise.resolve({id:challenge.id})}
+    expect(await publicMatch(challenge.id)).toBeNull()
+    expect((await apply(challenge.id,moderator,{action:"publish"})).status).toBe(403)
+    expect((await apply(challenge.id,creator,{action:"publish"})).status).toBe(200)
+    expect(Object.keys((await publicMatch(challenge.id))!).sort()).toEqual(["title","rules","creator","player","stake","mint","durationDays","stage","result"].sort())
+    const recipient = await backupRecipient(req("GET","",moderator),params)
+    expect((await recipient.json()).recipient).toBe(modNostr)
+    const guest = await join(invites.player,{},"Guest")
+    const guestCookie = guest.headers.get("set-cookie")!.split(";")[0]
+    expect((await backupRecipient(req("GET","",{cookie:guestCookie}),params)).status).toBe(403)
+    expect((await publicMatch(challenge.id))?.player).toBe("Guest")
+  })
   it("starts funding with two players when no moderator was selected", async () => {
     const {challenge, invites} = await (await create(req("POST","",creator,{title:"Two players",rules:"Walk",name:"A",pubkey:pubkey(),stake:10,durationDays:1}))).json()
     expect(challenge.arbitration).toBe("none")

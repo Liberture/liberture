@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
+import { NostrSessionProvider, useLogout, type SignerStorage } from "@nostr-wot/ui"
 import { useRouter } from "next/navigation"
 
 import { SignInDialog, type AuthResult, type AuthType } from "@/components/habits/sign-in-dialog"
@@ -106,6 +107,22 @@ function safeNext(next: string | null | undefined): string | null {
  * dialog. Any page can open it; `?signin=1&next=/path` opens it on load.
  */
 export function HabitsSessionProvider({ children }: { children: ReactNode }) {
+  return (
+    <NostrSessionProvider autoRestore={false} signerStorage={sessionOnlyStorage}>
+      <HabitsSession>{children}</HabitsSession>
+    </NostrSessionProvider>
+  )
+}
+
+// The server cookie restores the session. Never persist signing secrets in browser storage.
+const sessionOnlyStorage: SignerStorage = {
+  getItem: () => null,
+  setItem: () => {},
+  removeItem: () => {},
+}
+
+function HabitsSession({ children }: { children: ReactNode }) {
+  const logoutSigner = useLogout()
   const router = useRouter()
   const restoration = useRef<AbortController | null>(null)
   const [auth, setAuth] = useState<HabitsAuthState>(SIGNED_OUT)
@@ -183,10 +200,11 @@ export function HabitsSessionProvider({ children }: { children: ReactNode }) {
     // Revokes the server-side session (cookie) before clearing local state.
     restoration.current?.abort()
     await fetch("/api/auth/nostr/session", { method: "DELETE", credentials: "same-origin" }).catch(() => {})
+    await logoutSigner()
     clearAuthStorage()
     setAuth(SIGNED_OUT)
     router.push("/")
-  }, [router])
+  }, [router, logoutSigner])
 
   const profile = useNostrProfile(auth.pubkey)
   const authHeaders = useMemo((): Record<string, string> => auth.apiKey ? { Authorization: `Bearer ${auth.apiKey}` } : {}, [auth.apiKey])
@@ -195,6 +213,33 @@ export function HabitsSessionProvider({ children }: { children: ReactNode }) {
     if (authHeaders.Authorization) headers.set("Authorization", authHeaders.Authorization)
     return fetch(path, { ...init, headers, mode: "same-origin", credentials: "same-origin" })
   }, [authHeaders])
+
+  useEffect(() => {
+    const identity = auth.pubkey
+    if (!identity || isChecking) return
+    const controller = new AbortController()
+    async function register() {
+      if (!identity) return
+      const { challengePublicKey } = await import("@/lib/challenges/cashu")
+      await navigator.locks.request("moderator-setup:" + identity, async () => {
+        if (controller.signal.aborted) return
+        const owner = "moderator-" + identity
+        const pubkey = challengePublicKey(owner)
+        localStorage.setItem("challenge-wallet-for:" + pubkey, owner)
+        const marker = "challenge-moderator-registered:" + identity
+        if (localStorage.getItem(marker) === pubkey) return
+        const response = await ownerRequest("/api/challenges/moderator", {
+          method: "POST", signal: controller.signal, headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ identity, pubkey, name: (profile?.name || identity.slice(0,12)).slice(0,48) }),
+        })
+        if (response.ok) localStorage.setItem(marker, pubkey)
+      })
+    }
+    const setup = () => { void register().catch(() => {}) }
+    setup()
+    window.addEventListener("online", setup)
+    return () => { controller.abort(); window.removeEventListener("online", setup) }
+  }, [auth.pubkey, isChecking, ownerRequest, profile?.name])
 
   const value = useMemo<HabitsSessionValue>(() => ({
     isChecking, isSignedIn: auth.type !== null, auth, profile, authHeaders, ownerRequest, openSignIn, logout,

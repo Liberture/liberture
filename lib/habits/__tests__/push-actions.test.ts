@@ -74,7 +74,7 @@ const undoHabit = (previous: HabitCompletion | null = null): PushAction => ({
   date: DAY,
   completedAt: LOGGED_AT,
   previous,
-  notice: { tag: `log-habit-h1-${DAY}`, title: "Undone: Pushups", body: "It's no longer marked done.", url: "/tracker?view=habits" },
+  notice: { tag: `log-habit-h1-${DAY}`, title: "Undone: Pushups", body: "It's no longer marked done.", url: "/tracker/habits" },
 })
 
 let ip = 0

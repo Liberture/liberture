@@ -47,7 +47,7 @@ describe("dueReminders at the habit's time", () => {
       key: "habit:h1:2026-10-07:habit",
       title: "Reminder",
       body: "08:00: Read",
-      url: "/tracker?view=habits",
+      url: "/tracker/habits",
     })
     expect(dueReminders(data([habit()]), [], at("2026-10-07", "08:14"), 1, strings)).toHaveLength(1)
     expect(dueReminders(data([habit()]), [], at("2026-10-07", "08:15"), 1, strings)).toEqual([])

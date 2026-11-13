@@ -24,7 +24,7 @@ export interface MissedLoggingMessage extends CoachMessage {
   habits: { id: string; name: string; unloggedDueDays: number }[]
 }
 
-export const COACH_URL = "/tracker?view=catalog"
+export const COACH_URL = "/tracker/catalog"
 
 /** How many due days without any record before the coach asks. */
 export const MISSED_LOGGING_DAYS = 3

@@ -1,3 +1,4 @@
+import TrackerShell from "@/components/habits/tracker/tracker-shell"
 import { getTranslations } from "next-intl/server"
 import type { Metadata } from "next"
 import type { ReactNode } from "react"
@@ -11,5 +12,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function TrackerLayout({ children }: { children: ReactNode }) {
-  return children
+  return <TrackerShell>{children}</TrackerShell>
 }

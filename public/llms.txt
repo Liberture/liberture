@@ -6,7 +6,7 @@
 
 - [Sign in and get started](https://liberture.com/get-started): Use a Nostr browser extension (NIP-07) or remote signer (NIP-46). Existing accounts can also sign in with their Liberture API key. Nostr provides identity. Personal tracker data is stored in the Liberture account.
 - [Habit tracker](https://liberture.com/tracker): Create and schedule habits, record check-ins and measured values, follow streaks, and review progress in day, week, matrix and statistics views. Organize todos into projects and schedule tasks and events on the calendar.
-- [Catalog](https://liberture.com/tracker?view=catalog): Search and filter protocols and individual habits by pillar, cost, effort or author. Review the source and adopt a routine into your tracker.
+- [Catalog](https://liberture.com/tracker/catalog): Search and filter protocols and individual habits by pillar, cost, effort or author. Review the source and adopt a routine into your tracker.
 - [Settings](https://liberture.com/tracker): Manage profile, focus habits, language, time zone, reminders and notification permissions. Devices with push enabled can receive reminders while Liberture is closed. Export or restore a JSON backup, or merge check-in history from another tracker.
 - [How it works](https://liberture.com/how-it-works): Overview of the tracker, protocols and assistant workflows. The optional coach can recommend routines and follow up according to the user's check-in preferences.
 

@@ -9,6 +9,7 @@ import { dueReminders, localNowFor, type DueReminder } from "@/lib/habits/remind
 import { claimReminder, getActivePushSubscription, type AuthHeaders } from "@/lib/habits/reminders/client"
 
 interface NotificationManagerProps {
+  showPrompt?: boolean
   habits: Habit[]
   completions: HabitCompletion[]
   /** Reminders on (preferences.notifications, and the app has loaded). Off also hides the permission prompt. */
@@ -44,6 +45,7 @@ function deviceTimeZone(): string | undefined {
  * devices never show it twice.
  */
 export function NotificationManager({
+  showPrompt = true,
   habits,
   completions,
   enabled = true,
@@ -144,7 +146,7 @@ export function NotificationManager({
   // about it forever just covers the UI. Settings → Reminders shows the status
   // and has its own "Allow" button, so "Not now" can stay quiet for a month.
   const dismissedRecently = dismissedAt ? Date.now() - Date.parse(dismissedAt) < PROMPT_SNOOZE_MS : false
-  if (!enabled || permission !== "default" || dismissedRecently) return null
+  if (!showPrompt || !enabled || permission !== "default" || dismissedRecently) return null
 
   // Bottom-right, high enough on phones to clear the bottom nav and the toast
   // stack above it (toasts sit 88px up, see ui/toast.tsx).

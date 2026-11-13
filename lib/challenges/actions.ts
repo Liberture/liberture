@@ -9,6 +9,7 @@ type State = ChallengeRow["state"]
 const verdict = z.enum(["creator", "player", "draw"])
 const signature = z.string().regex(/^[0-9a-f]{128}$/)
 const actions = z.discriminatedUnion("action", [
+  z.object({ action: z.literal("publish") }),
   z.object({ action: z.literal("invite"), role: z.enum(["player", "moderator"]) }),
   z.object({ action: z.literal("fund"), token: z.string().min(1).max(120000) }),
   z.object({ action: z.literal("vote"), result: verdict }),
@@ -90,6 +91,11 @@ export async function act(s: State, role: Role, payload: unknown) {
   if (command.action === "invite") return rotateInvite(s.id, role, command.role)
   let proofIds: string[] = []
   switch (command.action) {
+    case "publish":
+      if (role !== "creator") fail("forbidden", 403)
+      if (s.publicMatch) return {challenge: view(s, role)}
+      s.publicMatch = true
+      break
     case "fund": {
       const p = playerRole(role)
       if (s.deposits[p] === command.token) return { challenge: view(s, role) }

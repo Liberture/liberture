@@ -37,6 +37,7 @@ const securityHeaders = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  allowedDevOrigins: ["127.0.0.1", ...(process.env.LIBERTURE_LAN_HOST ? [process.env.LIBERTURE_LAN_HOST] : [])],
   // Keep loopback origins intact so localized internal rewrites stay inside the router.
   skipProxyUrlNormalize: true,
   // Self-contained server bundle for the Docker image (Dockerfile sets NEXT_OUTPUT);

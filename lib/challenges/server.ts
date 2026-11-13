@@ -80,9 +80,12 @@ const inviteTarget = z.string().max(100).nullish().transform(value => {
   } catch {}
   return fail("invalidNpub", 400)
 })
+const inviteToken = z.string().regex(/^[A-Za-z0-9_-]{43}$/)
 const createSchema = memberSchema.extend({
   title: z.string().trim().min(1).max(100), rules: z.string().trim().min(1).max(2000),
   stake: z.number().int().min(1).max(MAX_STAKE), durationDays: z.number().int().min(1).max(90),
+  playerInvite: inviteToken.optional(),
+  playerName: z.string().trim().max(60).optional(),
   playerNpub: inviteTarget, moderatorNpub: inviteTarget,
 })
 
@@ -117,9 +120,18 @@ export function view(state: State, role: Role): Challenge {
   return { ...publicState, ...(role === "creator" && { invitedNpubs }), role, stage: stageOf(state) }
 }
 export async function listChallenges(user: number) {
-  const rows = await getDb()<ChallengeRow[]>`SELECT * FROM tracker_challenges WHERE creator_id=${user} OR player_id=${user} OR moderator_id=${user} ORDER BY state->>'createdAt' DESC`
+  const rows = await getDb()<ChallengeRow[]>`SELECT * FROM tracker_challenges WHERE creator_id=${user} OR player_id=${user} OR moderator_id=${user} OR (state->>'arbitration'='nostr' AND moderator_nostr=(SELECT nostr_pubkey FROM habit_users WHERE id=${user})) ORDER BY state->>'createdAt' DESC`
   return rows.map(row => view(row.state, row.creator_id === user ? "creator" : row.player_id === user ? "player" : "moderator"))
 }
+export async function publicMatch(id: string) {
+  if (!z.uuid().safeParse(id).success) return null
+  const [row] = await getDb()<ChallengeRow[]>`SELECT state FROM tracker_challenges WHERE id=${id} AND state->>'publicMatch'='true'`
+  if (!row) return null
+  const s = row.state
+  return { title: s.title, rules: s.rules, creator: s.members.creator!.name, player: s.members.player?.name,
+    stake: s.stake, mint: s.mint, durationDays: s.durationDays, stage: stageOf(s), result: s.result }
+}
+
 export async function createChallenge(user: number, payload: unknown) {
   const args = createSchema.parse(payload)
   const db = getDb()
@@ -128,13 +140,14 @@ export async function createChallenge(user: number, payload: unknown) {
   if (new Set(targets).size !== targets.length) fail("duplicateMember", 400)
   const [moderator] = args.moderatorNpub ? await db`SELECT m.user_id,m.pubkey,m.name FROM tracker_challenge_moderators m
     JOIN habit_users u ON u.id=m.user_id WHERE u.nostr_pubkey=${args.moderatorNpub}` : []
-  if (args.moderatorNpub && !moderator) fail("moderatorNotRegistered", 409)
-  if (moderator?.pubkey.slice(2) === args.pubkey.slice(2)) fail("duplicateMember",400)
+  const moderatorMember = moderator ? {name: String(moderator.name), pubkey: String(moderator.pubkey)} :
+    args.moderatorNpub ? memberSchema.parse({ name: nip19.npubEncode(args.moderatorNpub).slice(0, 16) + "…", pubkey: "02" + args.moderatorNpub }) : null
+  if (moderatorMember?.pubkey.slice(2) === args.pubkey.slice(2)) fail("duplicateMember",400)
   const id = randomUUID()
-  const invites = { player: secret(), moderator: secret() }
+  const invites = { player: args.playerInvite ?? secret(), moderator: secret() }
   const terms: ChallengeTerms = { id, title: args.title, rules: args.rules, stake: args.stake,
     durationDays: args.durationDays, mint: LIVE_MINT, createdAt: new Date().toISOString() }
-  const state: State = { ...terms, arbitration: moderator ? "registered" : "none", members: { ...(moderator && {moderator:{name:moderator.name,pubkey:moderator.pubkey}}), creator: { name: args.name, pubkey: args.pubkey } },
+  const state: State = { ...terms, ...(args.playerNpub && args.playerName && { invitedPlayerName: args.playerName }), arbitration: moderator ? "registered" : moderatorMember ? "nostr" : "none", members: { ...(moderatorMember && { moderator: moderatorMember }), creator: { name: args.name, pubkey: args.pubkey } },
     invitedNpubs: {
       ...(args.playerNpub && { player: nip19.npubEncode(args.playerNpub) }),
       ...(args.moderatorNpub && { moderator: nip19.npubEncode(args.moderatorNpub) }),
@@ -143,7 +156,7 @@ export async function createChallenge(user: number, payload: unknown) {
     VALUES (${id}, ${user}, ${moderator?.user_id ?? null}, ${args.playerNpub}, ${args.moderatorNpub}, ${digest(invites.player)}, ${digest(invites.moderator)}, ${JSON.stringify(state)}::jsonb)`
   return { challenge: view(state, "creator"), invites }
 }
-const tokenSchema = z.object({ token: z.string().regex(/^[A-Za-z0-9_-]{43}$/) })
+const tokenSchema = z.object({ token: inviteToken })
 export async function invite(request: Request) {
   if (!checkRateLimit("challengeInvite:" + clientIp(request), 120).allowed) fail("rateLimited", 429)
   const payload = await body(request)
@@ -167,6 +180,10 @@ export async function invite(request: Request) {
     if (state.members[role]) fail("inviteClaimed")
     if (!member) return json({ invite: preview })
     if (existingRole || Object.values(state.members).some(m => m.pubkey.slice(2) === member.pubkey.slice(2))) fail("duplicateMember")
+    if (role === "player" && state.arbitration === "nostr" && user !== null) {
+      const [owner] = await tx`SELECT nostr_pubkey FROM habit_users WHERE id=${user}`
+      if (owner?.nostr_pubkey === row.moderator_nostr) fail("duplicateMember")
+    }
     if (target) {
       if (user === null) fail("nostrRequired", 401)
       const [owner] = await tx`SELECT nostr_pubkey FROM habit_users WHERE id=${user}`
@@ -188,7 +205,11 @@ export async function access(request: Request, id: string) {
   const user = await verifiedTrackerUserId(request)
   const db = getDb()
   const [row] = await db<ChallengeRow[]>`SELECT * FROM tracker_challenges WHERE id=${id}`
-  const role = row && roleFor(row, request, user)
+  let role = row && roleFor(row, request, user)
+  if (!role && row?.state.arbitration === "nostr" && user !== null) {
+    const [owner] = await db`SELECT nostr_pubkey FROM habit_users WHERE id=${user}`
+    if (owner?.nostr_pubkey === row.moderator_nostr) role = "moderator"
+  }
   if (!role) fail("notFound", 404)
   return { row, role }
 }

@@ -2,7 +2,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { HelpTooltip } from "@/components/ui/tooltip"
-import { useState, useEffect, useRef, useCallback, useMemo } from "react"
+import { createContext, useContext, useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { format, subDays, startOfDay } from "date-fns"
 import { Check, CircleAlert, Loader2, Archive, BookOpen, Rows3, LayoutGrid, CalendarRange } from "lucide-react"
 
@@ -47,7 +47,6 @@ import { formatMessage } from "@/lib/i18n-format"
 import { AssistantStartCard } from "@/components/habits/assistant/assistant-start"
 import { assistantKind, useAssistantConnections } from "@/components/habits/assistant/use-assistant-connections"
 
-const ChallengesView = dynamic(() => import("@/components/habits/challenges/challenges-view").then(module => module.ChallengesView))
 
 type HabitsLayout = NonNullable<UserPreferences["habitsLayout"]>
 
@@ -64,7 +63,13 @@ const LAYOUTS: Array<{ id: HabitsLayout; icon: typeof Rows3; desktopOnly?: boole
  * each rendered once. Data and sync live in useTrackerData, writes in
  * useTrackerActions, view/URL state in useTrackerView.
  */
-export function HabitTracker() {
+const TrackerContentContext = createContext<((view: ActiveView) => React.ReactNode) | null>(null)
+export function TrackerSection({ view }: { view: ActiveView }) {
+  const render = useContext(TrackerContentContext)
+  return <>{render?.(view)}</>
+}
+
+export function HabitTracker({ children }: { children: React.ReactNode }) {
   const { auth, authHeaders, logout: onLogout } = useHabitsSession()
   const apiKey = auth.apiKey ?? ""
   const isNostrAuth = auth.pubkey !== null
@@ -364,7 +369,6 @@ export function HabitTracker() {
   const editingTodo = editingTodoId ? todos.find((item) => item.id === editingTodoId) : undefined
 
   const renderView = (view: ActiveView) => {
-    if (view === "challenges") return <ChallengesView />
     if (view === "habits") {
       return (
         <Tabs value={effectiveLayout} orientation="horizontal" variant="embedded"
@@ -543,6 +547,7 @@ export function HabitTracker() {
   }
 
   return (
+    <TrackerContentContext.Provider value={renderView}>
     <div style={activeView === "habits" ? { "--reminder-bottom": "5rem" } as React.CSSProperties : undefined} className="topo-pattern lb-see-through flex h-dvh flex-col overflow-hidden">
       <TopographicBackground />
       <header className="flex-shrink-0 border-b border-border/50 bg-background px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top))] md:bg-background/80 md:px-6 md:py-5 md:backdrop-blur-xl">
@@ -573,7 +578,7 @@ export function HabitTracker() {
         onChange={selectView}
         className="min-h-0 flex-1"
         panelClassName="lb-scroll p-4 pb-[calc(7.25rem+env(safe-area-inset-bottom))] lg:p-6"
-        renderView={renderView}
+        renderView={view => view === activeView ? children : null}
       />
 
       {activeView === "habits" && tourIds === null && (
@@ -675,6 +680,7 @@ export function HabitTracker() {
       )}
 
       <NotificationManager
+        showPrompt={activeView !== "challenges"}
         habits={habits}
         completions={completions}
         enabled={!isLoading && preferences.notifications}
@@ -686,5 +692,6 @@ export function HabitTracker() {
 
       <AppToaster />
     </div>
+    </TrackerContentContext.Provider>
   )
 }

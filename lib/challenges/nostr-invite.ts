@@ -6,11 +6,15 @@ import { SimplePool } from "nostr-tools/pool"
 export async function sendChallengeInvite(npub: string, message: string) {
   const recipient = decode(npub)
   if (recipient.type !== "npub") throw new Error("invalidNpub")
+  return sendPrivateChallengeMessage(recipient.data, message)
+}
+
+export async function sendPrivateChallengeMessage(recipient: string, message: string) {
   const pool = new SimplePool()
   try {
     const inbox = await pool.get(
       ["wss://purplepag.es", "wss://relay.damus.io", "wss://nos.lol"],
-      { kinds: [10050], authors: [recipient.data] },
+      { kinds: [10050], authors: [recipient] },
       { maxWait: 4500 },
     )
     const relays =
@@ -21,7 +25,7 @@ export async function sendChallengeInvite(npub: string, message: string) {
     if (!relays.length) throw new Error("noInbox")
     // A one-use invitation sender works for creators using any tracker sign-in method.
     const sender = generateSecretKey()
-    const event = wrapEvent(sender, { publicKey: recipient.data }, message)
+    const event = wrapEvent(sender, { publicKey: recipient }, message)
     await Promise.any(
       pool.publish(relays, event, {
         maxWait: 6000,

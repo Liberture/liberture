@@ -20,7 +20,9 @@ export interface ChallengeTerms {
 }
 
 export interface Challenge extends ChallengeTerms {
-  arbitration?: "registered" | "none"
+  publicMatch?: boolean
+  invitedPlayerName?: string
+  arbitration?: "registered" | "nostr" | "none"
   role: Role
   members: Partial<Record<Role, Member>>
   stage: ChallengeStage
@@ -48,6 +50,7 @@ export interface ChallengeSettlement {
 }
 
 export type ChallengeAction =
+  | { action: "publish" }
   | { action: "invite"; role: Exclude<Role, "creator"> }
   | { action: "fund"; token: string }
   | { action: "vote"; result: Result }

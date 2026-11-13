@@ -123,7 +123,7 @@ function suggestionPulse({ data, localNow, slot, locale, now = new Date() }: Pul
   return {
     title: t.pulseSuggestionTitle,
     body: clip(formatMessage(t.pulseSuggestionBody, { name: suggestionName(entry), reason: entry.reason })),
-    url: `${COACH_URL}&tab=coach`,
+    url: `${COACH_URL}?tab=coach`,
   }
 }
 
@@ -132,12 +132,12 @@ function progressPulse({ data, completions, localNow, locale }: PulseInput): Coa
   if (total === 0) return null
   const t = copy(locale)
   if (done >= total || !next) {
-    return { title: t.pulseAllDoneTitle, body: formatMessage(t.pulseAllDoneBody, { total }), url: "/tracker?view=habits" }
+    return { title: t.pulseAllDoneTitle, body: formatMessage(t.pulseAllDoneBody, { total }), url: "/tracker/habits" }
   }
   return {
     title: t.pulseProgressTitle,
     body: clip(formatMessage(t.pulseProgressBody, { done, total, next: next.name.trim() })),
-    url: "/tracker?view=habits",
+    url: "/tracker/habits",
   }
 }
 
@@ -191,7 +191,7 @@ function quotePulse({ localNow, slot, locale }: PulseInput): CoachMessage | null
   return {
     title: t.pulseQuoteTitle,
     body: clip(formatMessage(t.pulseQuoteBody, { text: quote.text.trim(), author: quote.author })),
-    url: "/tracker?view=habits",
+    url: "/tracker/habits",
   }
 }
 

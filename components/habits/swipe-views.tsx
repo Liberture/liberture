@@ -230,21 +230,6 @@ export function SwipeViews<T extends string>({
     }
   }
 
-  // Rendered element per panel, refreshed only for the panel you are actually
-  // looking at.
-  //
-  // renderView is an inline closure over the parent's state, so calling it for
-  // every mounted panel on every render rebuilt all five element trees on each
-  // switch — new elements mean React re-renders those subtrees, which is where
-  // the ~1s stalls came from. Off-screen panels keep their previous element, so
-  // React bails out of re-rendering them entirely; each becomes current again
-  // the moment it is the active view.
-  const rendered = useRef<Map<number, ReactNode>>(new Map())
-  rendered.current.set(index, renderView(views[index]))
-  for (const i of everMounted.current) {
-    if (!rendered.current.has(i)) rendered.current.set(i, renderView(views[i]))
-  }
-
   return (
     <div
       ref={containerRef}
@@ -275,7 +260,7 @@ export function SwipeViews<T extends string>({
                 panelClassName
               )}
             >
-              {mounted ? rendered.current.get(i) : null}
+              {mounted ? renderView(view) : null}
             </div>
           )
         })}

@@ -615,3 +615,8 @@
     background: transparent;
   }
 }
+
+/* SDK 2.0.1 ignores showRememberToggle. Liberture persists only the server session. */
+.nui-widget label:not(.nui-warning):has(> input[type="checkbox"]) {
+  display: none !important;
+}

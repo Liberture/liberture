@@ -30,6 +30,11 @@ function publicKey(key: string) {
   return hex(getPubKeyFromPrivKey(Uint8Array.from(key.match(/../g)!, byte => parseInt(byte, 16))))
 }
 
+export function existingChallengeKey(owner: string, expected: string) {
+  const key = localStorage.getItem(keyStorage(owner))
+  return key && publicKey(key) === expected ? key : null
+}
+
 export function exportChallengeKey(owner: string): string {
   const name = keyStorage(owner)
   const existing = localStorage.getItem(name)
@@ -148,12 +153,93 @@ function withWalletLock<T>(name: string, run: () => Promise<T>) {
 }
 
 interface FundingRecord { invoice?: string; quote: string; outputs: SerializedOutputData[]; token?: string }
-export async function fundDeposit(owner: string, terms: CashuTerms, depositor: CashuPlayer, onInvoice?: (invoice: string) => void) {
+interface AdvanceRecord {
+  quote: string
+  mint: string
+  stake: number
+  key: string
+  reclaimOutputs?: SerializedOutputData[]
+  reclaimed?: string
+}
+
+function fundingKey(owner: string, id: string, role: CashuPlayer) {
+  return "liberture:challenge:deposit:" + JSON.stringify([owner, id, role])
+}
+
+export async function advancePayment(owner: string, challenge: { id: string; mint: string; stake: number }, key: string, reclaim = false) {
+  const name = fundingKey(owner, challenge.id, "creator")
+  return withWalletLock(name, async () => {
+    const secret = existingChallengeKey(owner, key)
+    ensure(secret, "Restore the creator’s signing key")
+    ensure(!localStorage.getItem(name), "This payment is already assigned to the challenge")
+    const wallet = await getWallet(challenge.mint)
+    const storage = name + ":advance"
+    const raw = localStorage.getItem(storage)
+    let record: AdvanceRecord
+    if (raw) record = JSON.parse(raw)
+    else {
+      ensure(!reclaim, "No payment to reclaim")
+      const quote = await wallet.createLockedMintQuote(challenge.stake, key)
+      ensure(quote.pubkey === key, "Mint did not lock the quote to the creator")
+      record = { quote: quote.quote, mint: challenge.mint, stake: challenge.stake, key }
+      localStorage.setItem(storage, JSON.stringify(record))
+    }
+    ensure(record.mint === challenge.mint && record.stake === challenge.stake && record.key === key, "Unexpected advance payment terms")
+    if (record.reclaimed) return { token: record.reclaimed }
+    const quote = await wallet.checkMintQuoteBolt11(record.quote)
+    ensure(quote.pubkey === key, "Unexpected mint quote key")
+    if (quote.state === "UNPAID") {
+      if (quote.expiry && quote.expiry <= Date.now()/1000) {
+        localStorage.removeItem(storage)
+        throw new Error("Invoice expired. Request a new invoice.")
+      }
+      return { invoice: quote.request }
+    }
+    if (!reclaim && !record.reclaimOutputs) return { paid: true }
+    if (!record.reclaimOutputs) {
+      record.reclaimOutputs = OutputData.createRandomData(challenge.stake, wallet.getKeyset()).map(OutputData.serialize)
+      localStorage.setItem(storage, JSON.stringify(record))
+    }
+    const outputs = record.reclaimOutputs.map(OutputData.deserialize)
+    const proofs = await completeOrRestore(wallet, outputs, () =>
+      wallet.mintProofsBolt11(challenge.stake, quote, { privkey: secret }, { type: "custom", data: outputs }))
+    record.reclaimed = encode(proofs, challenge.mint)
+    localStorage.setItem(storage, JSON.stringify(record))
+    return { token: record.reclaimed }
+  })
+}
+
+export async function readAdvancePayment(owner: string, challenge: { id: string; mint: string; stake: number }, key: string) {
+  const name = fundingKey(owner, challenge.id, "creator")
+  return withWalletLock(name, async () => {
+    if (localStorage.getItem(name)) return null
+    const storage = name + ":advance"
+    const raw = localStorage.getItem(storage)
+    if (!raw) return null
+    const record: AdvanceRecord = JSON.parse(raw)
+    ensure(record.key === key && record.mint === challenge.mint && record.stake === challenge.stake, "Unexpected advance payment terms")
+    if (record.reclaimed) return { token: record.reclaimed }
+    const wallet = await getWallet(record.mint)
+    const quote = await wallet.checkMintQuoteBolt11(record.quote)
+    ensure(quote.pubkey === key, "Unexpected mint quote key")
+    if (quote.state !== "UNPAID") return { paid: true }
+    if (quote.expiry && quote.expiry <= Date.now()/1000) {
+      localStorage.removeItem(storage)
+      return null
+    }
+    return { invoice: quote.request }
+  })
+}
+
+export async function fundDeposit(owner: string, terms: CashuTerms, depositor: CashuPlayer, onInvoice?: (invoice: string) => void | Promise<void>) {
   checkTerms(terms)
   ensure(challengePublicKey(owner) === terms.keys[depositor], "Wrong challenge signing key")
-  const name = "liberture:challenge:deposit:" + JSON.stringify([owner, terms.id, depositor])
+  const name = fundingKey(owner, terms.id, depositor)
   return withWalletLock(name, async () => {
     const wallet = await getWallet(terms.mint)
+    const advance: AdvanceRecord | null = JSON.parse(localStorage.getItem(name + ":advance") || "null")
+    const useAdvance = advance && !advance.reclaimed
+    if (useAdvance) ensure(!advance.reclaimOutputs && advance.key === terms.keys[depositor] && advance.stake === terms.stake && advance.mint === terms.mint, "Finish reclaiming your advance payment first")
     const existing = localStorage.getItem(name)
     let record: FundingRecord
     if (existing) record = JSON.parse(existing)
@@ -164,25 +250,26 @@ export async function fundDeposit(owner: string, terms: CashuTerms, depositor: C
         locktime: terms.refundAt, refundKeys: [terms.keys[depositor]], sigFlag: "SIG_ALL",
         additionalTags: [["challenge", terms.id]],
       }, terms.stake, wallet.getKeyset())
-      const { quote, request } = await wallet.createMintQuoteBolt11(terms.stake)
+      const { quote, request } = useAdvance ? await wallet.checkMintQuoteBolt11(advance.quote) : await wallet.createMintQuoteBolt11(terms.stake)
       record = { quote, invoice: request, outputs: outputs.map(OutputData.serialize) }
       localStorage.setItem(name, JSON.stringify(record))
     }
     if (record.token) return record.token
     const outputs = record.outputs.map(OutputData.deserialize)
     let quote = await wallet.checkMintQuoteBolt11(record.quote)
-    if (quote.state === "UNPAID") onInvoice?.(quote.request)
+    if (quote.state === "UNPAID") await onInvoice?.(quote.request)
     for (let i = 0; i < 12 && quote.state === "UNPAID"; i++) {
       await new Promise(resolve => setTimeout(resolve, 1250))
       quote = await wallet.checkMintQuoteBolt11(record.quote)
     }
     if (quote.state === "UNPAID" && quote.expiry && quote.expiry <= Date.now()/1000) {
       localStorage.removeItem(name)
+      if (useAdvance) localStorage.removeItem(name + ":advance")
       throw new Error("Invoice expired. Request a new invoice.")
     }
     ensure(quote.state !== "UNPAID", "Invoice awaiting payment.")
     const proofs = await completeOrRestore(wallet, outputs, () =>
-      wallet.mintProofsBolt11(terms.stake, quote, {}, { type: "custom", data: outputs }))
+      wallet.mintProofsBolt11(terms.stake, quote, useAdvance ? { privkey: exportChallengeKey(owner) } : {}, { type: "custom", data: outputs }))
     const token = encode(proofs, terms.mint)
     await depositInputs(wallet, terms, depositor, token)
     localStorage.setItem(name, JSON.stringify({ ...record, token }))
@@ -234,6 +321,16 @@ export async function signPayout(owner: string, terms: CashuTerms, depositor: Ca
   ensure(roles.some(role => terms.keys[role] === publicKey(key)), "Wrong challenge signing key")
   const pkg = SigAll.extractSwapPackage(preview)
   return SigAll.signPackage(pkg, key).witness!.signatures[0]
+}
+
+export async function externalPayoutRequest(terms: CashuTerms, depositor: CashuPlayer, token: string, outcome: CashuOutcome, plan: CashuPlan) {
+  const preview = await checkedPlan(await getWallet(terms.mint), terms, depositor, token, outcome, plan)
+  return SigAll.serializePackage(SigAll.extractSwapPackage(preview))
+}
+
+export function readExternalSignature(plan: CashuPlan, pubkey: string, signed: string) {
+  const pkg = SigAll.deserializePackage(signed)
+  return pkg.witness?.signatures.find(sig => verifyPayoutSignature(plan, pubkey, sig))
 }
 
 export function verifyPayoutSignature(plan: CashuPlan, pubkey: string, sig: string) {

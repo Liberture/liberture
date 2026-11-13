@@ -145,7 +145,7 @@ describe("pickPulse", () => {
 
   it("links each kind to the right place", () => {
     const bySlot = [0, 1, 2, 3].map((slot) => pick(data(), slot)!)
-    expect(bySlot.find((m) => m.title === en.pulseSuggestionTitle)?.url).toBe("/tracker?view=catalog&tab=coach")
+    expect(bySlot.find((m) => m.title === en.pulseSuggestionTitle)?.url).toBe("/tracker/catalog?tab=coach")
     expect(bySlot.find((m) => m.title === en.pulseProgressTitle)?.body).toBe("1 of 2 done. Next: Read.")
   })
 

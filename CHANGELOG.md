@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.6.0
+
+Released 2026-11-13.
+
+- Tracker sections have direct URLs and share navigation. Challenges can be created at /tracker/challenges/new, and the history sidebar supports search and status filters.
+- Choose an opponent by Nostr profile or invite link, add an optional moderator, and share a read-only spectator page. The animated matchup shows both players and their progress.
+- Creators can pay their stake before an opponent joins using WebLN or a Lightning invoice. They can reclaim their advance before locking it into the match. Signed-in players can send an encrypted signing-key backup to their Nostr inbox.
+- Nostr sign-in uses the LoginModal from @nostr-wot/ui 2.0.1 for browser extensions, remote signers, and generated or imported keys. Liberture verifies the signature before creating the server session.
+
 ## 0.5.1
 
 Released 2026-11-13.

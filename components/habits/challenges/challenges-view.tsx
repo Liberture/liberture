@@ -1,31 +1,60 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useContext, createContext, useEffect, useState, type ReactNode } from "react"
+import { useRouter } from "next/navigation"
+import { PlayerProfile } from "./player-profile"
 import { useTranslations } from "next-intl"
-import { Trophy } from "lucide-react"
+import { ArrowLeft, Check, Gavel, Trophy } from "lucide-react"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/habits/ui/popover"
 import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
+import { ChallengeTerms } from "./challenge-terms"
 import { useHabitsSession } from "@/components/habits/session-provider"
 import type { Challenge } from "@/lib/challenges/types"
 import { MAX_STAKE, TEST_MINT } from "@/lib/challenges/mints"
-import { InviteTarget } from "./invite-target"
+import { CopyButton } from "@/components/habits/ui/copy-button"
+import { useNostrProfile } from "@/lib/habits/nostr/use-nostr-profile"
+import type { ProfileMatch } from "@/lib/habits/nostr/search-profiles"
+import { NostrRecipient, recipientPublicKey } from "./invite-target"
+import { FieldSelect, FieldOption } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { CashewMatch, ChallengeStepArt } from "./cashew-match"
+import { MatchHeading } from "./match-heading"
 import { ChallengeDetail } from "./detail"
-import { Field, panel, rememberWallet, useAction, useChallengeClient } from "./common"
+import { Field, inviteLink, panel, rememberWallet, useAction, useChallengeClient } from "./common"
 
-export function ChallengesView() {
+function useSelection() {
+  const [selected,setSelected] = useState<Challenge | null>(null)
+  const [links,setLinks] = useState<Partial<Record<"player" | "moderator", string>>>({})
+  return {selected,setSelected,links,setLinks}
+}
+const Selection = createContext<ReturnType<typeof useSelection> | null>(null)
+export function ChallengeSelectionProvider({children}: {children: ReactNode}) {
+  const selection = useSelection()
+  return <Selection.Provider value={selection}>{children}</Selection.Provider>
+}
+export function ChallengesView({creating = false}: {creating?: boolean}) {
+  const router = useRouter()
   const t = useTranslations("challenges")
   const { request, isChecking } = useChallengeClient()
   const { profile, auth } = useHabitsSession()
-  const [registered, setRegistered] = useState(false)
+  const creatorName = (profile?.name || profile?.nip05 || auth.pubkey?.slice(0,12) || t("creator")).slice(0,48)
+  const [duration, setDuration] = useState("14")
+  const [stake, setStake] = useState("100")
+  const [moderatorNpub, setModeratorNpub] = useState("")
+  const [moderatorMatch, setModeratorMatch] = useState<ProfileMatch>()
+  const moderatorProfile = useNostrProfile(recipientPublicKey(moderatorNpub))
+  const [moderatorOpen, setModeratorOpen] = useState(false)
   const [items, setItems] = useState<Challenge[] | null>(null)
-  const [selected, setSelected] = useState<Challenge | null>(null)
-  const [creating, setCreating] = useState(false)
-  const [links, setLinks] = useState<Partial<Record<"player" | "moderator", string>>>({})
+  const {selected,setSelected,links,setLinks} = useContext(Selection)!
+  const [draftToken, setDraftToken] = useState("")
+  useEffect(() => {
+    if (creating) setDraftToken(btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""))
+  }, [creating])
   const [listError, setListError] = useState(false)
   const [retry, setRetry] = useState(0)
   const { run, busy, error } = useAction()
   useEffect(() => {
-    if (isChecking || selected) return
+    if (isChecking) return
     let current = true
     setListError(false)
     request<{ challenges: Challenge[] }>("")
@@ -40,8 +69,7 @@ export function ChallengesView() {
     }
   }, [request, isChecking, selected, retry])
 
-  if (selected)
-    return (
+  const detail = !creating && selected && (
       <ChallengeDetail
         key={selected.id}
         initial={selected}
@@ -52,29 +80,67 @@ export function ChallengesView() {
         }}
       />
     )
+  function open(item: Challenge) {
+    if (creating) router.push("/tracker/challenges")
+    if (item.id !== selected?.id) setLinks({})
+    setSelected(item)
+  }
+  function list(rows: Challenge[]) {
+    return rows.map(item => (
+      <div key={item.id} className="rounded-xl border border-border bg-card p-3">
+      <button type="button" onClick={() => open(item)} className="block w-full text-left hover:text-primary" aria-current={selected?.id === item.id ? "page" : undefined}>
+        <MatchHeading creator={item.members.creator!.name} player={item.members.player?.name || item.invitedPlayerName} joined={!!item.members.player} stage={item.stage} />
+        <span className="block text-sm text-muted-foreground">{item.title} · {t(item.mint === TEST_MINT ? "satsEach" : "liveSats", {amount:item.stake})}</span>
+      </button>
+      </div>
+    ))
+  }
+  const [keyword, setKeyword] = useState("")
+  const [status, setStatus] = useState("all")
+  const query = keyword.trim().toLocaleLowerCase()
+  const filtered = items?.filter(item =>
+    (status === "all" || item.stage === status) &&
+    [item.title, item.rules, item.members.creator?.name, item.members.player?.name, item.invitedPlayerName, item.members.moderator?.name]
+      .some(value => value?.toLocaleLowerCase().includes(query))
+  ) ?? []
   return (
-    <section className="mx-auto w-full max-w-2xl space-y-4 pb-8">
-      <header className="flex flex-wrap items-center justify-between gap-3">
+    <div className="mx-auto grid w-full max-w-5xl gap-6 pb-8 md:grid-cols-[minmax(12rem,16rem)_minmax(0,1fr)]">
+      <aside className="order-2 space-y-2 md:order-none md:sticky md:top-4 md:max-h-[85dvh] md:self-start md:overflow-auto" aria-label={t("history")}>
+        <h2 className="font-semibold">{t("history")}</h2>
+        <Input type="search" aria-label={t("searchChallenges")} placeholder={t("searchChallenges")} value={keyword} onChange={event => setKeyword(event.target.value)} />
+        <FieldSelect className="w-full" aria-label={t("filterStatus")} value={status} onValueChange={setStatus}>
+          <FieldOption value="all">{t("allStatuses")}</FieldOption>
+          {(["inviting","funding","active","disputed","settling","settled","expired"] as const).map(stage => <FieldOption key={stage} value={stage}>{t(stage)}</FieldOption>)}
+        </FieldSelect>
+        {listError ? <Button variant="outline" onClick={() => setRetry(r => r + 1)}>{t("retryList")}</Button>
+          : filtered.length ? list(filtered) : <p className="text-sm text-muted-foreground">{t(!items ? "loading" : keyword || status !== "all" ? "noMatches" : "empty")}</p>}
+
+      </aside>
+      <section className="min-w-0 space-y-4">
+      {creating ? <Button variant="ghost" type="button" disabled={busy} onClick={() => {setSelected(null);router.push("/tracker/challenges")}}>
+        <ArrowLeft aria-hidden className="size-4" />{t("back")}
+      </Button> : !detail && <header className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="flex items-center gap-2 text-2xl font-semibold">
           <Trophy className="size-6 text-primary" />
           {t("title")}
         </h2>
-        {!creating && <Button onClick={() => setCreating(true)}>{t("new")}</Button>}
-      </header>
-      <p className="text-sm text-muted-foreground">{t("liveMint")}</p>
-      {auth.pubkey && !creating && <details className={panel}>
-        <summary>{t("registerModerator")}</summary><p>{t("registerExplanation")}</p>
-        <Button disabled={busy || registered} onClick={()=>void run(async()=>{
-          const {challengePublicKey}=await import("@/lib/challenges/cashu")
-          const owner="moderator-"+auth.pubkey
-          const pubkey=challengePublicKey(owner)
-          rememberWallet(pubkey,owner)
-          await request("/moderator","POST",{pubkey,name:(profile?.name || auth.pubkey!.slice(0,12)).slice(0,48)})
-          setRegistered(true)
-        })}>{t(registered?"registered":"registerModerator")}</Button>
-        {error && <p role="alert">{error}</p>}
-      </details>}
-      {creating ? (
+        <Button onClick={() => {setSelected(null);setLinks({});router.push("/tracker/challenges/new")}}>{t("new")}</Button>
+      </header>}
+      {!creating && !detail && <section className="rounded-xl border border-border bg-card p-4">
+        <h3 className="mb-3 text-sm font-semibold">{t("howItWorks")}</h3>
+        <ol className="grid gap-3 sm:grid-cols-3">
+          {(["invite", "play", "finish"] as const).map((step, i) => (
+            <li key={step} className="grid content-start gap-2">
+              <ChallengeStepArt step={step} />
+              <div className="flex gap-2">
+              <span aria-hidden className="grid size-6 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-semibold text-primary">{i + 1}</span>
+              <div><strong className="text-sm">{t(`steps.${step}`)}</strong><p className="text-sm text-muted-foreground">{t(`steps.${step}Hint`)}</p></div>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>}
+      {detail || (creating ? (
         <form
           className={panel}
           onSubmit={(event) => {
@@ -91,82 +157,81 @@ export function ChallengesView() {
                 invites: Record<"player" | "moderator", string>
               }>("", "POST", {
                 ...body,
+                name: creatorName,
+                playerInvite: draftToken,
                 pubkey,
                 stake: Number(body.stake),
                 durationDays: Number(body.durationDays),
                 playerNpub: String(body.playerNpub ?? "").trim() || undefined,
-                moderatorNpub: String(body.moderatorNpub ?? "").trim() || undefined,
+                moderatorNpub: moderatorNpub || undefined,
               })
               setLinks(response.invites)
-              setCreating(false)
               setSelected(response.challenge)
+              router.replace("/tracker/challenges")
             })
           }}
         >
-          <Field label={t("name")} name="name" defaultValue={profile?.name ?? ""} required maxLength={48} />
-          <Field
-            label={t("challengeName")}
-            name="title"
-            placeholder={t("example")}
-            required
-            maxLength={100}
-          />
-          <label className="grid gap-1.5 text-sm font-medium">
-            {t("rules")}
-            <Textarea required name="rules" maxLength={1500} placeholder={t("rulesHint")} />
-          </label>
-          <div className="grid grid-cols-2 gap-3">
-            <Field
-              label={t("liveStake")}
-              name="stake"
-              type="number"
-              min={1}
-              max={MAX_STAKE}
-              defaultValue={10000}
-              required
-            />
-            <Field
-              label={t("days")}
-              name="durationDays"
-              type="number"
-              min={1}
-              max={90}
-              defaultValue={14}
-              required
-            />
+          <CashewMatch compact versus={t("versus")} moderatorDetails={moderatorNpub &&
+            <PlayerProfile small name={moderatorProfile?.name || moderatorMatch?.name || moderatorProfile?.nip05 || moderatorMatch?.address || moderatorNpub.slice(0, 12) + "…"}
+              picture={moderatorProfile?.picture || moderatorMatch?.picture} />}
+            moderator={moderatorOpen || Boolean(moderatorNpub)} corner={
+            <Popover open={moderatorOpen} onOpenChange={setModeratorOpen}>
+              <PopoverTrigger asChild>
+                <Button type="button" size="icon-sm" variant="outline" aria-label={t("moderatorPicker")} title={t("moderatorPicker")}>
+                  <Gavel aria-hidden className={moderatorNpub ? "text-primary" : undefined} />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" collisionPadding={12} aria-label={t("moderatorPicker")} className="grid max-h-[min(20rem,65dvh)] w-64 max-w-[90vw] gap-2 overflow-y-auto">
+                <NostrRecipient nameField="moderatorNpub" defaultQuery={moderatorNpub} onRecipientChange={(npub, match) => { setModeratorNpub(npub); setModeratorMatch(match) }} optional />
+                {moderatorNpub && <Button type="button" size="sm" variant="ghost" onClick={() => {
+                  setModeratorNpub("")
+                  setModeratorOpen(false)
+                }}>{t("removeModerator")}</Button>}
+              </PopoverContent>
+            </Popover>
+          }>
+            <div className="flex min-w-0 flex-wrap items-center justify-center gap-2 self-center text-center">
+              <PlayerProfile name={creatorName} picture={profile?.picture} />
+            </div>
+            <div className="grid min-w-0 gap-1.5">
+              <NostrRecipient nameField="playerNpub" optional action={
+                <CopyButton shareIconOnly disabled={!draftToken} value={draftToken ? inviteLink(draftToken) : ""} label={t("byLink")} copiedLabel={t("copied")} successMessage={t("draftLinkCopied")} errorMessage={t("copyFailed")} />
+              } />
+            </div>
+          </CashewMatch>
+          <div className="grid gap-5 sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+          <ChallengeTerms days={Number(duration)} />
+          <div className="min-w-0 space-y-4">
+            <PresetField label={t("liveStake")} name="stake" value={stake} setValue={setStake} max={MAX_STAKE} options={[100,1000,5000,10000]} />
+            <PresetField label={t("days")} name="durationDays" value={duration} setValue={setDuration} max={90} options={[1,7,14,30]} />
           </div>
-          <InviteTarget role="player" />
-          <InviteTarget role="moderator" />
+          </div>
           {error && <p role="alert">{error}</p>}
-          <div className="flex gap-2">
+          <div className="flex justify-end border-t border-border/60 pt-4">
             <Button disabled={busy}>{t("create")}</Button>
-            <Button type="button" variant="outline" disabled={busy} onClick={() => setCreating(false)}>
-              {t("cancel")}
-            </Button>
           </div>
         </form>
-      ) : listError ? (
-        <Button variant="outline" onClick={() => setRetry((r) => r + 1)}>
-          {t("retryList")}
-        </Button>
-      ) : items === null ? (
-        <p>{t("loading")}</p>
-      ) : items.length ? (
-        items.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setSelected(item)}
-            className={panel + " block w-full text-left hover:border-primary"}
-          >
-            <strong>{item.title}</strong>
-            <p className="text-sm text-muted-foreground">
-              {t(item.stage)} · {t(item.mint === TEST_MINT ? "satsEach" : "liveSats", { amount: item.stake })}
-            </p>
-          </button>
-        ))
-      ) : (
-        <div className={panel}>{t("empty")}</div>
-      )}
-    </section>
+      ) : null)}
+      </section>
+    </div>
   )
+}
+
+function PresetField({ label, name, value, setValue, max, options }: { label: string; name: string; value: string; setValue: (value: string) => void; max: number; options: number[] }) {
+  return <div className="min-w-0 space-y-2">
+    <Field label={label} name={name} type="number" min={1} max={max} required value={value} onChange={e=>setValue(e.target.value)} />
+    <div role="group" aria-label={label} className="flex flex-wrap gap-1">
+      {options.map(amount => {
+        const selected = Number(value) === amount
+        const tint = name === "stake"
+          ? "bg-amber-100 text-amber-900 hover:bg-amber-200 dark:bg-amber-300/15 dark:text-amber-200 dark:hover:bg-amber-300/25"
+          : "bg-sky-100 text-sky-900 hover:bg-sky-200 dark:bg-sky-300/15 dark:text-sky-200 dark:hover:bg-sky-300/25"
+        return <Button key={amount} type="button" size="sm" variant="ghost" aria-pressed={selected}
+          className={`h-6 min-w-7 gap-1 rounded-full px-2 py-0 text-xs tabular-nums has-[>svg]:px-2 aria-pressed:ring-1 aria-pressed:ring-inset aria-pressed:ring-current ${tint}`}
+          onClick={() => setValue(String(amount))}>
+          {selected && <Check aria-hidden className="size-3" />}{amount}
+        </Button>
+      })}
+    </div>
+  </div>
 }

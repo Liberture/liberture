@@ -19,7 +19,7 @@ export function useChallengeClient() {
       })
       if (!response.ok && response.status === 409) {
         const reason = (await response.json().catch(()=>({}))).error
-        if (reason === "moderatorNotRegistered" || reason === "existingModeratorKey") throw new Error(t(reason))
+        if (reason === "existingModeratorKey") throw new Error(t(reason))
       }
       if (!response.ok)
         throw new Error(

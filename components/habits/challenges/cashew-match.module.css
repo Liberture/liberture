@@ -1,28 +1,55 @@
 .scene {
+  position: relative;
   overflow: hidden;
   border-radius: .8rem;
   padding: .65rem .5rem;
   background: radial-gradient(ellipse at bottom, #875bdf38, transparent 70%), var(--muted);
 }
 .ring { display: block; width: 100%; max-width: 410px; margin: auto; }
-.names { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 410px; margin: auto; text-align: center; font-size: .75rem; font-weight: 600; }
-.names span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 .2rem; }
-.fighter { --team: #6edac9; transform-origin: 0 72px; }
-.fighter[data-side="player"] { --team: #fa886e; }
-.arm { transform-origin: 15px 36px; }
+.scene[data-joined="false"] .fighter[data-side="player"] { opacity: .35; }
+.scene[data-compact="true"] .ring { max-width: 25rem; }
+.scene[data-compact="true"] .fighter[data-side="player"] { opacity: 1; }
+.scene[data-waiting="true"] .fighter[data-side="player"] { opacity: .65; }
+.fighter { --team: #508cff; --shell-light: #bddcff; --shell-dark: #254d9d; transform-origin: 0 72px; }
+.fighter[data-side="player"] { --team: #ef6570; --shell-light: #ffd0d2; --shell-dark: #943541; }
+@keyframes ready { 50% { transform: translateY(-3px) rotate(-2deg); } }
 @media (prefers-reduced-motion: no-preference) {
+  .scene[data-mode="rest"] .fighter { animation: ready 2.6s ease-in-out infinite; }
+  .scene[data-mode="rest"] .fighter[data-side="player"] { animation-delay: -.9s; }
+
   .scene[data-mode="spar"] .fighter { animation: spar 1.25s ease-in-out 3; }
-  .scene[data-mode="spar"] .arm { animation: jab 1.25s ease-in-out 3; }
-  .scene[data-mode="spar"] .fighter[data-side="player"],
-  .scene[data-mode="spar"] .fighter[data-side="player"] .arm { animation-delay: .55s; }
+  .scene[data-mode="spar"] .fighter[data-side="player"] { animation-delay: .55s; }
   .scene[data-mode="victory"] .fighter[data-winner="true"] { animation: jig .7s ease-in-out 6; }
-  .scene[data-mode="victory"] .fighter[data-winner="true"] .arm { animation: wave .7s ease-in-out 6; }
   .spark { animation: twinkle .7s ease-in-out 6; }
-  .scene[data-mode="draw"] .arm, .clasp { animation: shake .65s ease-in-out 4; }
+  .scene[data-mode="draw"] .fighter, .clasp { animation: shake .65s ease-in-out 4; }
 }
 @keyframes spar { 25% { transform: translate(-3px,-3px) rotate(-4deg); } 48% { transform: translate(11px,0) rotate(7deg); } }
-@keyframes jab { 45% { transform: rotate(25deg) scaleX(1.45); } }
 @keyframes jig { 23% { transform: translate(-3px,-8px) rotate(-11deg); } 70% { transform: translate(4px,-5px) rotate(10deg); } }
-@keyframes wave { 50% { transform: rotate(-44deg); } }
 @keyframes twinkle { 50% { opacity: .35; } }
 @keyframes shake { 50% { transform: translateY(-3px); } }
+
+.leftPlayer { transform-origin: 119px 111px; }
+.rightPlayer { transform-origin: 241px 111px; }
+.announcer {
+  --shell-light: #ffecab;
+  --team: #d7a457;
+  --shell-dark: #80542e;
+  opacity: 0;
+  transform-origin: 180px 111px;
+  transform: translateY(9px) scale(.8);
+}
+.scene[data-moderator="true"] .leftPlayer { transform: translateX(-13px) scale(.82); }
+.scene[data-moderator="true"] .rightPlayer { transform: translateX(13px) scale(.82); }
+.scene[data-moderator="true"] .announcer { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .leftPlayer, .rightPlayer, .announcer { transition: transform .35s ease, opacity .25s ease; }
+}
+
+.stepArt { width: 100%; height: 5rem; border-radius: .65rem; background: var(--muted); }
+@media (prefers-reduced-motion: no-preference) {
+  .envelope { animation: deliver 2.8s ease-in-out 3; }
+  .coins { animation: deposit 1.6s ease-out 4; }
+  .stepArt[data-step="finish"] .fighter[data-winner="true"] { animation: jig .7s ease-in-out 6; }
+}
+@keyframes deliver { 0%, 100% { transform: translate(-18px, 4px); } 55%, 75% { transform: translate(18px, -4px); } }
+@keyframes deposit { 0%, 100% { transform: translateY(-12px); } 60%, 75% { transform: translateY(6px); } }

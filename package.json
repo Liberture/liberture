@@ -1,6 +1,6 @@
 {
   "name": "liberture-platform",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "private": true,
   "license": "GPL-3.0-only",
   "scripts": {
@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@cashu/cashu-ts": "4.13.1",
+    "@nostr-wot/ui": "^2.0.1",
     "@prisma/client": "^5.22.0",
     "@radix-ui/react-avatar": "1.1.2",
     "@radix-ui/react-dropdown-menu": "2.1.4",
@@ -43,6 +44,7 @@
     "nostr-tools": "^2.26.0",
     "nostr-wot-sdk": "^3.0.2",
     "postgres": "3.4.7",
+    "qrcode-generator": "2.0.4",
     "react": "19.3.1",
     "react-big-calendar": "^1.20.0",
     "react-day-picker": "9.8.0",

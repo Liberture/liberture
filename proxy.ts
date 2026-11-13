@@ -1,3 +1,4 @@
+import { legacyTrackerPath } from "@/lib/habits/tracker-path"
 import { NextRequest, NextResponse } from "next/server"
 import { localizedPath, parsePublicPath, entitySections } from "@/lib/i18n/paths"
 import { lookupEntitySlug } from "@/lib/i18n/entity-slugs.server"
@@ -10,6 +11,10 @@ export async function proxy(request: NextRequest) {
   headers.delete("x-liberture-spanish-slug")
 
   const url = new URL(request.url)
+  if (url.pathname === "/tracker" || url.pathname === "/tracker/") {
+    url.pathname = legacyTrackerPath(url.searchParams)
+    return NextResponse.redirect(url)
+  }
   headers.delete("x-liberture-private-invite")
   if (url.pathname.startsWith("/challenges/")) headers.set("x-liberture-private-invite", "1")
   const route = parsePublicPath(url.pathname)

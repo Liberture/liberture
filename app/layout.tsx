@@ -15,6 +15,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider"
 import { ahrefsScript } from "@/lib/ahrefs"
 import { CookieConsent } from "@/components/legal/CookieConsent"
 import { OrganizationSchema, WebSiteSchema } from "@/components/seo/JsonLd"
+import "@nostr-wot/ui/styles.css"
 import "./globals.css"
 
 // Using Inter as primary font per design system
@@ -104,7 +105,7 @@ export default async function RootLayout({
     // globals.css, so it is the only theme offered (see settings/preferences-tab).
     <html lang={locale} className="dark" suppressHydrationWarning>
       <head>{isAhrefsAudit && <script {...ahrefsScript} />}</head>
-      <body className={`${inter.variable} ${geistMono.variable} font-sans antialiased`}>
+      <body data-nui-root="" data-nui-theme="dark" className={`${inter.variable} ${geistMono.variable} font-sans antialiased`}>
         <OrganizationSchema description={t("description")} />
         <WebSiteSchema description={t("description")} locale={locale} />
         <ThemeProvider attribute="class" defaultTheme="dark" themes={["dark"]} enableSystem={false} disableTransitionOnChange>

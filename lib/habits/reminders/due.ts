@@ -52,7 +52,7 @@ export interface ReminderStrings {
   dueBody: string
 }
 
-export const REMINDER_URL = "/tracker?view=habits"
+export const REMINDER_URL = "/tracker/habits"
 
 export function reminderKey(habitId: string, date: string, kind: ReminderKind, slot?: number): string {
   return `habit:${habitId}:${date}:${kind}${slot === undefined ? "" : `:${slot}`}`
