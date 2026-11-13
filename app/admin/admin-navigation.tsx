@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Bot, BookOpen, History, Mail, MessagesSquare, Share2, Store, Users } from "lucide-react"
+import { BookOpen, Mail, MessagesSquare, Share2, Store, Users } from "lucide-react"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { Button } from "@/components/ui/button"
 import { FieldOption, FieldSelect } from "@/components/ui/select"
@@ -15,8 +15,6 @@ const sections = [
   { key: "marketplace", icon: Store },
   { key: "social", icon: Share2 },
   { key: "comments", icon: MessagesSquare },
-  { key: "enrichment", icon: History },
-  { key: "coach", icon: Bot },
 ] as const
 
 export function AdminNavigation({ managed }: { managed: boolean }) {

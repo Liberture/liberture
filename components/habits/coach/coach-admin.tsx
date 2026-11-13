@@ -34,7 +34,7 @@ async function api<T>(secret: string, path: string, method: "GET" | "POST" | "DE
   return body as T
 }
 
-export function CoachAdmin({ apiKey = "", embedded = false }: { apiKey?: string; embedded?: boolean }) {
+export function CoachAdmin({ apiKey }: { apiKey: string }) {
   const t = useTranslations().habits.app.coachAdmin
   const locale = useLocale()
   const dateLocale = locale === "es" ? "es-AR" : "en-US"
@@ -75,10 +75,10 @@ export function CoachAdmin({ apiKey = "", embedded = false }: { apiKey?: string;
       setDevice(status.device.active || status.device.done ? status.device : null)
       setSecret(apiKey)
     }).catch((err: Error) => {
-      if (!cancelled && embedded) setError(err.message)
+      if (!cancelled) setError(err.message)
     }).finally(() => { if (!cancelled) setChecking(false) })
     return () => { cancelled = true }
-  }, [apiKey, embedded])
+  }, [apiKey])
 
   const unlock = async (event: React.FormEvent): Promise<void> => {
     event.preventDefault()
@@ -139,7 +139,6 @@ export function CoachAdmin({ apiKey = "", embedded = false }: { apiKey?: string;
   return (
     <div className="max-w-xl space-y-6">
         <header>
-          {embedded ? null : <h1 className="text-2xl font-bold text-foreground">{t.title}</h1>}
           <p className="mt-1 text-sm text-muted-foreground">{t.subtitle}</p>
         </header>
 
