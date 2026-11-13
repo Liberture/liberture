@@ -363,8 +363,8 @@ export function HabitTracker() {
   const renderView = (view: ActiveView) => {
     if (view === "habits") {
       return (
-        <Tabs value={effectiveLayout} orientation="vertical" variant="embedded"
-          className={cn("grid min-h-full grid-cols-[2.5rem_minmax(0,1fr)] items-start gap-1.5 sm:gap-3", effectiveLayout === "day" && "xl:grid-cols-[8rem_minmax(0,1fr)]")}
+        <Tabs value={effectiveLayout} orientation="horizontal" variant="embedded"
+          className="flex min-h-full flex-col gap-3"
           onValueChange={value => {
             const next = LAYOUTS.findIndex(layout => layout.id === value)
             if (next < 0) return
@@ -391,16 +391,16 @@ export function HabitTracker() {
             }
           }}>
           <TabsList aria-label={t.layoutLabel}
-            className={cn("group sticky col-start-1 row-start-1 top-1/2 -translate-y-1/2 z-10 mb-0 w-10 max-w-none flex-col items-stretch overflow-hidden rounded-xl border border-border bg-card p-1 shadow-sm transition-[width] duration-200 hover:w-32 has-[:focus-visible]:w-32 motion-reduce:transition-none", effectiveLayout === "day" && "xl:w-32")}>
+            className="sticky top-0 z-10 mb-0 w-fit shrink-0 self-center items-center rounded-xl border border-border bg-card p-1 shadow-sm">
             {LAYOUTS.filter(layout => !layout.desktopOnly || !isMobile).map(({ id, icon: Icon }) => (
               <TabsTrigger key={id} value={id} aria-label={t.layouts[id]}
-                className="h-8 justify-start gap-2 overflow-hidden rounded-lg px-1.5 data-[state=active]:border-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                className="h-9 gap-2 rounded-lg px-3 data-[state=active]:border-transparent data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Icon aria-hidden className="shrink-0" />
-                <span className={cn("opacity-0 transition-opacity group-hover:opacity-100 group-has-[:focus-visible]:opacity-100 motion-reduce:transition-none", effectiveLayout === "day" && "xl:opacity-100")}>{t.layouts[id]}</span>
+                <span>{t.layouts[id]}</span>
               </TabsTrigger>
             ))}
           </TabsList>
-          <div className={cn("col-start-2 row-start-1 min-w-0 space-y-4 md:space-y-6", effectiveLayout !== "day" && "self-center lg:flex lg:flex-col lg:self-stretch")}>
+          <div className={cn("min-w-0 space-y-4 md:space-y-6", effectiveLayout !== "day" && "lg:flex lg:flex-1 lg:flex-col")}>
             {onboardingState.handedOffToAssistant && !onboardingState.assistantCardDismissed && (
               <AssistantStartCard connected={connectedKinds} onDismiss={actions.dismissAssistantCard} />
             )}
