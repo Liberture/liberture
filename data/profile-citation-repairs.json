@@ -1,0 +1,236 @@
+{
+  "alan-watts": {
+    "bio": "439eb6b97caa091f496e184052205495aff619477eed81904c032d2d6560358c"
+  },
+  "aldous-huxley": {
+    "bio": "032ebdf5b6842101d40c34c68e4b5f24c5efa7603b02b04502eb80e964179e4c"
+  },
+  "andrew-huberman": {
+    "bio": "79fcc3367f1d0f33e6c0284954fa91409b70a91b44e3ed970826ba13ca84d9c8"
+  },
+  "ben-angel": {
+    "achievements": "3b796542780390db2af6c03102837ad5dfe38ea0c2f09c7c2d9f6d0785bc1554",
+    "publications": "ff0bfe1d88dcbb33122b0440b0232da9b9decb28ccc4f479f7f0edc26180f3ae",
+    "speakingEvents": "8ac2519053ffc1483422a68bb3b3b8165314f9c5aa17b23fcafbdd01dff42b2b"
+  },
+  "ben-greenfield": {
+    "bio": "72ec7fad390dbabc6ce90a62677028b575741db8890437cf586622df8541ae22",
+    "achievements": "df0b4d2129da0b2607fabe8e817e05e33475b835f915e347b645b42c8d1e4f82",
+    "publications": "f4c80fe79d18dfa6ce1b5a4513ea52c6562344329adf8c9901fc8a01c84d0e83",
+    "speakingEvents": "88d1c21451cb157dd7bf4fee50010e485b7fe2377f781bf08694cad7acd4ea99"
+  },
+  "bryan-johnson": {
+    "bio": "190fe0bcf121e01bcfdbafc412a17781550c3bf56f573f4043cca9c53f602451",
+    "achievements": "42e5f2fed301b301a833b111468bec5ea884078f2a19e0054d75160603c971a0",
+    "speakingEvents": "f7abfa8839c495df69bc1216683aedce345db2bf6e3d8c7874a1fa9314c404bc"
+  },
+  "carl-jung": {
+    "bio": "c41e73cd2b3700def17b995083b5289170adaa5693bff3b5877bad0d7865097d"
+  },
+  "charles-duhigg": {
+    "bio": "ab515de2c589e7c77b1acbd999028f80e0bbb4520c11634275adc9f13e43189a",
+    "achievements": "3eefc27c78eae9f2173b7f576c16c98725dd5dae1040a616daee30e534de37d2",
+    "publications": "e955c972d8e88498f5a14878ee9bb5557582f8c491a8ed235305e251b4327334",
+    "speakingEvents": "b42c4360a636fb456369c7e3e8dad3ffbc54529f74c0b244d17072861077cc4b"
+  },
+  "christopher-mcdougall": {
+    "bio": "ddfca1ae5cd730df110c9b09151f2efe3ec9a43054a581a67904808af5d27ab8",
+    "achievements": "58e18ff9d27a65d37cb9f1ebca36473b3a942bf66f16ac52339f27bba3863f3a",
+    "publications": "35afb3f1a27dd5c5fb5f4c865e4a44bf9eeaa73e83ce9774377e05e7165323ec",
+    "speakingEvents": "ddc34dd0b3ffc3a79b3105b9b3bc92c81d55692e3774a7c8fab82b9da8222108"
+  },
+  "conrad-smith": {
+    "publications": "a5efe4ff70dc5e3bd80d0180d98c0c1b12be555f06ea05440a52784671ca1447"
+  },
+  "dan-s-kennedy": {
+    "bio": "dd26a128a03dc1d1ee267fbf4c1d5d55b024ea18054f135d36592c5f62af031f"
+  },
+  "dan-s-kennedy-1": {
+    "bio": "e8ae50fae43bcde41f54d45244c9a095cf2b2c491999287a041792535d137ff9"
+  },
+  "daniel-kahneman": {
+    "bio": "da669c320c3a8ebedfb8828e78fdb5e636dfeef2725a3fd14bd9838870ba541c",
+    "achievements": "46f9167032c3f8c7d21e1aaa64fcf582a7768bc290f3ee35e7cad4e2a248967c",
+    "publications": "df90604e555a0159e820725fecdf2597c2fa63f0f88872e4b55500ed64b0bef3"
+  },
+  "dave-asprey": {
+    "bio": "c1352db23174ff366da60e736428b6da6566155b5d68d8a74aa5f931872537c8",
+    "achievements": "a9a7d0c38b73799582db983602db230d45f65a5d2351ca06497abb2d202117a7",
+    "publications": "cf225fb429880de45086c83e2acd633f3b3e4b40de6395a456a7866f4c2cd728",
+    "speakingEvents": "9c045ab71ab6392f6af9f3af24964671ce9be94410625941597296e1cac89c13"
+  },
+  "david-a-sinclair": {
+    "bio": "343b9810bdf5d6f7e4b99b70e307052eb9bc9ad64ca489166fa9918ab9c35e72",
+    "achievements": "5f6520e30d766fe3fb47f4e802f11b108484b1bbbe6a90627b7ae6cd297c419c",
+    "publications": "a47123518a105383dab44aff556c8332f195a7063d9db28ede19fbedb7a7841b",
+    "speakingEvents": "4068f1cd2729d7e2dfd7339728ea225bd3cfa09f77b0115bd9a999f5761aa881"
+  },
+  "david-sinclair": {
+    "bio": "2c52a5b5acfabe9a90ed5ced7c4edf558de81082a04a267263a991ff9d89e398"
+  },
+  "eckhart-tolle": {
+    "bio": "d76c1b4906793df11b666a4d6bccb02b23caf1fdf977139714a03142dd95d48f"
+  },
+  "eric-r-braverman": {
+    "bio": "c5725afa773652103541b3cca83685b80288df611a91182525da4a06c53c5760",
+    "achievements": "7fc17139cfeb05dff9304b6e7c32a66408f74d3925be24a254b553cd012a473f",
+    "publications": "b733ec0d65204e93b364e644af5601e80c4dd9adab20a513f874e04f7f5a2e3a",
+    "speakingEvents": "fbb81837876c716b141c5bd4ecc48f59cb6fc4d145c174a8d3fd47ec432045dc"
+  },
+  "gerald-h-pollack": {
+    "achievements": "52d8edfed5d114bbe741a09459e95592fcba94ac95a75df1c2b662d96431345d",
+    "publications": "fbf3b5d6ba9a10df4114de92cef6a6bcf911f8944aaabb4e5036d4d635edeab0",
+    "speakingEvents": "f662c5c96ae3eadb64dcdc113166a6be441d0553c8a4ea581a8c65a83488b93e"
+  },
+  "james-clear": {
+    "bio": "3c4bd89b8e853278c276b7f66792a5af58fe940a83ec75b2fa7b7a5c36d40c58"
+  },
+  "james-lee": {
+    "achievements": "f4a15cac16e4b4fd2dc0e87b1606eb09a84e552bd61f0ded3db747578a257f0d",
+    "publications": "75de433b08516c0e1998b9f36d8e335060710b4aad9bee3077552480b3fece36"
+  },
+  "james-nestor": {
+    "bio": "d5a82cd7ce94b10056d5230e357b0f447311ac88c5971241d83c98dc3b100c51",
+    "achievements": "0231a9e1c86fa15b49d623d46589fe376b72a9393ec4a5d12b0870a74e724732",
+    "publications": "6ea0782daf0eac5fdbf2f428245fa4629a7a43d0380c15d877c5b9c5895f478c",
+    "speakingEvents": "3a3a7fd493c4d5945f4438132e5094b017ca15558fb08b31a74b42b710efede1"
+  },
+  "jason-fung": {
+    "bio": "0734a6f73801097c5e9005fb2974cc4772483a434ec63d2672ece2d80d6464f5",
+    "achievements": "543c3f571d7a454269db84619454322bc5c472ff4a624f7046fae6b7a0523e54",
+    "publications": "6e1a3fd2d7f5d480a8ee7ee3c7acb5db83a8a0ea4c70c90d0ce7b615e8db303e",
+    "speakingEvents": "74296f1e949fe1570e013c4c5fc48deb3140cd95362a076dd6daea42ba63ccd7"
+  },
+  "jevan-pradas": {
+    "publications": "87fc85583e7ae40f4e86a93ee8b63b140e77f9215c0eeaaca412e244547d628a",
+    "speakingEvents": "1ca7f22e0f8e9f18e3f5d485a2b85b3f3baece841cc7448d1426b8fdc854d51b"
+  },
+  "jiddu-krishnamurti": {
+    "bio": "0ff0a907bf296d175a2fee241650f55e54403a2f5fc009dfb740cc75555214b9"
+  },
+  "jim-kwik": {
+    "bio": "61dc59ecc073359498836a999452650557d0e55c75b01e9b48b4eeebdb6966d9",
+    "achievements": "1ae369c366265cd88bb81c1009b97dc2a77463fdc08fd584d50a72ef54831578",
+    "publications": "de4f082598e085ab34165c2756e4d389a3d84073cffaa8d1b7a16f6ae84fb77d",
+    "speakingEvents": "2168472ca35c788142ded4d948165089d53f95d968a1ab0b8972167ae70d0ef5"
+  },
+  "joe-dispenza": {
+    "achievements": "d6064baf58b626142c3bf7d3b10ed9e53405ef61a569999449ae68f1ec3e3e22",
+    "publications": "a30082ad3187257123d4ecd63ba6afabccf7106ad6a40af01cc5dbcca51c8769",
+    "speakingEvents": "9bf64109531224bdaeaacac353b67231a98c2731b583c8c6dda19c280b9344d0"
+  },
+  "joseph-mercola": {
+    "bio": "5de1e4ac15e39de28e99a840773dac2cae3ede6fa6e5f67a5487e9449b92bd96",
+    "achievements": "46447513671380a21f91e64d10a1d3c6ef979ab08cdb4e096ae895acaba855d2",
+    "publications": "1b29f0f39161dcc60304a6a2720932046c625d847a0c481d63349671bd39b28b",
+    "speakingEvents": "153877b054378843873cd5e481071c8ef0b085cedce5de111ebed8c8082371ee"
+  },
+  "kristen-willeumier": {
+    "achievements": "01a326333cd5da880881cd38765f505350bf640d11d043da7867a0196ac9b006",
+    "publications": "87dc0872e29ed081b37c992e8556832191fb1953ecd6df979f7f6ded1878870e"
+  },
+  "lee-know": {
+    "achievements": "5515c6a717cbbfdf2a2a71a1df7c44e648b0854cd5246739077781563da9bb98"
+  },
+  "matthew-walker": {
+    "bio": "2e694a4a6d4ea52f7ad38d0b4ec928c41c8695b124eaf42de7f88e6fe3918239"
+  },
+  "maximilian-gotzler": {
+    "achievements": "43b56d8ce260f1d00226a45efcb96a568ad35ff6b4bec6723e86c9769cfc4dcb",
+    "publications": "523e28c0b7bae68182da904c668f3d2f2be8ce92d1e3e78f9f28960bdfaae479",
+    "speakingEvents": "52424d0c0373c007aeafaa5ff3d36e0ad5d1934da94ec6cbf40e7750722bb60c"
+  },
+  "michael-greger": {
+    "bio": "02ff6a5cf496d03833563bd79cbacfc8d08541dc74be6fb7cb739401ddaeecfa"
+  },
+  "michael-pollan": {
+    "bio": "6f013dda02d81d3a173261dce9647c69558e7c040fdee9ee3adb30d213a4d62b",
+    "achievements": "a83aa575621f3254d29127c124e19f24812d621501e3d5fdfe8e99f23a4d20f5",
+    "speakingEvents": "f920cf9d15ba70a6a364f16a9fc4546eb3907de1bcae2109dcc089e99b28def4"
+  },
+  "olli-sovijrviteemu-arinajaakko-halmetoja": {
+    "achievements": "c2f18ec99979b68eac2d1aff73424b67bf792f1fb556fc7c8ee7fbb8afa8d4d1",
+    "publications": "24fedbcaf415b8f791d0be86b27d68fc4d1323049671c30f7316f9e31e55afa3",
+    "speakingEvents": "062993fe9afa910037f4420b6347eb9ca0d1d4aca6a7796b2d2eadbb9e9cbf1d"
+  },
+  "pete-egoscue": {
+    "bio": "b3cda143a4dd633dcd11a9f9e54171d279fe009e1bbabddb41a319198195c8a6",
+    "achievements": "4e4d6f3b6da40d2d32192f63f690ed277fdc83d540e38061847f9691ab665e93",
+    "publications": "b46a403fc696ab2b4e6831f549374c491efd0e1737d40516b4761ac6729e3d69",
+    "speakingEvents": "7d1579267fd137b57b54045f79b3446d48af548da8a3bbf5e2c64198cdf606ef"
+  },
+  "peter-attia": {
+    "bio": "9cae3824eed4e7c393f81dccec099681d3c8c0d0dd85c0808a3753f8e46862cf"
+  },
+  "ram-dass": {
+    "bio": "df62ef4300a7d8de707285ea58940cbfdfb8e4158b84d648784483dd3cbe2f6c"
+  },
+  "rhonda-patrick": {
+    "achievements": "e4ac48b460a1c60c7edb583a5851b798a28ac0387e06e91c576d858468b9d336",
+    "publications": "8f0f86da46ca65ab70ff1694f4afd6e84545ff19fd426df78af6e79cdfd2cead",
+    "speakingEvents": "a649cdaf0e1db320507e9fcdf7aa0f59ef26a42cb2bfe1114073302055d6a01c"
+  },
+  "robb-wolf": {
+    "achievements": "e3cffc9b7b77c8bae4dbee0bfedd85340d669570fd842004911cb6606ca76cfc",
+    "publications": "d18b10a7d465cc6e2c31eaafa7535617bcc0dc3ed9d091a3af383f9628b4d588",
+    "speakingEvents": "759900707a4b868c32c799520af8c19e13ab117b850cca5b5d8ef1fb84951fcc"
+  },
+  "robert-h-lustig": {
+    "bio": "65a8c905dc85a7fdc141f49609eb3028dd840f776e2734302f3530cb8369d176",
+    "achievements": "846aa70109f899f2a0d1bc7e2a1dd74460bd41e64f2f59d29a44315d40343a32",
+    "publications": "9651ac67c69c3ead7cc54485a59ce967f57d738a627d36c0449a562cbba9bb30",
+    "speakingEvents": "c1d30b956b98c04071a93ea42eac6e5d3825a7cc612418d07e6ccff45e7bf931"
+  },
+  "satchin-panda": {
+    "bio": "ca8fa89ec2de71e710ca15547bffe67c1ea3e4c3f86a82e87a778f0606a3e6d5"
+  },
+  "scott-carney": {
+    "achievements": "3ebf92cf9c3862f4d09e4bdca601bf0c65efeec4396c74981387349c544697af",
+    "publications": "eb7f244b7d239cf6ea59ee8c02cbc39041de10d674aed6a52b1e8f3026e923dd",
+    "speakingEvents": "3b065611514baeb63ceead3ffd4179d1b7ef9267a7e0940eaf659a5c403584dc"
+  },
+  "shawn-stevenson": {
+    "achievements": "db46089b11efa5aae4a06a1286c767714d86f0f280fb440611fb865c999fe882",
+    "publications": "ac470a09bb7ff4e15b4bdee9e87c8f3e8cf8f09e98926285345c3ef695336f3d",
+    "speakingEvents": "4d0a4087d6dfb677033f799837a7c6401510c78ee301fd7795a7ff18636b4f50"
+  },
+  "stanislav-grof": {
+    "bio": "92ec1a83c7138f8a235c5bea089add7a7506cd20894586ea2a1b698413fce015"
+  },
+  "steven-r-gundry": {
+    "bio": "e62f9f9990f4638fedb77b36a66eb6904f85ab9aaa1ef92abaad213179517beb",
+    "achievements": "63e8d9ad6c60fc42ffbbb09f66eb4a0140e673470d90dc482d3adf4be9fef8b1",
+    "publications": "22465c7d586533aea424cb52d7b1c73c2e40806642b1db91ff2ce8e86c3d2158",
+    "speakingEvents": "1611a6ff9e748078a57f4a63bfb1650a4fda702ac6738a8265b5f30aede5de6e"
+  },
+  "teemu-arinaolli-sovijrvi": {
+    "achievements": "d11d8104dcdd8c9fd0a6eb366bb8a10bba1855c6cb6468505ca79277ba8c15cf",
+    "publications": "7a7c164925afa1b236c4e48a925a14768721b7d40e5314fa39bb45a95cb2c16e",
+    "speakingEvents": "9cb638d9c0a75469fa5e4c570afda414a4be059f9080eadca4e34b51d1627242"
+  },
+  "terence-mckenna": {
+    "bio": "ff775b36bb18213d8a49dea544af015453d0d106b33de76f0ff381afb2770dce"
+  },
+  "timothy-ferriss": {
+    "bio": "b386b116a1b47a67d4f1b70c658ad55b361498520bf462bc89ed76d872d5a058"
+  },
+  "travis-christofferson": {
+    "achievements": "11ad7bd3c751080556c97b6f2d47de4fabd29a24466f554644bc6bcbf7955bc1",
+    "publications": "f28a085325f4ccd6fa319ab403c3362c0fec10f30d25715faab4c8da03754786",
+    "speakingEvents": "054ecd5d0fd99ed6096d9fbadec8190886183fbde665362c19b85e50b63553fb"
+  },
+  "valter-longo": {
+    "bio": "6e9b3f8492b97678a36e226bb03dfe5d89db0bbc0b23b3a8567b31901a95113c",
+    "achievements": "670a0e290a1cc5c3970a3ad8356ed5ada679c122a37d6da2f48a74692de9a264",
+    "publications": "7263e362063ed7fa59084dbaa278b57b4f790bc138635a51b659b04c417cbdc7",
+    "speakingEvents": "f5d9107b981b2f886647f020a066fc64427ae06e4a90e26e4206149cb2e59122"
+  },
+  "will-bulsiewicz": {
+    "achievements": "af1663f2fdbf8f65e50640159de8bf05e2a1cf2f3b87191803bd206f48fac247",
+    "publications": "a213584318705a9fec3cd332c4de3c29595b9683c0ba132df79272ea3c5cb0b6",
+    "speakingEvents": "c7b5922bb3eea36641d290900e2b9c81587903fd1f95a3288c9afdf19d072895"
+  },
+  "wim-hof": {
+    "bio": "16b281e3d206963262c5b087c5526734a2d3bff5a4af00f3a06d3db95a88e3a6"
+  }
+}
