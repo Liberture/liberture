@@ -2,7 +2,7 @@
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useEffect, useState } from "react"
-import { AlertTriangle, Check, Download, Share2, ExternalLink, Plus, Sparkles, Wallet, X } from "lucide-react"
+import { AlertTriangle, Check, Download, Share2, ExternalLink, Plus, X } from "lucide-react"
 
 import { PILLAR_STYLES } from "@/lib/habits/pillars"
 import type { CatalogProtocol } from "@/lib/habits/protocols/catalog"
@@ -15,7 +15,8 @@ import { formatMessage, plural } from "@/lib/i18n-format"
 import { protocolImage } from "@/lib/habits/protocols/images"
 import { toast } from "sonner"
 import { ProtocolArtwork } from "./protocol-artwork"
-import { DifficultyTag, PillarTag, useCatalogLabels } from "./pillar-tag"
+import { ProtocolFacts, ProtocolHabits } from "./protocol-facts"
+import { useCatalogLabels } from "./pillar-tag"
 
 interface ProtocolReaderProps {
   protocol: CatalogProtocol
@@ -114,21 +115,7 @@ export function ProtocolReader({ protocol, adopted, onAdopt, onClose, shareable 
             <p className="text-sm text-muted-foreground">{protocol.tagline}</p>
           </header>
           <div className="grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_15rem]">
-            <aside aria-label={t.facts} className="space-y-3 rounded-xl border border-border bg-background/50 p-4 md:col-start-2 md:row-start-1">
-              <h3 className="text-sm font-semibold text-foreground">{t.facts}</h3>
-              <div className="flex flex-wrap items-center gap-1.5">
-                <PillarTag pillar={protocol.pillar} />
-                <DifficultyTag difficulty={protocol.difficulty} />
-                <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/40 px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                  <Wallet className="h-3 w-3" aria-hidden />
-                  {labels.costSummary(protocol.cost, protocol.costTier)}
-                </span>
-              </div>
-              <dl className="space-y-2 text-sm">
-                <div><dt className="text-xs text-muted-foreground">{t.duration}</dt><dd>{protocol.duration}</dd></div>
-                <div><dt className="text-xs text-muted-foreground">{t.habits}</dt><dd>{protocol.habits.length}</dd></div>
-              </dl>
-            </aside>
+            <ProtocolFacts protocol={protocol} className="md:col-start-2 md:row-start-1" />
             <Tabs defaultValue="overview" className="min-w-0 md:col-start-1 md:row-start-1">
               <TabsList aria-label={protocol.name}>
                 {(["overview", "routine", "resources", "evidence"] as const).map(tab => (
@@ -190,25 +177,7 @@ export function ProtocolReader({ protocol, adopted, onAdopt, onClose, shareable 
                 </Section>
 
                 <Section title={formatMessage(t.habitsTracking, { count: protocol.habits.length })}>
-                  <ul className="space-y-2">
-                    {protocol.habits.map((habit) => (
-                      <li
-                        key={habit.slug}
-                        className="flex items-start gap-3 rounded-lg border border-border bg-secondary/40 p-3"
-                      >
-                        <Sparkles className={cn("mt-0.5 h-4 w-4 shrink-0", styles.text)} aria-hidden />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-foreground">{habit.name}</p>
-                          <p className="text-xs text-muted-foreground">{habit.why}</p>
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            <span className="font-mono">{habit.time}</span>
-                            <span aria-hidden> · </span>
-                            {labels.schedule(habit.schedule)}
-                          </p>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+                  <ProtocolHabits protocol={protocol} />
                 </Section>
               </TabsContent>
               <TabsContent value="resources" className="space-y-5">
