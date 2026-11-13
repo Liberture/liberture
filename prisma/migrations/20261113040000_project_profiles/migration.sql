@@ -18,14 +18,11 @@ WITH entries(project_slug, slug, name, description, type, founded, website, logo
  ('quantified-self','article-27-foundation','Article 27 Foundation','Article 27 supports people who investigate questions about their own lives using personal data. Its name refers to the right to participate in science. The foundation funds work in the Quantified Self community and supports education, advocacy and open tools for self-research.','nonprofit',NULL,'https://quantifiedself.com/about/article27/',NULL),
  ('lifespan-io','lifespan-research-institute','Lifespan Research Institute','Lifespan Research Institute formed in 2024 when SENS Research Foundation and the Lifespan Extension Advocacy Foundation merged. It combines research into age-related disease with public education, fundraising and science journalism. Readers can follow its reporting on Lifespan.io and consult its annual reports for the work of the institute and its predecessors.','nonprofit','2024','https://lifespan.io/about-us/','/images/organizations/lifespan-research-institute.png'),
  ('lifespan-io','lifespan-extension-advocacy-foundation','Lifespan Extension Advocacy Foundation','The Lifespan Extension Advocacy Foundation (LEAF) was the nonprofit that launched Lifespan.io in 2015. It used crowdfunding, reporting and public events to connect researchers studying aging with people interested in supporting their work. In 2024 it merged with SENS Research Foundation to form the Lifespan Research Institute.','nonprofit','2014','https://lifespan.io/about-us/annual-reports/',NULL)
-), created AS (
- INSERT INTO "Organization"(id,slug,name,description,pillars,type,founded,website,"imageUrl","updatedAt")
+)
+INSERT INTO "Organization"(id,slug,name,description,pillars,type,founded,website,"imageUrl","updatedAt")
  SELECT gen_random_uuid()::text, e.slug,e.name,e.description,p.pillars,e.type,e.founded,e.website,e.logo,NOW()
  FROM entries e JOIN "Organization" p ON p.slug=e.project_slug AND p."directoryKind"='project'
- ON CONFLICT (slug) DO NOTHING RETURNING *
-)
-INSERT INTO "DirectoryRevision" ("entityType","entityId",source,actor,changes)
- SELECT 'organizations',id,'ai','project-directory-research',jsonb_build_object('profile',jsonb_build_object('before',NULL,'after',to_jsonb(created)-'id'-'createdAt'-'updatedAt')) FROM created;
+ ON CONFLICT (slug) DO NOTHING;
 
 WITH entries(project_slug, slug, name, title, bio, expertise, website, photo) AS (VALUES
  ('examine-com','sol-orwell','Sol Orwell','Entrepreneur and Examine co-founder','Sol Orwell helped launch Examine in 2011 after questions about nutrition and fitness led him to compare supplement claims with the research behind them. He describes the project’s origins in an interview with IdeaMensch. As a director of Examine.com Inc., he is also named in the company’s licensing terms for its research data.','Nutrition publishing, Entrepreneurship','https://ideamensch.com/sol-orwell/','/images/people/sol-orwell.jpg'),
@@ -36,7 +33,7 @@ WITH entries(project_slug, slug, name, title, bio, expertise, website, photo) AS
  ('lifespan-io','oliver-medvedik','Oliver Medvedik','Biomedical educator and longevity research advocate','Oliver Medvedik teaches biology and bioengineering at The Cooper Union. His work spans biomedical engineering education and public access to research. He co-founded the Lifespan Extension Advocacy Foundation and discussed research papers in Lifespan.io’s Journal Club. He also serves on the board of the Lifespan Research Institute.','Biomedical engineering, Biology education','https://engfac.cooper.edu/medvedik','/images/people/oliver-medvedik.webp'),
  ('lifespan-io','apneet-jolly','Apneet Jolly','Lifespan Extension Advocacy Foundation co-founder','Apneet Jolly was one of the four founders of the Lifespan Extension Advocacy Foundation in 2014. The foundation launched the Lifespan.io crowdfunding platform the following year. Its 2019 annual report lists Jolly on the industry advisory board and records an affiliation with Cryptolotus.','Research advocacy, Industry advisory work','https://lifespan.io/wp-content/uploads/2025/06/Lifespan.io-Annual-Report-2019.pdf','/images/people/apneet-jolly.jpg'),
  ('lifespan-io','richard-kaufman','Richard Kaufman','Lifespan Extension Advocacy Foundation co-founder','Richard Kaufman helped establish the Lifespan Extension Advocacy Foundation in 2014. The foundation developed Lifespan.io to support public participation in funding research on aging. Its 2020 annual report identifies Kaufman as a board member and treasurer.','Nonprofit governance, Research advocacy','https://www.lifespan.io/wp-content/uploads/2025/06/Lifespan-Annual-Report-2020.pdf','/images/people/richard-kaufman.jpg'),
- ('foundmyfitness','rhonda-patrick','Rhonda Patrick','Scientist and FoundMyFitness founder','Rhonda Patrick founded FoundMyFitness to explain research on nutrition, aging and disease prevention. She studied mitochondrial metabolism during her doctoral work and later investigated micronutrients. She interviews researchers, explores the methods behind their findings and publishes essays and recorded conversations through FoundMyFitness.','Nutrition research, Science communication','https://www.foundmyfitness.com/about-dr-rhonda-patrick','/examples/portraits/rhonda-patrick-portrait.jpg')
+ ('foundmyfitness','rhonda-patrick','Rhonda Patrick','Scientist and FoundMyFitness founder','Rhonda Patrick founded FoundMyFitness to explain research on nutrition, aging and disease prevention. She studied mitochondrial metabolism during her doctoral work and later investigated micronutrients. She interviews researchers, explores the methods behind their findings and publishes essays and recorded conversations through FoundMyFitness.','Nutrition research, Science communication','https://www.foundmyfitness.com/about-dr-rhonda-patrick','/images/people/rhonda-patrick.png')
 ), created AS (
  INSERT INTO "Person"(id,slug,name,title,bio,pillars,expertise,website,"imageUrl","updatedAt")
  SELECT gen_random_uuid()::text,e.slug,e.name,e.title,e.bio,p.pillars,e.expertise,e.website,e.photo,NOW()
@@ -46,6 +43,11 @@ WITH entries(project_slug, slug, name, title, bio, expertise, website, photo) AS
 )
 INSERT INTO "DirectoryRevision" ("entityType","entityId",source,actor,changes)
  SELECT 'people',id,'ai','project-directory-research',jsonb_build_object('profile',jsonb_build_object('before',NULL,'after',to_jsonb(created)-'id'-'createdAt'-'updatedAt')) FROM created;
+
+-- Use the interview publisher's identified portrait if the existing profile has none.
+UPDATE "Person" SET "imageUrl"='/images/people/rhonda-patrick.png', "updatedAt"=NOW()
+WHERE slug='rhonda-patrick' AND "imageUrl" IS NULL
+  AND EXISTS (SELECT FROM "Organization" WHERE slug='foundmyfitness' AND "directoryKind"='project');
 
 WITH links(project, org, role, source) AS (VALUES
  ('examine-com','examine-com-inc','Publisher','https://connect.examine.com/terms'),
