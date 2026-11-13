@@ -20,7 +20,7 @@ export default async function Subscribers({ searchParams }: { searchParams: Prom
     select: { email: true, id: true },
   })
   const href = (n: number) => "?" + new URLSearchParams({ q, page: String(n) })
-  return <div className="mx-auto max-w-3xl space-y-5 p-6">
+  return <div className="space-y-5">
     <h1 className="text-2xl font-semibold">{t.subscribers}</h1>
     <form className="flex gap-2"><Input type="search" name="q" defaultValue={q} placeholder={t.search} aria-label={t.search} /><Button>{t.find}</Button></form>
     <ul className="divide-y">{rows.slice(0, 50).map(row => <li key={row.id} className="py-2">{row.email}</li>)}</ul>

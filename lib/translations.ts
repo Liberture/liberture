@@ -1665,6 +1665,17 @@ const habitsEn = {
       addAria: "Add {name}",
     },
     // E
+    adminNav: {
+      title: "Administration",
+      directory: "Directory",
+      users: "Users",
+      subscribers: "Subscribers",
+      marketplace: "Marketplace",
+      social: "Social posts",
+      comments: "Comments",
+      enrichment: "Enrichment history",
+      coach: "Coach connection",
+    },
     adminUsers: {
       users: "Users",
       search: "Search by name",
@@ -4746,6 +4757,17 @@ const habitsEs: HabitsDictionary = {
       addAria: "Agregar {name}",
     },
     // E
+    adminNav: {
+      title: "Administración",
+      directory: "Directorio",
+      users: "Usuarios",
+      subscribers: "Suscriptores",
+      marketplace: "Marketplace",
+      social: "Publicaciones sociales",
+      comments: "Comentarios",
+      enrichment: "Historial de enriquecimiento",
+      coach: "Conexión del coach",
+    },
     adminUsers: {
       users: "Usuarios",
       search: "Buscar por nombre",

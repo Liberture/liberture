@@ -30,8 +30,7 @@ export default async function Users({ searchParams }: { searchParams: Promise<{ 
   })
   const nostrUsers = new Set(nostrAccounts.map(account => account.userId))
   const href = (n: number) => "?" + new URLSearchParams({ q, page: String(n) })
-  return <div className="mx-auto w-full max-w-5xl space-y-5 p-6">
-    <Link href="/admin" className="text-sm text-muted-foreground">{t.back}</Link>
+  return <div className="space-y-5">
     <header className="flex items-center justify-between"><h1 className="text-2xl font-semibold">{t.users} ({total})</h1><CreateUser /></header>
     <form className="flex max-w-lg gap-2"><Input type="search" name="q" defaultValue={q} placeholder={t.search} aria-label={t.search} /><Button>{t.find}</Button></form>
     <ul className="divide-y rounded-lg border bg-card px-4">
