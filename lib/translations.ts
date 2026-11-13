@@ -1663,6 +1663,8 @@ const habitsEn = {
     },
     // E
     protocolReader: {
+      previousPeople: "Previous profiles",
+      nextPeople: "Next profiles",
       relatedPeople: "People with shared focus areas",
       back: "Back",
       facts: "At a glance",
@@ -4659,6 +4661,8 @@ const habitsEs: HabitsDictionary = {
     },
     // E
     protocolReader: {
+      previousPeople: "Perfiles anteriores",
+      nextPeople: "Perfiles siguientes",
       relatedPeople: "Personas con áreas de interés en común",
       back: "Volver",
       facts: "En resumen",
