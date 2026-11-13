@@ -1,5 +1,6 @@
 "use client"
 
+import { HelpTooltip } from "@/components/ui/tooltip"
 import { useMemo, useState } from "react"
 import { DayPicker } from "react-day-picker"
 import {
@@ -126,15 +127,14 @@ export function DateRangeFilter({ value, onChange, label, className, weekStartsO
 
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button
+          <HelpTooltip label={t.pickPeriod}><Button
             size="sm"
             variant={active === null ? "default" : "outline"}
             className="h-8 gap-2 text-xs"
-            title={t.pickPeriod}
           >
             <CalendarRange className="h-3.5 w-3.5" />
             {active === null ? rangeLabel : t.custom}
-          </Button>
+          </Button></HelpTooltip>
         </PopoverTrigger>
         <PopoverContent align="end" className="w-auto p-3">
           <p className="mb-2 text-xs text-muted-foreground">
@@ -191,35 +191,32 @@ export function DateRangeFilter({ value, onChange, label, className, weekStartsO
       </Popover>
 
       <div className="flex items-center gap-0.5">
-        <Button
+        <HelpTooltip label={plural(t.previousDays, length)}><Button
           onClick={() => shift(-1)}
           size="sm"
           variant="ghost"
           className="h-8 w-8 p-0"
-          title={plural(t.previousDays, length)}
         >
           <ChevronLeft className="h-3.5 w-3.5" />
-        </Button>
-        <Button
+        </Button></HelpTooltip>
+        <HelpTooltip label={plural(t.nextDays, length)}><Button
           onClick={() => shift(1)}
           size="sm"
           variant="ghost"
           className="h-8 w-8 p-0"
           disabled={isSameDay(value.end, today) || value.end > today}
-          title={plural(t.nextDays, length)}
         >
           <ChevronRight className="h-3.5 w-3.5" />
-        </Button>
-        <Button
+        </Button></HelpTooltip>
+        <HelpTooltip label={t.backToDefault}><Button
           onClick={() => onChange(defaultRange(today))}
           size="sm"
           variant="ghost"
           className="h-8 w-8 p-0"
           disabled={isDefault}
-          title={t.backToDefault}
         >
           <RotateCcw className="h-3 w-3" />
-        </Button>
+        </Button></HelpTooltip>
       </div>
 
       <span className="ml-auto whitespace-nowrap text-xs text-muted-foreground">

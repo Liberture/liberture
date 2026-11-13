@@ -1,5 +1,6 @@
 "use client"
 
+import { HelpTooltip } from "@/components/ui/tooltip"
 import { useEffect, useId, useRef, useState } from "react"
 import { Search, X } from "lucide-react"
 import { useTranslations } from "@/components/i18n/locale-provider"
@@ -10,6 +11,7 @@ import type { Author } from "@/lib/habits/protocols/authors"
 import { cn } from "@/lib/utils"
 
 interface SearchProps {
+  catalog: typeof CATALOG_PROTOCOLS
   author?: Author
   onRemoveAuthor: () => void
   onSearch: () => void
@@ -19,7 +21,7 @@ interface SearchProps {
   onProtocol: (slug: string) => void
 }
 
-export function MarketplaceSearch({ query, onQuery, onAuthor, onProtocol, author, onSearch, onRemoveAuthor }: SearchProps) {
+export function MarketplaceSearch({ catalog, query, onQuery, onAuthor, onProtocol, author, onSearch, onRemoveAuthor }: SearchProps) {
   const t = useTranslations().habits.app.marketplaceView
   const id = useId()
   const input = useRef<HTMLInputElement>(null)
@@ -27,9 +29,9 @@ export function MarketplaceSearch({ query, onQuery, onAuthor, onProtocol, author
   const [active, setActive] = useState(-1)
   const term = query.trim().toLocaleLowerCase()
   const open = expanded && Boolean(term)
-  const authors = CATALOG_AUTHORS.filter(author => author.name.toLocaleLowerCase().includes(term))
+  const authors = CATALOG_AUTHORS.filter(author => author.name.toLocaleLowerCase().includes(term) && catalog.some(p => p.author?.id === author.id || p.coAuthors.some(a => a.id === author.id)))
     .map(author => ({ kind: "author" as const, key: author.id, name: author.name }))
-  const protocols = filterProtocols(CATALOG_PROTOCOLS, { ...DEFAULT_FILTER, authorId: author?.id ?? "all", query: term })
+  const protocols = filterProtocols(catalog, { ...DEFAULT_FILTER, authorId: author?.id ?? "all", query: term })
     .sort((a, b) => Number(b.name.toLowerCase().includes(term)) - Number(a.name.toLowerCase().includes(term)))
     .map(protocol => ({ kind: "protocol" as const, key: protocol.slug, name: protocol.name, pillar: protocol.pillar }))
   const matches = [{ kind: "search" as const, key: "submit", name: t.showResults }, ...authors, ...protocols]
@@ -53,11 +55,11 @@ export function MarketplaceSearch({ query, onQuery, onAuthor, onProtocol, author
         {author && (
           <span className="inline-flex max-w-[55%] items-center rounded-full bg-primary/15 pl-2 text-xs font-medium text-foreground">
             <span className="truncate">{author.name}</span>
-            <button type="button" aria-label={`${t.removeAuthor} · ${author.name}`} title={t.removeAuthor}
+            <HelpTooltip label={t.removeAuthor}><button type="button" aria-label={`${t.removeAuthor} · ${author.name}`}
               onClick={() => { onRemoveAuthor(); input.current?.focus() }}
               className="grid size-7 shrink-0 place-items-center rounded-full hover:bg-secondary focus-visible:ring-2">
               <X aria-hidden className="size-3.5" />
-            </button>
+            </button></HelpTooltip>
           </span>
         )}
       <input ref={input} type="search" role="combobox" aria-label={t.searchAria} placeholder={t.searchPlaceholder}

@@ -1,5 +1,6 @@
 "use client"
 
+import { HelpTooltip } from "@/components/ui/tooltip"
 import { format, isToday, getDay } from "date-fns"
 import { Check, Plus, Pencil, FileText, Brain, Archive, ArchiveRestore, Clock, Layers } from "lucide-react"
 import type { Habit, HabitCompletion } from "@/lib/habits/types"
@@ -193,11 +194,10 @@ const MobileHabitCard = memo(function MobileHabitCard({
     >
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <div
+          <HelpTooltip label={t.pillars[pillar]}><div
             className="h-3 w-3 rounded-full flex-shrink-0"
             style={{ backgroundColor: PILLAR_HEX[pillar] }}
-            title={t.pillars[pillar]}
-          />
+          /></HelpTooltip>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
               <p className="font-semibold text-foreground text-sm truncate">{habit.name}</p>
@@ -284,8 +284,7 @@ const MobileHabitCard = memo(function MobileHabitCard({
           const hasPartialProgress = !!(dailyProgress && dailyProgress.current > 0 && !completed)
 
           return (
-            <button
-              key={di.iso}
+            <HelpTooltip key={di.iso} label={dailyProgress && dailyProgress.current > 0 ? `${dailyProgress.current}/${dailyProgress.goal} ${dailyProgress.unit}` : undefined}><button
               onClick={() => scheduled && onCellClick(habit, di.date)}
               disabled={!scheduled}
               className={cn(
@@ -298,7 +297,6 @@ const MobileHabitCard = memo(function MobileHabitCard({
               )}
               style={completed ? completedCellStyle(pillar) : undefined}
               aria-label={formatMessage(t.habitOnDate, { name: habit.name, date: di.monthDay })}
-              title={dailyProgress && dailyProgress.current > 0 ? `${dailyProgress.current}/${dailyProgress.goal} ${dailyProgress.unit}` : undefined}
             >
               {hasData && !completed && (
                 <div className="absolute top-1 right-1">
@@ -338,7 +336,7 @@ const MobileHabitCard = memo(function MobileHabitCard({
                   </div>
                 </>
               )}
-            </button>
+            </button></HelpTooltip>
           )
         })}
       </div>
@@ -364,11 +362,10 @@ const DesktopHabitRow = memo(function DesktopHabitRow({
     <tr className={cn("border-b border-border/50 transition-colors hover:bg-accent/30", habit.archived && "opacity-60")}>
       <td className="sticky left-0 z-20 overflow-hidden bg-card/95 backdrop-blur-sm px-4 py-3 border-r border-border/50">
         <div className="flex min-w-0 items-center gap-3">
-          <div
+          <HelpTooltip label={t.pillars[pillar]}><div
             className="h-3.5 w-3.5 flex-shrink-0 rounded-full shadow-sm"
             style={{ backgroundColor: PILLAR_HEX[pillar] }}
-            title={t.pillars[pillar]}
-          />
+          /></HelpTooltip>
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <div className="flex min-w-0 items-center gap-2">
               <span className="truncate font-medium text-foreground">{habit.name}</span>
@@ -411,23 +408,21 @@ const DesktopHabitRow = memo(function DesktopHabitRow({
       <td className="overflow-hidden px-3 py-3">
         <div className="flex items-center justify-center gap-1.5">
           {habit.archived && onUnarchiveHabit && (
-            <button
+            <HelpTooltip label={t.restoreHabit}><button
               onClick={() => onUnarchiveHabit(habit.id)}
               className="flex h-10 items-center gap-1.5 px-3 rounded-lg border border-primary/50 bg-primary/10 hover:bg-primary/20 transition-colors text-primary text-xs font-medium group"
-              title={t.restoreHabit}
             >
               <ArchiveRestore className="h-3.5 w-3.5" />
               {t.restore}
-            </button>
+            </button></HelpTooltip>
           )}
-          <button
+          <HelpTooltip label={t.editHabit}><button
             onClick={() => onEditHabit?.(habit.id)}
             className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-secondary/50 hover:bg-primary/10 hover:border-primary transition-colors group"
-            title={t.editHabit}
             aria-label={formatMessage(t.editHabitNamed, { name: habit.name })}
           >
             <Pencil className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-          </button>
+          </button></HelpTooltip>
         </div>
       </td>
       <td className="overflow-hidden truncate whitespace-nowrap px-4 py-3 text-sm text-muted-foreground font-mono">{habit.time}</td>
@@ -476,7 +471,6 @@ const DesktopHabitRow = memo(function DesktopHabitRow({
             )}
             style={completed ? completedCellStyle(pillar) : undefined}
             aria-label={formatMessage(t.habitOnDate, { name: habit.name, date: di.monthDay })}
-            title={dailyProgress && dailyProgress.current > 0 ? `${dailyProgress.current}/${dailyProgress.goal} ${dailyProgress.unit}` : undefined}
           >
             {hasData && !completed && (
               <div className="absolute -top-1 -right-1 rounded-full p-0.5 bg-primary">
@@ -518,7 +512,7 @@ const DesktopHabitRow = memo(function DesktopHabitRow({
                 {cellButton}
               </HabitDataTooltip>
             ) : (
-              cellButton
+              <HelpTooltip label={dailyProgress && dailyProgress.current > 0 ? `${dailyProgress.current}/${dailyProgress.goal} ${dailyProgress.unit}` : undefined}>{cellButton}</HelpTooltip>
             )}
           </td>
         )
@@ -693,17 +687,16 @@ export function HabitGrid({
 
   /** Grip on the right edge of an info header. Double-click restores the default. */
   const resizeHandle = (col: (typeof INFO_COLS)[number]) => (
-    <span
+    <HelpTooltip label={formatMessage(t.resizeHint, { width: col.default })}><span
       role="separator"
       aria-orientation="vertical"
       aria-label={formatMessage(t.resizeColumn, { column: t.columns[col.key] })}
       onPointerDown={startResize(col.key, col.min)}
       onDoubleClick={() => resetColumn(col.key, col.default)}
-      title={formatMessage(t.resizeHint, { width: col.default })}
       className="absolute inset-y-0 right-0 z-10 flex w-2 translate-x-1/2 cursor-col-resize touch-none items-center justify-center"
     >
       <span className="h-1/2 w-px bg-border transition-colors group-hover/col:bg-primary" />
-    </span>
+    </span></HelpTooltip>
   )
 
   const tableWidth =
@@ -717,12 +710,10 @@ export function HabitGrid({
         ["time", t.sortTime, t.sortByTime, Clock],
         ["category", t.sortCategory, t.sortByCategory, Layers],
       ] as const).map(([id, label, sortTitle, Icon]) => (
-        <button
-          key={id}
+        <HelpTooltip key={id} label={sortTitle}><button
           type="button"
           onClick={() => setSortMode(id)}
           aria-pressed={sortMode === id}
-          title={sortTitle}
           className={cn(
             "flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium transition-colors",
             sortMode === id
@@ -732,7 +723,7 @@ export function HabitGrid({
         >
           <Icon className="h-3 w-3" aria-hidden />
           {label}
-        </button>
+        </button></HelpTooltip>
       ))}
     </div>
   )

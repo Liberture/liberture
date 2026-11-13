@@ -1,5 +1,6 @@
 "use client"
 
+import { HelpTooltip } from "@/components/ui/tooltip"
 import { CalendarPlus, Check, Clock, Edit2, Flag, Folder, ListChecks, Trash2 } from "lucide-react"
 import { differenceInCalendarDays, format, isPast, isToday, isTomorrow, isValid, parseISO } from "date-fns"
 import { Button } from "@/components/habits/ui/button"
@@ -128,15 +129,14 @@ export function TodoRow({
                 {completedLabel}
               </span>
               {deadlineDelta !== null && (
-                <span
-                  title={dueValid ? formatMessage(t.expectedBy, { date: format(dueDate, t.longDateFormat, { locale: dateLocale }) }) : undefined}
+                <HelpTooltip label={dueValid ? formatMessage(t.expectedBy, { date: format(dueDate, t.longDateFormat, { locale: dateLocale }) }) : undefined}><span
                   className={cn(
                     "rounded border px-1.5 py-0.5 text-[11px]",
                     deadlineDelta > 0 ? "border-destructive/30 bg-destructive/10 text-destructive" : "border-nutrition/30 bg-nutrition/10 text-nutrition",
                   )}
                 >
                   {deadlineLabel}
-                </span>
+                </span></HelpTooltip>
               )}
             </>
           ) : dueLabel ? (
@@ -178,32 +178,30 @@ export function TodoRow({
           or keyboard focus where a pointer can hover. */}
       <div className="col-start-2 flex justify-end gap-1 transition-opacity sm:col-start-auto sm:shrink-0 [@media(hover:hover)]:sm:opacity-0 [@media(hover:hover)]:sm:group-hover:opacity-100 [@media(hover:hover)]:sm:group-focus-within:opacity-100">
         {!completed && onSchedule && (
-          <Button
+          <HelpTooltip label={formatMessage(t.schedule, { title: todo.title })}><Button
             variant="ghost"
             size="sm"
             onClick={() => onSchedule(todo)}
             className="h-8 w-8 p-0 text-muted-foreground hover:text-primary"
             aria-label={formatMessage(t.schedule, { title: todo.title })}
-            title={formatMessage(t.schedule, { title: todo.title })}
           >
             <CalendarPlus className="h-4 w-4" />
-          </Button>
+          </Button></HelpTooltip>
         )}
         {onEdit && (
-          <Button variant="ghost" size="sm" onClick={() => onEdit(todo)} className="h-8 w-8 p-0 text-muted-foreground hover:text-primary" aria-label={t.edit} title={t.edit}>
+          <HelpTooltip label={t.edit}><Button variant="ghost" size="sm" onClick={() => onEdit(todo)} className="h-8 w-8 p-0 text-muted-foreground hover:text-primary" aria-label={t.edit}>
             <Edit2 className="h-4 w-4" />
-          </Button>
+          </Button></HelpTooltip>
         )}
-        <Button
+        <HelpTooltip label={t.delete}><Button
           variant="ghost"
           size="sm"
           onClick={() => onDelete(todo)}
           className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
           aria-label={t.delete}
-          title={t.delete}
         >
           <Trash2 className="h-4 w-4" />
-        </Button>
+        </Button></HelpTooltip>
       </div>
     </div>
   )

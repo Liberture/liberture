@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useCallback, useEffect, useId, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Bell, Code2, Database, Mic, SlidersHorizontal, UserRound, X } from "lucide-react"
 
 import { AssistantConnectSection, DeveloperSection } from "@/components/habits/assistant-access-section"
@@ -14,7 +14,7 @@ import { AppDialog } from "@/components/habits/ui/app-dialog"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import type { Habit, UserPreferences, UserProfile } from "@/lib/habits/types"
 import { DEFAULT_PREFERENCES } from "@/lib/habits/types"
-import { DialogTabs } from "./ui/dialog-tabs"
+import { Tabs, TabOptions, TabsContent } from "@/components/ui/tabs"
 
 export type { SettingsTab } from "@/components/habits/settings/settings-tabs"
 export type { BackupImport } from "@/components/habits/settings/data-tab"
@@ -82,7 +82,6 @@ export function SettingsDialog({
   onLogout,
 }: SettingsDialogProps) {
   const t = useTranslations().habits.app.settingsDialog
-  const idBase = useId()
   const [tab, setTab] = useState<SettingsTab>(initialTab ?? "profile")
 
   // Reopen on the tab used last unless the caller asked for one; a
@@ -109,8 +108,6 @@ export function SettingsDialog({
     onClose()
   }, [onClose])
 
-  const tabId = (id: SettingsTab) => `${idBase}-tab-${id}`
-  const panelId = (id: SettingsTab) => `${idBase}-panel-${id}`
 
   const header = (
     <div className="space-y-2 px-4 pt-3 sm:px-6">
@@ -125,12 +122,13 @@ export function SettingsDialog({
           <X className="h-4 w-4" />
         </button>
       </div>
-      <DialogTabs ids={SETTINGS_TABS} tab={tab} onChange={chooseTab} icons={TAB_ICONS}
-        labels={t.tabs} label={t.sections} idBase={idBase} />
+      <TabOptions ids={SETTINGS_TABS} icons={TAB_ICONS}
+        labels={t.tabs} label={t.sections} />
     </div>
   )
 
   return (
+    <Tabs variant="embedded" value={tab} onValueChange={value => chooseTab(value as SettingsTab)}>
     <AppDialog
       open
       onClose={handleClose}
@@ -139,7 +137,7 @@ export function SettingsDialog({
       header={header}
       className="h-[92dvh] sm:h-[min(760px,90dvh)] sm:max-w-4xl"
     >
-      <div role="tabpanel" id={panelId(tab)} aria-labelledby={tabId(tab)} tabIndex={0} className="space-y-4 outline-none">
+      <TabsContent value={tab} className="space-y-4">
         {tab === "profile" && (
           <ProfileTab
             apiKey={apiKey}
@@ -181,7 +179,8 @@ export function SettingsDialog({
             apiKey={apiKey}
           />
         )}
-      </div>
+      </TabsContent>
     </AppDialog>
+    </Tabs>
   )
 }

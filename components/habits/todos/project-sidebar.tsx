@@ -1,5 +1,6 @@
 "use client"
 
+import { HelpTooltip } from "@/components/ui/tooltip"
 import { useId, useState } from "react"
 import { Check, Edit2, FolderPlus, Plus, Trash2 } from "lucide-react"
 import { AppDialog } from "@/components/habits/ui/app-dialog"
@@ -166,24 +167,23 @@ export function ProjectSidebar({
           </div>
           <div className="mt-2 flex justify-end gap-1">
             {onDeleteProject && (
-              <Button
+              <HelpTooltip label={t.deleteProject}><Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setPendingDelete(projects.find((p) => p.id === editingProjectId) ?? null)}
                 className="h-8 w-8 p-0 text-destructive"
                 aria-label={t.deleteProject}
-                title={t.deleteProject}
               >
                 <Trash2 className="h-4 w-4" />
-              </Button>
+              </Button></HelpTooltip>
             )}
             <Button variant="outline" size="sm" onClick={() => setEditingProjectId(null)} className="h-8 px-2">
               {t.cancel}
             </Button>
             {onUpdateProject && (
-              <Button size="sm" onClick={saveProject} disabled={!draftName.trim()} className="h-8 w-8 p-0" aria-label={t.saveProject} title={t.saveProject}>
+              <HelpTooltip label={t.saveProject}><Button size="sm" onClick={saveProject} disabled={!draftName.trim()} className="h-8 w-8 p-0" aria-label={t.saveProject}>
                 <Check className="h-4 w-4" />
-              </Button>
+              </Button></HelpTooltip>
             )}
           </div>
         </div>

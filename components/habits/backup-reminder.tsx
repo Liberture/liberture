@@ -1,5 +1,6 @@
 "use client"
 
+import { HelpTooltip } from "@/components/ui/tooltip"
 import { useCallback, useEffect, useState } from "react"
 import { Download, ShieldAlert, X } from "lucide-react"
 
@@ -90,15 +91,14 @@ export function BackupReminder({ habits, lastBackupAt, onExport }: BackupReminde
           {t.backUpNow}
         </button>
       </div>
-      <button
+      <HelpTooltip label={formatMessage(t.remindLater, { count: SNOOZE_DAYS })}><button
         type="button"
         onClick={snooze}
         aria-label={formatMessage(t.remindLater, { count: SNOOZE_DAYS })}
-        title={formatMessage(t.remindLater, { count: SNOOZE_DAYS })}
         className="shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       >
         <X className="h-4 w-4" aria-hidden />
-      </button>
+      </button></HelpTooltip>
     </div>
   )
 }

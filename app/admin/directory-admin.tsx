@@ -1,5 +1,6 @@
 "use client";
 
+import { HelpTooltip } from "@/components/ui/tooltip"
 import { FieldSelect, FieldOption } from "@/components/ui/select"
 import { useState, useEffect } from "react";
 import { Search, Plus, Edit, Trash2, Sparkles, ExternalLink, Zap, Loader2, X, Save } from "lucide-react";
@@ -267,15 +268,14 @@ export default function DirectoryAdmin() {
                       </span>
                     )}
                     {item.wikipedia && (
-                      <a
+                      <HelpTooltip label="Wikipedia"><a
                         href={item.wikipedia}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-400 hover:text-blue-300"
-                        title="Wikipedia"
                       >
                         <ExternalLink className="w-4 h-4" />
-                      </a>
+                      </a></HelpTooltip>
                     )}
                   </div>
                   {item.author && (
@@ -310,28 +310,25 @@ export default function DirectoryAdmin() {
 
                 <div className="flex items-center gap-2 ml-4">
                   {activeType !== "articles" && (
-                    <button
+                    <HelpTooltip label="Enrich with AI"><button
                       onClick={() => enrichItem(item)}
                       className="p-2 bg-green-500/20 text-green-400 rounded hover:bg-green-500/30 transition-colors"
-                      title="Enrich with AI"
                     >
                       <Sparkles className="w-4 h-4" />
-                    </button>
+                    </button></HelpTooltip>
                   )}
-                  <button
+                  <HelpTooltip label="Edit"><button
                     onClick={() => setEditingItem(item)}
                     className="p-2 bg-blue-500/20 text-blue-400 rounded hover:bg-blue-500/30 transition-colors"
-                    title="Edit"
                   >
                     <Edit className="w-4 h-4" />
-                  </button>
-                  <button
+                  </button></HelpTooltip>
+                  <HelpTooltip label="Delete"><button
                     onClick={() => deleteItem(item)}
                     className="p-2 bg-red-500/20 text-red-400 rounded hover:bg-red-500/30 transition-colors"
-                    title="Delete"
                   >
                     <Trash2 className="w-4 h-4" />
-                  </button>
+                  </button></HelpTooltip>
                 </div>
               </div>
             </div>

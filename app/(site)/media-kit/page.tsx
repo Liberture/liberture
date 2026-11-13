@@ -1,5 +1,6 @@
 "use client"
 
+import { HelpTooltip } from "@/components/ui/tooltip"
 import { useState, useCallback } from 'react'
 import { Download, Copy, Check, Package, Image, Type, Palette, FileText, Monitor, Brain, Briefcase, Leaf, Moon, Dumbbell, Wallet, Layers, FileJson } from 'lucide-react'
 import { LandingSection } from '../(landing)/landing-section'
@@ -553,11 +554,9 @@ export default function MediaKitPage() {
               <h3 className="text-lg font-semibold mb-6">Logo Sizes</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 text-center">
                 {LOGO_SIZES.map(({ size, label, desc }) => (
-                  <button
-                    key={size}
+                  <HelpTooltip key={size} label={`Download ${label} PNG`}><button
                     onClick={() => downloadPNG(generateLogoSVG(size), `liberture-logo-${size}.png`, size, size)}
                     className="group cursor-pointer"
-                    title={`Download ${label} PNG`}
                   >
                     <div className="flex justify-center items-center h-24 bg-background rounded-xl mb-3 group-hover:ring-2 ring-primary/50 transition-all">
                       <LibertureLogoStatic size={Math.min(size, 64)} />
@@ -565,7 +564,7 @@ export default function MediaKitPage() {
                     <p className="text-sm font-medium">{label}</p>
                     <p className="text-xs text-muted-foreground">{desc}</p>
                     <Download className="h-3 w-3 mx-auto mt-1 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </button>
+                  </button></HelpTooltip>
                 ))}
               </div>
               <p className="text-xs text-muted-foreground mt-4 text-center">Click any size to download as PNG (2x retina)</p>
@@ -729,18 +728,16 @@ export default function MediaKitPage() {
             <div className="p-8 rounded-2xl bg-card border border-border/50">
               <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-6 text-center">
                 {ICON_SIZES.map(({ size, name }) => (
-                  <button
-                    key={size}
+                  <HelpTooltip key={size} label={`Download ${size}x${size} PNG`}><button
                     onClick={() => downloadPNG(generateIconSVG(size), `${name}.png`, size, size, size <= 64 ? 1 : 2)}
                     className="group cursor-pointer"
-                    title={`Download ${size}x${size} PNG`}
                   >
                     <div className="flex justify-center items-center h-20 bg-background rounded-xl mb-2 group-hover:ring-2 ring-primary/50 transition-all">
                       <SVGPreview svg={generateIconSVG(Math.min(size, 48))} />
                     </div>
                     <p className="text-xs font-medium">{size}px</p>
                     <Download className="h-3 w-3 mx-auto mt-1 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </button>
+                  </button></HelpTooltip>
                 ))}
               </div>
               <p className="text-xs text-muted-foreground mt-4 text-center">Click any size to download as PNG</p>

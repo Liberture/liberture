@@ -34,9 +34,13 @@ import { MarketplaceSearch } from "./marketplace-search"
 import { ProtocolReader } from "./protocol-reader"
 
 interface MarketplaceViewProps {
-  habits: Habit[]
-  onAdoptProtocol: (protocol: CatalogProtocol) => void
-  onAdoptHabit: (habit: CatalogHabit) => void
+  catalog?: CatalogProtocol[]
+  heading?: React.ReactNode
+  adopted?: Set<string>
+  shareable?: boolean
+  habits?: Habit[]
+  onAdoptProtocol?: (protocol: CatalogProtocol) => void
+  onAdoptHabit?: (habit: CatalogHabit) => void
 }
 
 /**
@@ -44,7 +48,9 @@ interface MarketplaceViewProps {
  * re-renders whenever it becomes active again. With stable props that is pure
  * waste — this component is one of the expensive ones to rebuild.
  */
-export const MarketplaceView = memo(function MarketplaceView({ habits, onAdoptProtocol, onAdoptHabit }: MarketplaceViewProps) {
+const EMPTY_HABITS: Habit[] = []
+
+export const MarketplaceView = memo(function MarketplaceView({ habits = EMPTY_HABITS, catalog = CATALOG_PROTOCOLS, heading, adopted, shareable, onAdoptProtocol, onAdoptHabit }: MarketplaceViewProps) {
   const t = useTranslations().habits.app.marketplaceView
   const labels = useCatalogLabels()
   const [filter, setFilter] = useState<CatalogFilter>(DEFAULT_FILTER)
@@ -52,13 +58,13 @@ export const MarketplaceView = memo(function MarketplaceView({ habits, onAdoptPr
   const [readingSlug, setReadingSlug] = useState<string | null>(null)
 
   const habitSlugs = useMemo(() => adoptedSlugs(habits), [habits])
-  const protocolSlugs = useMemo(() => adoptedProtocolSlugs(habits, CATALOG_PROTOCOLS), [habits])
+  const protocolSlugs = useMemo(() => adopted ?? adoptedProtocolSlugs(habits, catalog), [adopted, habits, catalog])
 
-  const protocols = useMemo(() => filterProtocols(CATALOG_PROTOCOLS, filter), [filter])
+  const protocols = useMemo(() => filterProtocols(catalog, filter), [catalog, filter])
   const standalone = useMemo(() => filterCatalogHabits(STANDALONE_HABITS, filter), [filter])
 
   const author = CATALOG_AUTHORS.find(author => author.id === filter.authorId)
-  const reading = readingSlug ? CATALOG_PROTOCOLS.find((p) => p.slug === readingSlug) : undefined
+  const reading = readingSlug ? catalog.find((p) => p.slug === readingSlug) : undefined
   const activeCount = activeFilterCount(filter)
 
   const update = useCallback(
@@ -69,14 +75,14 @@ export const MarketplaceView = memo(function MarketplaceView({ habits, onAdoptPr
 
   return (
     <div className="mx-auto w-full max-w-6xl space-y-6">
-      <header className="space-y-2 text-center">
+      {heading ?? <header className="space-y-2 text-center">
         <h2 className="flex items-center justify-center gap-2 text-xl font-bold tracking-tight text-foreground">
           <Store aria-hidden className="size-5 text-primary" /> {t.title}
         </h2>
         <p className="mx-auto max-w-2xl text-sm text-muted-foreground">{t.description}</p>
-      </header>
+      </header>}
 
-      <MarketplaceSearch query={draft} onQuery={setDraft} author={author}
+      <MarketplaceSearch catalog={catalog} query={draft} onQuery={setDraft} author={author}
         onSearch={() => update("query", draft.trim())}
         onRemoveAuthor={() => update("authorId", "all")}
         onAuthor={authorId => {
@@ -139,14 +145,14 @@ export const MarketplaceView = memo(function MarketplaceView({ habits, onAdoptPr
                 protocol={protocol}
                 adopted={protocolSlugs.has(protocol.slug)}
                 onRead={() => setReadingSlug(protocol.slug)}
-                onAdopt={() => onAdoptProtocol(protocol)}
+                onAdopt={onAdoptProtocol && (() => onAdoptProtocol(protocol))}
               />
             ))}
           </div>
         )}
       </section>
 
-      {filter.authorId === "all" ? (
+      {onAdoptHabit && filter.authorId === "all" ? (
         <section className="space-y-4">
           <h3 className="text-sm font-semibold uppercase tracking-wide text-foreground/70">
             {formatMessage(t.singleHabitsHeading, { count: standalone.length })}
@@ -172,10 +178,11 @@ export const MarketplaceView = memo(function MarketplaceView({ habits, onAdoptPr
         <ProtocolReader
           protocol={reading}
           adopted={protocolSlugs.has(reading.slug)}
-          onAdopt={() => {
+          shareable={shareable}
+          onAdopt={onAdoptProtocol && (() => {
             onAdoptProtocol(reading)
             setReadingSlug(null)
-          }}
+          })}
           onClose={() => setReadingSlug(null)}
         />
       ) : null}

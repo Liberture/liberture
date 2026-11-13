@@ -1,8 +1,8 @@
 "use client"
 
-import * as Tabs from "@radix-ui/react-tabs"
-import { useEffect } from "react"
-import { AlertTriangle, Check, ExternalLink, Plus, Sparkles, Wallet, X } from "lucide-react"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { useEffect, useState } from "react"
+import { AlertTriangle, Check, Download, Share2, ExternalLink, Plus, Sparkles, Wallet, X } from "lucide-react"
 
 import { PILLAR_STYLES } from "@/lib/habits/pillars"
 import type { CatalogProtocol } from "@/lib/habits/protocols/catalog"
@@ -12,13 +12,15 @@ import { cn } from "@/lib/utils"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage, plural } from "@/lib/i18n-format"
 
+import { sourceLabel } from "@/lib/tracker/catalog"
 import { ProtocolArtwork } from "./protocol-artwork"
 import { DifficultyTag, PillarTag, useCatalogLabels } from "./pillar-tag"
 
 interface ProtocolReaderProps {
   protocol: CatalogProtocol
   adopted: boolean
-  onAdopt: () => void
+  shareable?: boolean
+  onAdopt?: () => void
   onClose: () => void
 }
 
@@ -27,7 +29,7 @@ interface ProtocolReaderProps {
  * for, and the references behind it. The point of the marketplace is that a user
  * decides with evidence in front of them, not from a title.
  */
-export function ProtocolReader({ protocol, adopted, onAdopt, onClose }: ProtocolReaderProps) {
+export function ProtocolReader({ protocol, adopted, onAdopt, onClose, shareable }: ProtocolReaderProps) {
   const t = useTranslations().habits.app.protocolReader
   const labels = useCatalogLabels()
   const styles = PILLAR_STYLES[protocol.pillar]
@@ -42,9 +44,60 @@ export function ProtocolReader({ protocol, adopted, onAdopt, onClose }: Protocol
     return () => document.removeEventListener("keydown", onKey)
   }, [onClose])
 
+  const [shared, setShared] = useState(false)
+  const share = async () => {
+    const url = `${window.location.origin}/protocols/${protocol.slug}`
+    // Native sheet where it exists (mostly mobile), clipboard everywhere else.
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: protocol.name, text: protocol.tagline, url })
+        return
+      } catch {
+        // Dismissing the share sheet is not an error worth surfacing.
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url)
+      setShared(true)
+      window.setTimeout(() => setShared(false), 2000)
+    } catch {
+      window.prompt("Copy this protocol's link:", url)
+    }
+  }
+
+  const download = () => {
+    const payload = {
+      slug: protocol.slug,
+      name: protocol.name,
+      pillar: protocol.pillar,
+      difficulty: protocol.difficulty,
+      duration: protocol.duration,
+      description: protocol.description,
+      why: protocol.why,
+      benefits: protocol.benefits,
+      risks: protocol.risks,
+      evidence: protocol.evidence.map(sourceLabel),
+      habits: protocol.habits.map((h) => ({
+        slug: h.slug,
+        name: h.name,
+        why: h.why,
+        time: h.time,
+        schedule: h.schedule,
+      })),
+      source: `https://liberture.com/protocols/${protocol.slug}`,
+    }
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `${protocol.slug}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <ModalPortal>
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-background/80 backdrop-blur-sm sm:items-center sm:p-6">
+    <div className="fixed inset-0 z-[100] flex items-end justify-center bg-background/80 backdrop-blur-sm sm:items-center sm:p-6">
       <button
         type="button"
         aria-label={t.closeProtocolAria}
@@ -89,15 +142,15 @@ export function ProtocolReader({ protocol, adopted, onAdopt, onClose }: Protocol
                 <div><dt className="text-xs text-muted-foreground">{t.habits}</dt><dd>{protocol.habits.length}</dd></div>
               </dl>
             </aside>
-            <Tabs.Root defaultValue="overview" className="min-w-0 md:col-start-1 md:row-start-1">
-              <Tabs.List aria-label={protocol.name} className="flex flex-wrap gap-1 rounded-xl bg-secondary/60 p-1">
+            <Tabs defaultValue="overview" className="min-w-0 md:col-start-1 md:row-start-1">
+              <TabsList aria-label={protocol.name}>
                 {(["overview", "routine", "resources", "evidence"] as const).map(tab => (
-                  <Tabs.Trigger key={tab} value={tab} className="flex-1 rounded-lg px-2 py-2 text-sm font-medium text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <TabsTrigger key={tab} value={tab}>
                     {t.tabs[tab]}
-                  </Tabs.Trigger>
+                  </TabsTrigger>
                 ))}
-              </Tabs.List>
-              <Tabs.Content value="overview" className="mt-5 space-y-5">
+              </TabsList>
+              <TabsContent value="overview" className="space-y-5">
                 <p className="text-sm leading-relaxed text-muted-foreground">{protocol.description}</p>
 
                 <Section title={t.whyItWorks}>
@@ -127,8 +180,8 @@ export function ProtocolReader({ protocol, adopted, onAdopt, onClose }: Protocol
                     </ul>
                   </Section>
                 ) : null}
-              </Tabs.Content>
-              <Tabs.Content value="routine" className="mt-5 space-y-5">
+              </TabsContent>
+              <TabsContent value="routine" className="space-y-5">
                 <Section title={t.howToRun}>
                   <ol className="space-y-2.5">
                     {protocol.steps.map((step, index) => (
@@ -170,8 +223,8 @@ export function ProtocolReader({ protocol, adopted, onAdopt, onClose }: Protocol
                     ))}
                   </ul>
                 </Section>
-              </Tabs.Content>
-              <Tabs.Content value="resources" className="mt-5 space-y-5">
+              </TabsContent>
+              <TabsContent value="resources" className="space-y-5">
                 {protocol.equipment.length > 0 ? (
                   <Section title={t.whatYouNeed}>
                     <div className="flex flex-wrap gap-2">
@@ -229,8 +282,8 @@ export function ProtocolReader({ protocol, adopted, onAdopt, onClose }: Protocol
                     ) : null}
                   </div>
                 </Section>
-              </Tabs.Content>
-              <Tabs.Content value="evidence" className="mt-5 space-y-5">
+              </TabsContent>
+              <TabsContent value="evidence" className="space-y-5">
                 {/* Who is making the claim. Matters more here than it does elsewhere. */}
                 {protocol.author ? (
                   <div className="rounded-lg border border-border bg-background/40 p-3">
@@ -302,13 +355,43 @@ export function ProtocolReader({ protocol, adopted, onAdopt, onClose }: Protocol
                     })}
                   </ul>
                 </Section>
-              </Tabs.Content>
-            </Tabs.Root>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
 
         <footer className="flex shrink-0 gap-3 border-t border-border bg-card/95 p-4 sm:p-5">
-          <button
+              {shareable ? (
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={share}
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/15 px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-white/30 hover:text-foreground sm:flex-none"
+                  >
+                    {shared ? (
+                      <>
+                        <Check className="h-4 w-4" aria-hidden />
+                        Link copied
+                      </>
+                    ) : (
+                      <>
+                        <Share2 className="h-4 w-4" aria-hidden />
+                        Share
+                      </>
+                    )}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={download}
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/15 px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-white/30 hover:text-foreground sm:flex-none"
+                  >
+                    <Download className="h-4 w-4" aria-hidden />
+                    Download
+                  </button>
+                </div>
+              ) : null}
+
+          {onAdopt && <button
             type="button"
             onClick={onAdopt}
             disabled={adopted}
@@ -330,7 +413,7 @@ export function ProtocolReader({ protocol, adopted, onAdopt, onClose }: Protocol
                 {plural(t.addHabits, protocol.habits.length)}
               </>
             )}
-          </button>
+          </button>}
         </footer>
       </div>
     </div>

@@ -17,7 +17,7 @@ export default function AdminPanel() {
         </div>
 
         <Tabs defaultValue="directory" className="w-full">
-          <TabsList className="bg-slate-800/50 border border-slate-700 flex-wrap h-auto gap-1 p-1">
+          <TabsList aria-label="Admin">
             <TabsTrigger value="directory" className="text-xs md:text-sm">Directory</TabsTrigger>
             <TabsTrigger value="enrichment" className="text-xs md:text-sm">Enrichment</TabsTrigger>
             <TabsTrigger value="marketplace" className="text-xs md:text-sm">Marketplace</TabsTrigger>

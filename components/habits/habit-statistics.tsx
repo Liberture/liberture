@@ -1,5 +1,6 @@
 "use client"
 
+import { HelpTooltip, tooltipSurface } from "@/components/ui/tooltip"
 import { memo, useEffect, useMemo, useState } from "react"
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, parseISO, subWeeks, subMonths, subDays, isWithinInterval, getDay } from "date-fns"
 import type { Habit, HabitCompletion } from "@/lib/habits/types"
@@ -464,7 +465,7 @@ export const HabitStatistics = memo(function HabitStatistics({
   const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: Array<{ value: number; name: string; color?: string; payload?: { fullDate?: string } }>; label?: string }) => {
     if (!active || !payload?.length) return null
     return (
-      <div className="bg-popover border border-border rounded-lg shadow-lg p-3 text-xs">
+      <div className={cn(tooltipSurface, "p-3 text-xs")}>
         <p className="font-semibold text-foreground mb-1">{payload[0].payload?.fullDate ?? label}</p>
         {payload.map((p, i) => (
           <p key={i} className="text-muted-foreground">
@@ -577,14 +578,13 @@ export const HabitStatistics = memo(function HabitStatistics({
             <div className="flex items-center justify-center gap-1 mb-1">
               <Flame className="h-4 w-4 text-exercise" />
             </div>
-            <div
+            <HelpTooltip label={topStreak ? plural(topStreak.unit === "weeks" ? t.streakWeeks : t.streakDays, topStreak.currentStreak) : undefined}><div
               className="text-2xl font-bold text-foreground"
-              title={topStreak ? plural(topStreak.unit === "weeks" ? t.streakWeeks : t.streakDays, topStreak.currentStreak) : undefined}
             >
               {topStreak?.unit === "weeks"
                 ? formatMessage(t.streakWeeksShort, { count: topStreak.currentStreak })
                 : topStreak?.currentStreak ?? 0}
-            </div>
+            </div></HelpTooltip>
             <div className="text-xs text-muted-foreground mt-1">{t.bestActiveStreak}</div>
           </div>
           <div className="text-center p-4 rounded-lg bg-muted/30 border border-border/50">
@@ -801,7 +801,7 @@ export const HabitStatistics = memo(function HabitStatistics({
                       <Tooltip content={({ active, payload, label }) => {
                         if (!active || !payload?.length) return null
                         return (
-                          <div className="bg-popover border border-border rounded-lg shadow-lg p-3 text-xs">
+                          <div className={cn(tooltipSurface, "p-3 text-xs")}>
                             <p className="font-semibold text-foreground mb-1">{(payload[0].payload as { fullDate?: string } | undefined)?.fullDate ?? label}</p>
                             {payload.map((p, i) => (
                               p.value !== null && <p key={i} className="text-muted-foreground">

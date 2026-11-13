@@ -1,3 +1,5 @@
+import { Github, Instagram, Linkedin } from "lucide-react"
+import { BrandMark, SocialIcon } from "@/components/ui/social-icon"
 import Link from "next/link"
 
 import { MicroterrainRidge } from "@/components/patterns"
@@ -8,11 +10,11 @@ import type { Locale } from "@/lib/translations"
 const linkClass = "text-sm text-muted-foreground hover:text-foreground transition-colors"
 
 const SOCIAL = [
-  { href: "https://github.com/liberture/liberture", label: "GitHub" },
-  { href: "https://medium.com/liberture", label: "Medium" },
-  { href: "https://x.com/liberture", label: "Twitter/X" },
-  { href: "https://linkedin.com/company/liberture", label: "LinkedIn" },
-  { href: "https://instagram.com/liberture", label: "Instagram" },
+  { href: "https://github.com/liberture/liberture", label: "GitHub · liberture/liberture", icon: <Github /> },
+  { href: "https://medium.com/liberture", label: "Medium · @liberture", icon: <BrandMark brand="medium" /> },
+  { href: "https://x.com/liberture", label: "X · @liberture", icon: <BrandMark brand="x" /> },
+  { href: "https://linkedin.com/company/liberture", label: "LinkedIn · @liberture", icon: <Linkedin /> },
+  { href: "https://instagram.com/liberture", label: "Instagram · @liberture", icon: <Instagram /> },
 ]
 
 export function LandingFooter({ locale }: { locale: Locale }) {
@@ -63,11 +65,14 @@ export function LandingFooter({ locale }: { locale: Locale }) {
       <div className="container relative z-10 mx-auto max-w-7xl">
         <div className="grid grid-cols-2 md:grid-cols-6 gap-8 mb-8">
           {/* Brand */}
-          <div className="col-span-2 md:col-span-1">
+          <div className="col-span-2">
             <Link href="/" className="flex items-center group mb-4">
               <LibertureWordmark height={28} />
             </Link>
             <p className="text-sm text-muted-foreground">{f.tagline}</p>
+            <div className="mt-3 flex flex-wrap gap-1">
+              {SOCIAL.map(s => <SocialIcon key={s.href} href={s.href} label={s.label}>{s.icon}</SocialIcon>)}
+            </div>
           </div>
 
           {/* Pillars */}
@@ -95,17 +100,7 @@ export function LandingFooter({ locale }: { locale: Locale }) {
             </div>
           ))}
 
-          {/* Social */}
-          <div>
-            <h3 className="font-semibold mb-3">{f.connect}</h3>
-            <div className="flex flex-col gap-2">
-              {SOCIAL.map((s) => (
-                <Link key={s.href} href={s.href} target="_blank" rel="noopener noreferrer" className={linkClass}>
-                  {s.label}
-                </Link>
-              ))}
-            </div>
-          </div>
+
         </div>
 
         <div className="border-t border-border/50 pt-6">

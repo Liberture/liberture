@@ -1,3 +1,4 @@
+import { TooltipProvider } from "@/components/ui/tooltip"
 import type React from "react"
 import type { Metadata, Viewport } from "next"
 import { Inter, Geist_Mono } from "next/font/google"
@@ -118,7 +119,7 @@ export default async function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark" themes={["dark"]} enableSystem={false} disableTransitionOnChange>
           <LocaleProvider locale={locale}>
             <NostrAuthProvider>
-              <HabitsSessionProvider>{children}</HabitsSessionProvider>
+              <HabitsSessionProvider><TooltipProvider delayDuration={250}>{children}</TooltipProvider></HabitsSessionProvider>
             </NostrAuthProvider>
           </LocaleProvider>
         </ThemeProvider>

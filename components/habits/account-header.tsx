@@ -1,5 +1,6 @@
 "use client"
 
+import { HelpTooltip } from "@/components/ui/tooltip"
 import { useState } from "react"
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 import { BadgeCheck, ChevronDown, Download, LogOut, Mic, Settings, UserRound } from "lucide-react"
@@ -160,11 +161,10 @@ export function AccountHeader({ pubkey, fallbackName, onOpenSettings, onExport, 
       </DropdownMenu.Root>
 
       {compact ? (
-        <button
+        <HelpTooltip label={t.openSettings}><button
           type="button"
           onClick={() => onOpenSettings("preferences")}
           aria-label={t.openSettings}
-          title={t.openSettings}
           className={cn(
             // Same height as the account card next to it.
             "flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-border/60 bg-muted/50 text-foreground transition-colors lg:hidden",
@@ -173,7 +173,7 @@ export function AccountHeader({ pubkey, fallbackName, onOpenSettings, onExport, 
           )}
         >
           <Settings className="h-5 w-5" aria-hidden />
-        </button>
+        </button></HelpTooltip>
       ) : null}
 
       <AppDialog
