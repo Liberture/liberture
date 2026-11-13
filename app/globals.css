@@ -128,12 +128,12 @@
 }
 
 @keyframes topo-drift {
-  from { transform: translate(-3%, 2%) rotate(-2deg); }
-  to { transform: translate(3%, -2%) rotate(2deg); }
+  from { translate: -3% 2%; rotate: -2deg; }
+  to { translate: 3% -2%; rotate: 2deg; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .topo-layer {
+  .topo-layer, .topo-art {
     animation: topo-drift 18s ease-in-out -5s infinite alternate;
   }
 

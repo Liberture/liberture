@@ -69,7 +69,7 @@ function patternBase(assetFile: string): (props: PatternProps) => JSX.Element {
     return (
       <div
         aria-hidden
-        className={`pointer-events-none absolute ${className}`}
+        className={`topo-art pointer-events-none absolute ${className}`}
         style={{
           ...dimensionStyle,
           ...insetStyle,
