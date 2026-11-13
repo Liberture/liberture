@@ -1,0 +1,47 @@
+import Link from "next/link"
+import type { Organization } from "@prisma/client"
+
+export function OrganizationCard({ org }: { org: Pick<Organization, "slug" | "name" | "type" | "description" | "pillars" | "featured" | "founded"> }) {
+  const pillars = (org.pillars || '').split(',').map(p => p.trim()).filter(Boolean);
+
+  return (
+    <Link
+      href={`/organizations/${org.slug}`}
+      className="group relative overflow-hidden rounded-2xl border border-slate-700 bg-slate-900/50 p-6 transition-all hover:border-cyan-500 hover:shadow-xl hover:shadow-cyan-500/20"
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+      <div className="relative">
+        {org.featured && (
+          <div className="absolute top-0 right-0 bg-cyan-500 text-white text-xs px-2 py-1 rounded-bl-lg rounded-tr-lg">
+            Featured
+          </div>
+        )}
+
+        <h2 className="text-2xl font-bold mb-2 group-hover:text-cyan-400 transition-colors">
+          {org.name}
+        </h2>
+
+        <p className="text-cyan-400 text-sm mb-3 capitalize">{org.type}</p>
+
+        <p className="text-slate-400 mb-4 line-clamp-3">{org.description}</p>
+
+        <div className="flex flex-wrap gap-2 mb-4">
+          {pillars.slice(0, 3).map((pillar, i) => (
+            <span
+              key={i}
+              className="px-2 py-1 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-medium border border-cyan-500/30"
+            >
+              {pillar}
+            </span>
+          ))}
+        </div>
+
+        {org.founded && (
+          <div className="text-sm text-slate-500">
+            Founded: {org.founded}
+          </div>
+        )}
+      </div>
+    </Link>
+  );
+}

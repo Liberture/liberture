@@ -1,3 +1,4 @@
+import { DirectoryLayout } from "@/components/directory/layout"
 
 
 
@@ -37,13 +38,12 @@ export default function OrganizationDetails({ organization }: { organization: Or
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white">
+    <DirectoryLayout>
       {/* JSON-LD Schema */}
       <JsonLd data={organizationSchema} />
       <BreadcrumbSchema items={[...sectionTrail("organizations"), {name:organization.name, url:`https://liberture.com/organizations/${organization.slug}`}]} />
       
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-5xl mx-auto">
+      <div className="mx-auto max-w-5xl">
           <div className="mb-8">
             <BackLink fallback="/organizations" />
           </div>
@@ -128,7 +128,6 @@ export default function OrganizationDetails({ organization }: { organization: Or
             </div>
           </div>
         </div>
-      </div>
-    </div>
+    </DirectoryLayout>
   );
 }

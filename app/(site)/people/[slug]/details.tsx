@@ -1,3 +1,4 @@
+import { DirectoryLayout } from "@/components/directory/layout"
 "use client";
 
 import { BackLink } from "@/components/seo/back-link"
@@ -89,9 +90,8 @@ export default function PersonDetails({ person, children }: { person: Person; ch
         image={person.imageUrl || undefined}
       />
       <BreadcrumbSchema items={[...sectionTrail("people"), {name:person.name, url:`https://liberture.com/people/${person.slug}`}]} />
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white">
-        <div className="container mx-auto px-4 py-16">
-        <div className="max-w-5xl mx-auto">
+      <DirectoryLayout>
+        <div className="mx-auto max-w-5xl">
           <div className="mb-8">
             <BackLink fallback="/people" />
           </div>
@@ -266,8 +266,7 @@ export default function PersonDetails({ person, children }: { person: Person; ch
           </div>
           {children}
         </div>
-      </div>
-      </div>
+    </DirectoryLayout>
     </>
   );
 }

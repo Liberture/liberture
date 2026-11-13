@@ -1,3 +1,4 @@
+import { DirectoryLayout } from "@/components/directory/layout"
 
 
 
@@ -72,7 +73,7 @@ export default function ProtocolDetails({ protocol }: { protocol: Protocol }) {
   const image = protocolImage(protocol.slug);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white">
+    <DirectoryLayout>
       {/* JSON-LD Schema */}
       <ArticleSchema
         title={protocol.name}
@@ -85,8 +86,7 @@ export default function ProtocolDetails({ protocol }: { protocol: Protocol }) {
       />
       <BreadcrumbSchema items={[...sectionTrail("protocols"), {name:protocol.name, url:`https://liberture.com/protocols/${protocol.slug}`}]} />
       
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-5xl mx-auto">
+      <div className="mx-auto max-w-5xl">
           <div className="mb-8">
             <BackLink fallback="/protocols" />
           </div>
@@ -308,7 +308,6 @@ export default function ProtocolDetails({ protocol }: { protocol: Protocol }) {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+    </DirectoryLayout>
   );
 }

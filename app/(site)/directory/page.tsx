@@ -1,13 +1,18 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Fragment, type ReactNode } from "react"
 import { Search, Users, Building2, Zap, BookOpen, FileText, ArrowRight } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { motion } from "framer-motion"
+import { PersonCard } from "@/components/people/person-card"
+import { BookCard } from "@/components/directory/book-card"
+import { OrganizationCard } from "@/components/directory/org-card"
+import { ArticleCard } from "@/components/directory/article-card"
+import { ProtocolCard } from "@/components/habits/marketplace/protocol-card"
+import { findProtocol } from "@/lib/habits/protocols/catalog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { TriadBasins, VortexShell } from "@/components/patterns"
+import { DirectoryLayout, DirectoryHeader, DirectoryGrid } from "@/components/directory/layout"
 
 type EntityType = "all" | "people" | "organizations" | "protocols" | "books" | "articles"
 
@@ -18,6 +23,7 @@ interface DirectoryItem {
   description: string
   slug: string
   tags?: string[]
+  card: ReactNode
 }
 
 export default function DirectoryPage() {
@@ -29,7 +35,7 @@ export default function DirectoryPage() {
     const url = new URL(window.location.href)
     if (value && !(key === "type" && value === "all")) url.searchParams.set(key,value)
     else url.searchParams.delete(key)
-    window.history.replaceState(window.history.state,"",url)
+    window.history.replaceState(null, "", url)
   }
   const [allItems, setAllItems] = useState<DirectoryItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -51,6 +57,7 @@ export default function DirectoryPage() {
             id: p.id,
             name: p.name,
             type: "people" as EntityType,
+            card: <PersonCard person={p} featuredLabel="Featured" />,
             description: p.bio || p.description || "",
             slug: p.slug,
             tags: p.pillars ? p.pillars.split(',').map((s: string) => s.trim()) : [],
@@ -59,6 +66,7 @@ export default function DirectoryPage() {
             id: o.id,
             name: o.name,
             type: "organizations" as EntityType,
+            card: <OrganizationCard org={o} />,
             description: o.description || "",
             slug: o.slug,
             tags: o.pillars ? o.pillars.split(',').map((s: string) => s.trim()) : [],
@@ -67,6 +75,7 @@ export default function DirectoryPage() {
             id: p.id,
             name: p.name,
             type: "protocols" as EntityType,
+            card: <DirectoryProtocol protocol={p} />,
             description: p.description || "",
             slug: p.slug,
             tags: [p.pillar].filter(Boolean),
@@ -75,6 +84,7 @@ export default function DirectoryPage() {
             id: b.id,
             name: b.title,
             type: "books" as EntityType,
+            card: <BookCard book={b} />,
             description: b.description || "",
             slug: b.slug,
             tags: b.pillars ? b.pillars.split(',').map((s: string) => s.trim()) : [],
@@ -83,6 +93,7 @@ export default function DirectoryPage() {
             id: a.id,
             name: a.title,
             type: "articles" as EntityType,
+            card: <ArticleCard article={{ ...a, tags: Array.isArray(a.tags) ? a.tags.join(",") : a.tags }} />,
             description: a.description || "",
             slug: a.slug,
             tags: Array.isArray(a.tags) ? a.tags : [a.pillar].filter(Boolean),
@@ -146,33 +157,8 @@ export default function DirectoryPage() {
   ]
 
   return (
-    <div className="relative min-h-screen overflow-hidden py-20 px-4">
-      <VortexShell
-        placement="corner"
-        gradient="plasma"
-        size="500px"
-        className="-right-20 -top-20"
-        opacity={0.15}
-      />
-      <TriadBasins
-        placement="corner"
-        gradient="acidLime"
-        size="380px"
-        className="-left-24 top-1/2"
-        opacity={0.1}
-      />
-
-      <div className="container relative mx-auto max-w-6xl">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            Biohacking Directory
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Discover the people, organizations, protocols, and knowledge shaping human optimization.
-          </p>
-        </div>
-
+    <DirectoryLayout>
+        <DirectoryHeader title="Biohacking Directory" description="Discover the people, organizations, protocols, and knowledge shaping human optimization." />
         {/* Search Bar */}
         <div className="mb-8">
           <div className="relative max-w-2xl mx-auto">
@@ -195,6 +181,7 @@ export default function DirectoryPage() {
             return (
               <Button
                 key={filter.value}
+                aria-pressed={isActive}
                 variant={isActive ? "default" : "outline"}
                 size="sm"
                 onClick={() => updateFilter("type", filter.value)}
@@ -296,8 +283,7 @@ export default function DirectoryPage() {
             )}
           </>
         )}
-      </div>
-    </div>
+    </DirectoryLayout>
   )
 }
 
@@ -342,35 +328,19 @@ function DirectorySection({ title, icon: Icon, color, items, baseUrl, showAll }:
       </div>
 
       {/* Items Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {displayItems.map((item, index) => (
-          <motion.div
-            key={item.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-          >
-            <Link href={`${baseUrl}/${item.slug}`}>
-              <div className="p-4 rounded-lg bg-card/50 border border-border/50 hover:border-border transition-all hover:scale-105">
-                <h3 className="font-semibold mb-1 line-clamp-1">{item.name}</h3>
-                <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
-                {item.tags && item.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {item.tags.slice(0, 3).map((tag, i) => (
-                      <span
-                        key={i}
-                        className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </Link>
-          </motion.div>
-        ))}
-      </div>
+      <DirectoryGrid>
+        {displayItems.map(item => <Fragment key={item.id}>{item.card}</Fragment>)}
+      </DirectoryGrid>
     </div>
   )
+}
+
+function DirectoryProtocol({ protocol }: { protocol: { slug: string; name: string; description: string } }) {
+  const catalog = findProtocol(protocol.slug)
+  const href = `/protocols/${protocol.slug}`
+  if (catalog) return <ProtocolCard protocol={catalog} adopted={false} href={href} />
+  return <Link href={href} className="rounded-xl border border-border bg-card p-5 hover:border-primary">
+    <h3 className="text-lg font-bold">{protocol.name}</h3>
+    <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{protocol.description}</p>
+  </Link>
 }

@@ -22,7 +22,7 @@ Before creating any assets, define these core elements:
 
 A ready-to-copy paragraph for journalists, partners, and directory listings:
 
-> Liberture is a free, open-access platform for human optimization. Built around six core pillars — Work, Sleep, Nutrition, Mind, Exercise, and Finance — Liberture provides science-backed protocols, a curated directory of experts and organizations, and a growing knowledge base. Founded by Leon Acosta (CEO), Fabricio Acosta (CTO), and Robert Claw (AI Architect), Liberture is committed to radical self-ownership, evidence-first health optimization, and open access for all.
+> Liberture is a free, open-access platform for human optimization. Built around six core pillars — Work, Sleep, Nutrition, Mind, Exercise, and Finance — Liberture provides science-backed protocols, a curated directory of experts and organizations, and a growing knowledge base. Founded by Leon Acosta (CEO) and Fabricio Acosta (CTO), Liberture is committed to radical self-ownership, evidence-first health optimization, and open access for all.
 
 ---
 

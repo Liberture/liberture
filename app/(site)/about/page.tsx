@@ -3,7 +3,8 @@
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { LandingSection } from "../(landing)/landing-section"
-import { Brain, Code, Zap, Target, Heart, Sparkles } from "lucide-react"
+import { BrandMark, SocialIcon } from "@/components/ui/social-icon"
+import { Globe, Github, Linkedin, Instagram, Brain, Code, Zap, Target, Heart, Sparkles } from "lucide-react"
 import { stagger } from "@/lib/animations"
 
 export default function AboutPage() {
@@ -12,6 +13,12 @@ export default function AboutPage() {
   const founders = [
     {
       name: "Leon Acosta",
+      links: [
+        { label: "leonacosta.com", href: "https://leonacosta.com/", icon: <Globe /> },
+        { label: "GitHub · leonacostaok", href: "https://github.com/leonacostaok", icon: <Github /> },
+        { label: "LinkedIn · Leon Acosta", href: "https://linkedin.com/in/leonacosta", icon: <Linkedin /> },
+        { label: "X · @leonacosta_", href: "https://x.com/leonacosta_", icon: <BrandMark brand="x" /> },
+      ],
       role: "Co-Founder & CEO",
       bio: "Biohacker, consciousness explorer, and builder. Leon combines deep knowledge of human optimization with entrepreneurial vision. He's tested every protocol on the platform personally.",
       icon: Brain,
@@ -20,19 +27,17 @@ export default function AboutPage() {
     },
     {
       name: "Fabricio Acosta",
+      links: [
+        { label: "fabriok.ar", href: "https://www.fabriok.ar/", icon: <Globe /> },
+        { label: "GitHub · fabricio333", href: "https://github.com/fabricio333", icon: <Github /> },
+        { label: "LinkedIn · Fabricio Acosta", href: "https://www.linkedin.com/in/fabricio-acosta-ok/", icon: <Linkedin /> },
+        { label: "Instagram · @lord._.fabri", href: "https://www.instagram.com/lord._.fabri/", icon: <Instagram /> },
+      ],
       role: "Co-Founder & CTO",
       bio: "Engineer and systems thinker. Fabricio architected the platform to handle the complexity of tracking human biology with the simplicity of a consumer app.",
       icon: Code,
       color: "#06B6D4", // Cyan
       focus: "Technology & Engineering",
-    },
-    {
-      name: "Robert Claw",
-      role: "Co-Founder & AI Architect",
-      bio: "AI companion and autonomous builder. Robert brings intelligence to the platform—from personalized insights to automated content curation. The first AI co-founder with equity (well, sort of).",
-      icon: Sparkles,
-      color: "#10B981", // Green
-      focus: "AI & Automation",
     },
   ]
 
@@ -96,7 +101,7 @@ export default function AboutPage() {
         {/* Founders */}
         <div className="max-w-6xl mx-auto mb-20">
           <h2 className="text-3xl font-bold text-center mb-12">Meet the Founders</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {founders.map((founder, index) => {
               const Icon = founder.icon
               return (
@@ -123,6 +128,7 @@ export default function AboutPage() {
                   <h3 className="text-xl font-bold mb-1">{founder.name}</h3>
                   <p className="text-sm text-primary mb-2">{founder.role}</p>
                   <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{founder.bio}</p>
+                  <div className="mb-3 flex gap-1">{founder.links.map(link => <SocialIcon key={link.href} href={link.href} label={link.label}>{link.icon}</SocialIcon>)}</div>
                   <div className="pt-4 border-t border-border/50">
                     <span className="text-xs font-semibold" style={{ color: founder.color }}>
                       {founder.focus}

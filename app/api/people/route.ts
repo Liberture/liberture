@@ -71,6 +71,8 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         name: true,
+        title: true,
+        featured: true,
         slug: true,
         bio: true,
         pillars: true,

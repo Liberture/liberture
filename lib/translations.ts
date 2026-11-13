@@ -1662,6 +1662,14 @@ const habitsEn = {
       addAria: "Add {name}",
     },
     // E
+    articleReader: {
+      search: "Search articles",
+      language: "Language",
+      categories: "Categories",
+      related: "Related articles",
+      previous: "Previous articles",
+      next: "Next articles",
+    },
     protocolReader: {
       previousPeople: "Previous profiles",
       nextPeople: "Next profiles",
@@ -4660,6 +4668,14 @@ const habitsEs: HabitsDictionary = {
       addAria: "Agregar {name}",
     },
     // E
+    articleReader: {
+      search: "Buscar artículos",
+      language: "Idioma",
+      categories: "Categorías",
+      related: "Artículos relacionados",
+      previous: "Artículos anteriores",
+      next: "Artículos siguientes",
+    },
     protocolReader: {
       previousPeople: "Perfiles anteriores",
       nextPeople: "Perfiles siguientes",

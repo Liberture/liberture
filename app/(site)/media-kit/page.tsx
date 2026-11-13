@@ -86,7 +86,7 @@ const ICON_SIZES = [
 const BOILERPLATE = {
   tagline: 'Master your biology. Unlock your potential.',
   oneLiner: 'Liberture is the Biological Operating System — a unified platform for evidence-based human optimization across six pillars: Work, Sleep, Nutrition, Mind, Exercise, and Finance.',
-  press: `Liberture is a free, open-access platform for human optimization. Built around six core pillars — Work, Sleep, Nutrition, Mind, Exercise, and Finance — Liberture provides science-backed protocols, a curated directory of experts and organizations, and a growing knowledge base. Founded by Leon Acosta (CEO), Fabricio Acosta (CTO), and Robert Claw (AI Architect), Liberture is committed to radical self-ownership, evidence-first health optimization, and open access for all.`,
+  press: `Liberture is a free, open-access platform for human optimization. Built around six core pillars — Work, Sleep, Nutrition, Mind, Exercise, and Finance — Liberture provides science-backed protocols, a curated directory of experts and organizations, and a growing knowledge base. Founded by Leon Acosta (CEO) and Fabricio Acosta (CTO), Liberture is committed to radical self-ownership, evidence-first health optimization, and open access for all.`,
 }
 
 // ---------------------------------------------------------------------------
