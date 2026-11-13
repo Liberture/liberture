@@ -16,7 +16,12 @@ async function main() {
     where: { slug: { in: Object.keys(readingNotes) } },
     select: { id: true, slug: true, content: true },
   })
-  const repairs = articles.filter(article => !article.content?.trim()).map(article => {
+  const repairs = articles.filter(article => {
+    if (!article.content?.trim()) return true
+    // Upgrade the published Zone 2 note only while its original text is intact.
+    return article.slug === "zone-2-training-the-metabolic-health-foundation"
+      && crypto.createHash("sha256").update(article.content).digest("hex") === "063412c2768d530c304a8b6cac5d318f27c3e72a48d895d37c1b6bf6dd8abd1b"
+  }).map(article => {
     const content = readingNotes[article.slug as keyof typeof readingNotes]
     return prisma.article.updateMany({
       where: { id: article.id, content: article.content },
