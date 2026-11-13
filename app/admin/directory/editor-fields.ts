@@ -1,16 +1,19 @@
 import type { HabitsDictionary } from "@/lib/translations"
 
+const organizationGroups = {
+    details: ["name", "type", "pillars", "founded"],
+    content: ["description", "keyPeople", "resources", "publications"],
+    links: ["website", "wikipedia", "imageUrl"],
+} as const
+
 export const editorGroups = {
   people: {
     details: ["name", "title", "expertise", "pillars"],
     content: ["bio"],
     links: ["website", "wikipedia", "twitter", "instagram", "youtube", "podcast"],
   },
-  organizations: {
-    details: ["name", "type", "pillars", "founded"],
-    content: ["description", "keyPeople", "resources", "publications"],
-    links: ["website", "wikipedia", "imageUrl"],
-  },
+  organizations: { ...organizationGroups, relationships: ["relatedPeople"] },
+  projects: { ...organizationGroups, relationships: ["relatedPeople", "relatedOrganizations"] },
   books: {
     details: ["title", "author", "pillars", "year", "rating"],
     content: ["description"],
@@ -35,7 +38,16 @@ export function isDirectoryType(value: string): value is DirectoryType {
 
 export function editorValues(type: DirectoryType, record: Record<string, unknown>): EditorValues {
   const fields: string[] = Object.values(editorGroups[type]).flat()
-  return Object.fromEntries(fields.map(field => [field, String(record[field] ?? "")]))
+  const values = Object.fromEntries(fields.map(field => [field, String(record[field] ?? "")]))
+  if (type === "projects" || type === "organizations") {
+    const people = Array.isArray(record.profilePeople) ? record.profilePeople : []
+    values.relatedPeople = JSON.stringify(people.map(({ personId, role, sourceUrl }) => ({ id: personId, role, sourceUrl })))
+  }
+  if (type === "projects") {
+    const links = Array.isArray(record.projectOrganizations) ? record.projectOrganizations : []
+    values.relatedOrganizations = JSON.stringify(links.map(({ organizationId, role, sourceUrl }) => ({ id: organizationId, role, sourceUrl })))
+  }
+  return values
 }
 
 export type EditorLabels = HabitsDictionary["app"]["directoryEditor"]

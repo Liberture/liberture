@@ -8,6 +8,10 @@ export function httpUrl(value: unknown): string | undefined {
   }
 }
 
+export function personPath(value: unknown): string | undefined {
+  return typeof value === "string" && /^\/people\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value) ? value : undefined
+}
+
 export type Entry = { title: string; url?: string }
 
 export function entries(raw: string | null): Entry[] {
@@ -21,7 +25,7 @@ export function entries(raw: string | null): Entry[] {
   const list = Array.isArray(values) ? values : [values]
   return list.flatMap((value): Entry[] => {
     if (typeof value === "string" && value.trim()) return [{ title: value.trim(), url: httpUrl(value.trim()) }]
-    if (value && typeof value.title === "string" && value.title.trim()) return [{ title: value.title.trim(), url: httpUrl(value.url) }]
+    if (value && typeof value.title === "string" && value.title.trim()) return [{ title: value.title.trim(), url: personPath(value.url) ?? httpUrl(value.url) }]
     return []
   })
 }

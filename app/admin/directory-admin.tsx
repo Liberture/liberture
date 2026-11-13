@@ -10,7 +10,8 @@ import { Input } from "@/components/ui/input";
 import { useTranslations } from "@/components/i18n/locale-provider";
 import { Button } from "@/components/ui/button";
 
-type DirectoryType = "people" | "books" | "organizations" | "protocols" | "articles";
+import { editorGroups, type DirectoryType } from "./directory/editor-fields";
+import { DirectoryRelationshipsInput, invalidRelationships, relationshipPayload, type DirectoryRelationship } from "./directory/directory-relationships-input";
 
 interface DirectoryItem {
   id: string;
@@ -21,7 +22,7 @@ interface DirectoryItem {
   description?: string;
 }
 
-const DIRECTORY_TYPES: DirectoryType[] = ["people", "books", "organizations", "protocols", "articles"];
+const DIRECTORY_TYPES: DirectoryType[] = Object.keys(editorGroups) as DirectoryType[];
 
 export default function DirectoryAdmin() {
   const t = useTranslations().habits.app.directoryTable;
@@ -172,6 +173,10 @@ function AddItemModal({
   onClose: () => void;
   onSave: (data: any) => Promise<void>;
 }) {
+  const t = useTranslations().habits.app.directoryEditor;
+  const [relatedOrganizations, setRelatedOrganizations] = useState<DirectoryRelationship[]>([]);
+  const [relatedPeople, setRelatedPeople] = useState<DirectoryRelationship[]>([]);
+  const [invalidLinks, setInvalidLinks] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<Record<string, string>>({});
 
@@ -182,9 +187,17 @@ function AddItemModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (invalidRelationships(relatedOrganizations) || invalidRelationships(relatedPeople)) {
+      setInvalidLinks(true);
+      return;
+    }
     setSaving(true);
     try {
-      await onSave(formData);
+      await onSave({
+        ...formData,
+        ...(relatedOrganizations.length && { relatedOrganizations: relationshipPayload("relatedOrganizations", relatedOrganizations) }),
+        ...(relatedPeople.length && { relatedPeople: relationshipPayload("relatedPeople", relatedPeople) }),
+      });
     } finally {
       setSaving(false);
     }
@@ -301,7 +314,7 @@ function AddItemModal({
           )}
 
           {/* ── Organizations ── */}
-          {type === "organizations" && (
+          {(type === "organizations" || type === "projects") && (
             <>
               <div>
                 <label className={labelClass}>Name *</label>
@@ -332,6 +345,15 @@ function AddItemModal({
             </>
           )}
 
+          {(type === "projects" || type === "organizations") && <section className="space-y-2">
+            <h3 className={labelClass}>{t.relatedPeople}</h3>
+            <DirectoryRelationshipsInput field="relatedPeople" rows={relatedPeople} onChange={rows => { setRelatedPeople(rows); setInvalidLinks(false); }} />
+          </section>}
+          {type === "projects" && <section className="space-y-2">
+            <h3 className={labelClass}>{t.relatedOrganizations}</h3>
+            <DirectoryRelationshipsInput field="relatedOrganizations" rows={relatedOrganizations} onChange={rows => { setRelatedOrganizations(rows); setInvalidLinks(false); }} />
+          </section>}
+          {invalidLinks && <p role="alert">{t.invalidRelationship}</p>}
           {/* ── Protocols ── */}
           {type === "protocols" && (
             <>

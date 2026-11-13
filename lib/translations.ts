@@ -1666,6 +1666,7 @@ const habitsEn = {
     },
     // E
     directoryTable: {
+      projects: "Projects",
       people: "People",
       books: "Books",
       organizations: "Organizations",
@@ -1681,6 +1682,7 @@ const habitsEn = {
       error: "Could not load entries",
       add: "Add entry",
     },
+    directoryProfiles: {"projects": "Projects", "organizations": "Organizations", "projectsIntro": "Platforms, initiatives and communities in the directory.", "organizationsIntro": "Companies, nonprofits and institutions behind directory projects.", "related": "Related projects and organizations", "previous": "Previous entries", "next": "Next entries", "projectProfile": "Project details", "source": "Source", "directoryIntro": "Discover people, projects, organizations, protocols and publications."},
     organizationProfile: { about: "About", people: "Key people", resources: "Resources", publications: "Publications", profile: "Organization details", type: "Type", founded: "Founded", website: "Website", focus: "Focus areas" },
     directoryEditor: {
       details: "Details", content: "Content", links: "Links and media", history: "History",
@@ -1700,6 +1702,8 @@ const habitsEn = {
       manual: "Manual edit", ai: "AI edit", system: "System edit", emptyValue: "Empty",
       people: "Edit person", organizations: "Edit organization", books: "Edit book",
       articles: "Edit article", protocols: "Edit protocol", markdown: "Article body (Markdown)",
+      relationships: "Relationships", relatedPeople: "People", selectPerson: "Select person", linkPerson: "Link person", loadLinkError: "Could not load directory entries.",
+      projects: "Edit project", relatedOrganizations: "Organizations", selectOrganization: "Select organization", relationshipRole: "Relationship role", sourceUrl: "Source URL", linkOrganization: "Link organization", invalidRelationship: "Choose a directory entry, enter its role and provide a source URL. Use each role once per entry.", personProfile: "Directory profile", projectType: "Project type",
       resources: "Resources", publications: "Publications", addEntry: "Add entry", removeEntry: "Remove entry", linkTitle: "Link title", linkUrl: "URL", invalidLink: "Enter a title and a valid web address.",
     },
     adminNav: {
@@ -4793,6 +4797,7 @@ const habitsEs: HabitsDictionary = {
     },
     // E
     directoryTable: {
+      projects: "Proyectos",
       people: "Personas",
       books: "Libros",
       organizations: "Organizaciones",
@@ -4808,6 +4813,7 @@ const habitsEs: HabitsDictionary = {
       error: "No se pudieron cargar las entradas",
       add: "Añadir entrada",
     },
+    directoryProfiles: {"projects": "Proyectos", "organizations": "Organizaciones", "projectsIntro": "Plataformas, iniciativas y comunidades del directorio.", "organizationsIntro": "Empresas, organizaciones sin fines de lucro e instituciones vinculadas a proyectos.", "related": "Proyectos y organizaciones relacionados", "previous": "Entradas anteriores", "next": "Entradas siguientes", "projectProfile": "Detalles del proyecto", "source": "Fuente", "directoryIntro": "Descubre personas, proyectos, organizaciones, protocolos y publicaciones."},
     organizationProfile: { about: "Acerca de", people: "Personas clave", resources: "Recursos", publications: "Publicaciones", profile: "Detalles de la organización", type: "Tipo", founded: "Fundación", website: "Sitio web", focus: "Áreas de interés" },
     directoryEditor: {
       details: "Detalles", content: "Contenido", links: "Enlaces y medios", history: "Historial",
@@ -4827,6 +4833,8 @@ const habitsEs: HabitsDictionary = {
       manual: "Edición manual", ai: "Edición con IA", system: "Edición del sistema", emptyValue: "Vacío",
       people: "Editar persona", organizations: "Editar organización", books: "Editar libro",
       articles: "Editar artículo", protocols: "Editar protocolo", markdown: "Texto del artículo (Markdown)",
+      relationships: "Relaciones", relatedPeople: "Personas", selectPerson: "Elegí una persona", linkPerson: "Vincular persona", loadLinkError: "No se pudieron cargar las entradas del directorio.",
+      projects: "Editar proyecto", relatedOrganizations: "Organizaciones", selectOrganization: "Elegí una organización", relationshipRole: "Rol de la organización", sourceUrl: "URL de la fuente", linkOrganization: "Vincular organización", invalidRelationship: "Elegí una entrada, indicá su rol y agregá la URL de la fuente. Usá cada rol una sola vez por entrada.", personProfile: "Perfil del directorio", projectType: "Tipo de proyecto",
       resources: "Recursos", publications: "Publicaciones", addEntry: "Agregar entrada", removeEntry: "Quitar entrada", linkTitle: "Título del enlace", linkUrl: "URL", invalidLink: "Ingresá un título y una dirección web válida.",
     },
     adminNav: {

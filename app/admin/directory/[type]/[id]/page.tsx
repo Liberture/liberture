@@ -6,7 +6,8 @@ import { editorValues, isDirectoryType } from "../../editor-fields"
 
 const loaders = {
   people: (id: string) => prisma.person.findUnique({ where: { id } }),
-  organizations: (id: string) => prisma.organization.findUnique({ where: { id } }),
+  organizations: (id: string) => prisma.organization.findFirst({ where: { id, directoryKind: "organization" }, include: { profilePeople: true } }),
+  projects: (id: string) => prisma.organization.findFirst({ where: { id, directoryKind: "project" }, include: { projectOrganizations: true, profilePeople: true } }),
   protocols: (id: string) => prisma.protocol.findUnique({ where: { id } }),
   articles: (id: string) => prisma.article.findUnique({ where: { id } }),
   books: (id: string) => prisma.book.findUnique({ where: { id } }),

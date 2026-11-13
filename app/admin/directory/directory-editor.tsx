@@ -11,6 +11,7 @@ import { FieldOption, FieldSelect } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { editorGroups, editorValues, fieldLabel, type DirectoryType, type EditorValues } from "./editor-fields"
 import { isEntryField, invalidEntries, OrganizationEntryInput } from "./organization-entry-input"
+import { DirectoryRelationshipsInput, invalidRelationships, relationshipField, relationshipPayload } from "./directory-relationships-input"
 import { EditHistory } from "./edit-history"
 
 const longText = new Set(["bio", "description", "content", "steps", "benefits", "risks"])
@@ -28,8 +29,9 @@ export function DirectoryEditor({ type, id, initialValues, backHref }: {
   const [message, setMessage] = useState("")
   const [invalidField, setInvalidField] = useState("")
   const [historyVersion, setHistoryVersion] = useState(0)
-  const groups = Object.entries(editorGroups[type]) as [keyof Pick<typeof t, "details" | "content" | "links">, readonly string[]][]
+  const groups = Object.entries(editorGroups[type]) as ["details" | "content" | "links" | "relationships", readonly string[]][]
   const changed = Object.entries(values).filter(([field, value]) => value !== baseline[field])
+  const organizationLike = type === "organizations" || type === "projects"
   const required = new Set(["name", "title", "bio", type === "books" ? "author" : "description", ...(type === "articles" ? ["pillar", "readTime"] : [])])
 
   function update(field: string, value: string) {
@@ -45,7 +47,8 @@ export function DirectoryEditor({ type, id, initialValues, backHref }: {
       const field = fields.find(key => {
         if (values[key] === baseline[key]) return false
         const value = values[key].trim()
-        if (type === "organizations" && isEntryField(key)) return invalidEntries(value)
+        if (relationshipField(key)) return invalidRelationships(JSON.parse(value))
+        if (organizationLike && isEntryField(key)) return invalidEntries(value, key)
         if (!value) return required.has(key)
         if (key === "readTime") return !Number.isInteger(Number(value)) || Number(value) < 1
         if (key === "year") return !Number.isInteger(Number(value))
@@ -53,7 +56,7 @@ export function DirectoryEditor({ type, id, initialValues, backHref }: {
       })
       if (field) {
         setTab(group)
-        setMessage(isEntryField(field) ? t.invalidLink : values[field].trim() ? t.invalidNumber : t.required)
+        setMessage(relationshipField(field) ? t.invalidRelationship : isEntryField(field) ? t.invalidLink : values[field].trim() ? t.invalidNumber : t.required)
         setInvalidField(field)
         requestAnimationFrame(() => document.getElementById("editor-" + field)?.focus())
         return
@@ -62,8 +65,9 @@ export function DirectoryEditor({ type, id, initialValues, backHref }: {
     setBusy(true)
     setMessage("")
     try {
+      const payload = Object.fromEntries(changed.map(([key, value]) => [key, relationshipField(key) ? relationshipPayload(key, JSON.parse(value)) : value]))
       const response = await fetch(`/api/${type}/id/${encodeURIComponent(id)}`, {
-        method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.fromEntries(changed)),
+        method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
       })
       if (!response.ok) throw new Error("save")
       const saved = editorValues(type, await response.json())
@@ -95,12 +99,13 @@ export function DirectoryEditor({ type, id, initialValues, backHref }: {
         <fieldset disabled={busy} className="grid gap-5 sm:grid-cols-2">
           {fields.map(field => {
             const fieldId = "editor-" + field
-            const structured = type === "organizations" && isEntryField(field)
-            const multiline = longText.has(field) || structured
+            const structured = organizationLike && isEntryField(field)
+            const multiline = longText.has(field) || structured || relationshipField(field)
             const common = { id: fieldId, value: values[field], required: required.has(field), "aria-invalid": invalidField === field || undefined }
             return <div key={field} className={multiline ? "space-y-2 sm:col-span-2" : "min-w-0 space-y-2"}>
-              <label htmlFor={fieldId} className="text-sm font-medium">{fieldLabel(t, field)}{required.has(field) && " *"}</label>
-              {structured ? <OrganizationEntryInput field={field} id={fieldId} label={fieldLabel(t, field)} value={values[field]} onChange={value => update(field, value)} />
+              <label htmlFor={fieldId} className="text-sm font-medium">{type === "projects" && field === "type" ? t.projectType : fieldLabel(t, field)}{required.has(field) && " *"}</label>
+              {relationshipField(field) ? <DirectoryRelationshipsInput field={field} rows={JSON.parse(values[field])} onChange={rows => update(field, JSON.stringify(rows))} />
+              : structured ? <OrganizationEntryInput field={field} id={fieldId} label={fieldLabel(t, field)} value={values[field]} onChange={value => update(field, value)} />
               : field === "difficulty" ? <FieldSelect id={fieldId} value={values[field]} onValueChange={value => update(field, value)} aria-label={t.difficulty}>
                 {!difficulties.some(item => item === values[field]) && <FieldOption value={values[field]}>{values[field] || "—"}</FieldOption>}
                 {difficulties.map(value => <FieldOption key={value} value={value}>{t[value]}</FieldOption>)}
