@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ArticleSchema, BreadcrumbSchema } from "@/components/seo/JsonLd"
 import { sectionTrail } from "@/components/seo/section-breadcrumbs"
 import { ProtocolArtwork } from "@/components/habits/marketplace/protocol-artwork"
-import { DifficultyTag, PillarTag } from "@/components/habits/marketplace/pillar-tag"
+import { ProtocolFacts, ProtocolHabits } from "@/components/habits/marketplace/protocol-facts"
 import { findProtocol } from "@/lib/habits/protocols/catalog"
 import type { Author } from "@/lib/habits/protocols/authors"
 import { protocolImage } from "@/lib/habits/protocols/images"
@@ -55,7 +55,7 @@ export default async function ProtocolDetails({ protocol }: { protocol: Protocol
   const risks = parseList(protocol.risks);
   const equipment = parseList(protocol.equipment);
   const references = parseList(protocol.references);
-  const copy = getDictionary(await getRequestLocale()).app.protocolDetails
+  const { protocolDetails: copy, protocolReader } = getDictionary(await getRequestLocale()).app
   const related = new Map<string, RelatedProtocol[]>()
   for (const relation of protocol.related ?? []) {
     if (relation.protocol.slug === protocol.slug) continue
@@ -90,38 +90,43 @@ export default async function ProtocolDetails({ protocol }: { protocol: Protocol
           <ProtocolArtwork slug={protocol.slug} loading="eager" />
         </div>}
         <header className="my-6 space-y-3">
-          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            {catalog ? <><PillarTag pillar={catalog.pillar} /><DifficultyTag difficulty={catalog.difficulty} /></> :
-              <><span className="capitalize">{protocol.pillar}</span><span className="capitalize">{protocol.difficulty}</span></>}
-            {protocol.duration && <span>{protocol.duration}</span>}
-          </div>
           <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">{protocol.name}</h1>
           {protocol.creator && <p className="text-muted-foreground">{copy.by} <Link className="text-primary hover:underline" href={`/people/${protocol.creator}`}>
             {protocol.creator.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
           </Link></p>}
         </header>
 
-        <Tabs defaultValue="overview">
-          <TabsList aria-label={protocol.name}>
-            <TabsTrigger value="overview">{copy.overview}</TabsTrigger>
-            {(steps.length > 0 || equipment.length > 0) && <TabsTrigger value="practice">{copy.practice}</TabsTrigger>}
-            {(protocol.why || references.length > 0) && <TabsTrigger value="evidence">{copy.evidence}</TabsTrigger>}
-          </TabsList>
-          <TabsContent value="overview" className="space-y-5">
-            <p className="leading-relaxed text-muted-foreground">{protocol.description}</p>
-            <ProtocolList title={copy.benefits} items={benefits} />
-            <ProtocolList title={copy.risks} items={risks} />
-          </TabsContent>
-          <TabsContent value="practice" className="space-y-5">
-            <ProtocolList title={copy.steps} items={steps} ordered />
-            <ProtocolList title={copy.equipment} items={equipment} />
-          </TabsContent>
-          <TabsContent value="evidence" className="space-y-5">
-            {protocol.why && <section><h2 className="mb-2 font-semibold">{copy.why}</h2>
-              <p className="leading-relaxed text-muted-foreground">{protocol.why}</p></section>}
-            <ProtocolList title={copy.sources} items={references} />
-          </TabsContent>
-        </Tabs>
+        <div className="relative grid items-start gap-5 md:grid-cols-[minmax(0,1fr)_16rem]">
+          {catalog ? <ProtocolFacts protocol={catalog} className="md:sticky md:top-20 md:col-start-2 md:row-start-1" /> :
+            <aside aria-label={protocolReader.facts} className="rounded-xl border border-border bg-card p-4 md:sticky md:top-20 md:col-start-2 md:row-start-1">
+              <h2 className="mb-2 font-semibold">{protocolReader.facts}</h2>
+              <p className="capitalize">{protocol.pillar} · {protocol.difficulty}</p>
+              {protocol.duration && <p className="mt-2 text-sm text-muted-foreground">{protocol.duration}</p>}
+            </aside>}
+          <Tabs defaultValue="overview" className="md:col-start-1 md:row-start-1">
+            <TabsList aria-label={protocol.name}>
+              <TabsTrigger value="overview">{copy.overview}</TabsTrigger>
+              {(steps.length > 0 || equipment.length > 0) && <TabsTrigger value="practice">{copy.practice}</TabsTrigger>}
+              {Boolean(catalog?.habits.length) && <TabsTrigger value="habits">{protocolReader.habits}</TabsTrigger>}
+              {references.length > 0 && <TabsTrigger value="evidence">{copy.evidence}</TabsTrigger>}
+            </TabsList>
+            <TabsContent value="overview" className="space-y-5">
+              <p className="leading-relaxed text-muted-foreground">{protocol.description}</p>
+              {protocol.why && <section><h2 className="mb-2 font-semibold">{copy.why}</h2>
+                <p className="leading-relaxed text-muted-foreground">{protocol.why}</p></section>}
+              <ProtocolList title={copy.benefits} items={benefits} />
+              <ProtocolList title={copy.risks} items={risks} />
+            </TabsContent>
+            <TabsContent value="practice" className="space-y-5">
+              <ProtocolList title={copy.steps} items={steps} ordered />
+              <ProtocolList title={copy.equipment} items={equipment} />
+            </TabsContent>
+            {catalog && <TabsContent value="habits"><ProtocolHabits protocol={catalog} /></TabsContent>}
+            <TabsContent value="evidence" className="space-y-5">
+              <ProtocolList title={copy.sources} items={references} />
+            </TabsContent>
+          </Tabs>
+        </div>
         {related.size > 0 && <CardCarousel title={copy.related} previousLabel={copy.previous} nextLabel={copy.next}>
           {Array.from(related, ([slug, group]) => <li key={slug} className="flex flex-col gap-2">
             <DirectoryProtocol protocol={group[0].protocol} />
