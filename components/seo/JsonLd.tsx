@@ -90,13 +90,21 @@ export function PersonSchema({
   const sameAs = [website, handle && /^\w{1,15}$/.test(handle) ? `https://x.com/${handle}` : undefined].filter(Boolean)
   if (sameAs.length) schema.sameAs = sameAs
 
-  return <JsonLd data={schema} />;
+  schema["@id"] = url + "#person";
+  return <JsonLd data={{
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    "@id": url + "#profile",
+    url,
+    mainEntity: schema,
+  }} />;
 }
 
 // Book Schema
 export function BookSchema({
   title,
   author,
+  authorUrl,
   description,
   isbn,
   url,
@@ -104,6 +112,7 @@ export function BookSchema({
 }: {
   title: string;
   author: string;
+  authorUrl?: string;
   description: string;
   isbn?: string;
   url: string;
@@ -116,6 +125,7 @@ export function BookSchema({
     author: {
       '@type': 'Person',
       name: author,
+      ...(authorUrl && { url:authorUrl, "@id":authorUrl+"#person" }),
     },
     description,
     url,
@@ -140,6 +150,8 @@ export function ArticleSchema({
   publishedAt,
   modifiedAt,
   author = 'Liberture',
+  authors,
+  citations,
   image,
 }: {
   title: string;
@@ -148,6 +160,8 @@ export function ArticleSchema({
   publishedAt?: string;
   modifiedAt?: string;
   author?: string;
+  authors?: { "@type":"Person"; name:string; sameAs?:string }[];
+  citations?: string[];
   image?: string;
 }) {
   const schema: Record<string, any> = {
@@ -164,7 +178,8 @@ export function ArticleSchema({
         url: 'https://liberture.com/icon.svg',
       },
     },
-    author: {
+    ...(citations?.length && {citation:citations}),
+    author: authors?.length ? authors : {
       '@type': author === 'Liberture' ? 'Organization' : 'Person',
       name: author,
     },

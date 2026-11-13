@@ -1,12 +1,16 @@
 "use client";
 
+import { BackLink } from "@/components/seo/back-link"
+import { sectionTrail } from "@/components/seo/section-breadcrumbs"
 import { useState } from "react";
 import { Tabs, TabOptions, TabsContent } from "@/components/ui/tabs";
 import { ProfileMarkdown } from "@/components/people/profile-markdown";
 import { ProfilePortrait } from "@/components/people/profile-portrait";
 import { ProfileSocials } from "@/components/people/profile-socials";
 import { PillarTag } from "@/components/habits/marketplace/pillar-tag";
-import { PILLAR_IDS } from "@/lib/habits/pillars";
+import { useTranslations } from "@/components/i18n/locale-provider"
+import { profilePillars } from "@/lib/pillars"
+import { type PillarId } from "@/lib/habits/pillars";
 import Link from "next/link";
 import { BookOpen, MessageSquare, Zap, User, Trophy, Library } from "lucide-react";
 import { PersonSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
@@ -64,12 +68,13 @@ type Person = {
   Protocol?: Protocol[];
 };
 
-export default function PersonDetails({ person }: { person: Person }) {
+export default function PersonDetails({ person, related }: { person: Person; related: {name:string; slug:string; shared:PillarId[]}[] }) {
   const [selected, setSelected] = useState<Section>("About");
   const achievements = person.achievements ? JSON.parse(person.achievements) : [];
   const publications = person.publications ? JSON.parse(person.publications) : [];
   const speakingEvents = person.speakingEvents ? JSON.parse(person.speakingEvents) : [];
-  const pillars = (person.pillars || '').split(',').map(p => p.trim().toLowerCase()).filter(Boolean);
+  const pillars = profilePillars(person.pillars)
+  const copy = useTranslations().habits.app.protocolReader
 
   const counts = { About: 1, Achievements: achievements.length, Publications: publications.length, Speaking: speakingEvents.length, Protocols: person.Protocol?.length, Books: person.Book?.length };
   const available = sections.filter(section => counts[section]);
@@ -86,21 +91,12 @@ export default function PersonDetails({ person }: { person: Person }) {
         twitter={person.twitter || undefined}
         image={person.imageUrl || undefined}
       />
-      <BreadcrumbSchema
-        items={[
-          { name: 'Home', url: 'https://liberture.com' },
-          { name: 'Directory', url: 'https://liberture.com/directory' },
-          { name: 'People', url: 'https://liberture.com/people' },
-          { name: person.name, url: `https://liberture.com/people/${person.slug}` },
-        ]}
-      />
+      <BreadcrumbSchema items={[...sectionTrail("people"), {name:person.name, url:`https://liberture.com/people/${person.slug}`}]} />
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white">
         <div className="container mx-auto px-4 py-16">
         <div className="max-w-5xl mx-auto">
           <div className="mb-8">
-            <Link href="/people" className="text-purple-400 hover:text-purple-300 mb-4 inline-block cursor-pointer">
-              ← Back
-            </Link>
+            <BackLink fallback="/people" />
           </div>
           
           {/* Header */}
@@ -259,7 +255,7 @@ export default function PersonDetails({ person }: { person: Person }) {
                 <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
                   <h3 className="text-xl font-bold mb-4">Focus Areas</h3>
                   <div className="flex flex-wrap gap-2">
-                    {PILLAR_IDS.filter(id => pillars.includes(id)).map(id => <PillarTag key={id} pillar={id} />)}
+                    {pillars.map(id => <PillarTag key={id} pillar={id} />)}
                   </div>
                 </div>
 
@@ -269,6 +265,14 @@ export default function PersonDetails({ person }: { person: Person }) {
                   <p className="text-slate-300">{person.expertise}</p>
                 </div>
 
+                {related.length > 0 && <section className="rounded-2xl border border-border bg-card p-5">
+                  <h3 className="mb-3 font-semibold">{copy.relatedPeople}</h3>
+                  <ul className="divide-y divide-border">{related.map(peer =>
+                    <li key={peer.slug} className="py-2">
+                      <Link href={`/people/${peer.slug}`} className="font-medium hover:underline">{peer.name}</Link>
+                      <div className="mt-1 flex flex-wrap gap-1">{peer.shared.map(id => <PillarTag key={id} pillar={id} />)}</div>
+                    </li>)}</ul>
+                </section>}
               </aside>
           </div>
         </div>

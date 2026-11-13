@@ -1,6 +1,8 @@
 
 
 
+import { BackLink } from "@/components/seo/back-link"
+import { sectionTrail } from "@/components/seo/section-breadcrumbs"
 import Link from "next/link";
 import { ExternalLink, Building2 } from "lucide-react";
 import { JsonLd, BreadcrumbSchema } from "@/components/seo/JsonLd";
@@ -38,20 +40,12 @@ export default function OrganizationDetails({ organization }: { organization: Or
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 text-white">
       {/* JSON-LD Schema */}
       <JsonLd data={organizationSchema} />
-      <BreadcrumbSchema
-        items={[
-          { name: 'Home', url: 'https://liberture.com' },
-          { name: 'Organizations', url: 'https://liberture.com/organizations' },
-          { name: organization.name, url: `https://liberture.com/organizations/${organization.slug}` },
-        ]}
-      />
+      <BreadcrumbSchema items={[...sectionTrail("organizations"), {name:organization.name, url:`https://liberture.com/organizations/${organization.slug}`}]} />
       
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-5xl mx-auto">
           <div className="mb-8">
-            <Link href="/organizations" className="text-purple-400 hover:text-purple-300 mb-4 inline-block">
-              ← Back to Organizations
-            </Link>
+            <BackLink fallback="/organizations" />
           </div>
           
           {/* Header */}

@@ -1,3 +1,5 @@
+import { BackLink } from "@/components/seo/back-link"
+import { sectionTrail } from "@/components/seo/section-breadcrumbs"
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { Badge } from '@/components/ui/badge'
@@ -90,23 +92,11 @@ export default async function ArticlePage({ params }: PageProps) {
         modifiedAt={article.updatedAt?.toISOString()}
         author={article.author || 'Liberture'}
       />
-      <BreadcrumbSchema
-        items={[
-          { name: 'Home', url: 'https://liberture.com' },
-          { name: 'Articles', url: 'https://liberture.com/articles' },
-          { name: article.title, url: articleUrl },
-        ]}
-      />
+      <BreadcrumbSchema items={[...sectionTrail("articles"), {name:article.title, url:`https://liberture.com/articles/${article.slug}`}]} />
 
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          <Link
-            href={article.pillar ? `/pillars/${article.pillar}` : '/articles'}
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to {article.pillar ? `${article.pillar} pillar` : 'Articles'}
-          </Link>
+          <BackLink fallback="/articles" />
 
           <div className="space-y-6 mb-12">
             {article.pillar && Icon && (

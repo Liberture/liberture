@@ -1,8 +1,12 @@
 
 
 
+import { BackLink } from "@/components/seo/back-link"
+import { sectionTrail } from "@/components/seo/section-breadcrumbs"
 import Link from "next/link";
 import { Target, AlertTriangle, Package, Lightbulb, BookOpen, Link2, Shuffle } from "lucide-react";
+import { findProtocol } from "@/lib/habits/protocols/catalog"
+import type { Author } from "@/lib/habits/protocols/authors"
 import { ArticleSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
 import { ProtocolArtwork } from "@/components/habits/marketplace/protocol-artwork";
 import { protocolImage } from "@/lib/habits/protocols/images";
@@ -59,6 +63,12 @@ export default function ProtocolDetails({ protocol }: { protocol: Protocol }) {
   const synergies = (protocol.related || []).filter((r) => r.kind === 'synergy');
   const alternatives = (protocol.related || []).filter((r) => r.kind === 'alternative');
 
+  const catalog = findProtocol(protocol.slug)
+  const credits = [catalog?.author, ...(catalog?.coAuthors ?? [])].filter((author): author is Author => Boolean(author))
+  const authors = credits.filter(author => author.kind === "person").map(author => ({
+    "@type":"Person" as const, name:author.name, sameAs:author.url,
+  }))
+  const citations = credits.filter(author => author.kind === "consensus").map(author => author.url ?? author.name)
   const image = protocolImage(protocol.slug);
 
   return (
@@ -68,23 +78,17 @@ export default function ProtocolDetails({ protocol }: { protocol: Protocol }) {
         title={protocol.name}
         description={protocol.description}
         url={`https://liberture.com/protocols/${protocol.slug}`}
-        author={protocol.creator || 'Liberture'}
+        author={credits.length ? 'Liberture' : protocol.creator || 'Liberture'}
+        authors={authors}
+        citations={citations}
         image={image ? `https://liberture.com${image.png}` : undefined}
       />
-      <BreadcrumbSchema
-        items={[
-          { name: 'Home', url: 'https://liberture.com' },
-          { name: 'Protocols', url: 'https://liberture.com/protocols' },
-          { name: protocol.name, url: `https://liberture.com/protocols/${protocol.slug}` },
-        ]}
-      />
+      <BreadcrumbSchema items={[...sectionTrail("protocols"), {name:protocol.name, url:`https://liberture.com/protocols/${protocol.slug}`}]} />
       
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-5xl mx-auto">
           <div className="mb-8">
-            <Link href="/protocols" className="text-purple-400 hover:text-purple-300 mb-4 inline-block">
-              ← Back to Protocols
-            </Link>
+            <BackLink fallback="/protocols" />
           </div>
           
           {/* Protocol picture (scripts/generate-protocol-images.tsx) */}

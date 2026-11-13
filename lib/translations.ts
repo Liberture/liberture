@@ -1663,6 +1663,8 @@ const habitsEn = {
     },
     // E
     protocolReader: {
+      relatedPeople: "People with shared focus areas",
+      back: "Back",
       facts: "At a glance",
       duration: "Duration",
       habits: "Habits",
@@ -4657,6 +4659,8 @@ const habitsEs: HabitsDictionary = {
     },
     // E
     protocolReader: {
+      relatedPeople: "Personas con áreas de interés en común",
+      back: "Volver",
       facts: "En resumen",
       duration: "Duración",
       habits: "Hábitos",

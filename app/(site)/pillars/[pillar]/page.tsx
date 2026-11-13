@@ -1,4 +1,4 @@
-import { profileBiography } from "@/lib/profile-biography"
+import { profileSummary } from "@/lib/profile-biography"
 import { PersonCard } from "@/components/people/person-card"
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
@@ -157,7 +157,7 @@ export default async function PillarPage({ params }: PageProps) {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {people.slice(0, 6).map((person: any) => (
-                  <PersonCard key={person.id} featuredLabel="Featured" person={{ ...person, bio: profileBiography(person) }} />
+                  <PersonCard key={person.id} featuredLabel="Featured" person={{ ...person, bio: profileSummary(person) }} />
                 ))}
               </div>
             </div>

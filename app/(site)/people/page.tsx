@@ -1,7 +1,8 @@
+import { BackLink } from "@/components/seo/back-link"
 import { PersonCard } from "@/components/people/person-card"
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
-import { profileBiography } from "@/lib/profile-biography";
+import { profileSummary } from "@/lib/profile-biography";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -47,9 +48,7 @@ export default async function PeoplePage({
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
-            <Link href="/directory" className="text-purple-400 hover:text-purple-300 mb-4 inline-block">
-              ← Back to Directory
-            </Link>
+            <BackLink fallback="/directory" />
           </div>
 
           <h1 className="text-5xl font-bold mb-4">People</h1>
@@ -61,7 +60,7 @@ export default async function PeoplePage({
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {people.map(person => <PersonCard key={person.id} featuredLabel="Featured" person={{ ...person, bio: profileBiography(person) }} />)}
+            {people.map(person => <PersonCard key={person.id} featuredLabel="Featured" person={{ ...person, bio: profileSummary(person) }} />)}
           </div>
 
           {people.length === 0 && (

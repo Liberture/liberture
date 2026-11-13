@@ -1,6 +1,8 @@
 
 
 
+import { BackLink } from "@/components/seo/back-link"
+import { sectionTrail } from "@/components/seo/section-breadcrumbs"
 import Link from "next/link";
 import { ExternalLink, BookOpen } from "lucide-react";
 import { BookSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
@@ -38,25 +40,18 @@ export default function BookDetails({ book }: { book: Book }) {
       <BookSchema
         title={book.title}
         author={book.Person?.name || book.author}
+        authorUrl={book.Person && `https://liberture.com/people/${book.Person.slug}` || undefined}
         description={book.description}
         isbn={book.isbn || undefined}
         url={`https://liberture.com/books/${book.slug}`}
         image={book.imageUrl || undefined}
       />
-      <BreadcrumbSchema
-        items={[
-          { name: 'Home', url: 'https://liberture.com' },
-          { name: 'Books', url: 'https://liberture.com/books' },
-          { name: book.title, url: `https://liberture.com/books/${book.slug}` },
-        ]}
-      />
+      <BreadcrumbSchema items={[...sectionTrail("books"), {name:book.title, url:`https://liberture.com/books/${book.slug}`}]} />
       
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-5xl mx-auto">
           <div className="mb-8">
-            <Link href="/books" className="text-purple-400 hover:text-purple-300 mb-4 inline-block cursor-pointer">
-              ← Back
-            </Link>
+            <BackLink fallback="/books" />
           </div>
           
           {/* Header */}
