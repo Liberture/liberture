@@ -1,5 +1,8 @@
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { ProfileMarkdown } from "@/components/people/profile-markdown";
+import { ProfilePortrait } from "@/components/people/profile-portrait";
+import { profileBiography } from "@/lib/profile-biography";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -76,13 +79,14 @@ export default async function PeoplePage({
                       </div>
                     )}
                     
+                    <ProfilePortrait person={person} compact />
                     <h2 className="text-2xl font-bold mb-2 group-hover:text-purple-400 transition-colors">
                       {person.name}
                     </h2>
                     
                     <p className="text-purple-400 text-sm mb-3">{person.title}</p>
                     
-                    <p className="text-slate-400 mb-4 line-clamp-3">{person.bio}</p>
+                    <ProfileMarkdown preview>{profileBiography(person)}</ProfileMarkdown>
                     
                     <div className="flex flex-wrap gap-2">
                       {pillars.slice(0, 3).map((pillar, i) => (

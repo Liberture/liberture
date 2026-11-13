@@ -1,0 +1,146 @@
+{
+  "alan-watts": {
+    "digest": "439eb6b97caa091f496e184052205495aff619477eed81904c032d2d6560358c",
+    "bio": "Alan Watts wrote and lectured about Zen Buddhism, Taoism and their reception in the West."
+  },
+  "ram-dass": {
+    "digest": "df62ef4300a7d8de707285ea58940cbfdfb8e4158b84d648784483dd3cbe2f6c",
+    "bio": "Ram Dass taught meditation and wrote *Be Here Now*."
+  },
+  "bryan-johnson": {
+    "digest": "190fe0bcf121e01bcfdbafc412a17781550c3bf56f573f4043cca9c53f602451",
+    "bio": "Bryan Johnson founded Braintree and Kernel. Through **Blueprint**, he documents his own routines for sleep, food and exercise and publishes measurements from his experiments."
+  },
+  "wim-hof": {
+    "digest": "16b281e3d206963262c5b087c5526734a2d3bff5a4af00f3a06d3db95a88e3a6",
+    "bio": "Wim Hof is a Dutch athlete known for cold-endurance events and a training method that combines breathing exercises and cold exposure."
+  },
+  "david-sinclair": {
+    "digest": "2c52a5b5acfabe9a90ed5ced7c4edf558de81082a04a267263a991ff9d89e398",
+    "bio": "David Sinclair is a geneticist who studies aging and co-wrote *Lifespan*."
+  },
+  "jiddu-krishnamurti": {
+    "digest": "0ff0a907bf296d175a2fee241650f55e54403a2f5fc009dfb740cc75555214b9",
+    "bio": "Jiddu Krishnamurti was a speaker and writer whose work explored thought, freedom and the nature of the self."
+  },
+  "eckhart-tolle": {
+    "digest": "d76c1b4906793df11b666a4d6bccb02b23caf1fdf977139714a03142dd95d48f",
+    "bio": "Eckhart Tolle writes about attention and awareness. His books include *The Power of Now*."
+  },
+  "carl-jung": {
+    "digest": "c41e73cd2b3700def17b995083b5289170adaa5693bff3b5877bad0d7865097d",
+    "bio": "Carl Jung was a Swiss psychiatrist who developed analytical psychology. His writing explored dreams, archetypes and the unconscious."
+  },
+  "stanislav-grof": {
+    "digest": "92ec1a83c7138f8a235c5bea089add7a7506cd20894586ea2a1b698413fce015",
+    "bio": "Stanislav Grof is a psychiatrist known for his work on altered states of consciousness and holotropic breathwork."
+  },
+  "terence-mckenna": {
+    "digest": "ff775b36bb18213d8a49dea544af015453d0d106b33de76f0ff381afb2770dce",
+    "bio": "Terence McKenna was a writer and lecturer on psychedelic plants and their cultural history."
+  },
+  "peter-attia": {
+    "digest": "9cae3824eed4e7c393f81dccec099681d3c8c0d0dd85c0808a3753f8e46862cf",
+    "bio": "Peter Attia is a physician and co-author of *Outlive*. His work covers exercise, preventive medicine and aging."
+  },
+  "aldous-huxley": {
+    "digest": "032ebdf5b6842101d40c34c68e4b5f24c5efa7603b02b04502eb80e964179e4c",
+    "bio": "Aldous Huxley wrote novels and essays, including *Brave New World* and *The Doors of Perception*."
+  },
+  "andrew-huberman": {
+    "digest": "79fcc3367f1d0f33e6c0284954fa91409b70a91b44e3ed970826ba13ca84d9c8",
+    "bio": "Andrew Huberman is a neuroscientist and host of *Huberman Lab*, a podcast about neuroscience and human behavior."
+  },
+  "ben-greenfield": {
+    "digest": "72ec7fad390dbabc6ce90a62677028b575741db8890437cf586622df8541ae22",
+    "bio": "Ben Greenfield is a fitness writer and endurance athlete who writes about training and recovery."
+  },
+  "joseph-mercola": {
+    "digest": "5de1e4ac15e39de28e99a840773dac2cae3ede6fa6e5f67a5487e9449b92bd96",
+    "bio": "Joseph Mercola is an osteopathic physician and author who writes about alternative medicine."
+  },
+  "daniel-kahneman": {
+    "digest": "da669c320c3a8ebedfb8828e78fdb5e636dfeef2725a3fd14bd9838870ba541c",
+    "bio": "Daniel Kahneman was a psychologist whose research examined judgment and decision-making. He wrote *Thinking, Fast and Slow*."
+  },
+  "david-a-sinclair": {
+    "digest": "343b9810bdf5d6f7e4b99b70e307052eb9bc9ad64ca489166fa9918ab9c35e72",
+    "bio": "David Sinclair is a geneticist who studies aging and co-wrote *Lifespan*."
+  },
+  "satchin-panda": {
+    "digest": "ca8fa89ec2de71e710ca15547bffe67c1ea3e4c3f86a82e87a778f0606a3e6d5",
+    "bio": "Satchin Panda studies circadian rhythms and how the timing of everyday activities relates to the body clock."
+  },
+  "valter-longo": {
+    "digest": "6e9b3f8492b97678a36e226bb03dfe5d89db0bbc0b23b3a8567b31901a95113c",
+    "bio": "Valter Longo studies aging, nutrition and fasting. He wrote *The Longevity Diet*."
+  },
+  "jim-kwik": {
+    "digest": "61dc59ecc073359498836a999452650557d0e55c75b01e9b48b4eeebdb6966d9",
+    "bio": "Jim Kwik teaches memory techniques and wrote *Limitless*."
+  },
+  "steven-r-gundry": {
+    "digest": "e62f9f9990f4638fedb77b36a66eb6904f85ab9aaa1ef92abaad213179517beb",
+    "bio": "Steven Gundry is a former cardiothoracic surgeon and author of *The Plant Paradox*."
+  },
+  "charles-duhigg": {
+    "digest": "ab515de2c589e7c77b1acbd999028f80e0bbb4520c11634275adc9f13e43189a",
+    "bio": "Charles Duhigg is a journalist and author of *The Power of Habit*, which explores how routines develop and change."
+  },
+  "eric-r-braverman": {
+    "digest": "c5725afa773652103541b3cca83685b80288df611a91182525da4a06c53c5760",
+    "bio": "Eric Braverman is a physician and author who has written about brain health."
+  },
+  "robert-h-lustig": {
+    "digest": "65a8c905dc85a7fdc141f49609eb3028dd840f776e2734302f3530cb8369d176",
+    "bio": "Robert Lustig is a pediatric endocrinologist who writes about metabolism and the food industry."
+  },
+  "timothy-ferriss": {
+    "digest": "b386b116a1b47a67d4f1b70c658ad55b361498520bf462bc89ed76d872d5a058",
+    "bio": "Tim Ferriss is an author and interviewer known for *The 4-Hour Workweek* and *The Tim Ferriss Show*."
+  },
+  "christopher-mcdougall": {
+    "digest": "ddfca1ae5cd730df110c9b09151f2efe3ec9a43054a581a67904808af5d27ab8",
+    "bio": "Christopher McDougall writes about running and endurance. His books include *Born to Run*."
+  },
+  "james-clear": {
+    "digest": "3c4bd89b8e853278c276b7f66792a5af58fe940a83ec75b2fa7b7a5c36d40c58",
+    "bio": "James Clear wrote *Atomic Habits*, a book about how everyday routines take shape."
+  },
+  "dan-s-kennedy": {
+    "digest": "dd26a128a03dc1d1ee267fbf4c1d5d55b024ea18054f135d36592c5f62af031f",
+    "bio": "Dan S. Kennedy writes about marketing and entrepreneurship."
+  },
+  "james-nestor": {
+    "digest": "d5a82cd7ce94b10056d5230e357b0f447311ac88c5971241d83c98dc3b100c51",
+    "bio": "James Nestor is a science journalist and the author of *Breath*, an exploration of how people breathe."
+  },
+  "michael-greger": {
+    "digest": "02ff6a5cf496d03833563bd79cbacfc8d08541dc74be6fb7cb739401ddaeecfa",
+    "bio": "Michael Greger is a physician and author who writes about nutrition and plant-based diets."
+  },
+  "dan-s-kennedy-1": {
+    "digest": "e8ae50fae43bcde41f54d45244c9a095cf2b2c491999287a041792535d137ff9",
+    "bio": "Dan S. Kennedy worked on the updated edition of Maxwell Maltz’s *Psycho-Cybernetics*."
+  },
+  "jason-fung": {
+    "digest": "0734a6f73801097c5e9005fb2974cc4772483a434ec63d2672ece2d80d6464f5",
+    "bio": "Jason Fung is a nephrologist and author who writes about diabetes and fasting."
+  },
+  "matthew-walker": {
+    "digest": "2e694a4a6d4ea52f7ad38d0b4ec928c41c8695b124eaf42de7f88e6fe3918239",
+    "bio": "Matthew Walker is a sleep researcher and the author of *Why We Sleep*."
+  },
+  "dave-asprey": {
+    "digest": "c1352db23174ff366da60e736428b6da6566155b5d68d8a74aa5f931872537c8",
+    "bio": "Dave Asprey is an entrepreneur and writer associated with Bulletproof Coffee and the biohacking movement."
+  },
+  "pete-egoscue": {
+    "digest": "b3cda143a4dd633dcd11a9f9e54171d279fe009e1bbabddb41a319198195c8a6",
+    "bio": "Pete Egoscue developed an exercise method focused on posture and movement."
+  },
+  "michael-pollan": {
+    "digest": "6f013dda02d81d3a173261dce9647c69558e7c040fdee9ee3adb30d213a4d62b",
+    "bio": "Michael Pollan is a journalist whose books explore food, agriculture and the relationship between people and plants."
+  }
+}

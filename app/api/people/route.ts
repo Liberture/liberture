@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { NextRequest } from "next/server"
+import { profileBiography } from "@/lib/profile-biography";
 import { prisma } from "@/lib/prisma"
 import { getAuthUser, isAdmin } from "@/lib/auth"
 import { randomUUID } from "crypto"
@@ -60,7 +61,7 @@ export async function GET(request: NextRequest) {
           where: { influencerRank: { not: null } },
           orderBy: { influencerRank: "asc" },
         })
-        return NextResponse.json({ people: dbPeople })
+        return NextResponse.json({ people: dbPeople.map(p => ({ ...p, bio: profileBiography(p) })) })
       } catch {
         // Column doesn't exist yet — return all people as fallback
       }
@@ -83,7 +84,7 @@ export async function GET(request: NextRequest) {
       orderBy: { name: "asc" },
     })
 
-    return NextResponse.json({ people: dbPeople })
+    return NextResponse.json({ people: dbPeople.map(p => ({ ...p, bio: profileBiography(p) })) })
   } catch (error) {
     console.error("Error fetching people:", error)
     return NextResponse.json({ people: [] })

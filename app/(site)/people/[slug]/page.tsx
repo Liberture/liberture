@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ProfileMarkdown } from "@/components/people/profile-markdown";
+import { ProfilePortrait } from "@/components/people/profile-portrait";
 import Link from "next/link";
 import { Globe, Twitter, Instagram, Youtube, Mic, BookOpen, MessageSquare, Zap } from "lucide-react";
 import { PersonSchema, BreadcrumbSchema } from "@/components/seo/JsonLd";
@@ -151,12 +154,13 @@ export default function PersonPage() {
           
           {/* Header */}
           <div className="mb-8">
+            <ProfilePortrait person={person} />
             <h1 className="text-5xl font-bold mb-2">{person.name}</h1>
             <p className="text-2xl text-purple-400 mb-4">{person.title}</p>
             
             {/* Social Links */}
             <div className="flex flex-wrap items-center gap-4">
-              {person.wikipedia && (
+              {person.wikipedia && !(person.slug.startsWith("dan-s-kennedy") && person.wikipedia.endsWith("/Dan_Kennedy_(author)")) && (
                 <a 
                   href={person.wikipedia} 
                   target="_blank" 
@@ -220,34 +224,72 @@ export default function PersonPage() {
             </div>
           </div>
 
-          {/* Main Content */}
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Left Column - Main Info */}
-            <div className="md:col-span-2 space-y-6">
+          <Tabs key={person.slug} defaultValue="About">
+            <div className="overflow-x-auto">
+              <TabsList aria-label="Profile sections">
+                <TabsTrigger value="About">About</TabsTrigger>
+                {Boolean(achievements.length) && <TabsTrigger value="Achievements">Achievements</TabsTrigger>}
+                {Boolean(publications.length) && <TabsTrigger value="Publications">Publications</TabsTrigger>}
+                {Boolean(speakingEvents.length) && <TabsTrigger value="Speaking">Speaking</TabsTrigger>}
+                {Boolean(person.Protocol?.length) && <TabsTrigger value="Protocols">Protocols</TabsTrigger>}
+                {Boolean(person.Book?.length) && <TabsTrigger value="Books">Books</TabsTrigger>}
+              </TabsList>
+            </div>
+            <TabsContent value="About" className="data-[state=active]:grid gap-6 md:grid-cols-[2fr_1fr]">
               {/* Bio */}
               <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
                 <h2 className="text-2xl font-bold mb-4">About</h2>
-                <p className="text-slate-300 text-lg leading-relaxed">{person.bio}</p>
+                <ProfileMarkdown>{person.bio}</ProfileMarkdown>
               </div>
 
-              {/* Achievements */}
-              {achievements.length > 0 && (
+              <div className="space-y-6">
+                {/* Pillars */}
                 <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+                  <h3 className="text-xl font-bold mb-4">Focus Areas</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {pillars.map((pillar, i) => (
+                      <span
+                        key={i}
+                        className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 text-sm font-medium border border-purple-500/30"
+                      >
+                        {pillar}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Expertise */}
+                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+                  <h3 className="text-xl font-bold mb-3">Expertise</h3>
+                  <p className="text-slate-300">{person.expertise}</p>
+                </div>
+
+                {/* Followers */}
+                {person.followers && (
+                  <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+                    <h3 className="text-xl font-bold mb-3">Reach</h3>
+                    <p className="text-slate-300">{person.followers}</p>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+            {/* Achievements */}
+              {achievements.length > 0 && (
+                <TabsContent value="Achievements" className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
                   <h2 className="text-2xl font-bold mb-4">Key Achievements</h2>
                   <ul className="space-y-3">
                     {achievements.map((achievement: string, i: number) => (
                       <li key={i} className="flex items-start gap-3">
                         <span className="text-purple-400 mt-1">•</span>
-                        <span className="text-slate-300">{achievement}</span>
+                        <ProfileMarkdown>{achievement}</ProfileMarkdown>
                       </li>
                     ))}
                   </ul>
-                </div>
+                </TabsContent>
               )}
-
-              {/* Publications */}
+            {/* Publications */}
               {publications.length > 0 && (
-                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+                <TabsContent value="Publications" className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
                   <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
                     <BookOpen className="w-6 h-6 text-green-400" />
                     Publications & Research
@@ -256,16 +298,15 @@ export default function PersonPage() {
                     {publications.map((pub: string, i: number) => (
                       <li key={i} className="flex items-start gap-3">
                         <span className="text-green-400 mt-1">→</span>
-                        <span className="text-slate-300">{pub}</span>
+                        <ProfileMarkdown>{pub}</ProfileMarkdown>
                       </li>
                     ))}
                   </ul>
-                </div>
+                </TabsContent>
               )}
-
-              {/* Speaking Events */}
+            {/* Speaking Events */}
               {speakingEvents.length > 0 && (
-                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+                <TabsContent value="Speaking" className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
                   <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
                     <MessageSquare className="w-6 h-6 text-cyan-400" />
                     Speaking & Appearances
@@ -274,16 +315,15 @@ export default function PersonPage() {
                     {speakingEvents.map((event: string, i: number) => (
                       <li key={i} className="flex items-start gap-3">
                         <span className="text-cyan-400 mt-1">→</span>
-                        <span className="text-slate-300">{event}</span>
+                        <ProfileMarkdown>{event}</ProfileMarkdown>
                       </li>
                     ))}
                   </ul>
-                </div>
+                </TabsContent>
               )}
-
-              {/* Protocols */}
+            {/* Protocols */}
               {person.Protocol && person.Protocol.length > 0 && (
-                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+                <TabsContent value="Protocols" className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
                   <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
                     <Zap className="w-6 h-6 text-green-400" />
                     Protocols by {person.name}
@@ -326,12 +366,11 @@ export default function PersonPage() {
                       </Link>
                     ))}
                   </div>
-                </div>
+                </TabsContent>
               )}
-
-              {/* Books */}
+            {/* Books */}
               {person.Book && person.Book.length > 0 && (
-                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
+                <TabsContent value="Books" className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
                   <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
                     <BookOpen className="w-6 h-6 text-orange-400" />
                     Books by {person.name}
@@ -376,42 +415,9 @@ export default function PersonPage() {
                       </Link>
                     ))}
                   </div>
-                </div>
+                </TabsContent>
               )}
-            </div>
-
-            {/* Right Column - Sidebar */}
-            <div className="space-y-6">
-              {/* Pillars */}
-              <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                <h3 className="text-xl font-bold mb-4">Focus Areas</h3>
-                <div className="flex flex-wrap gap-2">
-                  {pillars.map((pillar, i) => (
-                    <span 
-                      key={i}
-                      className="px-3 py-1 rounded-full bg-purple-500/20 text-purple-400 text-sm font-medium border border-purple-500/30"
-                    >
-                      {pillar}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Expertise */}
-              <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                <h3 className="text-xl font-bold mb-3">Expertise</h3>
-                <p className="text-slate-300">{person.expertise}</p>
-              </div>
-
-              {/* Followers */}
-              {person.followers && (
-                <div className="rounded-2xl border border-slate-700 bg-slate-900/50 p-6">
-                  <h3 className="text-xl font-bold mb-3">Reach</h3>
-                  <p className="text-slate-300">{person.followers}</p>
-                </div>
-              )}
-            </div>
-          </div>
+          </Tabs>
         </div>
       </div>
       </div>

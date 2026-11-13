@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { profileBiography } from "@/lib/profile-biography";
 import { prisma } from '@/lib/prisma';
 
 export async function GET(
@@ -61,6 +62,7 @@ export async function GET(
     // Add protocols to person object
     const personWithProtocols = {
       ...person,
+      bio: profileBiography(person),
       Protocol: protocols,
     };
 
