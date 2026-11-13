@@ -136,11 +136,8 @@ export function CoachAdmin({ apiKey = "", embedded = false }: { apiKey?: string;
       await refresh(secret!)
     })
 
-  const Wrapper = embedded ? "div" : "main"
-
   return (
-    <Wrapper className={embedded ? "" : "min-h-screen bg-background px-4 py-10 sm:px-6"}>
-      <div className="mx-auto max-w-xl space-y-6">
+    <div className="max-w-xl space-y-6">
         <header>
           {embedded ? null : <h1 className="text-2xl font-bold text-foreground">{t.title}</h1>}
           <p className="mt-1 text-sm text-muted-foreground">{t.subtitle}</p>
@@ -234,8 +231,7 @@ export function CoachAdmin({ apiKey = "", embedded = false }: { apiKey?: string;
             </Card>
           )
         )}
-      </div>
-    </Wrapper>
+    </div>
   )
 }
 

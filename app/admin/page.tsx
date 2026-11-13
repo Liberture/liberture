@@ -1,6 +1,5 @@
-import AdminPanel from "./admin-home"
-import { managedAuthEnabled } from "@/lib/identity/config"
+import { redirect } from "next/navigation"
 
 export default function AdminHome() {
-  return <AdminPanel managed={managedAuthEnabled()} />
+  redirect("/admin/directory")
 }

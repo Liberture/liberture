@@ -57,19 +57,6 @@ export default function EnrichmentHistory() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-purple-500/20">
-            <Clock className="w-5 h-5 text-purple-400" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold text-white">Enrichment History</h2>
-            <p className="text-sm text-slate-400">Track all enrichment activities</p>
-          </div>
-        </div>
-      </div>
-
       {/* Filters */}
       <div className="flex gap-2">
         <button
