@@ -1,3 +1,4 @@
+import { cookies, headers } from "next/headers"
 import { managedAuthEnabled } from "@/lib/identity/config"
 import { ImpersonationNotice } from "@/app/admin/users/impersonation-notice"
 import { TooltipProvider } from "@/components/ui/tooltip"
@@ -110,6 +111,15 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   const locale = await getRequestLocale()
+  let impersonatedName: string | undefined
+  if (managedAuthEnabled()) {
+    const jar = await cookies()
+    if (jar.has("better-auth.admin_session") || jar.has("__Secure-better-auth.admin_session")) {
+      const { identity } = await import("@/lib/identity/server")
+      const current = await identity().api.getSession({ headers: await headers() })
+      if (current?.session.impersonatedBy) impersonatedName = current.user.name
+    }
+  }
   return (
     // next-themes owns the class from here; "dark" is also rendered on the
     // server so the first paint is right. Only the dark palette exists in
@@ -120,7 +130,7 @@ export default async function RootLayout({
         <WebSiteSchema />
         <ThemeProvider attribute="class" defaultTheme="dark" themes={["dark"]} enableSystem={false} disableTransitionOnChange>
           <LocaleProvider locale={locale}>
-            {managedAuthEnabled() && <ImpersonationNotice />}
+            {impersonatedName && <ImpersonationNotice name={impersonatedName} />}
             <NostrAuthProvider>
               <HabitsSessionProvider><TooltipProvider delayDuration={250}>{children}</TooltipProvider></HabitsSessionProvider>
             </NostrAuthProvider>
