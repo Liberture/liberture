@@ -1,6 +1,7 @@
 "use client";
 import { useTranslations as useUiCopy } from "next-intl"
 
+import Script from "next/script";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "@/components/i18n/localized-link";
@@ -13,6 +14,7 @@ type CookiePreferences = {
 export function CookieConsent() {
   const uiCopy = useUiCopy("publicCopy.cookies")
 
+  const [analyticsEnabled, setAnalyticsEnabled] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
@@ -21,13 +23,14 @@ export function CookieConsent() {
     const consent = localStorage.getItem('cookie-consent');
     if (!consent) {
       // Show banner after a brief delay
-      setTimeout(() => setShowBanner(true), 1000);
+      const timer = setTimeout(() => setShowBanner(true), 1000);
+      return () => clearTimeout(timer);
     } else {
       // Load existing preferences (handle legacy string values)
       try {
         const preferences: CookiePreferences = JSON.parse(consent);
         if (preferences.analytics) {
-          enableGoogleAnalytics();
+          setAnalyticsEnabled(true);
         }
       } catch {
         // Legacy value (e.g., "all") - migrate to new format
@@ -35,7 +38,7 @@ export function CookieConsent() {
         const newPreferences: CookiePreferences = { necessary: true, analytics: enableAnalytics };
         localStorage.setItem('cookie-consent', JSON.stringify(newPreferences));
         if (enableAnalytics) {
-          enableGoogleAnalytics();
+          setAnalyticsEnabled(true);
         }
       }
     }
@@ -46,7 +49,7 @@ export function CookieConsent() {
     localStorage.setItem('cookie-consent-date', new Date().toISOString());
     
     if (preferences.analytics) {
-      enableGoogleAnalytics();
+      setAnalyticsEnabled(true);
     }
     
     setShowBanner(false);
@@ -60,25 +63,20 @@ export function CookieConsent() {
     savePreferences({ necessary: true, analytics: false });
   };
 
-  const enableGoogleAnalytics = () => {
-    // Initialize Google Analytics
-    const script1 = document.createElement('script');
-    script1.async = true;
-    script1.src = `https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`;
-    document.head.appendChild(script1);
-
-    const script2 = document.createElement('script');
-    script2.innerHTML = `
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}', {
-        anonymize_ip: true,
-        cookie_flags: 'SameSite=None;Secure'
-      });
-    `;
-    document.head.appendChild(script2);
-  };
+  if (analyticsEnabled) {
+    return (
+      <>
+        <Script id="google-analytics-init">{`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-TL25ER7S2F', { anonymize_ip: true, cookie_flags: 'SameSite=None;Secure' });
+        `}</Script>
+        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-TL25ER7S2F" />
+        <Script async src="https://analytics.ahrefs.com/analytics.js" data-key="0JUsXN4NC4ckajqAQL3C7w" />
+      </>
+    );
+  }
 
   return (
     <AnimatePresence>

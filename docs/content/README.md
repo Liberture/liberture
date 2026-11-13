@@ -20,4 +20,4 @@ The [sitemap](../../app/sitemap.ts) defines discoverable URLs. The [robots confi
 
 ## Site features
 
-The [cookie consent component](../../components/legal/CookieConsent.tsx) loads Google Analytics after analytics consent and reads the GA4 measurement ID from the build-time variable `NEXT_PUBLIC_GA_ID`.
+The [cookie consent component](../../components/legal/CookieConsent.tsx) loads Google Analytics (GA4) and Ahrefs after the visitor accepts analytics.
