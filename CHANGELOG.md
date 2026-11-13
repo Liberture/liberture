@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.0
+
+Released 2026-11-13.
+
+- **Tracker challenges.** Two players can agree on rules, invite a moderator and stake Cashu test sats. Invitees can join by private link without a Nostr account or receive an encrypted invitation to their Nostr inbox. Both players can award the pot to either player or agree on a draw. A disputed payout requires the moderator and one player to sign. After the deadline each depositor can reclaim their unspent stake. Test sats have no monetary value.
+- **Tracker navigation and accounts.** The Day, Week and Matrix selector sits above the tracker. Tracker screens share session state and send owner-scoped API requests through a common client.
+- **Languages and search.** English public pages use unprefixed canonical URLs, including in the sitemap. The language switcher resolves translated directory and article slugs. The Ahrefs site audit crawler can see the installation snippet.
+- **Upgrading.** Apply the included PostgreSQL migration for challenges and deposit proof tracking before serving challenge traffic. An application rollback can leave the new tables in place. Preserve their contents while challenges have outstanding deposits.
+
 ## 0.3.0
 
 Released 2026-11-13. This release also delivers the book card updates from 0.2.1, whose production build failed on the People page.
