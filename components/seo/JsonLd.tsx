@@ -201,7 +201,7 @@ export function ArticleSchema({
 }
 
 // Breadcrumb Schema
-export function BreadcrumbSchema({ items, compact = false }: { compact?: boolean; items: Array<{ name: string; url: string }> }) {
+export function BreadcrumbSchema({ items, compact = false, schemaOnly = false }: { schemaOnly?: boolean; compact?: boolean; items: Array<{ name: string; url: string }> }) {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -212,6 +212,8 @@ export function BreadcrumbSchema({ items, compact = false }: { compact?: boolean
       item: item.url,
     })),
   };
+
+  if (schemaOnly) return <JsonLd data={schema} />
 
   return <><nav aria-label="Breadcrumb" className={compact ? "text-xs text-muted-foreground" : "relative mx-auto w-full max-w-6xl px-4 pt-5 text-xs text-muted-foreground"}>
     <ol className={compact ? "flex items-center gap-2" : "flex flex-wrap items-center gap-2"}>{items.map(({name,url},i) => <li key={url} className={compact && i === items.length-1 ? "flex min-w-0 items-center gap-2" : "flex shrink-0 items-center gap-2"}>

@@ -18,5 +18,5 @@ export function SectionBreadcrumbs({pathname}: {pathname:string}) {
   if (segments.length > 1 && (segments.length !== 2 || !["docs","games","pillars"].includes(segments[0]))) return null
   const items = sectionTrail(segments[0])
   if (segments.length === 2) items.push({name:labels[segments[1]],url:"https://liberture.com"+pathname})
-  return <BreadcrumbSchema items={items} />
+  return <BreadcrumbSchema items={items} schemaOnly={segments[0] === "pillars"} />
 }
