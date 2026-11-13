@@ -1,3 +1,4 @@
+import { ArticleTopicTags } from "./article-topic-tags"
 import { CoverArtwork } from "@/components/habits/marketplace/protocol-artwork"
 import { articleTags } from "@/lib/article-tags"
 import Link from "next/link"
@@ -35,19 +36,7 @@ export function ArticleCard({ article }: { article: Pick<Article, "slug" | "titl
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {article.pillar && (
-            <span className="px-2 py-1 rounded-full bg-blue-500/20 text-blue-400 text-xs font-medium border border-blue-500/30">
-              {article.pillar}
-            </span>
-          )}
-          {tags.slice(0, 2).map((tag: string, i: number) => (
-            <span
-              key={i}
-              className="px-2 py-1 rounded-full bg-slate-700/50 text-slate-400 text-xs"
-            >
-              {tag}
-            </span>
-          ))}
+          <ArticleTopicTags topics={[article.pillar, ...tags.slice(0, 2)]} />
         </div>
       </div>
     </Link>

@@ -2,7 +2,7 @@ import type { ReactNode } from "react"
 import { IslandRidge, RippleBloom } from "@/components/patterns"
 
 export function DirectoryLayout({ children }: { children: ReactNode }) {
-  return <div className="relative min-h-screen overflow-hidden px-4 py-12">
+  return <div className="relative min-h-screen overflow-clip px-4 py-12">
     <IslandRidge placement="corner" gradient="neon" size="420px" className="-left-24 -top-16" opacity={0.13} />
     <RippleBloom placement="corner" gradient="plasma" size="380px" className="-right-20 top-1/3" opacity={0.11} />
     <div className="relative mx-auto w-full max-w-6xl">{children}</div>
