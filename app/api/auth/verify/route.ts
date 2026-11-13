@@ -1,3 +1,4 @@
+import { managedAuthEnabled } from "@/lib/identity/config"
 import { NextResponse } from "next/server"
 import { getDb } from "@/lib/habits/db"
 import { isLocalStorageMode, getLocalUser } from "@/lib/habits/local-storage"
@@ -26,13 +27,19 @@ export async function POST(request: Request) {
     }
 
     const result = await getDb()`
-      SELECT created_at FROM habit_users WHERE api_key = ${apiKey}
+      SELECT id, created_at FROM habit_users WHERE api_key = ${apiKey}
     `
     if (result.length === 0) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
     }
 
-    return NextResponse.json({ valid: true, createdAt: result[0].created_at })
+    const response = { valid: true, createdAt: result[0].created_at }
+    if (managedAuthEnabled()) {
+      const { signedInResponse, trackerIdentity } = await import("@/lib/identity/tracker")
+      if ((await trackerIdentity(request.headers))?.tracker.id !== result[0].id)
+        return signedInResponse(request, result[0].id, response)
+    }
+    return NextResponse.json(response)
   } catch (error) {
     console.error("Failed to verify:", error)
     return NextResponse.json({ error: "Failed to verify credentials" }, { status: 500 })

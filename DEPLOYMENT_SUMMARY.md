@@ -4,10 +4,27 @@ GitHub Actions tests and builds each push to `master`. A restricted SSH key lets
 
 The web service runs as `liberture` on loopback behind the reverse proxy. Systemd loads the database URL, mail key and stable Web Push keys from the root-only `/etc/liberture/app.env`. Update runtime secrets there and restart `liberture.service`. CI uses a dedicated deployment key and a pinned SSH host key.
 
+## Sign-in and user administration
+
+Nostr proves control of the signing key. With managed authentication enabled, Better Auth owns the web sessions and roles used by [/admin/users](https://liberture.com/admin/users). Each imported identity uses the original tracker ID, so habits, history and assistant connections keep their existing owner. Imported identities use internal addresses ending in `@accounts.invalid`. The newsletter list is separate.
+
+Deploy the release with managed authentication disabled first. For cutover, stop `liberture.service`, take a fresh database backup, set `BETTER_AUTH_URL` to the public origin and a stable randomly generated `BETTER_AUTH_SECRET` of at least 32 characters in `/etc/liberture/app.env`, then run the migration under the application account with its normal environment:
+
+```sh
+sudo systemd-run --wait --collect --pipe --uid=liberture --gid=liberture \
+  -p WorkingDirectory=/srv/liberture/current -p EnvironmentFile=/etc/liberture/app.env \
+  /usr/bin/node node_modules/tsx/dist/cli.mjs scripts/migrate-managed-auth.mjs
+```
+
+After a successful migration, set `LIBERTURE_MANAGED_AUTH=true`, start the service and check an existing login and the user list. The transaction imports active legacy sessions with their original expiration, consumes their old records, and preserves assigned roles on reruns. The configured Nostr admin keys supply the initial role for new identities.
+
+If the migration fails, the transaction rolls back and the legacy service can restart. After cutover, use a managed-auth-compatible release for code rollback so bans and revocations stay enforced. Returning to legacy authentication requires restoring the pre-cutover database while access is paused. Reconcile any subsequent tracker writes before restoring.
+
 ## Third-party services
 
 | Service | Use and configuration |
 |---|---|
+| Google reCAPTCHA | The public newsletter uses a v2 checkbox when the signup section is visible. Configure `RECAPTCHA_SITE_KEY`, `RECAPTCHA_SECRET_KEY`, and `RECAPTCHA_HOSTNAMES` in the web service environment. Subscribers are searchable under `/admin/subscribers`. |
 | Resend | The [mail helpers](lib/resend.ts) send from `hello@liberture.com`. The production service reads `RESEND_API_KEY` from its runtime environment. Manage the sending-only key for `liberture.com` in the Liberture Resend account. |
 | Google Books | The [Goodreads enrichment script](scripts/goodreads-scraper/step3-enrich-and-normalize.ts) reads `GOOGLE_BOOKS_API_KEY` from the environment where the scraper runs. Its Google Cloud key is restricted to the Books API. |
 | Web Push | Browser reminders use stable VAPID keys from the web service’s runtime environment. See [Push reminders](docs/REMINDERS.md). |

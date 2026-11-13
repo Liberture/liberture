@@ -1,3 +1,4 @@
+import { managedAuthEnabled } from "@/lib/identity/config"
 import { NextResponse } from "next/server"
 import { checkAuthEvent } from "@/lib/habits/nostr/auth-event"
 import { verifyEvent, type Event } from "nostr-tools"
@@ -68,6 +69,8 @@ export async function POST(request: Request) {
     }
 
     const user = userResult[0]
+
+    if (managedAuthEnabled() && !await (await import("@/lib/identity/tracker")).activeUser("habit-" + user.id)) return NextResponse.json({ error: "Account unavailable" }, { status: 403 })
 
     // Check if user already has a linked Nostr pubkey
     if (user.nostr_pubkey) {

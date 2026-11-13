@@ -1,3 +1,4 @@
+import { managedAuthEnabled } from "@/lib/identity/config"
 import crypto from "node:crypto"
 import { getDb } from "@/lib/habits/db"
 
@@ -19,6 +20,17 @@ export interface AuthInfo {
   pubkey?: string
 }
 
+async function legacyCredential(key: string): Promise<AuthInfo | null> {
+  if (!key.startsWith("ht_")) return null
+  if (managedAuthEnabled()) {
+    const { prisma } = await import("@/lib/prisma")
+    const { activeUser } = await import("@/lib/identity/tracker")
+    const user = await prisma.habitUser.findUnique({ where: { apiKey: key }, select: { id: true } })
+    if (!user || !await activeUser("habit-" + user.id)) return null
+  }
+  return { type: "api-key", apiKey: key }
+}
+
 /**
  * Parse the auth identifier from the request.
  * Supports legacy API keys (ht_...) and signed Nostr sessions.
@@ -28,17 +40,23 @@ export async function getAuthFromRequest(request: Request): Promise<AuthInfo | n
 
   if (authHeader?.startsWith("Bearer ")) {
     const token = authHeader.slice(7)
-    return token.startsWith("ht_") ? { type: "api-key", apiKey: token } : null
+    return legacyCredential(token)
   }
 
   const url = new URL(request.url)
   const apiKey = url.searchParams.get("apiKey")
   if (apiKey) {
-    return apiKey.startsWith("ht_") ? { type: "api-key", apiKey } : null
+    return legacyCredential(apiKey)
   }
 
   if (isLocalStorageMode()) return null
 
+  if (managedAuthEnabled()) {
+    const { trackerIdentity } = await import("@/lib/identity/tracker")
+    const current = await trackerIdentity(request.headers)
+    if (!current) return null
+    return current.tracker.nostrPubkey ? { type: "nostr", pubkey: current.tracker.nostrPubkey } : { type: "api-key", apiKey: current.tracker.apiKey }
+  }
   const sessionToken = getSessionTokenFromCookie(request)
   if (!sessionToken) return null
 

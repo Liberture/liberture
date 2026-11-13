@@ -1,4 +1,6 @@
-import { cookies } from "next/headers"
+import { managedAuthEnabled } from "@/lib/identity/config"
+import { adminPubkeys } from "@/lib/identity/admin-keys"
+import { cookies, headers } from "next/headers"
 
 import { createNostrSessionsTable } from "@/lib/habits/db-migrate"
 import { SESSION_COOKIE_NAME, verifySession } from "@/lib/habits/nostr/session-store"
@@ -13,6 +15,11 @@ export interface AuthUser {
 }
 
 export async function getAuthUser(): Promise<AuthUser | null> {
+  if (managedAuthEnabled()) {
+    const { trackerIdentity } = await import("@/lib/identity/tracker")
+    const session = await trackerIdentity(await headers())
+    return session ? { userId: session.id, pubkey: session.tracker.nostrPubkey ?? "" } : null
+  }
   const cookieStore = await cookies()
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value
   if (!token) return null
@@ -26,22 +33,11 @@ export async function getAuthUser(): Promise<AuthUser | null> {
   }
 }
 
-// npub1m9vsm9d8sy0pevcjhenwm4ny6l37dm2hsg4dnusna43ql3n5305qy4zlg4
-// npub1gxdhmu9swqduwhr6zptjy4ya693zp3ql28nemy4hd97kuufyrqdqwe5zfk
-const DEFAULT_ADMIN_PUBKEYS = [
-  "d9590d95a7811e1cb312be66edd664d7e3e6ed57822ad9f213ed620fc6748be8",
-  "419b7df0b0701bc75c7a105722549dd16220c41f51e79d92b7697d6e7124181a",
-]
-
-function adminPubkeys(): string[] {
-  const extra = (process.env.ADMIN_NOSTR_PUBKEYS ?? "")
-    .split(",")
-    .map((key) => key.trim().toLowerCase())
-    .filter(Boolean)
-  return [...DEFAULT_ADMIN_PUBKEYS, ...extra]
-}
-
 /** Admin = one of the configured hex pubkeys. `userId` is the pubkey from getAuthUser. */
 export async function isAdmin(userId: string): Promise<boolean> {
+  if (managedAuthEnabled()) {
+    const { activeUser } = await import("@/lib/identity/tracker")
+    return (await activeUser(userId))?.role === "admin"
+  }
   return adminPubkeys().includes(userId.toLowerCase())
 }

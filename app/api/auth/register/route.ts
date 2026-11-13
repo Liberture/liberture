@@ -1,3 +1,4 @@
+import { managedAuthEnabled } from "@/lib/identity/config"
 import { NextResponse } from "next/server"
 import { getDb } from "@/lib/habits/db"
 import { createLocalUser, isLocalStorageMode } from "@/lib/habits/local-storage"
@@ -32,11 +33,12 @@ export async function POST(request: Request) {
 
     // Production mode: use Neon database
     const sql = getDb()
-    await sql`
+    const [user] = await sql`
       INSERT INTO habit_users (api_key, data)
-      VALUES (${apiKey}, ${JSON.stringify(freshStorageData())}::jsonb)
+      VALUES (${apiKey}, ${JSON.stringify(freshStorageData())}::jsonb) RETURNING id
     `
 
+    if (managedAuthEnabled()) return (await import("@/lib/identity/tracker")).signedInResponse(request, user.id, { apiKey })
     return NextResponse.json({ apiKey })
   } catch (error) {
     console.error("Failed to register:", error)

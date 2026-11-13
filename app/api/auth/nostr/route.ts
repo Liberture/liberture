@@ -1,3 +1,4 @@
+import { managedAuthEnabled } from "@/lib/identity/config"
 import { NextResponse } from "next/server"
 import { checkAuthEvent } from "@/lib/habits/nostr/auth-event"
 import { verifyEvent, type Event } from "nostr-tools"
@@ -99,36 +100,30 @@ export async function POST(request: Request) {
       SELECT id, created_at FROM habit_users WHERE nostr_pubkey = ${normalizedPubkey}
     `
 
-    // Create session token for persistent auth (cookie)
-    const sessionToken = await createSession(normalizedPubkey)
-
-    if (existing.length > 0) {
-      return withSessionCookie({
-        exists: true,
-        createdAt: existing[0].created_at,
-      }, sessionToken)
+    const finish = async (id: number, body: Record<string, unknown>) => {
+      if (managedAuthEnabled()) {
+        const { signedInResponse } = await import("@/lib/identity/tracker")
+        return signedInResponse(request, id, body)
+      }
+      return withSessionCookie(body, await createSession(normalizedPubkey))
     }
 
-    // Create new user with Nostr pubkey
-    // habit_users.api_key is required and unique, but Nostr accounts never use it to
-    // sign in. It must still be unguessable: it used to be derived from the public
-    // key, and any route matching api_key directly then let anyone in.
+    if (existing.length) return finish(existing[0].id, { exists: true, createdAt: existing[0].created_at })
+    let id: number
     try {
-      await sql`
+      const [created] = await sql`
         INSERT INTO habit_users (api_key, nostr_pubkey, data)
         VALUES (${randomInternalApiKey()}, ${normalizedPubkey}, ${JSON.stringify(freshStorageData())}::jsonb)
+        RETURNING id
       `
+      id = created.id
     } catch (error) {
-      // A concurrent first sign-in with the same key created the account
-      // between our SELECT and INSERT. This request is verified too: sign it in.
       if ((error as { code?: string }).code !== "23505") throw error
-      return withSessionCookie({ exists: true }, sessionToken)
+      const [winner] = await sql`SELECT id FROM habit_users WHERE nostr_pubkey = ${normalizedPubkey}`
+      if (!winner) throw error
+      return finish(winner.id, { exists: true })
     }
-
-    return withSessionCookie({
-      exists: false,
-      created: true,
-    }, sessionToken)
+    return finish(id, { exists: false, created: true })
   } catch (error) {
     console.error("Failed to verify Nostr auth:", error)
     return NextResponse.json({ error: "Authentication failed" }, { status: 500 })

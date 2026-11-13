@@ -1,3 +1,4 @@
+import { managedAuthEnabled } from "@/lib/identity/config"
 import { NextResponse } from "next/server"
 import { nip19 } from "nostr-tools"
 import { isLocalStorageMode } from "@/lib/habits/local-storage"
@@ -14,6 +15,14 @@ import { createNostrSessionsTable } from "@/lib/habits/db-migrate"
  */
 export async function GET(request: Request) {
   try {
+    if (managedAuthEnabled()) {
+      const { trackerIdentity, signedInResponse } = await import("@/lib/identity/tracker")
+      const current = await trackerIdentity(request.headers)
+      const pubkey = current?.tracker.nostrPubkey
+      if (!current || !pubkey) return NextResponse.json({ valid: false }, { status: 401 })
+      const body = { valid: true, pubkey, npub: nip19.npubEncode(pubkey) }
+      return current.imported ? signedInResponse(request, current.tracker.id, body, current.imported) : NextResponse.json(body)
+    }
     const token = getSessionTokenFromCookie(request)
 
     if (!token) {
@@ -74,6 +83,10 @@ export async function GET(request: Request) {
  */
 export async function DELETE(request: Request) {
   try {
+    if (managedAuthEnabled()) {
+      const { managedSignOut } = await import("@/lib/identity/tracker")
+      return managedSignOut(request)
+    }
     const token = getSessionTokenFromCookie(request)
 
     if (!token) {

@@ -46,7 +46,7 @@ vi.mock("@/lib/habits/db", () => {
     }
     if (q.startsWith("INSERT INTO habit_users")) {
       db.users.push({ id: db.users.length + 1, nostr_pubkey: v[1] as string, created_at: now })
-      return []
+      return [{ id: db.users.length }]
     }
     if (q.startsWith("DELETE FROM nostr_sessions WHERE pubkey = $ AND (expires_at <= NOW() OR token NOT IN (")) {
       // Map order is insertion order, i.e. created_at: keep the newest `limit`.

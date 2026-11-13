@@ -1,55 +1,38 @@
-import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { randomUUID } from 'crypto'
+import { randomUUID } from "node:crypto"
+import { prisma } from "@/lib/prisma"
+import { checkRateLimit, clientIp } from "@/lib/habits/rate-limit"
+import { verifyCaptcha } from "@/lib/newsletter/captcha"
 
 export async function POST(request: Request) {
+  if (request.headers.get("content-type")?.split(";")[0] !== "application/json") return new Response(null, { status: 415 })
+  const origin = request.headers.get("origin")
+  if (origin && new URL(request.url).origin !== origin && origin !== process.env.NEXT_PUBLIC_SITE_URL) return new Response(null, { status: 403 })
+  const limit = checkRateLimit("newsletter:" + clientIp(request), 5, 10 * 60_000)
+  if (!limit.allowed) return new Response(null, { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } })
+  const reader = request.body?.getReader()
+  if (!reader) return new Response(null, { status: 400 })
+  let body
   try {
-    const { email } = await request.json()
-
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return NextResponse.json(
-        { error: 'Invalid email address' },
-        { status: 400 }
-      )
+    const chunks: Uint8Array[] = []
+    let size = 0
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      size += value.byteLength
+      if (size > 8192) { await reader.cancel(); return new Response(null, { status: 413 }) }
+      chunks.push(value)
     }
-
-    // Check if already subscribed
-    const existing = await prisma.newsletter.findUnique({
-      where: { email }
-    })
-
-    if (existing) {
-      if (existing.subscribed) {
-        return NextResponse.json(
-          { error: 'This email is already subscribed' },
-          { status: 409 }
-        )
-      } else {
-        // Re-subscribe
-        await prisma.newsletter.update({
-          where: { email },
-          data: { subscribed: true }
-        })
-      }
-    } else {
-      // New subscriber
-      await prisma.newsletter.create({
-        data: { id: randomUUID(), email, subscribed: true, updatedAt: new Date() }
-      })
-    }
-
-    // TODO: Send welcome email via Resend (optional for now)
-    // await sendWelcomeEmail(email)
-
-    return NextResponse.json({
-      success: true,
-      message: 'Successfully subscribed!'
-    })
-  } catch (error) {
-    console.error('Newsletter subscribe error:', error)
-    return NextResponse.json(
-      { error: 'Failed to subscribe. Please try again.' },
-      { status: 500 }
-    )
+    body = JSON.parse(Buffer.concat(chunks).toString("utf8"))
+  } catch { return new Response(null, { status: 400 }) }
+  const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : ""
+  if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || typeof body?.token !== "string" || !body.token) {
+    return new Response(null, { status: 400 })
   }
+  try {
+    if (!await verifyCaptcha(body.token)) return new Response(null, { status: 403 })
+    // Existing subscriptions (including opt-outs) get the same public response.
+    const existing = await prisma.newsletter.findFirst({ where: { email: { equals: email, mode: "insensitive" } }, select: { id: true } })
+    if (!existing) await prisma.newsletter.createMany({ data: [{ id: randomUUID(), email, updatedAt: new Date() }], skipDuplicates: true })
+    return new Response(null, { status: 204 })
+  } catch { return new Response(null, { status: 503 }) }
 }
