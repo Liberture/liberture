@@ -1,5 +1,5 @@
 import { expect, it } from "vitest"
-import { rankProfiles } from "./search-profiles"
+import { rankProfiles } from "../search-profiles"
 
 it("puts keyword matches from follows first and keeps each public key once", () => {
   const follow = { npub: "one", name: "Leon", keywords: "leon leon@domain", address: "", picture: "" }
