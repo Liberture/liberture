@@ -95,4 +95,4 @@ Reminders that arrive with the app closed need VAPID keys in the server environm
 
 ## License
 
-Open source. See the repository for details.
+Liberture is open-source software licensed under the [GNU General Public License v3.0](LICENSE).
