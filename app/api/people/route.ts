@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server"
 import { NextRequest } from "next/server"
-import { profileSummary } from "@/lib/profile-biography";
 import { prisma } from "@/lib/prisma"
 import { getAuthUser, isAdmin } from "@/lib/auth"
 import { randomUUID } from "crypto"
@@ -17,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { name, bio, pillars, imageUrl, website } = body
+    const { name, bio, summary, pillars, imageUrl, website } = body
 
     if (!name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 })
@@ -32,6 +31,7 @@ export async function POST(request: NextRequest) {
         id: randomUUID(),
         name,
         bio: bio || "",
+        summary: typeof summary === "string" ? summary.trim() || null : null,
         pillars: pillars || "mind",
         slug,
         title: "",
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
           where: { influencerRank: { not: null } },
           orderBy: { influencerRank: "asc" },
         })
-        return NextResponse.json({ people: dbPeople.map(p => ({ ...p, bio: profileSummary(p) })) })
+        return NextResponse.json({ people: dbPeople.map(p => ({ ...p, bio: p.summary || p.bio })) })
       } catch {
         // Column doesn't exist yet — return all people as fallback
       }
@@ -75,6 +75,7 @@ export async function GET(request: NextRequest) {
         featured: true,
         slug: true,
         bio: true,
+        summary: true,
         pillars: true,
         twitter: true,
         imageUrl: true,
@@ -86,7 +87,7 @@ export async function GET(request: NextRequest) {
       orderBy: { name: "asc" },
     })
 
-    return NextResponse.json({ people: dbPeople.map(p => ({ ...p, bio: profileSummary(p) })) })
+    return NextResponse.json({ people: dbPeople.map(p => ({ ...p, bio: p.summary || p.bio })) })
   } catch (error) {
     console.error("Error fetching people:", error)
     return NextResponse.json({ people: [] })

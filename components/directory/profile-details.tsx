@@ -1,5 +1,4 @@
 import type { getOrganization } from "@/lib/seo/public-records"
-import { profileSummary } from "@/lib/profile-biography"
 import { PersonCard } from "@/components/people/person-card"
 import { RelatedProfiles } from "./related-profiles"
 import { profilePath, profileSection } from "@/lib/directory/profile-path"
@@ -85,7 +84,7 @@ export default function OrganizationDetails({ organization, locale }: { organiza
         {groups.map(({ id, items }) => <TabsContent key={id} value={id}>
           {id === "people" && people.length ? <div className="grid gap-3 sm:grid-cols-2">
             {[...linkedPeople.values()].map(({ person, roles }) =>
-              <PersonCard key={person.id} person={{ ...person, bio: profileSummary(person) }} role={roles.join(" · ")} featuredLabel={copy.protocolCard.featured} />)}
+              <PersonCard key={person.id} person={person} role={roles.join(" · ")} featuredLabel={copy.protocolCard.featured} />)}
           </div> : <EntryList items={items} />}
         </TabsContent>)}
       </Tabs>

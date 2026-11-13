@@ -1,0 +1,1 @@
+ALTER TABLE "Person" ADD COLUMN IF NOT EXISTS "summary" TEXT;

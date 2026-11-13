@@ -1,4 +1,3 @@
-import { profileSummary } from "@/lib/profile-biography"
 import { OrganizationCard } from "@/components/directory/org-card"
 import { getDictionary } from "@/lib/habits/i18n"
 import { getRequestLocale } from "@/lib/habits/i18n/server"
@@ -82,7 +81,7 @@ export default async function PillarPage({ params }: PageProps) {
       }),
       prisma.person.findMany({
         where: { pillars: { contains: pillar } },
-        select: { id: true, name: true, slug: true, bio: true, title: true, pillars: true, imageUrl: true, featured: true },
+        select: { id: true, name: true, slug: true, bio: true, summary: true, title: true, pillars: true, imageUrl: true, featured: true },
         orderBy: [{ featured: 'desc' }, { name: 'asc' }],
       }),
       prisma.book.findMany({
@@ -161,7 +160,7 @@ export default async function PillarPage({ params }: PageProps) {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {people.slice(0, 6).map((person: any) => (
-                  <PersonCard key={person.id} featuredLabel="Featured" person={{ ...person, bio: profileSummary(person) }} />
+                  <PersonCard key={person.id} featuredLabel="Featured" person={person} />
                 ))}
               </div>
             </div>

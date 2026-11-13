@@ -3,7 +3,6 @@ import { BackLink } from "@/components/seo/back-link"
 import { PersonCard } from "@/components/people/person-card"
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
-import { profileSummary } from "@/lib/profile-biography";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -56,7 +55,7 @@ export default async function PeoplePage({
           </p>
 
           <DirectoryGrid>
-            {people.map(person => <PersonCard key={person.id} featuredLabel="Featured" person={{ ...person, bio: profileSummary(person) }} />)}
+            {people.map(person => <PersonCard key={person.id} featuredLabel="Featured" person={person} />)}
           </DirectoryGrid>
 
           {people.length === 0 && (

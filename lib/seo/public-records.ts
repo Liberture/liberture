@@ -2,7 +2,6 @@ import { cache } from "react"
 import { prisma } from "@/lib/prisma"
 import { protocolBylines } from "./protocol-credits"
 import { CATALOG_PROTOCOLS } from "@/lib/habits/protocols/catalog"
-import { profileBiography } from "@/lib/profile-biography"
 
 export const getPerson = cache(async (slug: string) => {
   const person = await prisma.person.findUnique({
@@ -59,7 +58,6 @@ export const getPerson = cache(async (slug: string) => {
   // Add protocols to person object
   const personWithProtocols = {
     ...person,
-    bio: profileBiography(person),
     Protocol: protocols,
   };
 

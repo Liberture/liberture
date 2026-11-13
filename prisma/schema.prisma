@@ -207,6 +207,7 @@ model Person {
   name           String
   title          String
   bio            String
+  summary        String?
   pillars        String
   expertise      String
   followers      String?
