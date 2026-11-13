@@ -92,7 +92,7 @@ export default async function ArticlePage({ params }: PageProps) {
         modifiedAt={article.updatedAt?.toISOString()}
         author={article.author || 'Liberture'}
       />
-      <BreadcrumbSchema items={[...sectionTrail("articles"), {name:article.title, url:`https://liberture.com/articles/${article.slug}`}]} />
+      <BreadcrumbSchema items={[...sectionTrail("articles"), {name:article.title, url:articleUrl}]} />
 
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
