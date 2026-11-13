@@ -55,8 +55,7 @@ export function NewsletterSignup({ siteKey }: { siteKey: string }) {
           <Input name="email" aria-label={t.email} placeholder={t.email} type="email" autoComplete="email" required maxLength={254} />
           <Button disabled={!ready || status === "sending"}>{t.subscribe}</Button>
         </div>
-        <div ref={container} className="[&_.grecaptcha-badge]:invisible" />
-        <small className="text-muted-foreground">{t.protection}</small>
+        <div ref={container} />
         {visible && siteKey && <Script src="https://www.google.com/recaptcha/api.js?render=explicit" onError={() => setStatus("error")} onReady={() => {
           window.grecaptcha?.ready(() => {
             if (!container.current || widget.current !== undefined) return
