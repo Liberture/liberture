@@ -1,0 +1,21 @@
+import { notFound, permanentRedirect } from "next/navigation"
+import { getOrganization } from "@/lib/seo/public-records"
+import { detailMetadata } from "@/lib/seo/detail-metadata"
+import { getRequestLocale } from "@/lib/habits/i18n/server"
+import { profilePath, profileSection } from "@/lib/directory/profile-path"
+import Details from "./profile-details"
+
+export type ProfilePageProps = { params: Promise<{ slug: string }> }
+
+export async function profileMetadata({ params }: ProfilePageProps) {
+  const record = await getOrganization((await params).slug)
+  if (!record) notFound()
+  return detailMetadata(profilePath(record), record.name, record.description, "website", record.imageUrl)
+}
+
+export async function ProfilePage({ params, section }: ProfilePageProps & { section: "organizations" | "projects" }) {
+  const record = await getOrganization((await params).slug)
+  if (!record) notFound()
+  if (section !== profileSection(record.directoryKind)) permanentRedirect(profilePath(record))
+  return <Details organization={record} locale={await getRequestLocale()} />
+}

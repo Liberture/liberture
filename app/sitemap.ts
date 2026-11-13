@@ -1,3 +1,4 @@
+import { profilePath } from "@/lib/directory/profile-path"
 import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/prisma';
 import { GUIDES_UPDATED, guideImages, guidesFor, screenshotSrc } from '@/lib/guides';
@@ -43,6 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     })),
     { url: `${baseUrl}/people`, changeFrequency: 'weekly', priority: 0.9 },
+    { url: `${baseUrl}/projects`, changeFrequency: 'weekly', priority: 0.9 },
     { url: `${baseUrl}/organizations`, changeFrequency: 'weekly', priority: 0.9 },
     {
       url: `${baseUrl}/protocols`,
@@ -87,7 +89,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     safe('people', () => prisma.person.findMany({ select: { slug: true, updatedAt: true, featured: true } })),
     safe('books', () => prisma.book.findMany({ select: { slug: true, updatedAt: true, featured: true } })),
     safe('organizations', () =>
-      prisma.organization.findMany({ select: { slug: true, updatedAt: true, featured: true } }),
+      prisma.organization.findMany({ select: { directoryKind: true, slug: true, updatedAt: true, featured: true } }),
     ),
     safe('protocols', () =>
       prisma.protocol.findMany({
@@ -124,7 +126,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
 
     ...organizations.map((org) => ({
-      url: `${baseUrl}/organizations/${org.slug}`,
+      url: `${baseUrl}${profilePath(org)}`,
       lastModified: org.updatedAt,
       changeFrequency: 'monthly' as const,
       priority: org.featured ? 0.8 : 0.7,

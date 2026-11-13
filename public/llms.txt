@@ -21,11 +21,11 @@
 
 - [Pillars](https://liberture.com/pillars): Cognition, Recovery, Fueling, Mental, Physicality and Finance.
 - [Protocol library](https://liberture.com/protocols): Explore, share or download structured routines and add their habits to the tracker.
-- [Directory](https://liberture.com/directory): Browse [people](https://liberture.com/people), [books](https://liberture.com/books) and [organizations](https://liberture.com/organizations).
+- [Directory](https://liberture.com/directory): Browse [people](https://liberture.com/people), [books](https://liberture.com/books) and [projects](https://liberture.com/projects) and their [organizations](https://liberture.com/organizations).
 - [Articles](https://liberture.com/articles) and [guides](https://liberture.com/guides): Editorial content and practical instructions.
 - [Games](https://liberture.com/games): Interactive sleep and hydration tools.
 - [About](https://liberture.com/about), [support](https://liberture.com/support), [privacy](https://liberture.com/privacy) and [sitemap](https://liberture.com/sitemap.xml).
 
 ## Public content APIs
 
-- [People](https://liberture.com/api/people), [books](https://liberture.com/api/books), [organizations](https://liberture.com/api/organizations), [protocols](https://liberture.com/api/protocols), [articles](https://liberture.com/api/articles) and [marketplace](https://liberture.com/api/marketplace).
+- [People](https://liberture.com/api/people), [books](https://liberture.com/api/books), [projects](https://liberture.com/api/projects), [organizations](https://liberture.com/api/organizations), [protocols](https://liberture.com/api/protocols), [articles](https://liberture.com/api/articles) and [marketplace](https://liberture.com/api/marketplace).

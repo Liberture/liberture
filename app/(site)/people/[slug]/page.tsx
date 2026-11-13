@@ -1,3 +1,4 @@
+import { RelatedProfiles } from "@/components/directory/related-profiles"
 import { CardCarousel } from "@/components/ui/card-carousel"
 import { PersonCard } from "@/components/people/person-card"
 import { profileSummary } from "@/lib/profile-biography"
@@ -32,8 +33,10 @@ export default async function Page({params}: Props) {
     person,
     shared: profilePillars(person.pillars).filter(pillar => focus.includes(pillar)),
   })).filter(person => person.shared.length).sort((a,b) => b.shared.length - a.shared.length).slice(0,6)
-  const {protocolReader: copy, protocolCard} = getDictionary(await getRequestLocale()).app
+  const locale = await getRequestLocale()
+  const {protocolReader: copy, protocolCard} = getDictionary(locale).app
   return <Details person={record}>
+    <RelatedProfiles connections={record.directoryProfiles} locale={locale} />
     {related.length > 0 && <CardCarousel title={copy.relatedPeople} previousLabel={copy.previousPeople} nextLabel={copy.nextPeople}>
       {related.map(({person, shared}) => <li key={person.slug}>
         <PersonCard person={{...person, bio:profileSummary(person), pillars:shared.join(",")}} featuredLabel={protocolCard.featured} />

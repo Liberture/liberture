@@ -1,4 +1,7 @@
 import { profileSummary } from "@/lib/profile-biography"
+import { OrganizationCard } from "@/components/directory/org-card"
+import { getDictionary } from "@/lib/habits/i18n"
+import { getRequestLocale } from "@/lib/habits/i18n/server"
 import { PersonCard } from "@/components/people/person-card"
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
@@ -89,7 +92,7 @@ export default async function PillarPage({ params }: PageProps) {
       }),
       prisma.organization.findMany({
         where: { pillars: { contains: pillar } },
-        select: { id: true, name: true, slug: true, description: true, type: true, website: true, imageUrl: true, featured: true },
+        select: { id: true, name: true, slug: true, directoryKind: true, description: true, type: true, founded: true, pillars: true, imageUrl: true, featured: true },
         orderBy: [{ featured: 'desc' }, { name: 'asc' }],
       }),
       prisma.protocol.findMany({
@@ -107,6 +110,7 @@ export default async function PillarPage({ params }: PageProps) {
     // Database unavailable
   }
 
+  const directoryCopy = getDictionary(await getRequestLocale()).app.directoryProfiles
   const totalItems = articles.length + people.length + books.length + organizations.length + protocols.length
   const otherPillars = VALID_PILLARS.filter(p => p !== pillar).map(p => ({ id: p, config: pillarConfig[p] }))
 
@@ -246,39 +250,20 @@ export default async function PillarPage({ params }: PageProps) {
         </section>
       )}
 
-      {/* Organizations Section */}
-      {organizations.length > 0 && (
-        <section className="py-16 bg-muted/20">
-          <div className="container mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-2">
-                  <Building2 className="h-6 w-6 text-cyan-400" />
-                  <h2 className="text-3xl font-bold">Organizations</h2>
-                  <span className="text-sm text-muted-foreground">({organizations.length})</span>
-                </div>
-                <Link href="/organizations" className="text-sm text-primary hover:underline flex items-center gap-1">
-                  View All <ArrowRight className="h-3 w-3" />
-                </Link>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {organizations.slice(0, 6).map((org: any) => (
-                  <Link key={org.id} href={`/organizations/${org.slug}`}>
-                    <Card className="h-full hover:border-cyan-500/50 transition-colors">
-                      <CardContent className="p-5">
-                        {org.featured && <Badge className="mb-2 bg-cyan-500/20 text-cyan-400 border-cyan-500/30">Featured</Badge>}
-                        <h3 className="font-semibold mb-1">{org.name}</h3>
-                        {org.type && <p className="text-xs text-muted-foreground mb-2 capitalize">{org.type}</p>}
-                        <p className="text-sm text-muted-foreground line-clamp-2">{org.description}</p>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
+      {(["project", "organization"] as const).map(kind => {
+        const rows = organizations.filter(row => row.directoryKind === kind)
+        const section = kind === "project" ? "projects" : "organizations"
+        if (!rows.length) return null
+        return <section key={kind} className="py-16 bg-muted/20">
+          <div className="container mx-auto max-w-6xl px-4">
+            <div className="mb-8 flex items-center justify-between">
+              <h2 className="text-3xl font-bold">{directoryCopy[section]} <span className="text-sm text-muted-foreground">({rows.length})</span></h2>
+              <Link href={`/${section}`}>View All <ArrowRight className="inline size-3" /></Link>
             </div>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{rows.slice(0, 6).map(org => <OrganizationCard key={org.id} org={org} />)}</div>
           </div>
         </section>
-      )}
+      })}
 
       {/* Articles Section */}
       {articles.length > 0 && (

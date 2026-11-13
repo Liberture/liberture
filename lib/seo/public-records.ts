@@ -8,6 +8,7 @@ export const getPerson = cache(async (slug: string) => {
   const person = await prisma.person.findUnique({
     where: { slug },
     include: {
+      directoryProfiles: { include: { profile: true } },
       Book: {
         select: {
           id: true,
@@ -86,7 +87,12 @@ export const getBook = cache(async (slug: string) => {
 
 export const getOrganization = cache(async (slug: string) => {
   const organization = await prisma.organization.findUnique({
-    where: { slug }
+    where: { slug },
+    include: {
+      profilePeople: { include: { person: true }, orderBy: { person: { name: "asc" } } },
+      projectOrganizations: { include: { organization: true } },
+      organizationProjects: { include: { project: true } },
+    },
   });
 
   if (!organization) return null

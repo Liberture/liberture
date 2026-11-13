@@ -1,16 +1,17 @@
+import { profilePath } from "@/lib/directory/profile-path"
 import Link from "next/link"
 import { OrganizationLogo } from "./organization-logo"
 import { profilePillars } from "@/lib/pillars"
 import { PillarTag } from "@/components/habits/marketplace/pillar-tag"
 import type { Organization } from "@prisma/client"
 
-export function OrganizationCard({ org }: { org: Pick<Organization, "imageUrl" | "slug" | "name" | "type" | "description" | "pillars" | "featured" | "founded"> }) {
+export function OrganizationCard({ org }: { org: Pick<Organization, "directoryKind" | "imageUrl" | "slug" | "name" | "type" | "description" | "pillars" | "featured" | "founded"> }) {
   const pillars = profilePillars(org.pillars);
 
   return (
     <Link
-      href={`/organizations/${org.slug}`}
-      className="group relative overflow-hidden rounded-2xl border border-slate-700 bg-slate-900/50 p-6 transition-all hover:border-cyan-500 hover:shadow-xl hover:shadow-cyan-500/20"
+      href={profilePath(org)}
+      className="group relative block overflow-hidden rounded-2xl border border-slate-700 bg-slate-900/50 p-6 transition-all hover:border-cyan-500 hover:shadow-xl hover:shadow-cyan-500/20"
     >
       <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
       <div className="relative">

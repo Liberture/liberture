@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, Fragment, type ReactNode } from "react"
-import { Search, Users, Building2, Zap, BookOpen, FileText, ArrowRight } from "lucide-react"
+import { Search, Users, FolderOpen, Building2, Zap, BookOpen, FileText, ArrowRight } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { PersonCard } from "@/components/people/person-card"
@@ -9,11 +9,12 @@ import { BookCard } from "@/components/directory/book-card"
 import { OrganizationCard } from "@/components/directory/org-card"
 import { ArticleCard } from "@/components/directory/article-card"
 import { DirectoryProtocol } from "@/components/directory/protocol-card"
+import { useTranslations } from "@/components/i18n/locale-provider"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { DirectoryLayout, DirectoryHeader, DirectoryGrid } from "@/components/directory/layout"
 
-type EntityType = "all" | "people" | "organizations" | "protocols" | "books" | "articles"
+type EntityType = "all" | "people" | "projects" | "organizations" | "protocols" | "books" | "articles"
 
 interface DirectoryItem {
   id: string
@@ -26,10 +27,11 @@ interface DirectoryItem {
 }
 
 export default function DirectoryPage() {
+  const t = useTranslations().habits.app.directoryProfiles
   const params = useSearchParams()
   const searchQuery = params.get("q") || ""
   const requestedType = params.get("type") as EntityType
-  const activeFilter = ["people","organizations","protocols","books","articles"].includes(requestedType) ? requestedType : "all"
+  const activeFilter = ["people","projects","organizations","protocols","books","articles"].includes(requestedType) ? requestedType : "all"
   function updateFilter(key: string, value: string) {
     const url = new URL(window.location.href)
     if (value && !(key === "type" && value === "all")) url.searchParams.set(key,value)
@@ -43,8 +45,9 @@ export default function DirectoryPage() {
   useEffect(() => {
     async function fetchDirectory() {
       try {
-        const [peopleRes, orgsRes, protocolsRes, booksRes, articlesRes] = await Promise.all([
+        const [peopleRes, projectsRes, orgsRes, protocolsRes, booksRes, articlesRes] = await Promise.all([
           fetch("/api/people").then((r) => r.json()),
+          fetch("/api/projects").then((r) => r.json()),
           fetch("/api/organizations").then((r) => r.json()),
           fetch("/api/protocols").then((r) => r.json()),
           fetch("/api/books").then((r) => r.json()),
@@ -61,10 +64,10 @@ export default function DirectoryPage() {
             slug: p.slug,
             tags: p.pillars ? p.pillars.split(',').map((s: string) => s.trim()) : [],
           })),
-          ...(orgsRes.organizations || []).map((o: any) => ({
+          ...[...(projectsRes.projects || []), ...(orgsRes.organizations || [])].map((o: any) => ({
             id: o.id,
             name: o.name,
-            type: "organizations" as EntityType,
+            type: (o.directoryKind === "project" ? "projects" : "organizations") as EntityType,
             card: <OrganizationCard org={o} />,
             description: o.description || "",
             slug: o.slug,
@@ -125,6 +128,7 @@ export default function DirectoryPage() {
   const counts = {
     all: searchFilteredItems.length,
     people: searchFilteredItems.filter((i) => i.type === "people").length,
+    projects: searchFilteredItems.filter(i => i.type === "projects").length,
     organizations: searchFilteredItems.filter((i) => i.type === "organizations").length,
     protocols: searchFilteredItems.filter((i) => i.type === "protocols").length,
     books: searchFilteredItems.filter((i) => i.type === "books").length,
@@ -140,6 +144,7 @@ export default function DirectoryPage() {
   // Group filtered items by type (for display)
   const groupedItems = {
     people: filteredItems.filter((i) => i.type === "people"),
+    projects: filteredItems.filter(i => i.type === "projects"),
     organizations: filteredItems.filter((i) => i.type === "organizations"),
     protocols: filteredItems.filter((i) => i.type === "protocols"),
     books: filteredItems.filter((i) => i.type === "books"),
@@ -149,6 +154,7 @@ export default function DirectoryPage() {
   const filters: Array<{ value: EntityType; label: string; icon: any; color: string }> = [
     { value: "all", label: "All", icon: Search, color: "text-slate-400" },
     { value: "people", label: "People", icon: Users, color: "text-purple-400" },
+    { value: "projects", label: t.projects, icon: FolderOpen, color: "text-cyan-400" },
     { value: "organizations", label: "Organizations", icon: Building2, color: "text-cyan-400" },
     { value: "protocols", label: "Protocols", icon: Zap, color: "text-green-400" },
     { value: "books", label: "Books", icon: BookOpen, color: "text-orange-400" },
@@ -157,7 +163,7 @@ export default function DirectoryPage() {
 
   return (
     <DirectoryLayout>
-        <DirectoryHeader title="Biohacking Directory" description="Discover the people, organizations, protocols, and knowledge shaping human optimization." />
+        <DirectoryHeader title="Biohacking Directory" description={t.directoryIntro} />
         {/* Search Bar */}
         <div className="mb-8">
           <div className="relative max-w-2xl mx-auto">
@@ -229,6 +235,7 @@ export default function DirectoryPage() {
                   />
                 )}
 
+                {groupedItems.projects.length > 0 && <DirectorySection title={t.projects} icon={FolderOpen} color="cyan" items={groupedItems.projects} baseUrl="/projects" showAll={activeFilter !== "projects"} />}
                 {/* Organizations Section */}
                 {(activeFilter === "all" || activeFilter === "organizations") &&
                   groupedItems.organizations.length > 0 && (

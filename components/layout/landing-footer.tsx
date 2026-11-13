@@ -40,6 +40,7 @@ export function LandingFooter({ locale }: { locale: Locale }) {
       links: [
         { href: "/directory", label: f.directory },
         { href: "/people", label: f.people },
+        { href: "/projects", label: t.habits.app.directoryProfiles.projects },
         { href: "/organizations", label: f.organizations },
         { href: "/protocols", label: f.protocols },
         { href: "/books", label: f.books },
