@@ -1,8 +1,9 @@
 "use client"
 
+import Link from "next/link"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useEffect, useState } from "react"
-import { AlertTriangle, Check, Download, Share2, ExternalLink, Plus, X } from "lucide-react"
+import { ArrowRight, AlertTriangle, Check, Download, Share2, ExternalLink, Plus, X } from "lucide-react"
 
 import { PILLAR_STYLES } from "@/lib/habits/pillars"
 import type { CatalogProtocol } from "@/lib/habits/protocols/catalog"
@@ -114,12 +115,18 @@ export function ProtocolReader({ protocol, adopted, onAdopt, onClose, shareable 
           <header className="space-y-1">
             <h2 className="text-balance text-lg font-bold leading-tight text-foreground sm:text-xl">{protocol.name}</h2>
             <p className="text-sm text-muted-foreground">{protocol.tagline}</p>
+            <Link href={`/protocols/${protocol.slug}`} onClick={onClose}
+              className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+              {t.openFullProtocol}<ArrowRight className="size-4" aria-hidden />
+            </Link>
           </header>
           <div className="grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_15rem]">
             <ProtocolFacts protocol={protocol} className="md:col-start-2 md:row-start-1" />
             <Tabs defaultValue="overview" className="min-w-0 md:col-start-1 md:row-start-1">
               <TabsList aria-label={protocol.name}>
-                {(["overview", "routine", "resources", "evidence"] as const).map(tab => (
+                {(["overview", "habits", "routine", "resources", "evidence"] as const).filter(tab =>
+                  (tab !== "routine" || protocol.steps.length > 0) && (tab !== "habits" || protocol.habits.length > 0)
+                ).map(tab => (
                   <TabsTrigger key={tab} value={tab}>
                     {t.tabs[tab]}
                   </TabsTrigger>
@@ -177,6 +184,8 @@ export function ProtocolReader({ protocol, adopted, onAdopt, onClose, shareable 
                   </ol>
                 </Section>
 
+              </TabsContent>
+              <TabsContent value="habits">
                 <Section title={formatMessage(t.habitsTracking, { count: protocol.habits.length })}>
                   <ProtocolHabits protocol={protocol} />
                 </Section>
