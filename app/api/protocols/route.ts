@@ -1,3 +1,4 @@
+import { mediaFields } from "@/lib/media/fields"
 import { directoryApiClient } from "@/lib/i18n/directory-records.server"
 import { NextResponse } from "next/server"
 import { NextRequest } from "next/server"
@@ -17,6 +18,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
+    const media = mediaFields(body)
+    if (!media) return NextResponse.json({ error: "Invalid media URL" }, { status: 400 })
     const { name, description, pillar, difficulty, duration, steps, benefits } = body
 
     if (!name || !description) {
@@ -29,6 +32,7 @@ export async function POST(request: NextRequest) {
 
     const protocol = await prisma.protocol.create({
       data: {
+        ...media,
         id: randomUUID(),
         name,
         description,
@@ -62,6 +66,8 @@ export async function GET(request: NextRequest) {
         ...(pillar && { pillar }),
       },
       select: {
+        imageUrl: true,
+        previewImageUrl: true,
         id: true,
         name: true,
         slug: true,

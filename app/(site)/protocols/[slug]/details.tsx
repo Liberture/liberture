@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { ArticleSchema, BreadcrumbSchema } from "@/components/seo/JsonLd"
 import type { Byline } from "@/lib/seo/protocol-credits"
 import { sectionTrail } from "@/components/seo/section-breadcrumbs"
-import { ProtocolArtwork } from "@/components/habits/marketplace/protocol-artwork"
+import { CoverArtwork } from "@/components/habits/marketplace/protocol-artwork"
 import { SourceLink } from "@/components/habits/marketplace/source-link"
 import { normalizeSource } from "@/lib/habits/protocols/sources"
 import { ProtocolFacts, ProtocolHabits } from "@/components/habits/marketplace/protocol-facts"
@@ -24,6 +24,8 @@ type RelatedProtocol = {
 };
 
 type Protocol = {
+  imageUrl: string | null;
+  previewImageUrl: string | null;
   id: string;
   slug: string;
   name: string;
@@ -75,7 +77,7 @@ export default async function ProtocolDetails({ protocol }: { protocol: Protocol
     "@type":"Person" as const, name:author.name, sameAs:author.url,
   }))
   const citations = credits.filter(author => author.kind === "consensus").map(author => author.url ?? author.name)
-  const image = protocolImage(protocol.slug);
+  const image = protocol.previewImageUrl || protocol.imageUrl;
 
   return (
     <DirectoryLayout>
@@ -87,13 +89,13 @@ export default async function ProtocolDetails({ protocol }: { protocol: Protocol
         author={credits.length ? 'Liberture' : protocol.creator || 'Liberture'}
         authors={authors}
         citations={citations}
-        image={image ? `https://liberture.com${image.png}` : undefined}
+        image={image || undefined}
       />
       <BreadcrumbSchema items={[...sectionTrail("protocols"), {name:protocol.name, url:`https://liberture.com/protocols/${protocol.slug}`}]} />
       
       <div className="mx-auto max-w-5xl">
         {image && <div className="mt-4 overflow-hidden rounded-xl border border-border">
-          <ProtocolArtwork slug={protocol.slug} loading="eager" />
+          {protocol.imageUrl && <CoverArtwork src={protocol.imageUrl} height={630} loading="eager" />}
         </div>}
         <header className="my-6 space-y-3">
           <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">{protocol.name}</h1>

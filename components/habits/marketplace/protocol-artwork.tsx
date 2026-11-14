@@ -1,3 +1,4 @@
+import { useLocale } from "next-intl"
 import { cn } from "@/lib/utils"
 
 export function ProtocolArtwork({ slug, className, loading }: {
@@ -5,7 +6,8 @@ export function ProtocolArtwork({ slug, className, loading }: {
   className?: string
   loading?: "lazy" | "eager"
 }) {
-  return <CoverArtwork src={`/protocols/images/readers/${slug}.webp`} height={320} className={className} loading={loading} />
+  const locale = useLocale()
+  return <CoverArtwork src={`/api/media/protocols/${slug}?lang=${locale}`} height={320} className={className} loading={loading} />
 }
 
 export function CoverArtwork({ src, height, className, loading }: { src: string; height: number; className?: string; loading?: "lazy" | "eager" }) {

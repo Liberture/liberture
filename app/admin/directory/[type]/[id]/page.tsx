@@ -15,7 +15,7 @@ const loaders = {
 
 export default async function DirectoryEditPage({ params, searchParams }: {
   params: Promise<{ type: string; id: string }>
-  searchParams: Promise<{ q?: string }>
+  searchParams: Promise<{ q?: string; lang?: string }>
 }) {
   const { type, id } = await params
   if (!isDirectoryType(type)) notFound()
@@ -24,8 +24,11 @@ export default async function DirectoryEditPage({ params, searchParams }: {
   if (!(await isAdmin(session.userId))) redirect("/")
   const record = await loaders[type](id)
   if (!record) notFound()
-  const { q } = await searchParams
+  const { q, lang } = await searchParams
+  const editorLocale = lang === "es" && (type === "articles" || type === "protocols") ? "es" : "en"
+  const localized = record.localized as Record<string, Record<string, unknown>> | null
+  const editableRecord = editorLocale === "es" ? { ...record, ...localized?.es } : record
   const query = new URLSearchParams({ type })
   if (typeof q === "string" && q) query.set("q", q)
-  return <DirectoryEditor key={record.id} type={type} id={id} initialValues={editorValues(type, record)} backHref={`/admin/directory?${query}`} />
+  return <DirectoryEditor key={record.id} type={type} id={id} editorLocale={editorLocale} initialValues={editorValues(type, editableRecord)} backHref={`/admin/directory?${query}`} />
 }

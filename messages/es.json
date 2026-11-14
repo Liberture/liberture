@@ -1170,7 +1170,11 @@
         "errorNsecFailed": "No se pudo entrar con esa clave",
         "errorClipboard": "No pudimos leer el portapapeles. Pegala a mano con Ctrl/Cmd+V.",
         "errorConfirmBackup": "Confirmá que guardaste tu clave secreta antes de seguir.",
-        "errorCreateFailed": "No se pudo crear tu cuenta"
+        "errorCreateFailed": "No se pudo crear tu cuenta",
+        "waitingForSignature": "Esperando a tu firmante",
+        "waitingForSignatureHelp": "Volvé a abrir tu app de firma y aprobá la firma de inicio de sesión de Liberture. Después volvé acá para terminar.",
+        "openSignerForSignature": "Abrir firmante",
+        "cancelSignature": "Cancelar inicio de sesión"
       },
       "onboardingFlow": {
         "welcomeTitle": "Bienvenido a Liberture",
@@ -1920,7 +1924,12 @@
         "removeEntry": "Quitar entrada",
         "linkTitle": "Título del enlace",
         "linkUrl": "URL",
-        "invalidLink": "Ingresá un título y una dirección web válida."
+        "invalidLink": "Ingresá un título y una dirección web válida.",
+        "previewImageUrl": "Imagen para compartir",
+        "uploadImage": "Subir imagen",
+        "uploadingImage": "Subiendo…",
+        "uploadFailed": "No se pudo subir. Probá un PNG, JPEG o WebP de menos de 10 MB.",
+        "language": "Idioma de edición"
       },
       "adminNav": {
         "title": "Administración",
@@ -3148,10 +3157,7 @@
         },
         "notesAdded": "Notas y reflexiones agregadas",
         "noHabits": "Todavía no hay hábitos para analizar",
-        "days": {
-          "one": "{count} día",
-          "other": "{count} días"
-        }
+        "days": { "one": "{count} día", "other": "{count} días" }
       },
       "habitHelix": {
         "pillars": {
@@ -3210,10 +3216,7 @@
         },
         "empty": "Agregá un hábito para ver su historial acá.",
         "title": "Matriz de cumplimiento",
-        "days": {
-          "one": "{count} día",
-          "other": "{count} días"
-        },
+        "days": { "one": "{count} día", "other": "{count} días" },
         "rowTitle": "{name} — {hit}/{scheduled} días programados",
         "rowTitleWeekly": "{name} — {hit}/{scheduled} de las metas semanales",
         "missed": "Sin hacer",
@@ -3234,10 +3237,7 @@
         "noHabits": "Todavía no hay hábitos para analizar",
         "monthDayFormat": "d MMM",
         "monthDayYearFormat": "d MMM yyyy",
-        "days": {
-          "one": "{count} día",
-          "other": "{count} días"
-        }
+        "days": { "one": "{count} día", "other": "{count} días" }
       },
       "streakDisplay": {
         "summary": "Racha actual: {current}. Récord personal: {best}.",
@@ -3271,10 +3271,7 @@
           "other": "{count} días siguientes"
         },
         "backToDefault": "Volver a los últimos 7 días",
-        "days": {
-          "one": "{count} día",
-          "other": "{count} días"
-        }
+        "days": { "one": "{count} día", "other": "{count} días" }
       },
       "habitsTour": {
         "summary": "Tus hábitos de un vistazo",

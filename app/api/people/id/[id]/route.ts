@@ -1,3 +1,4 @@
+import { mediaFields } from "@/lib/media/fields"
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requestEditContext, withDirectoryEdit } from "@/lib/directory/revisions"
@@ -15,6 +16,8 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await request.json();
+    const media = mediaFields({ imageUrl: body.imageUrl })
+    if (!media) return NextResponse.json({ error: "Invalid media URL" }, { status: 400 })
     
     const person = await withDirectoryEdit(prisma, requestEditContext(request, authUser.userId), async tx => {
       let summary = body.summary === "" ? null : body.summary
@@ -25,6 +28,7 @@ export async function PATCH(
       return tx.person.update({
         where: { id },
         data: {
+          imageUrl: media.imageUrl,
           updatedAt: new Date(),
           name: body.name,
           title: body.title,

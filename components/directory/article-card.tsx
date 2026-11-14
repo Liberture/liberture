@@ -5,7 +5,7 @@ import Link from "@/components/i18n/localized-link"
 import type { Article } from "@prisma/client"
 import { Clock, User } from "lucide-react"
 
-export function ArticleCard({ article }: { article: Pick<Article, "slug" | "title" | "description" | "author" | "readTime" | "pillar" | "tags"> }) {
+export function ArticleCard({ article }: { article: Pick<Article, "imageUrl" | "slug" | "title" | "description" | "author" | "readTime" | "pillar" | "tags"> }) {
   const tags = articleTags(article.tags);
 
   return (
@@ -13,7 +13,7 @@ export function ArticleCard({ article }: { article: Pick<Article, "slug" | "titl
       href={`/articles/${article.slug}`}
       className="group relative overflow-hidden rounded-2xl border border-slate-700 bg-slate-900/50 p-6 transition-all hover:border-blue-500 hover:shadow-xl hover:shadow-blue-500/20"
     >
-      <CoverArtwork src={`/articles/images/${article.slug}.webp`} height={420} loading="lazy" className="mb-4 rounded-lg" />
+      {article.imageUrl && <CoverArtwork src={article.imageUrl} height={420} loading="lazy" className="mb-4 rounded-lg" />}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
       <div className="relative">
         <h2 className="text-lg font-bold mb-2 group-hover:text-blue-400 transition-colors line-clamp-2">

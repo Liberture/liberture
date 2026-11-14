@@ -1,3 +1,4 @@
+import { mediaFields } from "@/lib/media/fields"
 import { directoryApiClient } from "@/lib/i18n/directory-records.server"
 import { articleTags } from "@/lib/article-tags"
 import { NextResponse } from "next/server"
@@ -18,6 +19,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
+    const media = mediaFields(body)
+    if (!media) return NextResponse.json({ error: "Invalid media URL" }, { status: 400 })
     const { title, description, pillar, tags, author, readTime, url, content } = body
 
     if (!title || !description) {
@@ -35,6 +38,7 @@ export async function POST(request: NextRequest) {
     const now = new Date()
     const article = await prisma.article.create({
       data: {
+        ...media,
         id: randomUUID(),
         title,
         description,
@@ -88,6 +92,8 @@ export async function GET(request: NextRequest) {
     const articles = await directoryApiClient(request).article.findMany({
       where,
       select: {
+        imageUrl: true,
+        previewImageUrl: true,
         id: true,
         title: true,
         slug: true,

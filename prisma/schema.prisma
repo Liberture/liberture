@@ -101,6 +101,8 @@ model EnrichmentLog {
 }
 
 model Article {
+  imageUrl String?
+  previewImageUrl String?
   localized Json?
   id          String        @id
   title       String
@@ -258,6 +260,8 @@ model PlatformComment {
 }
 
 model Protocol {
+  imageUrl String?
+  previewImageUrl String?
   localized Json?
   id            String             @id @default(uuid())
   slug          String             @unique
@@ -711,4 +715,9 @@ model TrackerChallengeModerator {
   name String
   user HabitUser @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@map("tracker_challenge_moderators")
+}
+
+model EditorialMigration {
+  id String @id
+  appliedAt DateTime @default(now())
 }

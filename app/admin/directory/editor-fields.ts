@@ -10,7 +10,7 @@ export const editorGroups = {
   people: {
     details: ["name", "title", "expertise", "pillars"],
     content: ["summary", "bio"],
-    links: ["website", "wikipedia", "twitter", "instagram", "youtube", "podcast"],
+    links: ["imageUrl", "website", "wikipedia", "twitter", "instagram", "youtube", "podcast"],
   },
   organizations: { ...organizationGroups, relationships: ["relatedPeople"] },
   projects: { ...organizationGroups, relationships: ["relatedPeople", "relatedOrganizations"] },
@@ -22,10 +22,12 @@ export const editorGroups = {
   articles: {
     details: ["title", "author", "pillar", "tags", "readTime", "url"],
     content: ["description", "content"],
+    links: ["imageUrl", "previewImageUrl"],
   },
   protocols: {
     details: ["name", "pillar", "creator", "duration", "difficulty"],
     content: ["description", "steps", "benefits", "risks", "equipment"],
+    links: ["imageUrl", "previewImageUrl"],
   },
 } as const
 

@@ -29,8 +29,7 @@ import {
 } from "@/lib/habits/nostr/crypto"
 import { QrCode } from "@/components/habits/qr-code"
 import { fromBunkerUri, startNostrConnect } from "@/lib/habits/nostr/remote-signer"
-import type { Event, EventTemplate } from "nostr-tools"
-import { buildAuthEvent } from "@/lib/habits/nostr/auth-event"
+import { performChallengeAuth, type ChallengeSigner } from "@/lib/habits/nostr/challenge-auth"
 import { useTranslations } from "@/components/i18n/locale-provider"
 import { formatMessage } from "@/lib/i18n-format"
 
@@ -54,9 +53,6 @@ interface SignInDialogProps {
   onAuthenticated: (result: AuthResult) => void
 }
 
-interface ChallengeSigner {
-  signEvent(template: EventTemplate): Promise<Event>
-}
 
 const AUTH_IN_PROGRESS_KEY = "habit-tracker-auth-in-progress"
 
@@ -80,44 +76,6 @@ async function waitForNip07(timeoutMs: number): Promise<boolean> {
   return false
 }
 
-/**
- * Sign the server's challenge and post it. On success the server sets the
- * httpOnly session cookie; nothing secret comes back to this page.
- */
-async function performChallengeAuth(
-  signer: ChallengeSigner,
-  pubkey: string,
-  t: SignInStrings
-): Promise<void> {
-  const challengeRes = await fetch(
-    `/api/auth/nostr/challenge?pubkey=${encodeURIComponent(pubkey)}`
-  )
-  if (challengeRes.status === 429) throw new Error(t.errorRateLimited)
-  if (!challengeRes.ok) {
-    const err = await challengeRes
-      .json()
-      .catch(() => ({ error: t.errorChallengeRequest }))
-    throw new Error(err.error || t.errorChallengeRequest)
-  }
-  const { challenge } = await challengeRes.json()
-  if (!challenge) throw new Error(t.errorNoChallenge)
-
-  const signedEvent = await signer.signEvent(buildAuthEvent(challenge, "/api/auth/nostr"))
-
-  const authRes = await fetch("/api/auth/nostr", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ pubkey, signedEvent }),
-  })
-  if (authRes.status === 429) throw new Error(t.errorRateLimited)
-  if (!authRes.ok) {
-    const err = await authRes
-      .json()
-      .catch(() => ({ error: t.errorAuthFailed }))
-    throw new Error(err.error || t.errorAuthFailed)
-  }
-}
-
 function normalizeLoginError(err: unknown, fallback: string, t: SignInStrings): string {
   const msg = err instanceof Error ? err.message : fallback
   if (/timeout/i.test(msg)) return t.errorTimeout
@@ -128,6 +86,19 @@ function normalizeLoginError(err: unknown, fallback: string, t: SignInStrings): 
 
 export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogProps) {
   const t = useTranslations().habits.app.signInDialog
+  const [waitingForSignature, setWaitingForSignature] = useState(false)
+  const signatureAbort = useRef<AbortController | null>(null)
+  const authenticate = async (signer: ChallengeSigner, pubkey: string) => {
+    signatureAbort.current?.abort()
+    const controller = new AbortController()
+    signatureAbort.current = controller
+    try {
+      await performChallengeAuth(signer, pubkey, t, controller.signal, () => setWaitingForSignature(true))
+      controller.signal.throwIfAborted()
+    } finally {
+      if (signatureAbort.current === controller) setWaitingForSignature(false)
+    }
+  }
   const [hasExtension, setHasExtension] = useState(false)
   const [subMode, setSubMode] = useState<"select" | "nip46" | "bunker" | "nsec">("select")
   const [bunkerInput, setBunkerInput] = useState("")
@@ -189,7 +160,7 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
 
         const pubkey = await signer.getPublicKey()
         if (cancelled) return
-        await performChallengeAuth(signer, pubkey, t)
+        await authenticate(signer, pubkey)
         if (cancelled) return
         // Signed in: the session is the cookie, the relay connection isn't needed.
         await signer.close()
@@ -225,7 +196,7 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
     }
   }, [subMode]) // Obelisk-style one-shot QR generation; connectUri intentionally excluded.
 
-  useEffect(() => () => { handleRef.current?.cancel() }, [])
+  useEffect(() => () => { signatureAbort.current?.abort(); handleRef.current?.cancel() }, [])
 
   const handleNip07Login = async () => {
     setIsLoading(true)
@@ -237,10 +208,10 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
       }
       const signer = new Nip07Signer()
       const pubkey = await signer.getPublicKey()
-      await performChallengeAuth(signer, pubkey, t)
+      await authenticate(signer, pubkey)
       onAuthenticated({ type: "nip07", pubkey, npub: hexToNpub(pubkey) })
     } catch (err) {
-      setError(normalizeLoginError(err, t.errorExtensionFailed, t))
+      if (!(err instanceof DOMException && err.name === "AbortError")) setError(normalizeLoginError(err, t.errorExtensionFailed, t))
     } finally {
       setIsLoading(false)
     }
@@ -268,7 +239,7 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
       if (!active) return
       const pubkey = await signer.getPublicKey()
       if (!active) return
-      await performChallengeAuth(signer, pubkey, t)
+      await authenticate(signer, pubkey)
       if (!active) return
       onAuthenticated({
         type: "nip46",
@@ -365,6 +336,9 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
   }
 
   const handleBack = () => {
+    signatureAbort.current?.abort()
+    signatureAbort.current = null
+    setWaitingForSignature(false)
     localStorage.removeItem(AUTH_IN_PROGRESS_KEY)
     handleRef.current?.cancel()
     handleRef.current = null
@@ -484,7 +458,15 @@ export function SignInDialog({ open, onClose, onAuthenticated }: SignInDialogPro
 
           {/* A card inside the sheet only from sm up: on a phone it cost ~50px of width. */}
           <div className="space-y-3 sm:space-y-4 sm:rounded-lg sm:border sm:border-border sm:p-6">
-            {subMode === "select" ? (
+            {waitingForSignature ? (
+              <div className="space-y-5 py-6 text-center" role="status" aria-live="polite">
+                <Loader2 className="mx-auto size-10 animate-spin text-primary" />
+                <h2 className="text-lg font-semibold">{t.waitingForSignature}</h2>
+                <p className="text-sm text-muted-foreground">{t.waitingForSignatureHelp}</p>
+                {authChallengeUrl && <Button asChild><a href={authChallengeUrl} target="_blank" rel="noopener noreferrer">{t.openSignerForSignature}</a></Button>}
+                <Button variant="outline" onClick={handleBack}>{t.cancelSignature}</Button>
+              </div>
+            ) : subMode === "select" ? (
               <>
                 {hasExtension && (
                   <Button

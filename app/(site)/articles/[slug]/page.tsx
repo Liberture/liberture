@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   try {
     article = await prisma.article.findUnique({
       where: { slug },
-      select: { title: true, description: true, author: true },
+      select: { title: true, description: true, author: true, imageUrl: true, previewImageUrl: true },
     })
   } catch {
     // Database unavailable
@@ -53,11 +53,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       url: alternates?.canonical,
       type: 'article',
-      images: [{ url: `/articles/images/${slug}.webp`, width: 1200, height: 420 }],
+      images: [article.previewImageUrl || article.imageUrl || "/og-image.jpg"],
     },
     twitter: {
       card: 'summary_large_image',
-      images: [`/articles/images/${slug}.webp`],
+      images: [article.previewImageUrl || article.imageUrl || "/og-image.jpg"],
       title: article.title,
       description,
     },
@@ -69,11 +69,13 @@ export default async function ArticlePage({ params }: PageProps) {
 
   const { slug } = await params
 
-  let article: Awaited<ReturnType<typeof prisma.article.findUnique<{ where: { slug: string }; select: { id: true; title: true; description: true; content: true; tags: true; author: true; readTime: true; url: true; publishedAt: true; updatedAt: true; pillar: true } }>>> = null
+  let article: Awaited<ReturnType<typeof prisma.article.findUnique<{ where: { slug: string }; select: { id: true; title: true; description: true; content: true; tags: true; author: true; readTime: true; url: true; publishedAt: true; updatedAt: true; pillar: true; imageUrl: true; previewImageUrl: true } }>>> = null
   try {
     article = await prisma.article.findUnique({
       where: { slug },
       select: {
+        imageUrl: true,
+        previewImageUrl: true,
         id: true,
         title: true,
         description: true,
@@ -104,7 +106,7 @@ export default async function ArticlePage({ params }: PageProps) {
         { pillar: article.pillar },
         ...tags.map(tag => ({ tags: { contains: tag, mode: "insensitive" as const } })),
       ] },
-      select: { slug: true, title: true, description: true, pillar: true, tags: true, author: true, readTime: true },
+      select: { slug: true, title: true, description: true, pillar: true, tags: true, author: true, readTime: true, imageUrl: true },
       orderBy: [{ publishedAt: "desc" }, { slug: "asc" }],
     }),
   ])
@@ -136,6 +138,7 @@ export default async function ArticlePage({ params }: PageProps) {
   return (
     <DirectoryLayout>
       <ArticleSchema
+        image={article.previewImageUrl || article.imageUrl || undefined}
         title={article.title}
         description={article.description || ''}
         url={articleUrl}
@@ -184,7 +187,7 @@ export default async function ArticlePage({ params }: PageProps) {
             </div>
           </div>
 
-          <CoverArtwork src={`/articles/images/${slug}.webp`} height={420} loading="eager" className="mb-6 rounded-xl border border-border" />
+          {article.imageUrl && <CoverArtwork src={article.imageUrl} height={420} loading="eager" className="mb-6 rounded-xl border border-border" />}
           <Card className="mb-8">
             <CardContent className="prose prose-lg dark:prose-invert max-w-none p-8">
               {markdown ? (

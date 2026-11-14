@@ -51,6 +51,13 @@ const nextConfig = {
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }]
   },
+  async rewrites() {
+    return { beforeFiles: [
+      { source: '/protocols/images/readers/:slug.webp', destination: '/api/media/protocols/:slug' },
+      { source: '/protocols/images/:slug.png', destination: '/api/media/protocols/:slug?variant=preview' },
+      { source: '/protocols/images/:slug.webp', destination: '/api/media/protocols/:slug' },
+    ] }
+  },
   async redirects() {
     return [
       {

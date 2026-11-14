@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Reviewed and integrated the bilingual Royal Flush article, protocol and artwork, with an atomic database import.
+- Manage article and protocol covers and social previews through the directory editor, including Spanish variants and Hetzner uploads. Existing protocol edits survive release preparation.
+- Show a cancellable waiting screen while Nostr signers approve the login-event signature.
+
 ## 0.6.1
 
 Released 2026-11-13.

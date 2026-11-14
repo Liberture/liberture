@@ -14,7 +14,7 @@ export default async function ArticlesPage({ searchParams }: ListingPageProps) {
   const sort = params.sort === "oldest" || params.sort === "title" ? params.sort : "newest"
   const articles = await prisma.article.findMany({
       orderBy: [sort === "title" ? { title: "asc" } : { publishedAt: sort === "oldest" ? "asc" : "desc" }, { slug: "asc" }],
-      select: { slug: true, title: true, description: true, author: true, readTime: true, pillar: true, tags: true },
+      select: { imageUrl: true, slug: true, title: true, description: true, author: true, readTime: true, pillar: true, tags: true },
     })
   const copy = (await getSiteMessages()).habits.app.articleReader
   return <DirectoryLayout>

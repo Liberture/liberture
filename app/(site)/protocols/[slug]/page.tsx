@@ -10,7 +10,7 @@ export async function generateMetadata({params}: Props) {
   const {slug} = await params
   const record = await getProtocol(slug)
   if (!record) notFound()
-  return detailMetadata(`/protocols/${slug}`, record.name, record.description, "article", protocolImage(slug)?.png)
+  return detailMetadata(`/protocols/${slug}`, record.name, record.description, "article", record.previewImageUrl || record.imageUrl)
 }
 
 export default async function Page({params}: Props) {

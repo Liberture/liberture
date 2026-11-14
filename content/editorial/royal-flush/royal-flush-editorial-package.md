@@ -1,6 +1,6 @@
 # Royal Flush: protocol, article and artwork package
 
-Protocols and articles live in the database. This Markdown file is a complete editorial handoff, not a published directory record. No database edits, release or production deployment have been applied.
+Protocols and articles live in the database. This reviewed source is accompanied by `records.json` and `media.json`; `scripts/import-royal-flush.ts` imports both language versions atomically during release preparation. Hetzner artwork is uploaded. Production publication remains pending the next authorized release.
 
 ## Publication and indexing
 
@@ -186,7 +186,7 @@ El músculo puborrectal rodea la unión entre el recto y el canal anal. Ese lazo
 
 ## Operación Trono, paso a paso
 
-Seguí el [protocolo Operación Trono](/es/protocols/operacion-trono-banquito). Sentate por completo, apoyá ambos pies sobre un banquito firme y antideslizante y elegí una altura cómoda. Si podés hacerlo sin molestias, dejá las rodillas más altas que las caderas. Inclinate suavemente y apoyá los antebrazos en los muslos. Relajá el abdomen y soltá el aire. Nunca te subas al asiento, aguantes la respiración ni fuerces la evacuación.
+Seguí el [protocolo Operación Trono](/es/protocolos/operacion-trono-banquito). Sentate por completo, apoyá ambos pies sobre un banquito firme y antideslizante y elegí una altura cómoda. Si podés hacerlo sin molestias, dejá las rodillas más altas que las caderas. Inclinate suavemente y apoyá los antebrazos en los muslos. Relajá el abdomen y soltá el aire. Nunca te subas al asiento, aguantes la respiración ni fuerces la evacuación.
 
 Respondé a las ganas sin convertir el baño en una competencia. Si un intento breve no funciona, levantate y volvé cuando regresen las ganas. Más tiempo mirando el teléfono no significa más progreso.
 
@@ -207,12 +207,12 @@ Consultá por estreñimiento persistente, sangre en las heces, pérdida de peso 
 - [NHS: estreñimiento y rutina de baño](https://www.nhs.uk/conditions/constipation/)
 - [South Tees Hospitals: postura para evacuar](https://www.southtees.nhs.uk/resources/getting-your-position-right/)
 - [Ensayo aleatorizado sobre el banquito, 2023](https://onlinelibrary.wiley.com/doi/10.1111/nmo.14580)
-- [Probá el protocolo Operación Trono](/es/protocols/operacion-trono-banquito)
+- [Probá el protocolo Operación Trono](/es/protocolos/operacion-trono-banquito)
 
 
 ## Artwork and preview
 
-Original editable SVG illustration: a seated person leaning forward with feet on a stable footstool, a raised-knee guide and an enlarged schematic anatomy inset. Uses Liberture’s dark background, nutrition green and contour pattern. Artwork copy is stored in `messages/royal-flush-artwork.json` with English and Spanish entries. Downloadable SVG and PNG are included at the repository root.
+Original editable SVG illustration: a seated person leaning forward with feet on a stable footstool, a raised-knee guide and an enlarged schematic anatomy inset. Uses Liberture’s dark background, nutrition green and contour pattern. Artwork copy is stored in `messages/royal-flush-artwork.json` with English and Spanish entries. Editable SVG and PNG are included alongside this document.
 
 English alternative text: A seated person rests both feet on a stable footstool, with knees above the hips and a gentle forward lean.
 
@@ -278,6 +278,10 @@ The current protocol image helper only recognizes catalog entries. Before publis
 </svg>
 ```
 
-## Validation and current status
+## Original draft validation
 
-The bilingual JSON draft was parsed successfully and the SVG was rendered to PNG/WebP and visually inspected. No database connection was configured here, so no directory records were created and nothing has been indexed on the live site. Full application validation was unavailable: ESLint configuration is missing, and TypeScript reports existing missing dependencies, stale generated route types and Prisma-client mismatches. This handoff changes no application code.
+Before integration, the bilingual JSON draft was parsed successfully and the SVG was rendered to PNG/WebP and visually inspected. No database connection was configured here, so no directory records were created and nothing has been indexed on the live site. Full application validation was unavailable: ESLint configuration is missing, and TypeScript reports existing missing dependencies, stale generated route types and Prisma-client mismatches. This handoff changes no application code.
+
+## Integration review
+
+The playful titles, practical steps, nutrition palette and contour artwork fit the existing directory style. The copy keeps the randomized trial’s negative finding and avoids universal treatment claims. Spanish internal links use the localized `/es/protocolos/` route. Both languages have independent cover and social-preview URLs. Local verification covered responsive article rendering, metadata, database imports and admin media edits. See `docs/operations/editorial-media.md` for replacement and release procedures.

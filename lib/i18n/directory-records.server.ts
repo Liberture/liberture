@@ -30,7 +30,7 @@ function overlay(value: unknown, locale: Locale): unknown {
   const translated = isObject(localized) ? localized[locale] : null
   for (const [field, original] of Object.entries(row)) {
     // Internal links, asset paths and relationships use the permanent record slug.
-    if (field !== "slug" && isObject(translated) && typeof original === "string" && typeof translated[field] === "string") {
+    if (field !== "slug" && isObject(translated) && (original === null || typeof original === "string") && typeof translated[field] === "string") {
       row[field] = translated[field]
     } else if (field === "duration" && typeof original === "string") {
       row[field] = localizeProtocolDuration(original, locale)

@@ -84,7 +84,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ];
 
   const [articles, people, books, organizations, protocols, content] = await Promise.all([
-    safe('articles', () => prisma.article.findMany({ select: { slug: true, updatedAt: true } })),
+    safe('articles', () => prisma.article.findMany({ select: { slug: true, updatedAt: true, imageUrl: true } })),
     safe('people', () => prisma.person.findMany({ select: { slug: true, updatedAt: true, featured: true } })),
     safe('books', () => prisma.book.findMany({ select: { slug: true, updatedAt: true, featured: true } })),
     safe('organizations', () =>
@@ -93,7 +93,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     safe('protocols', () =>
       prisma.protocol.findMany({
         where: { published: true },
-        select: { slug: true, updatedAt: true, featured: true },
+        select: { slug: true, updatedAt: true, featured: true, imageUrl: true },
       }),
     ),
     safe("content", () => prisma.content.findMany({select:{id:true,updatedAt:true}})),
@@ -106,6 +106,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...articles.map((article) => ({
       url: `${baseUrl}/articles/${article.slug}`,
       lastModified: article.updatedAt,
+      ...(article.imageUrl ? { images: [absoluteUrl(baseUrl, article.imageUrl)] } : {}),
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     })),
@@ -133,13 +134,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     ...protocols.map((protocol) => {
       // Image sitemap entry: the protocol's own picture, so it can show up in image search.
-      const picture = protocolImage(protocol.slug)
+      const picture = protocol.imageUrl
       return {
         url: `${baseUrl}/protocols/${protocol.slug}`,
         lastModified: protocol.updatedAt,
         changeFrequency: 'monthly' as const,
         priority: protocol.featured ? 0.8 : 0.7,
-        ...(picture ? { images: [absoluteUrl(baseUrl, picture.png)] } : {}),
+        ...(picture ? { images: [absoluteUrl(baseUrl, picture)] } : {}),
       }
     }),
   ];

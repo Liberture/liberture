@@ -1,10 +1,11 @@
 /**
  * Seed the protocol library from the habit tracker's catalog
  * (lib/habits/protocols/library), plus the cross-links in lib/protocols/library.ts.
- * Idempotent: upserts by slug; relations are skipped unless both ends exist.
+ * Idempotent: creates missing records; preserves database/editor changes.
  *
  * Run: pnpm exec tsx scripts/seed-marketplace-protocols.ts
  */
+import { prepareEditorialMedia } from "./prepare-editorial-media"
 import { PrismaClient } from "@prisma/client"
 import { CATALOG_PROTOCOLS } from "../lib/habits/protocols/catalog"
 import { relations } from "../lib/protocols/library"
@@ -15,7 +16,7 @@ const SEED_DIFFICULTY = { easy: "beginner", moderate: "intermediate", hard: "adv
 const prisma = new PrismaClient()
 async function main() {
   let created = 0
-  let updated = 0
+  let preserved = 0
   for (const p of CATALOG_PROTOCOLS) {
     const data = {
       name: p.name,
@@ -34,15 +35,17 @@ async function main() {
       published: true,
     }
     const existing = await prisma.protocol.findUnique({ where: { slug: p.slug } })
+    if (existing) { preserved++; continue }
     await prisma.protocol.upsert({
       where: { slug: p.slug },
       update: data,
       create: { slug: p.slug, ...data },
     })
-    existing ? updated++ : created++
+    created++
   }
-  console.log(`Protocols: ${created} created, ${updated} updated`)
+  console.log(`Protocols: ${created} created, ${preserved} preserved`)
 
+  await prepareEditorialMedia(prisma)
   let relCreated = 0
   let relSkipped = 0
   for (const r of relations) {

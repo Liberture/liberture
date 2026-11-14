@@ -12,14 +12,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { editorGroups, editorValues, fieldLabel, type DirectoryType, type EditorValues } from "./editor-fields"
 import { isEntryField, invalidEntries, OrganizationEntryInput } from "./organization-entry-input"
 import { DirectoryRelationshipsInput, invalidRelationships, relationshipField, relationshipPayload } from "./directory-relationships-input"
+import { MediaInput } from "./media-input"
 import { EditHistory } from "./edit-history"
 
 const longText = new Set(["summary", "bio", "description", "content", "steps", "benefits", "risks"])
 const numberFields = new Set(["year", "rating", "readTime"])
 const difficulties = ["beginner", "intermediate", "advanced"] as const
 
-export function DirectoryEditor({ type, id, initialValues, backHref }: {
-  type: DirectoryType; id: string; initialValues: EditorValues; backHref: string
+export function DirectoryEditor({ type, id, initialValues, backHref, editorLocale = "en" }: {
+  editorLocale?: "en" | "es"; type: DirectoryType; id: string; initialValues: EditorValues; backHref: string
 }) {
   const t = useTranslations().habits.app.directoryEditor
   const [baseline, setBaseline] = useState(initialValues)
@@ -67,10 +68,11 @@ export function DirectoryEditor({ type, id, initialValues, backHref }: {
     try {
       const payload = Object.fromEntries(changed.map(([key, value]) => [key, relationshipField(key) ? relationshipPayload(key, JSON.parse(value)) : value]))
       const response = await fetch(`/api/${type}/id/${encodeURIComponent(id)}`, {
-        method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
+        method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...payload, editorLocale }),
       })
       if (!response.ok) throw new Error("save")
-      const saved = editorValues(type, await response.json())
+      const record = await response.json()
+      const saved = editorValues(type, editorLocale === "es" ? { ...record, ...record.localized?.es } : record)
       setBaseline(saved)
       setValues(saved)
       setMessage(t.saved)
@@ -90,6 +92,9 @@ export function DirectoryEditor({ type, id, initialValues, backHref }: {
       <Button type="submit" disabled={busy || !changed.length}><Save className="size-4" />{busy ? t.saving : t.save}</Button>
     </div>
     {message && <p role="status" className="text-sm">{message}</p>}
+    {(type === "articles" || type === "protocols") && <FieldSelect aria-label={t.language} value={editorLocale} onValueChange={locale => {
+      const url = new URL(window.location.href); url.searchParams.set("lang", locale); window.location.assign(url)
+    }}><FieldOption value="en">English</FieldOption><FieldOption value="es">Español</FieldOption></FieldSelect>}
     <Tabs value={tab} onValueChange={setTab}>
       <TabsList aria-label={t[type]}>
         {groups.map(([key]) => <TabsTrigger key={key} value={key}>{t[key]}</TabsTrigger>)}
@@ -104,7 +109,7 @@ export function DirectoryEditor({ type, id, initialValues, backHref }: {
             const common = { id: fieldId, value: values[field], required: required.has(field), "aria-invalid": invalidField === field || undefined }
             return <div key={field} className={multiline ? "space-y-2 sm:col-span-2" : "min-w-0 space-y-2"}>
               <label htmlFor={fieldId} className="text-sm font-medium">{type === "projects" && field === "type" ? t.projectType : fieldLabel(t, field)}{required.has(field) && " *"}</label>
-              {relationshipField(field) ? <DirectoryRelationshipsInput field={field} rows={JSON.parse(values[field])} onChange={rows => update(field, JSON.stringify(rows))} />
+              {(field === "imageUrl" || field === "previewImageUrl") ? <MediaInput id={fieldId} value={values[field]} preview={field === "previewImageUrl"} onChange={value => update(field, value)} /> : relationshipField(field) ? <DirectoryRelationshipsInput field={field} rows={JSON.parse(values[field])} onChange={rows => update(field, JSON.stringify(rows))} />
               : structured ? <OrganizationEntryInput field={field} id={fieldId} label={fieldLabel(t, field)} value={values[field]} onChange={value => update(field, value)} />
               : field === "difficulty" ? <FieldSelect id={fieldId} value={values[field]} onValueChange={value => update(field, value)} aria-label={t.difficulty}>
                 {!difficulties.some(item => item === values[field]) && <FieldOption value={values[field]}>{values[field] || "—"}</FieldOption>}

@@ -1,3 +1,4 @@
+import { mediaFields } from "@/lib/media/fields"
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { requestEditContext, withDirectoryEdit } from "@/lib/directory/revisions"
@@ -15,10 +16,26 @@ export async function PATCH(
 
     const { id } = await params
     const body = await request.json()
+    const media = mediaFields(body)
+    if (!media) return NextResponse.json({ error: "Invalid media URL" }, { status: 400 })
+
+    if (body.editorLocale === "es") {
+      const allowed = ['name', 'description', 'why', 'duration', 'steps', 'benefits', 'risks', 'equipment', 'references']
+      const translated = Object.fromEntries(allowed.filter(key => typeof body[key] === "string").map(key => [key, body[key]]))
+      Object.assign(translated, media)
+      const record = await withDirectoryEdit(prisma, requestEditContext(request, authUser.userId), async tx => {
+        await tx.$queryRaw`SELECT id FROM "Protocol" WHERE id=${id} FOR UPDATE`
+        const existing = await tx.protocol.findUniqueOrThrow({ where: { id } })
+        const localized = (existing.localized ?? {}) as Record<string, Record<string, string>>
+        return tx.protocol.update({ where: { id }, data: { localized: { ...localized, es: { ...localized.es, ...translated } }, updatedAt: new Date() } })
+      })
+      return NextResponse.json(record)
+    }
 
     const protocol = await withDirectoryEdit(prisma, requestEditContext(request, authUser.userId), tx => tx.protocol.update({
       where: { id },
       data: {
+        ...media,
         name: body.name,
         description: body.description,
         why: body.why === "" ? null : body.why,

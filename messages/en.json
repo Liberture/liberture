@@ -1170,7 +1170,11 @@
         "errorNsecFailed": "Failed to sign in with that key",
         "errorClipboard": "Couldn't read the clipboard. Paste manually with Ctrl/Cmd+V.",
         "errorConfirmBackup": "Confirm that you saved your secret key before continuing.",
-        "errorCreateFailed": "Failed to create your account"
+        "errorCreateFailed": "Failed to create your account",
+        "waitingForSignature": "Waiting for your signer",
+        "waitingForSignatureHelp": "Open your signer app again and approve the Liberture login signature. Then return here to finish signing in.",
+        "openSignerForSignature": "Open signer",
+        "cancelSignature": "Cancel sign-in"
       },
       "onboardingFlow": {
         "welcomeTitle": "Welcome to Liberture",
@@ -1920,7 +1924,12 @@
         "removeEntry": "Remove entry",
         "linkTitle": "Link title",
         "linkUrl": "URL",
-        "invalidLink": "Enter a title and a valid web address."
+        "invalidLink": "Enter a title and a valid web address.",
+        "previewImageUrl": "Social preview image",
+        "uploadImage": "Upload image",
+        "uploadingImage": "Uploading…",
+        "uploadFailed": "Could not upload image. Try a PNG, JPEG or WebP under 10 MB.",
+        "language": "Editing language"
       },
       "adminNav": {
         "title": "Administration",
@@ -3148,10 +3157,7 @@
         },
         "notesAdded": "Notes and reflections added",
         "noHabits": "No habits to analyze yet",
-        "days": {
-          "one": "{count} day",
-          "other": "{count} days"
-        }
+        "days": { "one": "{count} day", "other": "{count} days" }
       },
       "habitHelix": {
         "pillars": {
@@ -3210,10 +3216,7 @@
         },
         "empty": "Add a habit to see its history here.",
         "title": "Completion matrix",
-        "days": {
-          "one": "{count} day",
-          "other": "{count} days"
-        },
+        "days": { "one": "{count} day", "other": "{count} days" },
         "rowTitle": "{name} — {hit}/{scheduled} scheduled days",
         "rowTitleWeekly": "{name} — {hit}/{scheduled} toward weekly targets",
         "missed": "Missed",
@@ -3234,10 +3237,7 @@
         "noHabits": "No habits to analyze yet",
         "monthDayFormat": "MMM d",
         "monthDayYearFormat": "MMM d, yyyy",
-        "days": {
-          "one": "{count} day",
-          "other": "{count} days"
-        }
+        "days": { "one": "{count} day", "other": "{count} days" }
       },
       "streakDisplay": {
         "summary": "Current streak: {current}. Personal best: {best}.",
@@ -3271,10 +3271,7 @@
           "other": "Next {count} days"
         },
         "backToDefault": "Back to the last 7 days",
-        "days": {
-          "one": "{count} day",
-          "other": "{count} days"
-        }
+        "days": { "one": "{count} day", "other": "{count} days" }
       },
       "habitsTour": {
         "summary": "Your habits at a glance",
