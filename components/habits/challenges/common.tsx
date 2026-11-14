@@ -9,9 +9,10 @@ export function useChallengeClient() {
   const { ownerRequest, isChecking } = useHabitsSession()
   const t = useTranslations("challenges")
   const request = useCallback(
-    async <T,>(path: string, method = "GET", body?: unknown): Promise<T> => {
+    async <T,>(path: string, method = "GET", body?: unknown, signal?: AbortSignal): Promise<T> => {
       const response = await ownerRequest("/api/challenges" + path, {
         method,
+        signal,
         cache: "no-store",
         ...(body === undefined
           ? {}

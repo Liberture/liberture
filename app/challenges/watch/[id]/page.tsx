@@ -1,3 +1,4 @@
+import { CashewMatch } from "@/components/habits/challenges/cashew-match"
 import { ChallengeRace, SpectatorRefresh } from "@/components/habits/challenges/race"
 import { notFound } from "next/navigation"
 import { getTranslations } from "next-intl/server"
@@ -17,7 +18,7 @@ export default async function WatchChallenge({ params }: { params: Promise<{ id:
       <p className="text-sm font-medium text-primary">{match.title}</p>
       <h1 className="text-2xl"><MatchHeading creator={match.creator} player={match.player} joined={!!match.player} stage={match.stage} /></h1>
       {match.stage !== "settled" && <SpectatorRefresh />}
-      <ChallengeRace names={{creator:match.creator,player:match.player ?? t("secondPlayer")}} progress={match.race ?? {creator:0,player:0}} days={match.durationDays} />
+      {match.funded ? <ChallengeRace names={{creator:match.creator,player:match.player ?? t("secondPlayer")}} progress={match.race ?? {creator:0,player:0}} days={match.durationDays} /> : <CashewMatch compact stage={match.stage} joined={!!match.player} waiting versus={t("versus")} />}
       <p>{t(match.mint === TEST_MINT ? "satsEach" : "liveSats", {amount: match.stake})} · {t("duration",{days: match.durationDays})}</p>
       <section><h2 className="font-semibold">{t("agreedRules")}</h2><p className="whitespace-pre-wrap">{match.rules}</p></section>
       {match.result && <p>{t("outcome",{result: match.result === "draw" ? t("draw") : t("wins",{name:match.result === "creator" ? match.creator : match.player!})})}</p>}

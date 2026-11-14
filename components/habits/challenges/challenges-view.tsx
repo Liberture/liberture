@@ -17,6 +17,7 @@ import { NostrRecipient, recipientPublicKey } from "./invite-target"
 import { FieldSelect, FieldOption } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { CashewMatch, ChallengeStepArt } from "./cashew-match"
+import { challengeNextAction } from "@/lib/challenges/next-action"
 import { MatchHeading } from "./match-heading"
 import { ChallengeDetail } from "./detail"
 import { Field, panel, rememberWallet, useAction, useChallengeClient } from "./common"
@@ -80,7 +81,7 @@ export function ChallengesView({creating = false}: {creating?: boolean}) {
     return rows.map(item => (
       <div key={item.id} className="rounded-xl border border-border bg-card p-3">
       <button type="button" onClick={() => open(item)} className="block w-full text-left hover:text-primary" aria-current={selected?.id === item.id ? "page" : undefined}>
-        <MatchHeading creator={item.members.creator!.name} player={item.members.player?.name || item.invitedPlayerName} joined={!!item.members.player} stage={item.stage} />
+        <MatchHeading creator={item.members.creator!.name} player={item.members.player?.name || item.invitedPlayerName} joined={!!item.members.player} stage={item.stage} status={item.stage === "funding" && item.role !== "moderator" && !item.deposits[item.role] ? t("waitingForYou",{name:challengeNextAction(item).name || t("secondPlayer")}) : undefined} />
         <span className="block text-sm text-muted-foreground">{item.title} · {t(item.mint === TEST_MINT ? "satsEach" : "liveSats", {amount:item.stake})}</span>
       </button>
       </div>

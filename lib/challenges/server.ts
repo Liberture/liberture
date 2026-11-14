@@ -131,7 +131,7 @@ export async function publicMatch(id: string) {
   const [row] = await getDb()<ChallengeRow[]>`SELECT * FROM tracker_challenges WHERE id=${id} AND state->>'publicMatch'='true'`
   if (!row) return null
   const s = row.state
-  return { title: s.title, rules: s.rules, creator: s.members.creator!.name, player: s.members.player?.name,
+  return { funded: !!s.deposits.creator && !!s.deposits.player, title: s.title, rules: s.rules, creator: s.members.creator!.name, player: s.members.player?.name,
     stake: s.stake, mint: s.mint, durationDays: s.durationDays, stage: stageOf(s), result: s.result, race: await raceProgress(row) }
 }
 

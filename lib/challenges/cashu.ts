@@ -240,6 +240,19 @@ export async function readAdvancePayment(owner: string, challenge: { id: string;
   })
 }
 
+/** Read an existing invoice only. Never creates a quote or spends funds. */
+export async function readFundingPayment(owner: string, terms: CashuTerms, role: CashuPlayer) {
+  const saved = localStorage.getItem(fundingKey(owner, terms.id, role))
+  if (!saved) return null
+  ensure(existingChallengeKey(owner, terms.keys[role]), "Wrong challenge signing key")
+  const record: FundingRecord = JSON.parse(saved)
+  if (record.token) return { paid: true, token: record.token }
+  const wallet = await getWallet(terms.mint)
+  const quote = await wallet.checkMintQuoteBolt11(record.quote)
+  if (quote.state !== "UNPAID") return { paid: true }
+  return { paid: false, invoice: quote.request, expired: !!quote.expiry && quote.expiry <= Date.now()/1000 }
+}
+
 export async function fundDeposit(owner: string, terms: CashuTerms, depositor: CashuPlayer, onInvoice?: (invoice: string) => void | Promise<void>) {
   checkTerms(terms)
   ensure(challengePublicKey(owner) === terms.keys[depositor], "Wrong challenge signing key")

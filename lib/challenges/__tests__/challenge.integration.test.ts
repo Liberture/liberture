@@ -105,7 +105,7 @@ describe.skipIf(!testUrl)("private challenge routes", () => {
     expect(await publicMatch(challenge.id)).toBeNull()
     expect((await apply(challenge.id,moderator,{action:"publish"})).status).toBe(403)
     expect((await apply(challenge.id,creator,{action:"publish"})).status).toBe(200)
-    expect(Object.keys((await publicMatch(challenge.id))!).sort()).toEqual(["title","rules","creator","player","stake","mint","durationDays","stage","result","race"].sort())
+    expect(Object.keys((await publicMatch(challenge.id))!).sort()).toEqual(["title","rules","creator","player","stake","mint","durationDays","stage","result","race","funded"].sort())
     const recipient = await backupRecipient(req("GET","",moderator),params)
     expect((await recipient.json()).recipient).toBe(modNostr)
     const guest = await join(invites.player,{},"Guest")
