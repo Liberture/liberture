@@ -79,6 +79,12 @@ function Fighter({ side, winner }: { side: Player; winner: boolean }) {
   )
 }
 
+export function RaceRunner({side}: {side: Player}) {
+  return <svg aria-hidden="true" viewBox={side === "creator" ? "70 -8 100 126" : "191 -8 100 126"} className="h-10 w-9">
+    <Fighter side={side} winner={false} />
+  </svg>
+}
+
 export function ChallengeStepArt({step}: {step: "invite" | "play" | "finish"}) {
   return <svg aria-hidden="true" viewBox="56 -24 246 145" className={styles.stepArt} data-step={step}>
     <ellipse cx="180" cy="113" rx="105" ry="4" fill="currentColor" opacity=".1" />

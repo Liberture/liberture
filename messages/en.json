@@ -1,5 +1,10 @@
 {
   "challenges": {
+    "race": "Challenge race",
+    "raceDays": "{count} of {total} days",
+    "raceDay": "Day {day}",
+    "openRaceTasks": "Open daily tasks",
+    "payBeforeInvite": "Pay your stake to unlock invitations.",
     "title": "Challenges",
     "new": "New challenge",
     "create": "Create challenge",
@@ -61,7 +66,6 @@
     "advanceHint": "Pay now, then lock this payment when your opponent joins. Until you lock it, you can reclaim it from this browser.",
     "advancePaid": "Payment received. You can reclaim it or lock it when your opponent joins.",
     "searchPlaceholder": "search in Nostr",
-    "draftLinkCopied": "Invite link copied. Create the challenge to activate it.",
     "versus": "vs",
     "secondPlayer": "Second player",
     "pendingInvite": "Waiting for the other player to join",
@@ -79,10 +83,10 @@
     "moneyDetails": "Where do the sats go?",
     "howItWorks": "How a challenge works",
     "steps": {
-      "invite": "Invite a friend",
-      "inviteHint": "Choose a goal and a finish date.",
+      "invite": "Pay your stake",
+      "inviteHint": "Choose your goal and pay to unlock the invite link.",
       "play": "Put in your sats",
-      "playHint": "Both players put in the same amount of bitcoin, measured in sats.",
+      "playHint": "When both stakes are locked, check off your daily tasks to advance.",
       "finish": "Choose who won",
       "finishHint": "The winner gets the pot. A draw splits it."
     },
@@ -2793,6 +2797,7 @@
         "reading": "Reading…"
       },
       "todoList": {
+        "challengeDay": "Challenge · Day {day}",
         "title": "Todos",
         "openCount": "{count} open",
         "new": "New",

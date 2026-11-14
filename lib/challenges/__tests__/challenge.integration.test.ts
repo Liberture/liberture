@@ -13,9 +13,10 @@ import { createNostrSessionsTable } from "@/lib/habits/db-migrate"
 import { createSession, SESSION_COOKIE_NAME } from "@/lib/habits/nostr/session-store"
 import type { ChallengeAction } from "../types"
 
-const mint = vi.hoisted(() => ({ settle: vi.fn(async (_terms: unknown, p: string) => "receipt-" + p) }))
+const mint = vi.hoisted(() => ({ reclaimed: new Set<string>(), settle: vi.fn(async (_terms: unknown, p: string) => "receipt-" + p) }))
 vi.mock("../cashu", () => ({
   TEST_MINT: "https://test.invalid",
+  verifyInvitePayment: async (_mint: string, quote: string) => quote.startsWith("paid-") && !mint.reclaimed.has(quote),
   verifyDeposit: async () => {},
   depositProofIds: async (token: string) => [token],
   createPayoutPlan: async (_: unknown, depositor: string) => ({ depositor }),
@@ -36,7 +37,19 @@ function req(method: string, path: string, headers: Record<string, string>, data
 }
 const apply = (id: string, headers: Record<string, string>, action: ChallengeAction) =>
   PATCH(req("PATCH", "/" + id, headers, action), { params: Promise.resolve({ id }) })
-const make = () => create(req("POST", "", creator, {
+async function createWithInvite(request: Request) {
+  const response = await create(request)
+  if (!response.ok) return response
+  const created = await response.json()
+  expect(created.invites).toBeUndefined()
+  const { challenge } = created
+  expect((await apply(challenge.id, creator, {action:"invite",role:"player"})).status).toBe(409)
+  expect((await apply(challenge.id, creator, {action:"publish"})).status).toBe(409)
+  const issued = await apply(challenge.id, creator, {action:"invite",role:"player",quote:"paid-"+challenge.id})
+  expect(issued.status).toBe(200)
+  return new Response(JSON.stringify({challenge,invites:{player:(await issued.json()).token}}),{status:201})
+}
+const make = () => createWithInvite(req("POST", "", creator, {
   title: "Two weeks", rules: "Meet the agreed goal", stake: 10000, durationDays: 14,
   name: "A", pubkey: pubkey(), moderatorNpub: nip19.npubEncode(modNostr),
 }))
@@ -52,7 +65,7 @@ describe.skipIf(!testUrl)("private challenge routes", () => {
     vi.stubEnv("DATABASE_URL", testUrl!)
     vi.stubEnv("LIBERTURE_MANAGED_AUTH", "false")
     db = getDb()
-    await db`CREATE TABLE habit_users (id serial PRIMARY KEY, api_key text, nostr_pubkey text)`
+    await db`CREATE TABLE habit_users (id serial PRIMARY KEY, api_key text, nostr_pubkey text, data jsonb DEFAULT '{}', updated_at timestamptz)`
     await db`INSERT INTO habit_users(api_key, nostr_pubkey) VALUES ('ht_creator', null), ('ht_outsider', null), ('ht_mod', ${modNostr})`
     await createNostrSessionsTable()
     moderator = { cookie: SESSION_COOKIE_NAME + "=" + await createSession(modNostr) }
@@ -75,7 +88,7 @@ describe.skipIf(!testUrl)("private challenge routes", () => {
   }
   it("locks in an offline moderator by npub and starts funding without their acceptance", async () => {
     const identity = pubkey().slice(2)
-    const response = await create(req("POST","",creator,{title:"Offline referee",rules:"Walk",name:"A",pubkey:pubkey(),stake:10,durationDays:1,moderatorNpub:nip19.npubEncode(identity)}))
+    const response = await createWithInvite(req("POST","",creator,{title:"Offline referee",rules:"Walk",name:"A",pubkey:pubkey(),stake:10,durationDays:1,moderatorNpub:nip19.npubEncode(identity)}))
     expect(response.status).toBe(201)
     const {challenge, invites} = await response.json()
     expect(challenge.members.moderator.pubkey).toBe("02"+identity)
@@ -92,7 +105,7 @@ describe.skipIf(!testUrl)("private challenge routes", () => {
     expect(await publicMatch(challenge.id)).toBeNull()
     expect((await apply(challenge.id,moderator,{action:"publish"})).status).toBe(403)
     expect((await apply(challenge.id,creator,{action:"publish"})).status).toBe(200)
-    expect(Object.keys((await publicMatch(challenge.id))!).sort()).toEqual(["title","rules","creator","player","stake","mint","durationDays","stage","result"].sort())
+    expect(Object.keys((await publicMatch(challenge.id))!).sort()).toEqual(["title","rules","creator","player","stake","mint","durationDays","stage","result","race"].sort())
     const recipient = await backupRecipient(req("GET","",moderator),params)
     expect((await recipient.json()).recipient).toBe(modNostr)
     const guest = await join(invites.player,{},"Guest")
@@ -101,10 +114,10 @@ describe.skipIf(!testUrl)("private challenge routes", () => {
     expect((await publicMatch(challenge.id))?.player).toBe("Guest")
   })
   it("starts funding with two players when no moderator was selected", async () => {
-    const {challenge, invites} = await (await create(req("POST","",creator,{title:"Two players",rules:"Walk",name:"A",pubkey:pubkey(),stake:10,durationDays:1}))).json()
+    const {challenge, invites} = await (await createWithInvite(req("POST","",creator,{title:"Two players",rules:"Walk",name:"A",pubkey:pubkey(),stake:10,durationDays:1}))).json()
     expect(challenge.arbitration).toBe("none")
     expect((await (await join(invites.player,{},"B")).json()).challenge.stage).toBe("funding")
-    expect((await join(invites.moderator,{},"M")).status).toBe(404)
+    expect((await apply(challenge.id,creator,{action:"invite",role:"moderator"})).status).toBe(409)
   })
   it("limits discovery and changes to members and validates identities on targeted invitations", async () => {
     expect((await list(req("GET", "", {}))).status).toBe(401)
@@ -114,8 +127,7 @@ describe.skipIf(!testUrl)("private challenge routes", () => {
     expect((await GET(req("GET", "/" + challenge.id, outsider), params)).status).toBe(404)
     expect((await (await list(req("GET", "", outsider))).json()).challenges).toEqual([])
     expect(challenge.members.moderator.name).toBe("M")
-    expect((await join(invites.moderator, {}, "guest")).status).toBe(409)
-    expect((await join(invites.moderator, outsider, "other")).status).toBe(409)
+    expect((await apply(challenge.id,creator,{action:"invite",role:"moderator"})).status).toBe(409)
     expect((await join(invites.player, creator, "A again")).status).toBe(409)
     const rotated = await (await apply(challenge.id, creator, { action: "invite", role: "player" })).json()
     expect((await join(invites.player, {}, "B")).status).toBe(404)
@@ -150,6 +162,29 @@ describe.skipIf(!testUrl)("private challenge routes", () => {
     expect(settled.challenge.stage).toBe("settled")
     expect(settled.challenge.result).toBe("draw")
     expect(mint.settle.mock.calls.map(call => call[1])).toEqual(["creator", "player", "player"])
+  })
+  it("rejects an invitation after the creator reclaims the advance", async () => {
+    const {challenge, invites} = await (await make()).json()
+    mint.reclaimed.add("paid-"+challenge.id)
+    expect((await join(invites.player, outsider, "Player")).status).toBe(409)
+    expect((await apply(challenge.id,creator,{action:"invite",role:"player"})).status).toBe(409)
+  })
+  it("creates one task per player per day and exposes only completion totals", async () => {
+    const {challenge, invites} = await (await make()).json()
+    const id = challenge.id
+    expect((await join(invites.player, outsider, "B")).status).toBe(200)
+    await apply(id,creator,{action:"publish"})
+    await apply(id,creator,{action:"fund",token:"raceA"})
+    expect((await publicMatch(id))?.race).toBeUndefined()
+    await apply(id,outsider,{action:"fund",token:"raceB"})
+    await apply(id,outsider,{action:"fund",token:"raceB"})
+    const rows = await db`SELECT user_id,body FROM habit_todos WHERE body->>'challengeId'=${id}`
+    expect(rows).toHaveLength(28)
+    const day = rows.find(row => row.body.challengeDay === 1)!
+    await db`UPDATE habit_todos SET status='completed' WHERE user_id=${day.user_id} AND id=${day.body.id}`
+    const progress = (await publicMatch(id))!.race!
+    expect(progress.creator+progress.player).toBe(1)
+    expect(Object.keys(progress).sort()).toEqual(["creator","player"])
   })
   it("settles a mutually agreed winner with both players independently signing", async () => {
     const { id, player } = await ready()

@@ -1,5 +1,10 @@
 {
   "challenges": {
+    "race": "Carrera del desafío",
+    "raceDays": "{count} de {total} días",
+    "raceDay": "Día {day}",
+    "openRaceTasks": "Abrir tareas diarias",
+    "payBeforeInvite": "Pagá tu parte para habilitar las invitaciones.",
     "title": "Desafíos",
     "new": "Nuevo desafío",
     "create": "Crear desafío",
@@ -61,7 +66,6 @@
     "advanceHint": "Pagá ahora y bloqueá este pago cuando se sume tu oponente. Hasta que lo bloquees, podés recuperarlo desde este navegador.",
     "advancePaid": "Pago recibido. Podés recuperarlo o bloquearlo cuando se sume tu oponente.",
     "searchPlaceholder": "Buscar en Nostr",
-    "draftLinkCopied": "Enlace copiado. Creá el desafío para activarlo.",
     "versus": "vs.",
     "secondPlayer": "Segundo jugador",
     "pendingInvite": "Esperando que se sume el otro jugador",
@@ -79,10 +83,10 @@
     "moneyDetails": "¿Dónde quedan los sats?",
     "howItWorks": "Cómo funciona un desafío",
     "steps": {
-      "invite": "Invitá a alguien",
-      "inviteHint": "Elijan una meta y un plazo.",
+      "invite": "Pagá tu parte",
+      "inviteHint": "Elegí la meta y pagá para habilitar el enlace de invitación.",
       "play": "Pongan sus sats",
-      "playHint": "Cada jugador pone la misma cantidad de bitcoin, medida en sats.",
+      "playHint": "Cuando ambos aportes estén bloqueados, completá tus tareas diarias para avanzar.",
       "finish": "Elijan quién ganó",
       "finishHint": "Quien gana se lleva el pozo. Si empatan, lo reparten."
     },
@@ -2793,6 +2797,7 @@
         "reading": "Leyendo…"
       },
       "todoList": {
+        "challengeDay": "Desafío · Día {day}",
         "title": "Tareas",
         "openCount": "{count} abiertas",
         "new": "Nueva",

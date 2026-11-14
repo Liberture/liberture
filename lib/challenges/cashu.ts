@@ -166,6 +166,12 @@ function fundingKey(owner: string, id: string, role: CashuPlayer) {
   return "liberture:challenge:deposit:" + JSON.stringify([owner, id, role])
 }
 
+export async function verifyInvitePayment(mint: string, quoteId: string, key: string, stake: number) {
+  const wallet = await getWallet(mint)
+  const quote = await wallet.checkMintQuoteBolt11(quoteId)
+  return quote.state === "PAID" && quote.pubkey === key && quote.amount.toNumber() === stake && quote.unit === "sat"
+}
+
 export async function advancePayment(owner: string, challenge: { id: string; mint: string; stake: number }, key: string, reclaim = false) {
   const name = fundingKey(owner, challenge.id, "creator")
   return withWalletLock(name, async () => {
@@ -195,7 +201,10 @@ export async function advancePayment(owner: string, challenge: { id: string; min
       }
       return { invoice: quote.request }
     }
-    if (!reclaim && !record.reclaimOutputs) return { paid: true }
+    if (!reclaim && !record.reclaimOutputs) {
+      ensure(quote.state === "PAID", "Advance already issued")
+      return { paid: true, quote: record.quote }
+    }
     if (!record.reclaimOutputs) {
       record.reclaimOutputs = OutputData.createRandomData(challenge.stake, wallet.getKeyset()).map(OutputData.serialize)
       localStorage.setItem(storage, JSON.stringify(record))
@@ -222,7 +231,7 @@ export async function readAdvancePayment(owner: string, challenge: { id: string;
     const wallet = await getWallet(record.mint)
     const quote = await wallet.checkMintQuoteBolt11(record.quote)
     ensure(quote.pubkey === key, "Unexpected mint quote key")
-    if (quote.state !== "UNPAID") return { paid: true }
+    if (quote.state !== "UNPAID") return { paid: true, quote: quote.state === "PAID" && !record.reclaimOutputs ? record.quote : undefined }
     if (quote.expiry && quote.expiry <= Date.now()/1000) {
       localStorage.removeItem(storage)
       return null

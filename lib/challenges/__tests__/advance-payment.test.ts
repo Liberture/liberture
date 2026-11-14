@@ -1,6 +1,6 @@
 import { expect, it, vi } from "vitest"
 import { createBlindSignature, createDLEQProof, createRandomSecretKey, deriveKeysetId, getDecodedToken, getPubKeyFromPrivKey, pointFromHex, sumProofs, verifyMintQuoteSignature } from "@cashu/cashu-ts"
-import { readAdvancePayment, advancePayment, challengePublicKey, fundDeposit, type CashuTerms } from "../cashu"
+import { verifyInvitePayment, readAdvancePayment, advancePayment, challengePublicKey, fundDeposit, type CashuTerms } from "../cashu"
 import { LIVE_MINT } from "../mints"
 
 it("uses one paid invoice for either a recoverable bearer token or the creator's locked stake", async () => {
@@ -51,13 +51,18 @@ it("uses one paid invoice for either a recoverable bearer token or the creator's
       expect((await advance()).invoice).toBe("lnbcrt1u1qqqqqq")
       const quote = [...quotes.values()].at(-1)!
       expect(await status()).toEqual({invoice:quote.request})
+      const verified = (amount = terms.stake) => verifyInvitePayment(terms.mint,quote.quote,terms.keys.creator,amount)
+      expect(await verified()).toBe(false)
       quote.state = "PAID"
-      expect(await status()).toEqual({paid:true})
-      expect(await advance()).toEqual({paid:true})
+      expect(await verified()).toBe(true)
+      expect(await verified(99)).toBe(false)
+      expect(await status()).toEqual({paid:true,quote:quote.quote})
+      expect(await advance()).toEqual({paid:true,quote:quote.quote})
       const token = reclaim ? (await advance(true)).token! : await fundDeposit("creator",terms,"creator")
       const proofs = getDecodedToken(token,[id]).proofs
       expect(sumProofs(proofs).toNumber()).toBe(100)
       expect(proofs.every(p => p.secret.includes("P2PK"))).toBe(!reclaim)
+      expect(await verified()).toBe(false)
       if (reclaim) expect((await advance(true)).token).toBe(token)
       else {
         await expect(advance(true)).rejects.toThrow("already assigned")

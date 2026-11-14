@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { HelpTooltip } from "@/components/ui/tooltip"
 import { CalendarPlus, Check, Clock, Edit2, Flag, Folder, ListChecks, Trash2 } from "lucide-react"
 import { differenceInCalendarDays, format, isPast, isToday, isTomorrow, isValid, parseISO } from "date-fns"
@@ -111,6 +112,7 @@ export function TodoRow({
         >
           {todo.title}
         </p>
+        {todo.challengeId && <Link className="text-xs text-primary underline" href={`/challenges/${encodeURIComponent(todo.challengeId)}`}>{formatMessage(t.challengeDay,{day:todo.challengeDay ?? 1})}</Link>}
         {!completed && todo.description && (
           <LinkifiedText text={todo.description} className="mt-1 block whitespace-pre-wrap break-words text-sm text-muted-foreground [overflow-wrap:anywhere]" />
         )}

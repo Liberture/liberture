@@ -224,6 +224,8 @@ export interface HabitCompletion {
 }
 
 export interface Todo {
+  challengeId?: string
+  challengeDay?: number
   id: string
   title: string
   description?: string

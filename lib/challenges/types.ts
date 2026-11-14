@@ -19,7 +19,12 @@ export interface ChallengeTerms {
   createdAt: string
 }
 
+export type RaceProgress = Record<Player, number>
+
 export interface Challenge extends ChallengeTerms {
+  race?: RaceProgress
+  guestDays?: number[]
+  raceTasksCreated?: boolean
   publicMatch?: boolean
   invitedPlayerName?: string
   arbitration?: "registered" | "nostr" | "none"
@@ -50,8 +55,9 @@ export interface ChallengeSettlement {
 }
 
 export type ChallengeAction =
-  | { action: "publish" }
-  | { action: "invite"; role: Exclude<Role, "creator"> }
+  | { action: "publish"; quote?: string }
+  | { action: "guestDay"; day: number; complete: boolean }
+  | { action: "invite"; quote?: string; role: Exclude<Role, "creator"> }
   | { action: "fund"; token: string }
   | { action: "vote"; result: Result }
   | { action: "dispute" }

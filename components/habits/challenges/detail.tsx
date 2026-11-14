@@ -1,5 +1,7 @@
 "use client"
 
+import { ChallengeRace } from "./race"
+import Link from "next/link"
 import { TEST_MINT } from "@/lib/challenges/mints"
 import { useHabitsSession } from "@/components/habits/session-provider"
 import { PlayerProfile } from "./player-profile"
@@ -61,18 +63,16 @@ export function ChallengeRoom({ id }: { id: string }) {
 
 export function ChallengeDetail({
   initial,
-  invites = {},
   back,
 }: {
   initial: Challenge
-  invites?: Invites
   back?: () => void
 }) {
   const t = useTranslations("challenges")
   const { request } = useChallengeClient()
   const locale = useLocale()
   const [c, setChallenge] = useState(initial)
-  const [tokens, setTokens] = useState(invites)
+  const [tokens, setTokens] = useState<Invites>({})
   const [inviteRole, setInviteRole] = useState<"player" | "moderator" | null>(null)
   const [choice, choose] = useState<Result | null>(null)
   const { busy, error, run } = useAction()
@@ -81,7 +81,7 @@ export function ChallengeDetail({
     setChallenge((prev) => (next.revision >= prev.revision ? next : prev))
   }
   useEffect(() => {
-    if (c.stage === "settled") return
+
     let live = true
     async function refresh() {
       if (document.hidden) return
@@ -92,7 +92,8 @@ export function ChallengeDetail({
         /* Retry on focus or next interval. */
       }
     }
-    const timer = setInterval(refresh, 10000)
+    void refresh()
+    const timer = c.stage === "settled" ? undefined : setInterval(refresh, 10000)
     window.addEventListener("focus", refresh)
     return () => {
       live = false
@@ -102,7 +103,10 @@ export function ChallengeDetail({
   }, [request, path, c.stage])
   async function act(command: ChallengeAction) {
     const response = await request<{ challenge: Challenge; token?: string }>(path, "PATCH", command)
-    update(response.challenge)
+    if (response.challenge.deposits.creator && response.challenge.deposits.player) {
+      const latest = await request<{ challenge: Challenge }>(path)
+      update(latest.challenge)
+    } else update(response.challenge)
     return response
   }
   const me = c.role
@@ -163,6 +167,7 @@ export function ChallengeDetail({
       {text}
     </Button>
   )
+  const [paidQuote, setPaidQuote] = useState<string>()
   const [advancePaid, setAdvancePaid] = useState(false)
   const [reclaimToken, setReclaimToken] = useState("")
   const [savedAdvance, setSavedAdvance] = useState(false)
@@ -187,6 +192,7 @@ export function ChallengeDetail({
         if (!live) return
         setSavedAdvance(Boolean(result))
         setAdvancePaid(Boolean(result?.paid))
+        setPaidQuote(result?.quote)
         setReclaimToken(result?.token || "")
         if (result || c.stage === "inviting") setInvoice(result?.invoice || "")
         setStatusFailed(false)
@@ -221,7 +227,9 @@ export function ChallengeDetail({
     }
     setInvoice(result.invoice || "")
     setAdvancePaid(Boolean(result.paid))
+    setPaidQuote(result.quote)
     setReclaimToken(result.token || "")
+    if (result.token) { setTokens({}); setInviteRole(null) }
     if (result.token && reclaim) download("challenge-" + c.id + "-reclaimed.cashu", result.token)
     setSavedAdvance(true)
   }
@@ -229,6 +237,7 @@ export function ChallengeDetail({
   const [invoice, setInvoice] = useState("")
   const test = c.mint === TEST_MINT
   const expired = c.stage === "expired"
+  const canInvite = !!deposit || !!paidQuote && !reclaimToken
   const myDeposit = me !== "moderator" && c.deposits[me]
   const myRefund = me !== "moderator" ? c.refunds[me] : undefined
   const moderatorSigned = !!c.settlements.creator?.signatures.moderator
@@ -249,9 +258,17 @@ export function ChallengeDetail({
         <div className="flex items-start justify-between gap-3">
           <h1 className="min-w-0 break-words text-xl font-semibold">{c.title}</h1>
           {c.publicMatch ? <CopyButton value={new URL("/challenges/watch/" + c.id, location.origin).href} label={t("copyPublic")} copiedLabel={t("copied")} successMessage={t("publicCopied")} errorMessage={t("publicCopyFailed")} /> :
-            me === "creator" && <Button variant="outline" size="sm" disabled={busy} onClick={() => void run(async () => { await act({action:"publish"}); notify.success(t("publicReady")) })}>{t("publishMatch")}</Button>}
+            me === "creator" && canInvite && <Button variant="outline" size="sm" disabled={busy} onClick={() => void run(async () => { await act({action:"publish", quote:paidQuote}); notify.success(t("publicReady")) })}>{t("publishMatch")}</Button>}
         </div>
-        <CashewMatch compact waiting={!c.members.player} stage={c.stage} result={c.result} joined={!!c.members.player}
+        {c.deposits.creator && c.deposits.player ? <>
+          <ChallengeRace names={{creator:c.members.creator!.name, player:c.members.player!.name}} days={c.durationDays} progress={c.race ?? {creator:0,player:0}} />
+          {me !== "moderator" && c.stage === "active" && (me === "player" && c.guestDays ? <div className="flex flex-wrap gap-2">
+            {Array.from({length:Math.min(c.durationDays, Math.max(0, c.durationDays + 1 + Math.floor((Date.now()/1000 - c.expiresAt!)/86400)))}, (_,i) => i+1).map(day =>
+              <Button key={day} size="sm" variant="outline" aria-pressed={c.guestDays!.includes(day)} disabled={busy} onClick={() => void run(async () => {
+                await act({action:"guestDay", day, complete:!c.guestDays!.includes(day)})
+              })}>{c.guestDays!.includes(day) ? "✓ " : ""}{t("raceDay",{day})}</Button>)}
+          </div> : <Link className="text-sm text-primary underline" href="/tracker/todos">{t("openRaceTasks")}</Link>)}
+        </> : <CashewMatch compact waiting={!c.members.player} stage={c.stage} result={c.result} joined={!!c.members.player}
           versus={t("versus")} moderator={c.arbitration !== "none" && !!(c.members.moderator || c.invitedNpubs?.moderator)}
           moderatorDetails={c.members.moderator && <PlayerProfile small name={moderatorProfile?.name || c.members.moderator.name} picture={moderatorProfile?.picture} />}>
           {players.map(role => {
@@ -261,11 +278,12 @@ export function ChallengeDetail({
             return <div key={role} className="flex min-w-0 flex-wrap items-center justify-center gap-1 text-center">
               {role === "player" && !member && <span role="status"><LoaderCircle aria-hidden className="size-4 opacity-[.65] motion-safe:animate-spin" /><span className="sr-only">{t("pendingInvite")}</span></span>}
               <PlayerProfile name={name} picture={info?.picture} />
-              {role === "player" && !member && me === "creator" && <Button size="icon-sm" variant="ghost" aria-label={t("shareInvite")} title={t("shareInvite")} onClick={() => setInviteRole("player")}><Share2 aria-hidden /></Button>}
+              {role === "player" && !member && me === "creator" && canInvite && <Button size="icon-sm" variant="ghost" aria-label={t("shareInvite")} title={t("shareInvite")} onClick={() => setInviteRole("player")}><Share2 aria-hidden /></Button>}
               {c.deposits[role] && <small className="w-full">{t(c.refunds[role]?.receipt ? "refunded" : c.settlements[role]?.receipt ? "settled" : "funded")}</small>}
             </div>
           })}
-        </CashewMatch>
+        </CashewMatch>}
+        {me === "creator" && !canInvite && c.stage === "inviting" && <p className="text-sm text-muted-foreground">{t("payBeforeInvite")}</p>}
       {me === "creator" && !myDeposit && statusFailed && button(t("checkAdvance"), async () => setStatusRetry(n => n + 1))}
       {advanceReady && me === "creator" && !myDeposit && (c.stage === "inviting" || savedAdvance) && <div className="space-y-2">
         {reclaimToken ? button(t("downloadReclaimed"), async () => download("challenge-" + c.id + "-reclaimed.cashu", reclaimToken)) : <>
@@ -294,7 +312,7 @@ export function ChallengeDetail({
       </div>}
 
         <div className="flex flex-wrap items-center gap-2">
-          {me === "creator" && !c.members.moderator && c.arbitration !== "none" && <Button size="sm" variant="outline" onClick={() => setInviteRole("moderator")}>{t("inviteRole",{role:t("moderator")})}</Button>}
+          {canInvite && me === "creator" && !c.members.moderator && c.arbitration !== "none" && <Button size="sm" variant="outline" onClick={() => setInviteRole("moderator")}>{t("inviteRole",{role:t("moderator")})}</Button>}
 
         </div>
         {c.stage !== "inviting" && <div className="rounded-xl border border-primary/25 bg-primary/5 px-4 py-3">
@@ -309,7 +327,7 @@ export function ChallengeDetail({
         {test && <p className="text-sm text-muted-foreground">{t("testMint")}</p>}
         {c.expiresAt && <p>{t("deadline", { date: new Date(c.expiresAt * 1000).toLocaleString(locale) })}</p>}
       </header>
-      {me === "creator" &&
+      {me === "creator" && canInvite &&
         (["player", "moderator"] as const).map(
           (role) =>
             !c.members[role] && (role !== "moderator" || c.arbitration !== "none") && (
@@ -319,7 +337,7 @@ export function ChallengeDetail({
                     <CopyButton value={inviteLink(tokens[role]!)} label={t("copyLink")} copiedLabel={t("copied")} successMessage={t("inviteCopied")} errorMessage={t("copyFailed")} disabled={busy} />
                   ) : (
                     <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => void run(async () => {
-                      const r = await act({ action: "invite", role })
+                      const r = await act({ action: "invite", role, quote: paidQuote })
                       setTokens(prev => ({ ...prev, [role]: r.token }))
                       notify.info(t("linkReady"))
                     })}>{t("rotateLink")}</Button>
@@ -331,7 +349,7 @@ export function ChallengeDetail({
                   void run(async () => {
                     let token = tokens[role]
                     if (!token) {
-                      token = (await act({ action: "invite", role })).token
+                      token = (await act({ action: "invite", role, quote: paidQuote })).token
                       setTokens(prev => ({ ...prev, [role]: token }))
                     }
                     if (!token) throw new Error(t("dmError"))
