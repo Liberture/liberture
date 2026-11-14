@@ -1,0 +1,32 @@
+{
+  "en": {
+    "title": "The Royal Flush",
+    "subtitle": [
+      "Feet up. Less strain.",
+      "A small lift can change the angle."
+    ],
+    "steps": [
+      "Support both feet",
+      "Raise knees above hips",
+      "Lean forward & breathe"
+    ],
+    "label": "NUTRITION PROTOCOL",
+    "bend": "A gentler bend",
+    "note": "May help bowel emptying. Results vary."
+  },
+  "es": {
+    "title": "Operación Trono",
+    "subtitle": [
+      "Pies arriba. Menos esfuerzo.",
+      "Un pequeño apoyo cambia el ángulo."
+    ],
+    "steps": [
+      "Apoyá ambos pies",
+      "Elevá las rodillas sobre las caderas",
+      "Inclinate y respirá"
+    ],
+    "label": "PROTOCOLO DE NUTRICIÓN",
+    "bend": "Una curva más suave",
+    "note": "Puede facilitar la evacuación. Los resultados varían."
+  }
+}
