@@ -253,7 +253,16 @@ export async function readFundingPayment(owner: string, terms: CashuTerms, role:
   return { paid: false, invoice: quote.request, expired: !!quote.expiry && quote.expiry <= Date.now()/1000 }
 }
 
-export async function fundDeposit(owner: string, terms: CashuTerms, depositor: CashuPlayer, onInvoice?: (invoice: string) => void | Promise<void>) {
+/** Resume only a payment already made. A creator advance waits for the opponent's verified deposit. */
+export async function readAutomaticFunding(owner: string, terms: CashuTerms, role: CashuPlayer, opponentFunded: boolean): Promise<{ paid: boolean; invoice?: string; expired?: boolean } | null> {
+  const pending = await readFundingPayment(owner, terms, role)
+  if (pending) return pending
+  if (role !== "creator" || !opponentFunded) return null
+  const advance = await readAdvancePayment(owner, terms, terms.keys.creator)
+  return advance?.quote ? { paid: true } : null
+}
+
+export async function fundDeposit(owner: string, terms: CashuTerms, depositor: CashuPlayer, onInvoice?: (invoice: string) => void | Promise<void>, options: { existingOnly?: boolean } = {}) {
   checkTerms(terms)
   ensure(challengePublicKey(owner) === terms.keys[depositor], "Wrong challenge signing key")
   const name = fundingKey(owner, terms.id, depositor)
@@ -263,6 +272,7 @@ export async function fundDeposit(owner: string, terms: CashuTerms, depositor: C
     const useAdvance = advance && !advance.reclaimed
     if (useAdvance) ensure(!advance.reclaimOutputs && advance.key === terms.keys[depositor] && advance.stake === terms.stake && advance.mint === terms.mint, "Finish reclaiming your advance payment first")
     const existing = localStorage.getItem(name)
+    ensure(!options.existingOnly || existing || useAdvance, "No existing payment to lock")
     let record: FundingRecord
     if (existing) record = JSON.parse(existing)
     else {
@@ -279,6 +289,7 @@ export async function fundDeposit(owner: string, terms: CashuTerms, depositor: C
     if (record.token) return record.token
     const outputs = record.outputs.map(OutputData.deserialize)
     let quote = await wallet.checkMintQuoteBolt11(record.quote)
+    if (options.existingOnly) ensure(quote.state !== "UNPAID", "Invoice awaiting payment.")
     if (quote.state === "UNPAID") await onInvoice?.(quote.request)
     for (let i = 0; i < 12 && quote.state === "UNPAID"; i++) {
       await new Promise(resolve => setTimeout(resolve, 1250))

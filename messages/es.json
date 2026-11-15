@@ -1,5 +1,11 @@
 {
   "challenges": {
+    "voteAuthorizesPayout": "Elegir un resultado autoriza su pago. Cuando ambos coinciden, se liquida automáticamente.",
+    "automaticPayout": "Completando el pago acordado…",
+    "waitingPayoutSignature": "Esperando que el dispositivo del otro jugador termine de firmar.",
+    "retryPayout": "Reintentar pago",
+    "dmUnavailable": "No pudimos conectar con los relays de mensajes de esta persona. Copiá el enlace de invitación para enviarlo directamente.",
+    "dmRejected": "Los relays de mensajes de esta persona rechazaron el mensaje. Copiá el enlace de invitación para enviarlo directamente.",
     "chooseLinkOpponent": "Invitar por enlace a alguien sin Nostr",
     "opponentRequired": "Elegí a tu oponente o seleccioná una invitación por enlace.",
     "race": "Carrera del desafío",
@@ -229,7 +235,7 @@
       "payTitle": "{name} te está esperando",
       "payBody": "Pagá tus {amount, number} sats para entrar a la carrera.",
       "confirmStakeTitle": "{name} te está esperando",
-      "confirmStakeBody": "Tu pago está listo. Confirmá tu parte para entrar a la carrera; no vas a pagar de nuevo.",
+      "confirmStakeBody": "Tu pago se bloquea automáticamente cuando paga el otro jugador. Mantené esta página abierta; no vas a pagar de nuevo.",
       "waitPaymentTitle": "Esperando el otro aporte",
       "waitPaymentBody": "Tu aporte está confirmado. La carrera empieza automáticamente cuando ambos aportes estén confirmados.",
       "dailyTaskTitle": "Tu próximo paso",

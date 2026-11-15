@@ -1,5 +1,6 @@
 "use client"
 
+import { automaticSettlementStep } from "@/lib/challenges/automatic-settlement"
 import { challengeNextAction } from "@/lib/challenges/next-action"
 import { ChallengeRace } from "./race"
 import Link from "next/link"
@@ -77,7 +78,6 @@ export function ChallengeDetail({
   const [c, setChallenge] = useState(initial)
   const [tokens, setTokens] = useState<Invites>({})
   const [inviteRole, setInviteRole] = useState<"player" | "moderator" | null>(null)
-  const [choice, choose] = useState<Result | null>(null)
   const { busy, error, run } = useAction()
   const path = "/" + c.id
   function update(next: Challenge) {
@@ -246,7 +246,7 @@ export function ChallengeDetail({
   const nextAction = challengeNextAction(c, advancePaid)
   const paymentInFlight = useRef(false)
   const autoPaymentStarted = useRef(false)
-  async function fundPayment(offerWallet = false) {
+  async function fundPayment(offerWallet = false, existingOnly = false) {
     if (me === "moderator" || paymentInFlight.current) return
     paymentInFlight.current = true
     try {
@@ -257,12 +257,12 @@ export function ChallengeDetail({
         if (expired) return
         setInvoice(request)
         if (offerWallet) await offerInvoice(request)
-      })
+      }, { existingOnly })
       await act({ action: "fund", token })
       setInvoice("")
     } catch (failure) {
       // An invoice still awaiting payment is a normal state, not a failed action.
-      if (!(failure instanceof Error && failure.message === "Invoice awaiting payment.")) throw failure
+      if (!(failure instanceof Error && (failure.message === "Invoice awaiting payment." || existingOnly && failure.message === "No existing payment to lock"))) throw failure
     } finally { paymentInFlight.current = false }
   }
   useEffect(() => {
@@ -288,11 +288,11 @@ export function ChallengeDetail({
       if (!owner) return
       checking = true
       try {
-        const { readFundingPayment } = await import("@/lib/challenges/cashu")
-        const pending = await readFundingPayment(owner, terms(), me)
-        if (!live || !pending) return
-        if (pending.paid) await run(() => fundPayment())
-        else setInvoice(pending.expired ? "" : pending.invoice || "")
+        const { readAutomaticFunding } = await import("@/lib/challenges/cashu")
+        const pending = await readAutomaticFunding(owner, terms(), me, Boolean(c.deposits.player))
+        if (!live) return
+        if (pending?.paid) await run(() => fundPayment(false, true))
+        else if (pending) setInvoice(pending.expired ? "" : pending.invoice || "")
       } catch { /* Keep the explicit retry available if the mint is unreachable. */ }
       finally { checking = false }
     }
@@ -300,7 +300,31 @@ export function ChallengeDetail({
     const timer = window.setInterval(refresh, 5000)
     window.addEventListener("focus", refresh)
     return () => { live = false; clearInterval(timer); window.removeEventListener("focus", refresh) }
-  }, [me, myKey, c.id, c.stage, myDeposit])
+  }, [me, myKey, c.id, c.stage, myDeposit, c.deposits.player])
+  const settlementInFlight = useRef(false)
+  const settlementAttempt = useRef("")
+  const automaticStep = automaticSettlementStep(c)
+  const automaticResult = c.stage === "settling" && !c.disputed && !!c.result && c.votes.creator === c.result && c.votes.player === c.result
+  async function advanceSettlement() {
+    if (settlementInFlight.current || !automaticStep) return
+    settlementInFlight.current = true
+    try {
+      if (automaticStep === "sign") {
+        const { signPayout } = await import("@/lib/challenges/cashu")
+        const owner = walletId()
+        const sigs: Partial<Record<Player, string>> = {}
+        for (const p of players) sigs[p] = await signPayout(owner, terms(), p, c.deposits[p]!, c.result!, c.settlements[p]!.plan)
+        await act({ action: "sign", signatures: sigs })
+      } else await act({ action: automaticStep })
+    } finally { settlementInFlight.current = false }
+  }
+  useEffect(() => {
+    const attempt = `${c.id}:${c.revision}:${automaticStep}:${restored}`
+    if (!busy && automaticStep && settlementAttempt.current !== attempt) {
+      settlementAttempt.current = attempt
+      void run(advanceSettlement)
+    }
+  }, [c.id, c.revision, automaticStep, busy, restored])
   return (
     <section className="mx-auto w-full max-w-2xl space-y-4 pb-8">
       {back && (
@@ -410,11 +434,11 @@ export function ChallengeDetail({
                       setTokens(prev => ({ ...prev, [role]: token }))
                     }
                     if (!token) throw new Error(t("dmError"))
-                    const { sendChallengeInvite } = await import("@/lib/challenges/nostr-invite")
+                    const { sendChallengeInvite, PrivateMessageError } = await import("@/lib/challenges/nostr-invite")
                     try {
                       await sendChallengeInvite(recipient, t("dmBody", { name: c.members.creator!.name, title: c.title, url: inviteLink(token) }))
                     } catch (e) {
-                      throw new Error(t(e instanceof Error && e.message === "noInbox" ? "noInbox" : "dmError"))
+                      throw new Error(t(e instanceof PrivateMessageError ? e.code : "dmError"))
                     }
                     notify.success(t("relayed"))
                   })
@@ -432,15 +456,16 @@ export function ChallengeDetail({
             {([...players, "draw"] as const).map((r) => (
               <Button
                 key={r}
-                variant={choice === r ? "default" : "outline"}
-                aria-pressed={choice === r}
-                onClick={() => choose(r)}
+                variant={c.votes[me] === r ? "default" : "outline"}
+                aria-pressed={c.votes[me] === r}
+                disabled={busy}
+                onClick={() => void run(async () => { await act({ action: "vote", result: r }) })}
               >
                 {label(r)}
               </Button>
             ))}
           </div>
-          {choice && button(t("confirmVote"), () => act({ action: "vote", result: choice }))}
+          <p className="text-sm text-muted-foreground">{t("voteAuthorizesPayout")}</p>
           {c.stage === "active" && c.arbitration !== "none" && (
             <Button
               variant="ghost"
@@ -472,7 +497,10 @@ export function ChallengeDetail({
       {c.result && (
         <section className={panel}>
           <h2 className="font-semibold">{t("outcome", { result: label(c.result) })}</h2>
-          {c.stage === "settling" &&
+          {automaticResult ? <div className="space-y-2" role="status">
+            <p className="flex items-center gap-2"><LoaderCircle aria-hidden className="size-4 motion-safe:animate-spin" />{t(automaticStep ? "automaticPayout" : "waitingPayoutSignature")}</p>
+            {error && <><p role="alert">{error}</p>{button(t("retryPayout"), advanceSettlement)}</>}
+          </div> : c.stage === "settling" &&
             (!c.settlements.creator ? (
               button(t("prepare"), () => act({ action: "prepare" }))
             ) : (

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Automatically lock an existing creator advance once the opponent’s deposit is verified, without creating another invoice. Resume from the player’s device after reopening the challenge.
+- Treat selecting a result as payout approval. Matching votes automatically prepare, sign, and settle either winner’s payout or a draw, with device-side keys and persisted payout plans for safe retries.
+- Ignore malformed or duplicate Nostr inbox addresses and distinguish unavailable relays from rejected messages. Private messages still go only to the recipient’s advertised inbox relays and require a relay acknowledgment.
+
 ## 0.8.2
 
 Released 2026-11-15.

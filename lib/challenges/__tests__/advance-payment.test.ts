@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto"
 import { expect, it, vi } from "vitest"
 import { createBlindSignature, createDLEQProof, createRandomSecretKey, deriveKeysetId, getDecodedToken, getPubKeyFromPrivKey, pointFromHex, sumProofs, schnorrVerifyDigest } from "@cashu/cashu-ts"
-import { verifyInvitePayment, readFundingPayment, readAdvancePayment, advancePayment, challengePublicKey, fundDeposit, type CashuTerms } from "../cashu"
+import { readAutomaticFunding, verifyInvitePayment, readFundingPayment, readAdvancePayment, advancePayment, challengePublicKey, fundDeposit, type CashuTerms } from "../cashu"
 import { LIVE_MINT } from "../mints"
 
 it("retries a legacy mint signature without a second invoice for reclaim or funding", async () => {
@@ -66,12 +66,18 @@ it("retries a legacy mint signature without a second invoice for reclaim or fund
       expect(await verified(99)).toBe(false)
       expect(await status()).toEqual({paid:true,quote:quote.quote})
       expect(await advance()).toEqual({paid:true,quote:quote.quote})
-      const token = reclaim ? (await advance(true)).token! : await fundDeposit("creator",terms,"creator")
+      expect(await readAutomaticFunding("creator",terms,"creator",false)).toBeNull()
+      expect(await readAutomaticFunding("creator",terms,"creator",true)).toEqual({paid:true})
+      const token = reclaim ? (await advance(true)).token! : await fundDeposit("creator",terms,"creator",undefined,{existingOnly:true})
       const proofs = getDecodedToken(token,[id]).proofs
       expect(sumProofs(proofs).toNumber()).toBe(100)
       expect(proofs.every(p => p.secret.includes("P2PK"))).toBe(!reclaim)
       expect(await verified()).toBe(false)
-      if (reclaim) expect((await advance(true)).token).toBe(token)
+      if (reclaim) {
+        expect((await advance(true)).token).toBe(token)
+        expect(await readAutomaticFunding("creator",terms,"creator",true)).toBeNull()
+        await expect(fundDeposit("creator",terms,"creator",undefined,{existingOnly:true})).rejects.toThrow("No existing payment to lock")
+      }
       else {
         await expect(advance(true)).rejects.toThrow("already assigned")
         expect(await fundDeposit("creator",terms,"creator")).toBe(token)
@@ -79,6 +85,8 @@ it("retries a legacy mint signature without a second invoice for reclaim or fund
     }
     const recipientTerms: CashuTerms = { id:crypto.randomUUID(), mint:LIVE_MINT, stake:100, refundAt:Math.floor(Date.now()/1000)+600, keys:{creator:challengePublicKey("creator"),player:challengePublicKey("recipient")} }
     expect(await readFundingPayment("recipient",recipientTerms,"player")).toBeNull()
+    expect(quotes.size).toBe(2)
+    await expect(fundDeposit("recipient",recipientTerms,"player",undefined,{existingOnly:true})).rejects.toThrow("No existing payment to lock")
     expect(quotes.size).toBe(2)
     const recipientToken = await fundDeposit("recipient",recipientTerms,"player",async invoice => {
       expect(invoice).toBe("lnbcrt1u1qqqqqq")

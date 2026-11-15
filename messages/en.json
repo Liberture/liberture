@@ -1,5 +1,11 @@
 {
   "challenges": {
+    "voteAuthorizesPayout": "Choosing a result authorizes its payout. When both players agree, it settles automatically.",
+    "automaticPayout": "Completing the agreed payout…",
+    "waitingPayoutSignature": "Waiting for the other player’s device to finish signing.",
+    "retryPayout": "Retry payout",
+    "dmUnavailable": "We couldn’t reach this person’s Nostr inbox relays. Copy the invitation link to send it directly.",
+    "dmRejected": "This person’s Nostr inbox relays rejected the message. Copy the invitation link to send it directly.",
     "chooseLinkOpponent": "Invite someone without Nostr by link",
     "opponentRequired": "Choose your opponent or select an invitation by link.",
     "race": "Challenge race",
@@ -229,7 +235,7 @@
       "payTitle": "{name} is waiting for you",
       "payBody": "Pay your {amount, number} sats to enter the race.",
       "confirmStakeTitle": "{name} is waiting for you",
-      "confirmStakeBody": "Your payment is ready. Confirm your stake to enter the race; you will not pay again.",
+      "confirmStakeBody": "Your payment locks automatically once the other player pays. Keep this page open; you will not pay again.",
       "waitPaymentTitle": "Waiting for the other stake",
       "waitPaymentBody": "Your stake is confirmed. The race starts automatically once both stakes are confirmed.",
       "dailyTaskTitle": "Your next step",
