@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.8.1
+
+Released 2026-11-15.
+
+- Fix the mint’s generic “Unknown error” when reclaiming or locking a paid challenge advance. The mint now returns the correct invalid-signature code so cashu-ts can retry its supported legacy signature, using the same paid quote and outputs.
+- Add mint-side and wallet regression coverage. Preserve mint keys, quote state and deposits; take an encrypted backup and retain the previous binary for rollback.
+
 ## 0.8.0
 
 Released 2026-11-15.

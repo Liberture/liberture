@@ -1,9 +1,10 @@
+import { createHash } from "node:crypto"
 import { expect, it, vi } from "vitest"
-import { createBlindSignature, createDLEQProof, createRandomSecretKey, deriveKeysetId, getDecodedToken, getPubKeyFromPrivKey, pointFromHex, sumProofs, verifyMintQuoteSignature } from "@cashu/cashu-ts"
+import { createBlindSignature, createDLEQProof, createRandomSecretKey, deriveKeysetId, getDecodedToken, getPubKeyFromPrivKey, pointFromHex, sumProofs, schnorrVerifyDigest } from "@cashu/cashu-ts"
 import { verifyInvitePayment, readFundingPayment, readAdvancePayment, advancePayment, challengePublicKey, fundDeposit, type CashuTerms } from "../cashu"
 import { LIVE_MINT } from "../mints"
 
-it("uses one paid invoice for either a recoverable bearer token or the creator's locked stake", async () => {
+it("retries a legacy mint signature without a second invoice for reclaim or funding", async () => {
   const data = new Map<string, string>()
   vi.stubGlobal("localStorage", { getItem: (k: string) => data.get(k) ?? null, setItem: (k: string,v: string) => data.set(k,v) })
   vi.stubGlobal("navigator", { locks: { request: (_: string, run: () => unknown) => run() } })
@@ -14,6 +15,7 @@ it("uses one paid invoice for either a recoverable bearer token or the creator's
   const keyset = { id, active:true, unit:"sat", input_fee_ppk:0 }
   const quotes = new Map<string, {quote:string; pubkey:string; state:string; request:string; amount:number; unit:string}>()
   let issued = 0
+  let rejectedSignatures = 0
   vi.stubGlobal("fetch", async (url: string, init: RequestInit) => {
     const path = new URL(url).pathname
     const body = init?.body ? JSON.parse(String(init.body)) : {}
@@ -29,7 +31,13 @@ it("uses one paid invoice for either a recoverable bearer token or the creator's
     else if (path === "/v1/mint/bolt11") {
       const quote = quotes.get(body.quote)!
       expect(quote.state).toBe("PAID")
-      if (quote.pubkey && !verifyMintQuoteSignature(quote.pubkey,quote.quote,body.outputs,body.signature)) return new Response(JSON.stringify({code:20008, detail:"Invalid signature"}), {status:400})
+      if (quote.pubkey) {
+        const valid = schnorrVerifyDigest(body.signature, createHash("sha256").update(quote.quote + body.outputs.map((o: {B_:string}) => o.B_).join("")).digest(), quote.pubkey)
+        if (!valid) {
+          rejectedSignatures++
+          return new Response(JSON.stringify({code:20008, detail:"Invalid signature"}), {status:400})
+        }
+      }
       result = { signatures:body.outputs.map((o: {B_:string; amount:number}) => {
         const key = privateKeys[Math.log2(o.amount)]
         const point = pointFromHex(o.B_)
@@ -83,5 +91,6 @@ it("uses one paid invoice for either a recoverable bearer token or the creator's
     expect(await fundDeposit("recipient",recipientTerms,"player")).toBe(recipientToken)
     expect(quotes.size).toBe(3)
     expect(issued).toBe(3)
+    expect(rejectedSignatures).toBe(2)
   } finally { vi.unstubAllGlobals() }
 })

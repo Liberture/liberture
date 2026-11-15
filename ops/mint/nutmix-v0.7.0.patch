@@ -171,3 +171,61 @@ index 00f6884..c6d3ae3 100644
  }
  
  func (l LnbitsWallet) Status(ctx context.Context) (NodeStatus, error) {
+diff --git a/internal/mint/minting.go b/internal/mint/minting.go
+--- a/internal/mint/minting.go
++++ b/internal/mint/minting.go
+@@ -432,7 +432,7 @@
+ 		}
+ 
+ 		if !valid {
+-			return fmt.Errorf("invalid pubkey signature. %w", err)
++			return fmt.Errorf("invalid pubkey signature. %w", cashu.ErrMintQuoteNoValidSignature)
+ 		}
+ 	}
+ 	return nil
+diff --git a/internal/mint/quote_signature_error_test.go b/internal/mint/quote_signature_error_test.go
+new file mode 100644
+--- /dev/null
++++ b/internal/mint/quote_signature_error_test.go
+@@ -0,0 +1,41 @@
++package mint
++
++import (
++	"crypto/sha256"
++	"errors"
++	"github.com/btcsuite/btcd/btcec/v2/schnorr"
++	"github.com/decred/dcrd/dcrec/secp256k1/v4"
++	"github.com/lescuer97/nutmix/api/cashu"
++	"github.com/lescuer97/nutmix/internal/utils"
++	"testing"
++)
++
++func TestQuoteSignatureErrorAllowsWalletCompatibilityRetry(t *testing.T) {
++	key, err := secp256k1.GeneratePrivateKey()
++	if err != nil {
++		t.Fatal(err)
++	}
++	quote := cashu.MintRequestDB{Quote: "quote", State: cashu.PAID, Pubkey: cashu.WrappedPublicKey{PublicKey: key.PubKey()}}
++	m := &Mint{}
++	for _, message := range []string{"amended-message", "quote"} {
++		hash := sha256.Sum256([]byte(message))
++		signature, err := schnorr.Sign(key, hash[:])
++		if err != nil {
++			t.Fatal(err)
++		}
++		err = m.validateMintIssuanceAuth(cashu.PostMintBolt11Request{Quote: "quote", Signature: signature}, quote)
++		if message == "quote" {
++			if err != nil {
++				t.Fatal(err)
++			}
++			continue
++		}
++		if !errors.Is(err, cashu.ErrMintQuoteNoValidSignature) {
++			t.Fatalf("wrong error: %v", err)
++		}
++		code, _ := utils.ParseErrorToCashuErrorCode(err)
++		if code != cashu.MINT_QUOTE_INVALID_SIG {
++			t.Fatalf("wrong code: %v", code)
++		}
++	}
++}
