@@ -1,6 +1,6 @@
 import { expect, it, vi } from "vitest"
 import { createBlindSignature, createDLEQProof, createRandomSecretKey, deriveKeysetId, getDecodedToken, getPubKeyFromPrivKey, pointFromHex, sumProofs, verifyMintQuoteSignature } from "@cashu/cashu-ts"
-import { readAdvancePayment, advancePayment, challengePublicKey, fundDeposit, type CashuTerms } from "../cashu"
+import { verifyInvitePayment, readFundingPayment, readAdvancePayment, advancePayment, challengePublicKey, fundDeposit, type CashuTerms } from "../cashu"
 import { LIVE_MINT } from "../mints"
 
 it("uses one paid invoice for either a recoverable bearer token or the creator's locked stake", async () => {
@@ -29,7 +29,7 @@ it("uses one paid invoice for either a recoverable bearer token or the creator's
     else if (path === "/v1/mint/bolt11") {
       const quote = quotes.get(body.quote)!
       expect(quote.state).toBe("PAID")
-      if (!verifyMintQuoteSignature(quote.pubkey,quote.quote,body.outputs,body.signature)) return new Response(JSON.stringify({code:20008, detail:"Invalid signature"}), {status:400})
+      if (quote.pubkey && !verifyMintQuoteSignature(quote.pubkey,quote.quote,body.outputs,body.signature)) return new Response(JSON.stringify({code:20008, detail:"Invalid signature"}), {status:400})
       result = { signatures:body.outputs.map((o: {B_:string; amount:number}) => {
         const key = privateKeys[Math.log2(o.amount)]
         const point = pointFromHex(o.B_)
@@ -51,20 +51,37 @@ it("uses one paid invoice for either a recoverable bearer token or the creator's
       expect((await advance()).invoice).toBe("lnbcrt1u1qqqqqq")
       const quote = [...quotes.values()].at(-1)!
       expect(await status()).toEqual({invoice:quote.request})
+      const verified = (amount = terms.stake) => verifyInvitePayment(terms.mint,quote.quote,terms.keys.creator,amount)
+      expect(await verified()).toBe(false)
       quote.state = "PAID"
-      expect(await status()).toEqual({paid:true})
-      expect(await advance()).toEqual({paid:true})
+      expect(await verified()).toBe(true)
+      expect(await verified(99)).toBe(false)
+      expect(await status()).toEqual({paid:true,quote:quote.quote})
+      expect(await advance()).toEqual({paid:true,quote:quote.quote})
       const token = reclaim ? (await advance(true)).token! : await fundDeposit("creator",terms,"creator")
       const proofs = getDecodedToken(token,[id]).proofs
       expect(sumProofs(proofs).toNumber()).toBe(100)
       expect(proofs.every(p => p.secret.includes("P2PK"))).toBe(!reclaim)
+      expect(await verified()).toBe(false)
       if (reclaim) expect((await advance(true)).token).toBe(token)
       else {
         await expect(advance(true)).rejects.toThrow("already assigned")
         expect(await fundDeposit("creator",terms,"creator")).toBe(token)
       }
     }
+    const recipientTerms: CashuTerms = { id:crypto.randomUUID(), mint:LIVE_MINT, stake:100, refundAt:Math.floor(Date.now()/1000)+600, keys:{creator:challengePublicKey("creator"),player:challengePublicKey("recipient")} }
+    expect(await readFundingPayment("recipient",recipientTerms,"player")).toBeNull()
     expect(quotes.size).toBe(2)
-    expect(issued).toBe(2)
+    const recipientToken = await fundDeposit("recipient",recipientTerms,"player",async invoice => {
+      expect(invoice).toBe("lnbcrt1u1qqqqqq")
+      expect(await readFundingPayment("recipient",recipientTerms,"player")).toMatchObject({paid:false,invoice})
+      expect(quotes.size).toBe(3)
+      ;[...quotes.values()].at(-1)!.state = "PAID"
+    })
+    expect(sumProofs(getDecodedToken(recipientToken,[id]).proofs).toNumber()).toBe(100)
+    expect(await readFundingPayment("recipient",recipientTerms,"player")).toEqual({paid:true,token:recipientToken})
+    expect(await fundDeposit("recipient",recipientTerms,"player")).toBe(recipientToken)
+    expect(quotes.size).toBe(3)
+    expect(issued).toBe(3)
   } finally { vi.unstubAllGlobals() }
 })

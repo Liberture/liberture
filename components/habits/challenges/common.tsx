@@ -9,9 +9,10 @@ export function useChallengeClient() {
   const { ownerRequest, isChecking } = useHabitsSession()
   const t = useTranslations("challenges")
   const request = useCallback(
-    async <T,>(path: string, method = "GET", body?: unknown): Promise<T> => {
+    async <T,>(path: string, method = "GET", body?: unknown, signal?: AbortSignal): Promise<T> => {
       const response = await ownerRequest("/api/challenges" + path, {
         method,
+        signal,
         cache: "no-store",
         ...(body === undefined
           ? {}
@@ -19,7 +20,7 @@ export function useChallengeClient() {
       })
       if (!response.ok && response.status === 409) {
         const reason = (await response.json().catch(()=>({}))).error
-        if (reason === "existingModeratorKey") throw new Error(t(reason))
+        if (reason === "existingModeratorKey" || reason === "payBeforeInvite") throw new Error(t(reason))
       }
       if (!response.ok)
         throw new Error(

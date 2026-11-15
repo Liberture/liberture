@@ -79,6 +79,12 @@ function Fighter({ side, winner }: { side: Player; winner: boolean }) {
   )
 }
 
+export function RaceRunner({side}: {side: Player}) {
+  return <svg aria-hidden="true" viewBox={side === "creator" ? "70 -8 100 126" : "191 -8 100 126"} className="h-10 w-9">
+    <Fighter side={side} winner={false} />
+  </svg>
+}
+
 export function ChallengeStepArt({step}: {step: "invite" | "play" | "finish"}) {
   return <svg aria-hidden="true" viewBox="56 -24 246 145" className={styles.stepArt} data-step={step}>
     <ellipse cx="180" cy="113" rx="105" ry="4" fill="currentColor" opacity=".1" />
@@ -110,10 +116,11 @@ function ModeratorCashew() {
   )
 }
 
-export function CashewMatch({ stage = "inviting", result = null, joined = false, compact = false, children, versus, waiting = false, moderator = false, moderatorDetails, corner }: {
+export function CashewMatch({ stage = "inviting", result = null, joined = false, compact = false, children, versus, waiting = false, waitingCreator = false, moderator = false, moderatorDetails, corner }: {
   stage?: ChallengeStage
   result?: Result | null
   joined?: boolean
+  waitingCreator?: boolean
   waiting?: boolean
   moderatorDetails?: ReactNode
   moderator?: boolean
@@ -126,7 +133,7 @@ export function CashewMatch({ stage = "inviting", result = null, joined = false,
   const mode =
     resolved && result ? (result === "draw" ? "draw" : "victory") : stage === "active" ? "spar" : "rest"
   return (
-    <figure aria-hidden={children ? undefined : true} className={styles.scene} data-mode={mode} data-joined={joined} data-compact={compact} data-moderator={moderator} data-waiting={waiting}>
+    <figure aria-hidden={children ? undefined : true} className={styles.scene} data-mode={mode} data-joined={joined} data-compact={compact} data-moderator={moderator} data-waiting={waiting} data-waiting-creator={waitingCreator}>
       {corner && <div className="absolute right-2 top-2 z-10">{corner}</div>}
       <div className="relative mx-auto w-full max-w-[410px]">
         {moderatorDetails && <div className="absolute top-[15%] left-1/2 z-[1] flex max-w-[42%] -translate-x-1/2 justify-center text-xs opacity-[.65]">{moderatorDetails}</div>}

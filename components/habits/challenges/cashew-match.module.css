@@ -10,6 +10,7 @@
 .scene[data-compact="true"] .ring { max-width: 25rem; }
 .scene[data-compact="true"] .fighter[data-side="player"] { opacity: 1; }
 .scene[data-waiting="true"] .fighter[data-side="player"] { opacity: .65; }
+.scene[data-waiting-creator="true"] .fighter[data-side="creator"] { opacity: .65; }
 .fighter { --team: #508cff; --shell-light: #bddcff; --shell-dark: #254d9d; transform-origin: 0 72px; }
 .fighter[data-side="player"] { --team: #ef6570; --shell-light: #ffd0d2; --shell-dark: #943541; }
 @keyframes ready { 50% { transform: translateY(-3px) rotate(-2deg); } }

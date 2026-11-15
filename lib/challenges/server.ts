@@ -8,8 +8,11 @@ import { checkRateLimit, clientIp } from "@/lib/habits/rate-limit"
 import { LIVE_MINT, MAX_STAKE } from "./mints"
 import type { Challenge, ChallengeStage, ChallengeTerms, Role } from "./types"
 
+import { raceProgress } from "./race"
+import { verifyInvitePayment } from "./cashu"
+
 export const players = ["creator", "player"] as const
-type State = Omit<Challenge, "stage" | "role">
+type State = Omit<Challenge, "stage" | "role" | "race"> & { inviteQuote?: string }
 export interface ChallengeRow {
   id: string
   creator_id: number
@@ -84,7 +87,7 @@ const inviteToken = z.string().regex(/^[A-Za-z0-9_-]{43}$/)
 const createSchema = memberSchema.extend({
   title: z.string().trim().min(1).max(100), rules: z.string().trim().min(1).max(2000),
   stake: z.number().int().min(1).max(MAX_STAKE), durationDays: z.number().int().min(1).max(90),
-  playerInvite: inviteToken.optional(),
+
   playerName: z.string().trim().max(60).optional(),
   playerNpub: inviteTarget, moderatorNpub: inviteTarget,
 })
@@ -116,7 +119,7 @@ export function stageOf(s: State): ChallengeStage {
   return "active"
 }
 export function view(state: State, role: Role): Challenge {
-  const { invitedNpubs, ...publicState } = state
+  const { invitedNpubs, inviteQuote: _quote, ...publicState } = state
   return { ...publicState, ...(role === "creator" && { invitedNpubs }), role, stage: stageOf(state) }
 }
 export async function listChallenges(user: number) {
@@ -125,11 +128,11 @@ export async function listChallenges(user: number) {
 }
 export async function publicMatch(id: string) {
   if (!z.uuid().safeParse(id).success) return null
-  const [row] = await getDb()<ChallengeRow[]>`SELECT state FROM tracker_challenges WHERE id=${id} AND state->>'publicMatch'='true'`
+  const [row] = await getDb()<ChallengeRow[]>`SELECT * FROM tracker_challenges WHERE id=${id} AND state->>'publicMatch'='true'`
   if (!row) return null
   const s = row.state
-  return { title: s.title, rules: s.rules, creator: s.members.creator!.name, player: s.members.player?.name,
-    stake: s.stake, mint: s.mint, durationDays: s.durationDays, stage: stageOf(s), result: s.result }
+  return { funded: !!s.deposits.creator && !!s.deposits.player, title: s.title, rules: s.rules, creator: s.members.creator!.name, player: s.members.player?.name,
+    stake: s.stake, mint: s.mint, durationDays: s.durationDays, stage: stageOf(s), result: s.result, race: await raceProgress(row) }
 }
 
 export async function createChallenge(user: number, payload: unknown) {
@@ -144,7 +147,7 @@ export async function createChallenge(user: number, payload: unknown) {
     args.moderatorNpub ? memberSchema.parse({ name: nip19.npubEncode(args.moderatorNpub).slice(0, 16) + "…", pubkey: "02" + args.moderatorNpub }) : null
   if (moderatorMember?.pubkey.slice(2) === args.pubkey.slice(2)) fail("duplicateMember",400)
   const id = randomUUID()
-  const invites = { player: args.playerInvite ?? secret(), moderator: secret() }
+  const invites = { player: secret(), moderator: secret() }
   const terms: ChallengeTerms = { id, title: args.title, rules: args.rules, stake: args.stake,
     durationDays: args.durationDays, mint: LIVE_MINT, createdAt: new Date().toISOString() }
   const state: State = { ...terms, ...(args.playerNpub && args.playerName && { invitedPlayerName: args.playerName }), arbitration: moderator ? "registered" : moderatorMember ? "nostr" : "none", members: { ...(moderatorMember && { moderator: moderatorMember }), creator: { name: args.name, pubkey: args.pubkey } },
@@ -154,7 +157,7 @@ export async function createChallenge(user: number, payload: unknown) {
     }, deposits: {}, settlements: {}, refunds: {}, disputed: false, votes: {}, result: null, expiresAt: null, revision: 0 }
   await db`INSERT INTO tracker_challenges(id, creator_id, moderator_id, player_nostr, moderator_nostr, player_invite, moderator_invite, state)
     VALUES (${id}, ${user}, ${moderator?.user_id ?? null}, ${args.playerNpub}, ${args.moderatorNpub}, ${digest(invites.player)}, ${digest(invites.moderator)}, ${JSON.stringify(state)}::jsonb)`
-  return { challenge: view(state, "creator"), invites }
+  return { challenge: view(state, "creator") }
 }
 const tokenSchema = z.object({ token: inviteToken })
 export async function invite(request: Request) {
@@ -178,6 +181,7 @@ export async function invite(request: Request) {
     const preview = { id, title, rules, stake, durationDays, mint, createdAt, creator: state.members.creator!.name, requiresNostr: !!target, role }
     if (existingRole === role) return json({ invite: preview, challenge: view(state, role) })
     if (state.members[role]) fail("inviteClaimed")
+    if (!state.deposits.creator) await requirePaidQuote(state, state.inviteQuote)
     if (!member) return json({ invite: preview })
     if (existingRole || Object.values(state.members).some(m => m.pubkey.slice(2) === member.pubkey.slice(2))) fail("duplicateMember")
     if (role === "player" && state.arbitration === "nostr" && user !== null) {
@@ -213,12 +217,46 @@ export async function access(request: Request, id: string) {
   if (!role) fail("notFound", 404)
   return { row, role }
 }
-export async function rotateInvite(id: string, role: Role, target: "player" | "moderator") {
+async function requirePaidQuote(s: State, quote?: string) {
+  if (!quote) fail("payBeforeInvite")
+  if (!await verifyInvitePayment(s.mint, quote, s.members.creator!.pubkey, s.stake)) fail("payBeforeInvite")
+}
+
+async function authorizeSharing(tx: ReturnType<typeof getDb>, s: State, quote?: string) {
+  if (s.deposits.creator) return
+  const payment = quote ?? s.inviteQuote
+  await requirePaidQuote(s, payment)
+  const receipt = "advance:" + digest(s.mint + ":" + payment)
+  const claimed = await tx`INSERT INTO tracker_challenge_proofs (id, challenge_id) VALUES (${receipt}, ${s.id})
+    ON CONFLICT (id) DO UPDATE SET id=EXCLUDED.id WHERE tracker_challenge_proofs.challenge_id=EXCLUDED.challenge_id RETURNING id`
+  if (!claimed.length) fail("payBeforeInvite")
+  s.inviteQuote = payment
+}
+
+export async function publishMatch(id: string, role: Role, quote?: string) {
   if (role !== "creator") fail("forbidden", 403)
-  const token = secret()
-  const db = getDb()
-  const [row] = await db<ChallengeRow[]>`UPDATE tracker_challenges SET ${db(target + "_invite")}=${digest(token)}
-    WHERE id=${id} AND NOT ((state->'members') ? ${target}) AND (${target} <> 'moderator' OR state->>'arbitration' IS DISTINCT FROM 'none') RETURNING *`
-  if (!row) fail("inviteClaimed")
-  return { challenge: view(row.state, role), token }
+  return getDb().begin(async tx => {
+    const [row] = await tx<ChallengeRow[]>`SELECT * FROM tracker_challenges WHERE id=${id} FOR UPDATE`
+    const s = row.state
+    if (!s.publicMatch) {
+      await authorizeSharing(tx, s, quote)
+      s.publicMatch = true
+      s.revision++
+      await tx`UPDATE tracker_challenges SET state=${JSON.stringify(s)}::jsonb WHERE id=${id}`
+    }
+    return { challenge: view(s, role) }
+  })
+}
+export async function rotateInvite(id: string, role: Role, target: "player" | "moderator", quote?: string) {
+  if (role !== "creator") fail("forbidden", 403)
+  return getDb().begin(async tx => {
+    const [row] = await tx<ChallengeRow[]>`SELECT * FROM tracker_challenges WHERE id=${id} FOR UPDATE`
+    const s = row.state
+    if (s.members[target] || (target === "moderator" && s.arbitration === "none")) fail("inviteClaimed")
+    await authorizeSharing(tx, s, quote)
+    const token = secret()
+    s.revision++
+    await tx`UPDATE tracker_challenges SET ${tx(target + "_invite")}=${digest(token)}, state=${JSON.stringify(s)}::jsonb WHERE id=${id}`
+    return { challenge: view(s, role), token }
+  })
 }

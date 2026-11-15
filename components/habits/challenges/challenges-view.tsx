@@ -11,21 +11,20 @@ import { ChallengeTerms } from "./challenge-terms"
 import { useHabitsSession } from "@/components/habits/session-provider"
 import type { Challenge } from "@/lib/challenges/types"
 import { MAX_STAKE, TEST_MINT } from "@/lib/challenges/mints"
-import { CopyButton } from "@/components/habits/ui/copy-button"
 import { useNostrProfile } from "@/lib/habits/nostr/use-nostr-profile"
 import type { ProfileMatch } from "@/lib/habits/nostr/search-profiles"
 import { NostrRecipient, recipientPublicKey } from "./invite-target"
 import { FieldSelect, FieldOption } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { CashewMatch, ChallengeStepArt } from "./cashew-match"
+import { challengeNextAction } from "@/lib/challenges/next-action"
 import { MatchHeading } from "./match-heading"
 import { ChallengeDetail } from "./detail"
-import { Field, inviteLink, panel, rememberWallet, useAction, useChallengeClient } from "./common"
+import { Field, panel, rememberWallet, useAction, useChallengeClient } from "./common"
 
 function useSelection() {
   const [selected,setSelected] = useState<Challenge | null>(null)
-  const [links,setLinks] = useState<Partial<Record<"player" | "moderator", string>>>({})
-  return {selected,setSelected,links,setLinks}
+  return {selected,setSelected}
 }
 const Selection = createContext<ReturnType<typeof useSelection> | null>(null)
 export function ChallengeSelectionProvider({children}: {children: ReactNode}) {
@@ -45,11 +44,7 @@ export function ChallengesView({creating = false}: {creating?: boolean}) {
   const moderatorProfile = useNostrProfile(recipientPublicKey(moderatorNpub))
   const [moderatorOpen, setModeratorOpen] = useState(false)
   const [items, setItems] = useState<Challenge[] | null>(null)
-  const {selected,setSelected,links,setLinks} = useContext(Selection)!
-  const [draftToken, setDraftToken] = useState("")
-  useEffect(() => {
-    if (creating) setDraftToken(btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32)))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""))
-  }, [creating])
+  const {selected,setSelected} = useContext(Selection)!
   const [listError, setListError] = useState(false)
   const [retry, setRetry] = useState(0)
   const { run, busy, error } = useAction()
@@ -73,23 +68,20 @@ export function ChallengesView({creating = false}: {creating?: boolean}) {
       <ChallengeDetail
         key={selected.id}
         initial={selected}
-        invites={links}
         back={() => {
           setSelected(null)
-          setLinks({})
         }}
       />
     )
   function open(item: Challenge) {
     if (creating) router.push("/tracker/challenges")
-    if (item.id !== selected?.id) setLinks({})
     setSelected(item)
   }
   function list(rows: Challenge[]) {
     return rows.map(item => (
       <div key={item.id} className="rounded-xl border border-border bg-card p-3">
       <button type="button" onClick={() => open(item)} className="block w-full text-left hover:text-primary" aria-current={selected?.id === item.id ? "page" : undefined}>
-        <MatchHeading creator={item.members.creator!.name} player={item.members.player?.name || item.invitedPlayerName} joined={!!item.members.player} stage={item.stage} />
+        <MatchHeading creator={item.members.creator!.name} player={item.members.player?.name || item.invitedPlayerName} joined={!!item.members.player} stage={item.stage} status={item.stage === "funding" && item.role !== "moderator" && !item.deposits[item.role] ? t("waitingForYou",{name:challengeNextAction(item).name || t("secondPlayer")}) : undefined} />
         <span className="block text-sm text-muted-foreground">{item.title} · {t(item.mint === TEST_MINT ? "satsEach" : "liveSats", {amount:item.stake})}</span>
       </button>
       </div>
@@ -124,7 +116,7 @@ export function ChallengesView({creating = false}: {creating?: boolean}) {
           <Trophy className="size-6 text-primary" />
           {t("title")}
         </h2>
-        <Button onClick={() => {setSelected(null);setLinks({});router.push("/tracker/challenges/new")}}>{t("new")}</Button>
+        <Button onClick={() => {setSelected(null);router.push("/tracker/challenges/new")}}>{t("new")}</Button>
       </header>}
       {!creating && !detail && <section className="rounded-xl border border-border bg-card p-4">
         <h3 className="mb-3 text-sm font-semibold">{t("howItWorks")}</h3>
@@ -154,18 +146,15 @@ export function ChallengesView({creating = false}: {creating?: boolean}) {
               const body = Object.fromEntries(values)
               const response = await request<{
                 challenge: Challenge
-                invites: Record<"player" | "moderator", string>
               }>("", "POST", {
                 ...body,
                 name: creatorName,
-                playerInvite: draftToken,
                 pubkey,
                 stake: Number(body.stake),
                 durationDays: Number(body.durationDays),
                 playerNpub: String(body.playerNpub ?? "").trim() || undefined,
                 moderatorNpub: moderatorNpub || undefined,
               })
-              setLinks(response.invites)
               setSelected(response.challenge)
               router.replace("/tracker/challenges")
             })
@@ -194,9 +183,7 @@ export function ChallengesView({creating = false}: {creating?: boolean}) {
               <PlayerProfile name={creatorName} picture={profile?.picture} />
             </div>
             <div className="grid min-w-0 gap-1.5">
-              <NostrRecipient nameField="playerNpub" optional action={
-                <CopyButton shareIconOnly disabled={!draftToken} value={draftToken ? inviteLink(draftToken) : ""} label={t("byLink")} copiedLabel={t("copied")} successMessage={t("draftLinkCopied")} errorMessage={t("copyFailed")} />
-              } />
+              <NostrRecipient nameField="playerNpub" optional />
             </div>
           </CashewMatch>
           <div className="grid gap-5 sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">

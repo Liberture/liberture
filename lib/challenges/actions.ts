@@ -1,16 +1,19 @@
+import { createRaceTasks } from "./race"
 import { z } from "zod"
 import { getDb } from "@/lib/habits/db"
 import { createPayoutPlan, depositProofIds, settleDeposit, verifyDeposit, verifyPayoutSignature } from "./cashu"
 import type { CashuTerms } from "./cashu"
-import { epoch, fail, players, rotateInvite, stageOf, view, type ChallengeRow } from "./server"
+import { epoch, fail, players, publishMatch, rotateInvite, stageOf, view, type ChallengeRow } from "./server"
 import type { ChallengeSettlement, Player, Role } from "./types"
 
 type State = ChallengeRow["state"]
 const verdict = z.enum(["creator", "player", "draw"])
 const signature = z.string().regex(/^[0-9a-f]{128}$/)
+const inviteQuote = z.string().regex(/^[A-Za-z0-9_-]{1,256}$/).optional()
 const actions = z.discriminatedUnion("action", [
-  z.object({ action: z.literal("publish") }),
-  z.object({ action: z.literal("invite"), role: z.enum(["player", "moderator"]) }),
+  z.object({action: z.literal("guestDay"), day:z.number().int().min(1).max(90), complete:z.boolean()}),
+  z.object({ action: z.literal("publish"), quote: inviteQuote }),
+  z.object({ action: z.literal("invite"), role: z.enum(["player", "moderator"]), quote: inviteQuote }),
   z.object({ action: z.literal("fund"), token: z.string().min(1).max(120000) }),
   z.object({ action: z.literal("vote"), result: verdict }),
   z.object({ action: z.literal("dispute") }),
@@ -34,13 +37,14 @@ function playerRole(role: Role): Player {
   if (role === "moderator") fail("forbidden", 403)
   return role
 }
-async function save(state: State, proofIds: string[] = []) {
+async function save(state: State, proofIds: string[] = [], startRace = false) {
   const revision = state.revision++
   const db = getDb()
   await db.begin(async tx => {
-    const updated = await tx`UPDATE tracker_challenges SET state=${JSON.stringify(state)}::jsonb
-      WHERE id=${state.id} AND (state->>'revision')::int=${revision} RETURNING id`
+    const updated = await tx<ChallengeRow[]>`UPDATE tracker_challenges SET state=${JSON.stringify(state)}::jsonb
+      WHERE id=${state.id} AND (state->>'revision')::int=${revision} RETURNING *`
     if (!updated.length) fail("stateChanged")
+    if (startRace) await createRaceTasks(tx, updated[0])
     if (proofIds.length) {
       const inserted = await tx`INSERT INTO tracker_challenge_proofs ${tx(proofIds.map(id => ({ id, challenge_id: state.id })), "id", "challenge_id")}
         ON CONFLICT DO NOTHING RETURNING id`
@@ -86,16 +90,22 @@ async function completeLeg(id: string, depositor: Player, refund: boolean) {
     return s
   })
 }
-export async function act(s: State, role: Role, payload: unknown) {
+export async function act(s: State, role: Role, payload: unknown, guestPlayer = false) {
   const command = actions.parse(payload)
-  if (command.action === "invite") return rotateInvite(s.id, role, command.role)
+  if (command.action === "invite") return rotateInvite(s.id, role, command.role, command.quote)
+  if (command.action === "publish") return publishMatch(s.id, role, command.quote)
   let proofIds: string[] = []
   switch (command.action) {
-    case "publish":
-      if (role !== "creator") fail("forbidden", 403)
-      if (s.publicMatch) return {challenge: view(s, role)}
-      s.publicMatch = true
+    case "guestDay": {
+      if (!guestPlayer || role !== "player") fail("forbidden", 403)
+      const elapsed = Math.min(s.durationDays, s.durationDays + 1 + Math.floor((epoch() - (s.expiresAt ?? 0)) / 86400))
+      if (stageOf(s) !== "active" || command.day > elapsed) fail("stateChanged")
+      const days = new Set(s.guestDays)
+      if (command.complete) days.add(command.day)
+      else days.delete(command.day)
+      s.guestDays = [...days]
       break
+    }
     case "fund": {
       const p = playerRole(role)
       if (s.deposits[p] === command.token) return { challenge: view(s, role) }
@@ -160,6 +170,8 @@ export async function act(s: State, role: Role, payload: unknown) {
     case "refund":
       return { challenge: view(await completeLeg(s.id, playerRole(role), true), role) }
   }
-  await save(s, proofIds)
+  const startRace = command.action === "fund" && !!s.deposits.creator && !!s.deposits.player && !s.raceTasksCreated
+  if (startRace) s.raceTasksCreated = true
+  await save(s, proofIds, startRace)
   return { challenge: view(s, role) }
 }

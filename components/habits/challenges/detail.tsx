@@ -1,5 +1,8 @@
 "use client"
 
+import { challengeNextAction } from "@/lib/challenges/next-action"
+import { ChallengeRace } from "./race"
+import Link from "next/link"
 import { TEST_MINT } from "@/lib/challenges/mints"
 import { useHabitsSession } from "@/components/habits/session-provider"
 import { PlayerProfile } from "./player-profile"
@@ -32,7 +35,7 @@ function download(name: string, value: string) {
   setTimeout(() => URL.revokeObjectURL(url), 10000)
 }
 
-export function ChallengeRoom({ id }: { id: string }) {
+export function ChallengeRoom({ id, startPayment = false }: { id: string; startPayment?: boolean }) {
   const t = useTranslations("challenges")
   const { request, isChecking } = useChallengeClient()
   const [challenge, setChallenge] = useState<Challenge>()
@@ -54,25 +57,25 @@ export function ChallengeRoom({ id }: { id: string }) {
   return (
     <main className="p-4">
       <AppToaster />
-      {challenge ? <ChallengeDetail initial={challenge} /> : <p>{error || t("loading")}</p>}
+      {challenge ? <ChallengeDetail initial={challenge} startPayment={startPayment} /> : <p>{error || t("loading")}</p>}
     </main>
   )
 }
 
 export function ChallengeDetail({
   initial,
-  invites = {},
   back,
+  startPayment = false,
 }: {
   initial: Challenge
-  invites?: Invites
   back?: () => void
+  startPayment?: boolean
 }) {
   const t = useTranslations("challenges")
   const { request } = useChallengeClient()
   const locale = useLocale()
   const [c, setChallenge] = useState(initial)
-  const [tokens, setTokens] = useState(invites)
+  const [tokens, setTokens] = useState<Invites>({})
   const [inviteRole, setInviteRole] = useState<"player" | "moderator" | null>(null)
   const [choice, choose] = useState<Result | null>(null)
   const { busy, error, run } = useAction()
@@ -81,7 +84,7 @@ export function ChallengeDetail({
     setChallenge((prev) => (next.revision >= prev.revision ? next : prev))
   }
   useEffect(() => {
-    if (c.stage === "settled") return
+
     let live = true
     async function refresh() {
       if (document.hidden) return
@@ -92,7 +95,8 @@ export function ChallengeDetail({
         /* Retry on focus or next interval. */
       }
     }
-    const timer = setInterval(refresh, 10000)
+    void refresh()
+    const timer = c.stage === "settled" ? undefined : setInterval(refresh, 10000)
     window.addEventListener("focus", refresh)
     return () => {
       live = false
@@ -102,7 +106,10 @@ export function ChallengeDetail({
   }, [request, path, c.stage])
   async function act(command: ChallengeAction) {
     const response = await request<{ challenge: Challenge; token?: string }>(path, "PATCH", command)
-    update(response.challenge)
+    if (response.challenge.deposits.creator && response.challenge.deposits.player) {
+      const latest = await request<{ challenge: Challenge }>(path)
+      update(latest.challenge)
+    } else update(response.challenge)
     return response
   }
   const me = c.role
@@ -112,7 +119,6 @@ export function ChallengeDetail({
   const opponentProfile = useNostrProfile(recipientPublicKey(c.invitedNpubs?.player || ""))
   const moderatorProfile = useNostrProfile(recipientPublicKey(c.invitedNpubs?.moderator || ""))
   const [recoveryNeeded, setRecoveryNeeded] = useState(false)
-  const [backupUnavailable, setBackupUnavailable] = useState(false)
   const [restored, setRestored] = useState(0)
   useEffect(() => {
     const account = auth.pubkey
@@ -121,10 +127,9 @@ export function ChallengeDetail({
     async function backup() {
       if (!account || controller.signal.aborted) return
       const { backUpChallengeKey } = await import("@/lib/challenges/key-backup")
-      const delivered = await backUpChallengeKey(c.id, myKey, account, controller.signal)
-      if (!controller.signal.aborted) setBackupUnavailable(!delivered)
+      await backUpChallengeKey(c.id, myKey, account, controller.signal)
     }
-    const retry = () => { void backup().catch(() => { if (!controller.signal.aborted) setBackupUnavailable(true) }) }
+    const retry = () => { void backup().catch(() => { /* Retry quietly when online. */ }) }
     retry()
     const interval = window.setInterval(retry, 120000)
     window.addEventListener("online", retry)
@@ -132,7 +137,7 @@ export function ChallengeDetail({
   }, [auth.pubkey, externalModerator, c.id, myKey, restored])
   function walletId() {
     const id = localStorage.getItem("challenge-wallet-for:" + myKey)
-    if (!id) { setRecoveryNeeded(true); throw new Error(t("restoreKey")) }
+    if (!id) { setRecoveryNeeded(true); throw new Error(t("walletUnavailable")) }
     return id
   }
   function terms() {
@@ -163,6 +168,7 @@ export function ChallengeDetail({
       {text}
     </Button>
   )
+  const [paidQuote, setPaidQuote] = useState<string>()
   const [advancePaid, setAdvancePaid] = useState(false)
   const [reclaimToken, setReclaimToken] = useState("")
   const [savedAdvance, setSavedAdvance] = useState(false)
@@ -187,6 +193,7 @@ export function ChallengeDetail({
         if (!live) return
         setSavedAdvance(Boolean(result))
         setAdvancePaid(Boolean(result?.paid))
+        setPaidQuote(result?.quote)
         setReclaimToken(result?.token || "")
         if (result || c.stage === "inviting") setInvoice(result?.invoice || "")
         setStatusFailed(false)
@@ -207,8 +214,8 @@ export function ChallengeDetail({
       return false
     }
     offeredInvoice.current = request
-    const submitted = await payWithWebLn(request)
     setInvoice(request)
+    const submitted = await payWithWebLn(request)
     return submitted
   }
 
@@ -221,7 +228,9 @@ export function ChallengeDetail({
     }
     setInvoice(result.invoice || "")
     setAdvancePaid(Boolean(result.paid))
+    setPaidQuote(result.quote)
     setReclaimToken(result.token || "")
+    if (result.token) { setTokens({}); setInviteRole(null) }
     if (result.token && reclaim) download("challenge-" + c.id + "-reclaimed.cashu", result.token)
     setSavedAdvance(true)
   }
@@ -229,15 +238,69 @@ export function ChallengeDetail({
   const [invoice, setInvoice] = useState("")
   const test = c.mint === TEST_MINT
   const expired = c.stage === "expired"
+  const canInvite = !!deposit || !!paidQuote && !reclaimToken
   const myDeposit = me !== "moderator" && c.deposits[me]
   const myRefund = me !== "moderator" ? c.refunds[me] : undefined
   const moderatorSigned = !!c.settlements.creator?.signatures.moderator
   const signatures = Object.keys(c.settlements.creator?.signatures ?? {}).length
-  const guidance = c.stage === "funding" && (myDeposit || me === "moderator") ? "guideWaitFunds"
-    : c.stage === "active" && me === "moderator" ? "guideReferee"
-    : c.stage === "active" && c.votes[me] ? "guideVoted"
-    : c.stage === "disputed" && me === "moderator" ? "guideDecide"
-    : c.stage
+  const nextAction = challengeNextAction(c, advancePaid)
+  const paymentInFlight = useRef(false)
+  const autoPaymentStarted = useRef(false)
+  async function fundPayment(offerWallet = false) {
+    if (me === "moderator" || paymentInFlight.current) return
+    paymentInFlight.current = true
+    try {
+      const { fundDeposit, existingChallengeKey } = await import("@/lib/challenges/cashu")
+      const owner = walletId()
+      if (!existingChallengeKey(owner, myKey)) { setRecoveryNeeded(true); throw new Error(t("walletUnavailable")) }
+      const token = await fundDeposit(owner, terms(), me, async request => {
+        if (expired) return
+        setInvoice(request)
+        if (offerWallet) await offerInvoice(request)
+      })
+      await act({ action: "fund", token })
+      setInvoice("")
+    } catch (failure) {
+      // An invoice still awaiting payment is a normal state, not a failed action.
+      if (!(failure instanceof Error && failure.message === "Invoice awaiting payment.")) throw failure
+    } finally { paymentInFlight.current = false }
+  }
+  useEffect(() => {
+    if (!startPayment || autoPaymentStarted.current || me !== "player" || c.stage !== "funding" || myDeposit) return
+    autoPaymentStarted.current = true
+    const intentKey = "challenge:start-payment:" + c.id
+    const stored = sessionStorage.getItem(intentKey)
+    sessionStorage.removeItem(intentKey)
+    let intended = false
+    try { const intent = JSON.parse(stored || "null"); intended = intent?.key === myKey && intent?.stake === c.stake } catch { /* Invalid or stale intent. */ }
+    const url = new URL(location.href)
+    url.searchParams.delete("pay")
+    history.replaceState(null, "", url)
+    if (intended) void run(() => fundPayment(true))
+  }, [startPayment, me, c.stage, myDeposit])
+  useEffect(() => {
+    if (me === "moderator" || myDeposit || c.stage !== "funding") return
+    let live = true
+    let checking = false
+    const refresh = async () => {
+      if (checking || paymentInFlight.current || document.hidden) return
+      const owner = localStorage.getItem("challenge-wallet-for:" + myKey)
+      if (!owner) return
+      checking = true
+      try {
+        const { readFundingPayment } = await import("@/lib/challenges/cashu")
+        const pending = await readFundingPayment(owner, terms(), me)
+        if (!live || !pending) return
+        if (pending.paid) await run(() => fundPayment())
+        else setInvoice(pending.expired ? "" : pending.invoice || "")
+      } catch { /* Keep the explicit retry available if the mint is unreachable. */ }
+      finally { checking = false }
+    }
+    void refresh()
+    const timer = window.setInterval(refresh, 5000)
+    window.addEventListener("focus", refresh)
+    return () => { live = false; clearInterval(timer); window.removeEventListener("focus", refresh) }
+  }, [me, myKey, c.id, c.stage, myDeposit])
   return (
     <section className="mx-auto w-full max-w-2xl space-y-4 pb-8">
       {back && (
@@ -249,9 +312,17 @@ export function ChallengeDetail({
         <div className="flex items-start justify-between gap-3">
           <h1 className="min-w-0 break-words text-xl font-semibold">{c.title}</h1>
           {c.publicMatch ? <CopyButton value={new URL("/challenges/watch/" + c.id, location.origin).href} label={t("copyPublic")} copiedLabel={t("copied")} successMessage={t("publicCopied")} errorMessage={t("publicCopyFailed")} /> :
-            me === "creator" && <Button variant="outline" size="sm" disabled={busy} onClick={() => void run(async () => { await act({action:"publish"}); notify.success(t("publicReady")) })}>{t("publishMatch")}</Button>}
+            me === "creator" && canInvite && <Button variant="outline" size="sm" disabled={busy} onClick={() => void run(async () => { await act({action:"publish", quote:paidQuote}); notify.success(t("publicReady")) })}>{t("publishMatch")}</Button>}
         </div>
-        <CashewMatch compact waiting={!c.members.player} stage={c.stage} result={c.result} joined={!!c.members.player}
+        {c.deposits.creator && c.deposits.player ? <>
+          <ChallengeRace names={{creator:c.members.creator!.name, player:c.members.player!.name}} days={c.durationDays} progress={c.race ?? {creator:0,player:0}} />
+          {me !== "moderator" && c.stage === "active" && (me === "player" && c.guestDays ? <div className="flex flex-wrap gap-2">
+            {Array.from({length:Math.min(c.durationDays, Math.max(0, c.durationDays + 1 + Math.floor((Date.now()/1000 - c.expiresAt!)/86400)))}, (_,i) => i+1).map(day =>
+              <Button key={day} size="sm" variant="outline" aria-pressed={c.guestDays!.includes(day)} disabled={busy} onClick={() => void run(async () => {
+                await act({action:"guestDay", day, complete:!c.guestDays!.includes(day)})
+              })}>{c.guestDays!.includes(day) ? "✓ " : ""}{t("raceDay",{day})}</Button>)}
+          </div> : <Link className="text-sm text-primary underline" href="/tracker/todos">{t("openRaceTasks")}</Link>)}
+        </> : <CashewMatch compact waiting={!c.members.player || !c.deposits.player} waitingCreator={!c.deposits.creator && !advancePaid} stage={c.stage} result={c.result} joined={!!c.members.player}
           versus={t("versus")} moderator={c.arbitration !== "none" && !!(c.members.moderator || c.invitedNpubs?.moderator)}
           moderatorDetails={c.members.moderator && <PlayerProfile small name={moderatorProfile?.name || c.members.moderator.name} picture={moderatorProfile?.picture} />}>
           {players.map(role => {
@@ -259,13 +330,17 @@ export function ChallengeDetail({
             const info = me === role ? profile : role === "player" ? opponentProfile : null
             const name = info?.name || member?.name || c.invitedPlayerName || t("secondPlayer")
             return <div key={role} className="flex min-w-0 flex-wrap items-center justify-center gap-1 text-center">
-              {role === "player" && !member && <span role="status"><LoaderCircle aria-hidden className="size-4 opacity-[.65] motion-safe:animate-spin" /><span className="sr-only">{t("pendingInvite")}</span></span>}
+              {!c.deposits[role] && !(role === "creator" && advancePaid) && <span role="status"><LoaderCircle aria-hidden className="size-4 opacity-[.65] motion-safe:animate-spin" /><span className="sr-only">{t(member ? "waitingPayment" : "pendingInvite")}</span></span>}
               <PlayerProfile name={name} picture={info?.picture} />
-              {role === "player" && !member && me === "creator" && <Button size="icon-sm" variant="ghost" aria-label={t("shareInvite")} title={t("shareInvite")} onClick={() => setInviteRole("player")}><Share2 aria-hidden /></Button>}
+              {role === "player" && !member && me === "creator" && canInvite && <Button size="icon-sm" variant="ghost" aria-label={t("shareInvite")} title={t("shareInvite")} onClick={() => setInviteRole("player")}><Share2 aria-hidden /></Button>}
               {c.deposits[role] && <small className="w-full">{t(c.refunds[role]?.receipt ? "refunded" : c.settlements[role]?.receipt ? "settled" : "funded")}</small>}
             </div>
           })}
-        </CashewMatch>
+        </CashewMatch>}
+        <section className="space-y-3 rounded-xl border border-primary/30 bg-primary/5 p-4" aria-label={t("nextStep")}>
+          <h2 className="font-semibold text-primary">{t(`action.${nextAction.kind}Title`, {name:nextAction.name || t("secondPlayer"),amount:c.stake})}</h2>
+          <p className="text-sm text-muted-foreground">{t(`action.${nextAction.kind}Body`, {name:nextAction.name || t("secondPlayer"),amount:c.stake})}</p>
+
       {me === "creator" && !myDeposit && statusFailed && button(t("checkAdvance"), async () => setStatusRetry(n => n + 1))}
       {advanceReady && me === "creator" && !myDeposit && (c.stage === "inviting" || savedAdvance) && <div className="space-y-2">
         {reclaimToken ? button(t("downloadReclaimed"), async () => download("challenge-" + c.id + "-reclaimed.cashu", reclaimToken)) : <>
@@ -277,12 +352,9 @@ export function ChallengeDetail({
       {me !== "moderator" && (me !== "creator" || advanceReady) &&
         (c.stage === "funding" || expired && (c.members.moderator || c.arbitration === "none") && c.members.player) &&
         !myDeposit &&
-        button(t(expired ? "recoverDeposit" : savedAdvance && !reclaimToken ? "lockAdvance" : test ? "fund" : "liveFund", { amount: c.stake }), async () => {
-          const { fundDeposit } = await import("@/lib/challenges/cashu")
-          await act({ action: "fund", token: await fundDeposit(walletId(), terms(), me, async request => { if (expired) return; await offerInvoice(request) }) })
-        })}
+        button(t(expired ? "recoverDeposit" : invoice ? "checkAdvance" : savedAdvance && !reclaimToken ? "lockAdvance" : "payAndJoin", { amount: c.stake }), () => fundPayment(!invoice && !savedAdvance))}
       {invoice && !myDeposit && !expired && <div className="grid justify-items-start gap-2">
-        <h2>{t("payInvoice")}</h2>
+        <h3 className="flex items-center gap-2"><LoaderCircle aria-hidden className="size-4 animate-spin" />{t("waitingPayment")}</h3>
         <button type="button" className="w-64 max-w-full justify-self-center scroll-mb-32 cursor-zoom-in" aria-label={t("expandInvoice")} onClick={() => setExpandedQr(true)}>
           <QrCode value={invoice.toUpperCase()} title={t("payInvoice")} className="w-full h-auto scroll-mb-32" />
         </button>
@@ -293,14 +365,11 @@ export function ChallengeDetail({
         <CopyButton value={invoice} label={t("copyInvoice")} copiedLabel={t("copied")} errorMessage={t("invoiceCopyError")} />
       </div>}
 
+        </section>
         <div className="flex flex-wrap items-center gap-2">
-          {me === "creator" && !c.members.moderator && c.arbitration !== "none" && <Button size="sm" variant="outline" onClick={() => setInviteRole("moderator")}>{t("inviteRole",{role:t("moderator")})}</Button>}
+          {canInvite && me === "creator" && !c.members.moderator && c.arbitration !== "none" && <Button size="sm" variant="outline" onClick={() => setInviteRole("moderator")}>{t("inviteRole",{role:t("moderator")})}</Button>}
 
         </div>
-        {c.stage !== "inviting" && <div className="rounded-xl border border-primary/25 bg-primary/5 px-4 py-3">
-          <h2 className="text-sm font-semibold text-primary">{t("nextStep")}</h2>
-          <p className="mt-1 text-sm">{t(`guide.${guidance}`)}</p>
-        </div>}
         <h2 className="text-sm font-semibold">{t("agreedRules")}</h2>
         <p className="whitespace-pre-wrap">{c.rules}</p>
         <p>
@@ -309,7 +378,7 @@ export function ChallengeDetail({
         {test && <p className="text-sm text-muted-foreground">{t("testMint")}</p>}
         {c.expiresAt && <p>{t("deadline", { date: new Date(c.expiresAt * 1000).toLocaleString(locale) })}</p>}
       </header>
-      {me === "creator" &&
+      {me === "creator" && canInvite &&
         (["player", "moderator"] as const).map(
           (role) =>
             !c.members[role] && (role !== "moderator" || c.arbitration !== "none") && (
@@ -319,7 +388,7 @@ export function ChallengeDetail({
                     <CopyButton value={inviteLink(tokens[role]!)} label={t("copyLink")} copiedLabel={t("copied")} successMessage={t("inviteCopied")} errorMessage={t("copyFailed")} disabled={busy} />
                   ) : (
                     <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => void run(async () => {
-                      const r = await act({ action: "invite", role })
+                      const r = await act({ action: "invite", role, quote: paidQuote })
                       setTokens(prev => ({ ...prev, [role]: r.token }))
                       notify.info(t("linkReady"))
                     })}>{t("rotateLink")}</Button>
@@ -331,7 +400,7 @@ export function ChallengeDetail({
                   void run(async () => {
                     let token = tokens[role]
                     if (!token) {
-                      token = (await act({ action: "invite", role })).token
+                      token = (await act({ action: "invite", role, quote: paidQuote })).token
                       setTokens(prev => ({ ...prev, [role]: token }))
                     }
                     if (!token) throw new Error(t("dmError"))
@@ -488,22 +557,8 @@ export function ChallengeDetail({
           )
         )
       })}
-      {!externalModerator && (!auth.pubkey || recoveryNeeded || backupUnavailable) && <details className={panel} open={recoveryNeeded || undefined}>
-        <summary>{t(recoveryNeeded ? "restoreKey" : "walletOptions")}</summary>
-        {recoveryNeeded && <p className="text-sm">{t("recoverFromInbox")}</p>}
-        <div className="flex flex-wrap gap-2">
-          {button(t("backupKey"), async () => {
-            const { exportChallengeKey } = await import("@/lib/challenges/cashu")
-            download("challenge-" + c.id + "-" + me + ".key", exportChallengeKey(walletId()))
-          })}
-          {myDeposit &&
-            button(t("backupDeposit"), async () =>
-              download(
-                "challenge-" + c.id + "-deposit.json",
-                JSON.stringify({ terms: terms(), mint: c.mint, token: myDeposit }),
-              ),
-            )}
-        </div>
+      {!externalModerator && <AppDialog open={recoveryNeeded} onClose={() => setRecoveryNeeded(false)} title={t("recoverAccess")}>
+        <p className="text-sm">{t("recoverFromInbox")}</p>
         <label className="grid gap-1">
           {t("restoreKey")}
           <input
@@ -527,7 +582,7 @@ export function ChallengeDetail({
             }}
           />
         </label>
-      </details>}
+      </AppDialog>}
       {error && (
         <p role="alert" className="text-destructive">
           {error}
