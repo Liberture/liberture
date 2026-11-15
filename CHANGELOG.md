@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.0
+
+Released 2026-11-15.
+
+- Challenge recipients can join and pay their stake directly from the invitation. Existing members return to their match, and pending invoices resume after reload without requesting a second payment.
+- Show who is waiting and the next action inside the match card. Keep routine signing-key backups in the background and show recovery controls only when wallet access is missing. Reclaimed advances can be copied into a Cashu wallet as well as downloaded.
+- Start the race once both locked stakes are confirmed, with linked daily tasks for tracker members and check-ins for guests. Public spectators see the same race progress.
+- Verify the creator’s payment before issuing invitations. Payment initiation requires an explicit user action; a URL alone cannot trigger a wallet payment.
+- Preserve existing challenge keys, quotes, deposits and refund deadlines. This release does not move existing funds or change their spending conditions.
+
 ## 0.7.0
 
 Released 2026-11-15.

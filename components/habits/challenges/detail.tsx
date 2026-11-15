@@ -343,7 +343,13 @@ export function ChallengeDetail({
 
       {me === "creator" && !myDeposit && statusFailed && button(t("checkAdvance"), async () => setStatusRetry(n => n + 1))}
       {advanceReady && me === "creator" && !myDeposit && (c.stage === "inviting" || savedAdvance) && <div className="space-y-2">
-        {reclaimToken ? button(t("downloadReclaimed"), async () => download("challenge-" + c.id + "-reclaimed.cashu", reclaimToken)) : <>
+        {reclaimToken ? <div className="space-y-2">
+          <p role="status">{t("reclaimedReady", {amount:c.stake})}</p>
+          <div className="flex flex-wrap gap-2">
+            <CopyButton value={reclaimToken} label={t("copyReclaimed")} copiedLabel={t("copied")} errorMessage={t("copyFailed")} />
+            {button(t("downloadReclaimed"), async () => download("challenge-" + c.id + "-reclaimed.cashu", reclaimToken))}
+          </div>
+        </div> : <>
           {c.stage === "inviting" && !advancePaid && button(t(invoice ? "checkAdvance" : "payAdvance", {amount:c.stake}), () => checkAdvance(false, !invoice))}
           {savedAdvance && !advancePaid && !invoice && c.stage !== "inviting" && button(t("checkAdvance"), () => checkAdvance())}
           {advancePaid && button(t("reclaimAdvance", {amount:c.stake}), () => checkAdvance(true))}

@@ -62,6 +62,8 @@
     "allStatuses": "Todos los estados",
     "noMatches": "No hay desafíos que coincidan.",
     "reclaimAdvance": "Recuperar {amount} sats",
+    "reclaimedReady": "Tus {amount, number} sats están listos. Copiá el token Cashu y recibilo en tu billetera.",
+    "copyReclaimed": "Copiar sats recuperados",
     "downloadReclaimed": "Descargar token Cashu recuperado",
     "advanceHint": "Pagá ahora y bloqueá este pago cuando se sume tu oponente. Hasta que lo bloquees, podés recuperarlo desde este navegador.",
     "advancePaid": "Pago recibido. Podés recuperarlo o bloquearlo cuando se sume tu oponente.",
