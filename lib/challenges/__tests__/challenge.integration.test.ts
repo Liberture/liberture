@@ -38,7 +38,8 @@ function req(method: string, path: string, headers: Record<string, string>, data
 const apply = (id: string, headers: Record<string, string>, action: ChallengeAction) =>
   PATCH(req("PATCH", "/" + id, headers, action), { params: Promise.resolve({ id }) })
 async function createWithInvite(request: Request) {
-  const response = await create(request)
+  const body = await request.json()
+  const response = await create(new Request(request, {body:JSON.stringify({...body,inviteByLink:!body.playerNpub})}))
   if (!response.ok) return response
   const created = await response.json()
   expect(created.invites).toBeUndefined()
@@ -86,6 +87,11 @@ describe.skipIf(!testUrl)("private challenge routes", () => {
     expect((await accepted.clone().json()).challenge.stage).toBe("funding")
     return { id: challenge.id as string, player: { cookie: cookie.split(";")[0] } }
   }
+  it("requires an opponent or an explicit link invitation", async () => {
+    const response = await create(req("POST", "", creator, {title:"Walk",rules:"Walk daily",name:"A",pubkey:pubkey(),stake:100,durationDays:14}))
+    expect(response.status).toBe(400)
+    expect((await response.json()).error).toBe("opponentRequired")
+  })
   it("locks in an offline moderator by npub and starts funding without their acceptance", async () => {
     const identity = pubkey().slice(2)
     const response = await createWithInvite(req("POST","",creator,{title:"Offline referee",rules:"Walk",name:"A",pubkey:pubkey(),stake:10,durationDays:1,moderatorNpub:nip19.npubEncode(identity)}))

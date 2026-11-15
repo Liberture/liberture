@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.8.2
+
+Released 2026-11-15.
+
+- Restore the mint’s restricted Lightning proxy compatibility after the previous rebuild skipped its patch, fixing new invoice creation.
+- Include the standard error detail alongside code 20008 so the wallet can retry legacy quote signatures when reclaiming or locking an already-paid advance. Existing quotes, signing keys, proofs, and balances are preserved.
+- Require an opponent or an explicit link-invitation choice when creating a challenge, enforced in the interface and API. Link invitations remain available for people without Nostr.
+- Avoid requesting the Vercel analytics script on the self-hosted deployment. Existing Google and Ahrefs analytics are unchanged.
+- Verify the patched mint source and HTTP contracts before builds, with proxy request and serialized error regression tests.
+
 ## 0.8.1
 
 Released 2026-11-15.

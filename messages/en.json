@@ -1,5 +1,7 @@
 {
   "challenges": {
+    "chooseLinkOpponent": "Invite someone without Nostr by link",
+    "opponentRequired": "Choose your opponent or select an invitation by link.",
     "race": "Challenge race",
     "raceDays": "{count} of {total} days",
     "raceDay": "Day {day}",

@@ -39,6 +39,8 @@ export function ChallengesView({creating = false}: {creating?: boolean}) {
   const creatorName = (profile?.name || profile?.nip05 || auth.pubkey?.slice(0,12) || t("creator")).slice(0,48)
   const [duration, setDuration] = useState("14")
   const [stake, setStake] = useState("100")
+  const [playerNpub, setPlayerNpub] = useState("")
+  const [inviteByLink, setInviteByLink] = useState(false)
   const [moderatorNpub, setModeratorNpub] = useState("")
   const [moderatorMatch, setModeratorMatch] = useState<ProfileMatch>()
   const moderatorProfile = useNostrProfile(recipientPublicKey(moderatorNpub))
@@ -154,6 +156,7 @@ export function ChallengesView({creating = false}: {creating?: boolean}) {
                 durationDays: Number(body.durationDays),
                 playerNpub: String(body.playerNpub ?? "").trim() || undefined,
                 moderatorNpub: moderatorNpub || undefined,
+                inviteByLink,
               })
               setSelected(response.challenge)
               router.replace("/tracker/challenges")
@@ -183,7 +186,8 @@ export function ChallengesView({creating = false}: {creating?: boolean}) {
               <PlayerProfile name={creatorName} picture={profile?.picture} />
             </div>
             <div className="grid min-w-0 gap-1.5">
-              <NostrRecipient nameField="playerNpub" optional />
+              <NostrRecipient nameField="playerNpub" optional={inviteByLink} onRecipientChange={npub => { setPlayerNpub(npub); if (npub) setInviteByLink(false) }} />
+              {!playerNpub && <Button type="button" size="sm" variant={inviteByLink ? "secondary" : "ghost"} aria-pressed={inviteByLink} onClick={() => setInviteByLink(value => !value)}>{t("chooseLinkOpponent")}</Button>}
             </div>
           </CashewMatch>
           <div className="grid gap-5 sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
@@ -195,7 +199,7 @@ export function ChallengesView({creating = false}: {creating?: boolean}) {
           </div>
           {error && <p role="alert">{error}</p>}
           <div className="flex justify-end border-t border-border/60 pt-4">
-            <Button disabled={busy}>{t("create")}</Button>
+            <Button disabled={busy || (!playerNpub && !inviteByLink)}>{t("create")}</Button>
           </div>
         </form>
       ) : null)}

@@ -1,3 +1,44 @@
+diff --git a/api/cashu/error_response_contract_test.go b/api/cashu/error_response_contract_test.go
+new file mode 100644
+index 0000000..b5379f9
+--- /dev/null
++++ b/api/cashu/error_response_contract_test.go
+@@ -0,0 +1,20 @@
++package cashu
++
++import (
++	"encoding/json"
++	"testing"
++)
++
++func TestErrorResponseContainsSDKRequiredDetail(t *testing.T) {
++	encoded, err := json.Marshal(ErrorCodeToResponse(MINT_QUOTE_INVALID_SIG, nil))
++	if err != nil {
++		t.Fatal(err)
++	}
++	var response map[string]any
++	if err := json.Unmarshal(encoded, &response); err != nil {
++		t.Fatal(err)
++	}
++	if response["code"] != float64(20008) || response["detail"] != MINT_QUOTE_INVALID_SIG.String() {
++		t.Fatalf("wallet cannot recognize signature retry: %s", encoded)
++	}
++}
+diff --git a/api/cashu/errors.go b/api/cashu/errors.go
+index 5114b99..3849587 100644
+--- a/api/cashu/errors.go
++++ b/api/cashu/errors.go
+@@ -153,6 +153,10 @@ type ErrorResponse struct {
+ }
+ 
+ func ErrorCodeToResponse(code ErrorCode, detail *string) ErrorResponse {
++	if detail == nil {
++		message := code.String()
++		detail = &message
++	}
+ 	return ErrorResponse{
+ 		Code:   code,
+ 		Error:  code.String(),
 diff --git a/cmd/nutmix/main.go b/cmd/nutmix/main.go
 index 898af41..afe31c4 100644
 --- a/cmd/nutmix/main.go
@@ -171,10 +212,57 @@ index 00f6884..c6d3ae3 100644
  }
  
  func (l LnbitsWallet) Status(ctx context.Context) (NodeStatus, error) {
+diff --git a/internal/lightning/proxy_contract_test.go b/internal/lightning/proxy_contract_test.go
+new file mode 100644
+index 0000000..cc2b0ce
+--- /dev/null
++++ b/internal/lightning/proxy_contract_test.go
+@@ -0,0 +1,40 @@
++package lightning
++
++import (
++	"encoding/json"
++	"github.com/lescuer97/nutmix/api/cashu"
++	"net/http"
++	"net/http/httptest"
++	"testing"
++)
++
++func TestInvoiceRequestMatchesRestrictedProxy(t *testing.T) {
++	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		if r.Method != "POST" || r.URL.Path != "/api/v1/payments" || r.Header.Get("Content-Type") != "application/json" {
++			t.Errorf("unexpected request")
++		}
++		var body map[string]any
++		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
++			t.Fatal(err)
++		}
++		for field := range body {
++			if field != "out" && field != "unit" && field != "amount" && field != "memo" {
++				t.Errorf("proxy rejects field %s", field)
++			}
++		}
++		if body["out"] != false || body["unit"] != "sat" || body["amount"] != float64(100) {
++			t.Errorf("unexpected invoice values: %v", body)
++		}
++		w.Header().Set("Content-Type", "application/json")
++		w.Write([]byte(`{"payment_hash":"test-hash","bolt11":"test-invoice"}`))
++	}))
++	defer server.Close()
++	wallet := LnbitsWallet{Endpoint: server.URL, Key: "test-only"}
++	result, err := wallet.RequestInvoice(cashu.Amount{Unit: cashu.Sat, Amount: 100}, nil)
++	if err != nil {
++		t.Fatal(err)
++	}
++	if result.PaymentRequest != "test-invoice" {
++		t.Fatal("invoice lost")
++	}
++}
 diff --git a/internal/mint/minting.go b/internal/mint/minting.go
+index b73408e..8de6cbc 100644
 --- a/internal/mint/minting.go
 +++ b/internal/mint/minting.go
-@@ -432,7 +432,7 @@
+@@ -432,7 +432,7 @@ func (m *Mint) validateMintIssuanceAuth(request cashu.PostMintBolt11Request, min
  		}
  
  		if !valid {
@@ -185,6 +273,7 @@ diff --git a/internal/mint/minting.go b/internal/mint/minting.go
  	return nil
 diff --git a/internal/mint/quote_signature_error_test.go b/internal/mint/quote_signature_error_test.go
 new file mode 100644
+index 0000000..9bb89d5
 --- /dev/null
 +++ b/internal/mint/quote_signature_error_test.go
 @@ -0,0 +1,41 @@

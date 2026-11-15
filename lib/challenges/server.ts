@@ -90,6 +90,7 @@ const createSchema = memberSchema.extend({
 
   playerName: z.string().trim().max(60).optional(),
   playerNpub: inviteTarget, moderatorNpub: inviteTarget,
+  inviteByLink: z.boolean().optional(),
 })
 
 const cookieName = (id: string) => "challenge_" + id.replaceAll("-", "")
@@ -137,6 +138,7 @@ export async function publicMatch(id: string) {
 
 export async function createChallenge(user: number, payload: unknown) {
   const args = createSchema.parse(payload)
+  if (!args.playerNpub && !args.inviteByLink) fail("opponentRequired", 400)
   const db = getDb()
   const [creator] = await db`SELECT nostr_pubkey FROM habit_users WHERE id=${user}`
   const targets = [creator?.nostr_pubkey, args.playerNpub, args.moderatorNpub].filter(Boolean)

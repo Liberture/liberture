@@ -1,5 +1,7 @@
 {
   "challenges": {
+    "chooseLinkOpponent": "Invitar por enlace a alguien sin Nostr",
+    "opponentRequired": "Elegí a tu oponente o seleccioná una invitación por enlace.",
     "race": "Carrera del desafío",
     "raceDays": "{count} de {total} días",
     "raceDay": "Día {day}",

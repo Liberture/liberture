@@ -18,9 +18,9 @@ export function useChallengeClient() {
           ? {}
           : { headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }),
       })
-      if (!response.ok && response.status === 409) {
+      if (!response.ok && (response.status === 409 || response.status === 400)) {
         const reason = (await response.json().catch(()=>({}))).error
-        if (reason === "existingModeratorKey" || reason === "payBeforeInvite") throw new Error(t(reason))
+        if (reason === "existingModeratorKey" || reason === "payBeforeInvite" || reason === "opponentRequired") throw new Error(t(reason))
       }
       if (!response.ok)
         throw new Error(

@@ -112,7 +112,7 @@ export default async function RootLayout({
             {impersonatedName && <ImpersonationNotice name={impersonatedName} />}
             <HabitsSessionProvider><TooltipProvider delayDuration={250}>{children}</TooltipProvider></HabitsSessionProvider>
             <ServiceWorkerRegister />
-            {!privateInvite && <><CookieConsent ahrefsInHead={isAhrefsAudit} /><Analytics /></>}
+            {!privateInvite && <><CookieConsent ahrefsInHead={isAhrefsAudit} />{process.env.VERCEL === "1" && <Analytics />}</>}
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>
