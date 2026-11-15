@@ -341,6 +341,18 @@ const articleIcons: [RegExp, string][] = [
 ]
 
 async function main() {
+  if (process.argv.includes("--royal-flush")) {
+    const dir = path.join(process.cwd(), "content", "editorial", "royal-flush")
+    await mkdir(dir, { recursive: true })
+    for (const [name, height] of [["article-cover", 420], ["reader-cover", 320]] as const) {
+      const svg = artworkSvg(rng("royal-flush-footstool"), PILLAR_HEX.nutrition, iconInner("Armchair"), height,
+        { cx: W / 2, cy: height / 2 }, "Royal Flush", "") + "</svg>"
+      await writeFile(path.join(dir, name + ".svg"), svg)
+      await sharp(Buffer.from(svg)).webp({ quality: 84 }).toFile(path.join(dir, name + ".webp"))
+    }
+    return
+  }
+
   if (process.argv.includes("--articles")) {
     const { prisma } = await import("../lib/prisma")
     try {
