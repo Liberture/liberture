@@ -140,6 +140,8 @@ export interface EnvironmentSetup {
 export type HabitTag = "exercise" | "reading" | "meditation" | "health" | "productivity" | "social" | "creative" | "personal" | "nutrition" | "sleep" | "mindfulness" | "learning" | "finance" | "selfcare"
 
 export interface Habit {
+  /** A challenge habit is scheduled only within this fixed local-date window. */
+  challenge?: { id: string; startDate: string; endDate: string }
   id: string
   name: string
   /**

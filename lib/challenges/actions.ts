@@ -1,4 +1,4 @@
-import { createRaceTasks } from "./race"
+import { completeRaceDay, createRaceTasks } from "./race"
 import { z } from "zod"
 import { getDb } from "@/lib/habits/db"
 import { createPayoutPlan, depositProofIds, settleDeposit, verifyDeposit, verifyPayoutSignature } from "./cashu"
@@ -11,6 +11,7 @@ const verdict = z.enum(["creator", "player", "draw"])
 const signature = z.string().regex(/^[0-9a-f]{128}$/)
 const inviteQuote = z.string().regex(/^[A-Za-z0-9_-]{1,256}$/).optional()
 const actions = z.discriminatedUnion("action", [
+  z.object({action: z.literal("completeDay"), day:z.number().int().min(1).max(90), complete:z.boolean()}),
   z.object({action: z.literal("guestDay"), day:z.number().int().min(1).max(90), complete:z.boolean()}),
   z.object({ action: z.literal("publish"), quote: inviteQuote }),
   z.object({ action: z.literal("invite"), role: z.enum(["player", "moderator"]), quote: inviteQuote }),
@@ -96,15 +97,12 @@ export async function act(s: State, role: Role, payload: unknown, guestPlayer = 
   if (command.action === "publish") return publishMatch(s.id, role, command.quote)
   let proofIds: string[] = []
   switch (command.action) {
-    case "guestDay": {
+    case "guestDay":
       if (!guestPlayer || role !== "player") fail("forbidden", 403)
-      const elapsed = Math.min(s.durationDays, s.durationDays + 1 + Math.floor((epoch() - (s.expiresAt ?? 0)) / 86400))
-      if (stageOf(s) !== "active" || command.day > elapsed) fail("stateChanged")
-      const days = new Set(s.guestDays)
-      if (command.complete) days.add(command.day)
-      else days.delete(command.day)
-      s.guestDays = [...days]
-      break
+      // Keep old guest clients working; both paths use the same completion logic.
+    case "completeDay": {
+      const row = await completeRaceDay(s.id, role, command.day, command.complete)
+      return { challenge: view(row.state, role) }
     }
     case "fund": {
       const p = playerRole(role)
@@ -171,7 +169,7 @@ export async function act(s: State, role: Role, payload: unknown, guestPlayer = 
       return { challenge: view(await completeLeg(s.id, playerRole(role), true), role) }
   }
   const startRace = command.action === "fund" && !!s.deposits.creator && !!s.deposits.player && !s.raceTasksCreated
-  if (startRace) s.raceTasksCreated = true
+  if (startRace) { s.raceTasksCreated = true; s.raceTrackingVersion = 2 }
   await save(s, proofIds, startRace)
   return { challenge: view(s, role) }
 }

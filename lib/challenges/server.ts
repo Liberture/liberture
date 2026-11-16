@@ -12,7 +12,7 @@ import { raceProgress } from "./race"
 import { verifyInvitePayment } from "./cashu"
 
 export const players = ["creator", "player"] as const
-type State = Omit<Challenge, "stage" | "role" | "race"> & { inviteQuote?: string }
+type State = Omit<Challenge, "stage" | "role" | "race" | "tracking"> & { inviteQuote?: string }
 export interface ChallengeRow {
   id: string
   creator_id: number

@@ -1,3 +1,4 @@
+import { isIndexableHost, NON_INDEXABLE_ROBOTS } from "@/lib/seo/indexing.mjs"
 import { cookies, headers } from "next/headers"
 import { managedAuthEnabled } from "@/lib/identity/config"
 import { ImpersonationNotice } from "@/app/admin/users/impersonation-notice"
@@ -27,6 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
   ])
   const title = t("title")
   const description = t("description")
+  const indexable = isIndexableHost((await headers()).get("host"))
   const images = [{ url: "/og-image.jpg", width: 1200, height: 630, alt: t("imageAlt") }]
   return {
     metadataBase: new URL("https://liberture.com"),
@@ -46,7 +48,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image", title, description, images,
       site: "@liberture", creator: "@liberture",
     },
-    robots: {
+    robots: indexable ? {
       index: true,
       follow: true,
       googleBot: {
@@ -56,7 +58,7 @@ export async function generateMetadata(): Promise<Metadata> {
         'max-image-preview': 'large',
         'max-snippet': -1,
       },
-    },
+    } : NON_INDEXABLE_ROBOTS,
     // Google takes the site icon from these links (48px multiples work best), so
     // every entry is the hexagon logo — never the tracker's old bolt.
     icons: {

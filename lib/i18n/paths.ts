@@ -2,7 +2,7 @@ import type { PillarId } from "@/lib/constants/pillars"
 import type { Locale } from "@/lib/translations"
 
 const sections: Record<string, string> = {
-  about: "nosotros", articles: "articulos", books: "libros", contact: "contacto",
+  challenges: "desafios", about: "nosotros", articles: "articulos", books: "libros", contact: "contacto",
   content: "contenido", directory: "directorio", docs: "documentacion",
   "get-started": "primeros-pasos", guides: "guias", "how-it-works": "como-funciona",
   "media-kit": "kit-de-prensa", organizations: "organizaciones", people: "personas",

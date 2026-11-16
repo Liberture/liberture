@@ -1,5 +1,6 @@
 "use client"
 
+import { CompletionCell } from "@/components/habits/completion-cell"
 import { HelpTooltip } from "@/components/ui/tooltip"
 import { memo, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { differenceInCalendarDays, format, isSameMonth, startOfDay, subDays } from "date-fns"
@@ -403,7 +404,9 @@ const MatrixRow = memo(function MatrixRow({
         const hover = (): void => onHover({ day, habitName: habit.name, status })
 
         return (
-          <HelpTooltip key={dateStr} label={`${habit.name} — ${format(day, "EEE d MMM yyyy", { locale: dateLocale })} — ${status}`}><button
+          <HelpTooltip key={dateStr} label={`${habit.name} — ${format(day, "EEE d MMM yyyy", { locale: dateLocale })} — ${status}`}><CompletionCell
+            completed={isDone}
+            disabled={!!habit.challenge && !isHabitScheduledOnDate(habit, day)}
             type="button"
             onClick={() => onToggleCompletion(habit.id, day)}
             onPointerEnter={hover}

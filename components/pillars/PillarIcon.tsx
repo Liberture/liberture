@@ -1,12 +1,13 @@
 "use client"
 
-import { motion } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 import { PILLAR_ICON_MAP, PILLAR_STYLES } from "@/lib/pillars"
 import type { PillarId } from "@/lib/translations"
 
 interface PillarIconProps {
   pillarId: string
   size?: "sm" | "md" | "lg"
+  inline?: boolean
   animate?: boolean
   className?: string
 }
@@ -17,7 +18,8 @@ const sizeClasses = {
   lg: "h-16 w-16",
 }
 
-export function PillarIcon({ pillarId, size = "md", animate = false, className = "" }: PillarIconProps) {
+export function PillarIcon({ pillarId, size = "md", animate = false, inline = false, className = "" }: PillarIconProps) {
+  const reduceMotion = useReducedMotion()
   const Icon = PILLAR_ICON_MAP[pillarId as PillarId]
   const styles = PILLAR_STYLES[pillarId as PillarId]
 
@@ -25,7 +27,13 @@ export function PillarIcon({ pillarId, size = "md", animate = false, className =
 
   const iconEl = <Icon className={`${sizeClasses[size]} ${className}`} />
 
-  if (animate) {
+  if (inline) {
+    return <span aria-hidden="true" className={`inline-flex size-5 shrink-0 items-center justify-center ${styles?.text || ""} motion-safe:transition-transform motion-safe:duration-200 motion-safe:group-hover:scale-110 motion-safe:group-hover:-rotate-6 motion-safe:group-focus-visible:scale-110 motion-safe:group-focus-visible:-rotate-6`}>
+      {iconEl}
+    </span>
+  }
+
+  if (animate && !reduceMotion) {
     return (
       <motion.div
         className={`mb-4 inline-block ${styles?.text || ""}`}

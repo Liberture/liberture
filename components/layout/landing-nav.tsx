@@ -21,11 +21,11 @@ export function LandingNav() {
   const [pillarsDropdownOpen, setPillarsDropdownOpen] = useState(false)
 
   const sessionButton = isSignedIn ? (
-    <Button asChild size="sm" className="w-full md:w-auto">
+    <Button asChild size="sm" className="w-full lg:w-auto">
       <Link href="/tracker" onClick={() => setMobileMenuOpen(false)}>{nav.tracker}</Link>
     </Button>
   ) : (
-    <Button size="sm" className="w-full md:w-auto" onClick={() => { setMobileMenuOpen(false); openSignIn() }}>
+    <Button size="sm" className="w-full lg:w-auto" onClick={() => { setMobileMenuOpen(false); openSignIn() }}>
       {nav.signIn}
     </Button>
   )
@@ -33,6 +33,7 @@ export function LandingNav() {
   const links = [
     { href: "/directory", label: nav.directory },
     { href: "/protocols", label: nav.protocols },
+    { href: "/challenges", label: nav.challenges },
     { href: "/#how-it-works", label: nav.howItWorks },
     { href: "/guides", label: nav.guides },
   ]
@@ -46,7 +47,7 @@ export function LandingNav() {
         </Link>
 
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-6 ml-auto">
+        <div className="hidden lg:flex items-center gap-5 ml-auto">
           {/* Pillars Dropdown */}
           <div
             className="relative"
@@ -111,7 +112,7 @@ export function LandingNav() {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors ml-auto"
+          className="lg:hidden p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors ml-auto"
           aria-label={nav.toggleMenu}
         >
           {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -120,7 +121,7 @@ export function LandingNav() {
 
       {/* Mobile Dropdown Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl absolute top-16 left-0 right-0 shadow-lg max-h-[calc(100vh-4rem)] overflow-y-auto">
+        <div className="lg:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl absolute top-16 left-0 right-0 shadow-lg max-h-[calc(100vh-4rem)] overflow-y-auto">
           <div className="container mx-auto px-4 py-4 max-w-7xl">
             <div className="flex flex-col gap-2">
               {/* Pillars Section */}

@@ -1,3 +1,5 @@
+import { headers } from "next/headers"
+import { isIndexableHost } from "@/lib/seo/indexing.mjs"
 import { languageAlternates } from "@/lib/seo/translated-routes"
 import { getEntitySlugMap } from "@/lib/i18n/entity-slugs.server"
 import { profilePath } from "@/lib/directory/profile-path"
@@ -31,12 +33,14 @@ async function safe<T>(label: string, query: () => Promise<T[]>): Promise<T[]> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  if (!isIndexableHost((await headers()).get("host"))) return []
 
 
   // Static routes are built first and never depend on the database, so a DB
   // outage can't drop the homepage and core pages from the sitemap.
   const staticEntries: MetadataRoute.Sitemap = [
     { url: baseUrl, changeFrequency: 'daily', priority: 1.0, images: [`${baseUrl}${screenshotSrc('en', 'tracker-today')}`, `${baseUrl}${screenshotSrc('en', 'statistics')}`, `${baseUrl}${screenshotSrc('en', 'mobile-today')}`] },
+    { url: `${baseUrl}/challenges`, changeFrequency: 'monthly', priority: 0.8, images: [`${baseUrl}/og/challenges.png`] },
     { url: `${baseUrl}/directory`, changeFrequency: 'daily', priority: 1.0 },
     { url: `${baseUrl}/articles`, changeFrequency: 'daily', priority: 0.9 },
     { url: `${baseUrl}/pillars`, changeFrequency: 'weekly', priority: 0.9 },

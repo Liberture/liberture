@@ -1,5 +1,5 @@
 import { access, body, json, serve, view } from "@/lib/challenges/server"
-import { raceProgress } from "@/lib/challenges/race"
+import { raceProgress, raceTracking } from "@/lib/challenges/race"
 import { act } from "@/lib/challenges/actions"
 
 type Params = { params: Promise<{ id: string }> }
@@ -7,7 +7,9 @@ type Params = { params: Promise<{ id: string }> }
 export function GET(request: Request, { params }: Params) {
   return serve(request, async () => {
     const { row, role } = await access(request, (await params).id)
-    return json({ challenge: { ...view(row.state, role), race: await raceProgress(row), ...(row.player_id === null && role === "player" && {guestDays: row.state.guestDays ?? []}) } })
+    const race = await raceProgress(row)
+    const tracking = await raceTracking(row, role)
+    return json({ challenge: { ...view(row.state, role), race, tracking, ...(row.player_id === null && role === "player" && {guestDays: row.state.guestDays ?? []}) } })
   })
 }
 

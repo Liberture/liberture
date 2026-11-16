@@ -8,10 +8,16 @@
     "dmRejected": "Los relays de mensajes de esta persona rechazaron el mensaje. Copiá el enlace de invitación para enviarlo directamente.",
     "chooseLinkOpponent": "Invitar por enlace a alguien sin Nostr",
     "opponentRequired": "Elegí a tu oponente o seleccioná una invitación por enlace.",
+    "completionHistory": "Historial de días completados del desafío",
+    "habitCompletions": "Tu hábito diario",
+    "todoCompletion": "Tu tarea única",
+    "openRaceHabits": "Abrir hábitos",
+    "dayCompleted": "Día {day}, {date}: completado. Deshacer",
+    "dayIncomplete": "Día {day}, {date}: pendiente. Marcar como completado",
     "race": "Carrera del desafío",
     "raceDays": "{count} de {total} días",
     "raceDay": "Día {day}",
-    "openRaceTasks": "Abrir tareas diarias",
+    "openRaceTasks": "Abrir tareas",
     "payBeforeInvite": "Pagá tu parte para habilitar las invitaciones.",
     "title": "Desafíos",
     "new": "Nuevo desafío",
@@ -239,7 +245,7 @@
       "waitPaymentTitle": "Esperando el otro aporte",
       "waitPaymentBody": "Tu aporte está confirmado. La carrera empieza automáticamente cuando ambos aportes estén confirmados.",
       "dailyTaskTitle": "Tu próximo paso",
-      "dailyTaskBody": "Completá la tarea de hoy del desafío para avanzar en la carrera.",
+      "dailyTaskBody": "Completá la meta de hoy del desafío acá o en tu registro para avanzar en la carrera.",
       "watchRaceTitle": "La carrera está en marcha",
       "watchRaceBody": "Los jugadores registran su progreso diario. Solo intervenís si te piden una decisión.",
       "waitResultTitle": "Esperando a {name}",
@@ -3533,7 +3539,8 @@
         "tracker": "Mi tracker",
         "admin": "Panel de admin",
         "signOut": "Salir",
-        "toggleMenu": "Abrir o cerrar el menú"
+        "toggleMenu": "Abrir o cerrar el menú",
+        "challenges": "Desafíos"
       },
       "language": "Idioma",
       "footer": {
@@ -4008,6 +4015,54 @@
       "back": "Todos los protocolos",
       "duration": "Duración",
       "difficulty": "Dificultad"
+    },
+    "challengeDiscovery": {
+      "eyebrow": "Un poco de competencia amistosa",
+      "title": "Construyan mejores hábitos juntos",
+      "intro": "Convertí una meta diaria en un desafío con un amigo. Acuerden las reglas, pongan sats en juego y sigan su progreso juntos.",
+      "metaTitle": "Desafíos de hábitos con amigos",
+      "metaDescription": "Creá un desafío de hábitos con un amigo: acuerden metas diarias, aporten sats con Cashu, sigan su progreso y resuelvan el resultado juntos.",
+      "imageAlt": "Dos personajes de los desafíos de Liberture compitiendo por una meta compartida",
+      "learnMore": "Explorar desafíos",
+      "create": "Crear un desafío",
+      "browse": "Mis desafíos",
+      "stepsHeading": "De una meta compartida a la llegada",
+      "steps": [
+        {
+          "title": "Acuerden el desafío",
+          "body": "Elegí una meta, una duración y reglas claras con tu oponente. Decidan cómo determinar una victoria o un empate y si van a invitar a un moderador."
+        },
+        {
+          "title": "Aporten, inviten y avancen",
+          "body": "Pagá tu aporte para habilitar las invitaciones. La carrera empieza cuando se confirman ambos aportes. Los desafíos de varios días crean un hábito diario. Completá sus días acá o en tu registro de hábitos para avanzar. Un desafío de un día crea una sola tarea."
+        },
+        {
+          "title": "Acuerden el resultado",
+          "body": "Los participantes votan por un ganador o un empate. Un moderador invitado puede ayudar a resolver desacuerdos. Completen la liquidación y retiren los sats que les correspondan."
+        }
+      ],
+      "examplesHeading": "Metas pequeñas. Compromiso compartido.",
+      "examplesIntro": "Empiecen con algo que puedan repetir cada día. Estos son ejemplos; las reglas finales las acuerdan ustedes.",
+      "examples": [
+        {
+          "title": "Caminar 8.000 pasos",
+          "body": "Cuenten los días en que cada persona alcanza la meta. Si los totales son iguales, hay empate."
+        },
+        {
+          "title": "Leer 10 páginas",
+          "body": "Dediquen un rato diario a un libro y comparen los días completados."
+        },
+        {
+          "title": "Concentrarse durante 20 minutos",
+          "body": "Reserven una sesión de trabajo sin interrupciones y construyan un ritmo diario."
+        }
+      ],
+      "stakesHeading": "Entendé qué está en juego",
+      "stakesBody": "Los desafíos usan dinero electrónico Cashu. Los sats de prueba sirven para practicar y no tienen valor monetario; los sats reales son fondos reales. Revisá la mint seleccionada y el aporte antes de pagar. Los participantes registran sus tareas; no hay verificación independiente.",
+      "resolutionHeading": "Las reglas claras importan",
+      "resolutionBody": "Acuerden las pruebas y cómo resolver desacuerdos antes de aportar fondos. La moderación es opcional. Los pagos requieren completar los pasos de votación y firma del desafío; la barra de progreso por sí sola no libera fondos.",
+      "closingHeading": "¿Listo para desafiar a un amigo?",
+      "closingBody": "Elijan una meta que les importe a ambos y aprovechen los próximos días."
     }
   },
   "breadcrumbs": {

@@ -2,6 +2,7 @@
 
 import { automaticSettlementStep } from "@/lib/challenges/automatic-settlement"
 import { challengeNextAction } from "@/lib/challenges/next-action"
+import { ChallengeCompletions } from "./challenge-completions"
 import { ChallengeRace } from "./race"
 import Link from "next/link"
 import { TEST_MINT } from "@/lib/challenges/mints"
@@ -340,12 +341,9 @@ export function ChallengeDetail({
         </div>
         {c.deposits.creator && c.deposits.player ? <>
           <ChallengeRace names={{creator:c.members.creator!.name, player:c.members.player!.name}} days={c.durationDays} progress={c.race ?? {creator:0,player:0}} />
-          {me !== "moderator" && c.stage === "active" && (me === "player" && c.guestDays ? <div className="flex flex-wrap gap-2">
-            {Array.from({length:Math.min(c.durationDays, Math.max(0, c.durationDays + 1 + Math.floor((Date.now()/1000 - c.expiresAt!)/86400)))}, (_,i) => i+1).map(day =>
-              <Button key={day} size="sm" variant="outline" aria-pressed={c.guestDays!.includes(day)} disabled={busy} onClick={() => void run(async () => {
-                await act({action:"guestDay", day, complete:!c.guestDays!.includes(day)})
-              })}>{c.guestDays!.includes(day) ? "✓ " : ""}{t("raceDay",{day})}</Button>)}
-          </div> : <Link className="text-sm text-primary underline" href="/tracker/todos">{t("openRaceTasks")}</Link>)}
+          {me !== "moderator" && c.tracking && <ChallengeCompletions tracking={c.tracking} busy={busy}
+            onToggle={(day, complete) => void run(async () => { await act({ action: "completeDay", day, complete }) })} />}
+
         </> : <CashewMatch compact waiting={!c.members.player || !c.deposits.player} waitingCreator={!c.deposits.creator && !advancePaid} stage={c.stage} result={c.result} joined={!!c.members.player}
           versus={t("versus")} moderator={c.arbitration !== "none" && !!(c.members.moderator || c.invitedNpubs?.moderator)}
           moderatorDetails={c.members.moderator && <PlayerProfile small name={moderatorProfile?.name || c.members.moderator.name} picture={moderatorProfile?.picture} />}>
