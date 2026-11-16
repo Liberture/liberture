@@ -1,3 +1,5 @@
+import { headers } from "next/headers"
+import { isIndexableHost } from "@/lib/seo/indexing.mjs"
 import { MetadataRoute } from 'next';
 
 const baseUrl = 'https://liberture.com';
@@ -13,7 +15,10 @@ const disallow = [
   '/mcp',
 ];
 
-export default function robots(): MetadataRoute.Robots {
+export default async function robots(): Promise<MetadataRoute.Robots> {
+  if (!isIndexableHost((await headers()).get("host"))) {
+    return { rules: { userAgent: "*", disallow: "/" } }
+  }
   return {
     rules: [
       {

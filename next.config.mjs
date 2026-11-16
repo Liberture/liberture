@@ -1,4 +1,5 @@
 import createNextIntlPlugin from 'next-intl/plugin'
+import { INDEXABLE_HOST } from './lib/seo/indexing.mjs'
 
 const isProduction = process.env.NODE_ENV === 'production'
 
@@ -49,7 +50,14 @@ const nextConfig = {
     unoptimized: true,
   },
   async headers() {
-    return [{ source: '/:path*', headers: securityHeaders }]
+    return [
+      { source: '/:path*', headers: securityHeaders },
+      {
+        source: '/:path*',
+        missing: [{ type: 'header', key: 'host', value: INDEXABLE_HOST.replaceAll('.', '\\.') }],
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      },
+    ]
   },
   async rewrites() {
     return { beforeFiles: [

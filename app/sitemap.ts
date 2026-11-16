@@ -1,3 +1,5 @@
+import { headers } from "next/headers"
+import { isIndexableHost } from "@/lib/seo/indexing.mjs"
 import { languageAlternates } from "@/lib/seo/translated-routes"
 import { getEntitySlugMap } from "@/lib/i18n/entity-slugs.server"
 import { profilePath } from "@/lib/directory/profile-path"
@@ -31,6 +33,7 @@ async function safe<T>(label: string, query: () => Promise<T[]>): Promise<T[]> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  if (!isIndexableHost((await headers()).get("host"))) return []
 
 
   // Static routes are built first and never depend on the database, so a DB
