@@ -8,6 +8,8 @@ import { GET as backupRecipient } from "@/app/api/challenges/[id]/backup-recipie
 import { POST as register } from "@/app/api/challenges/moderator/route"
 import { POST as invite } from "@/app/api/challenges/invite/route"
 import { GET, PATCH } from "@/app/api/challenges/[id]/route"
+import { upsertCompletionRow, upsertTodoRow, refreshStorageJsonFromOptimizedTables } from "@/lib/habits/optimized-storage"
+import { mergeTodos } from "@/lib/habits/todo-sync"
 import { getDb } from "@/lib/habits/db"
 import { createNostrSessionsTable } from "@/lib/habits/db-migrate"
 import { createSession, SESSION_COOKIE_NAME } from "@/lib/habits/nostr/session-store"
@@ -175,7 +177,7 @@ describe.skipIf(!testUrl)("private challenge routes", () => {
     expect((await join(invites.player, outsider, "Player")).status).toBe(409)
     expect((await apply(challenge.id,creator,{action:"invite",role:"player"})).status).toBe(409)
   })
-  it("creates one task per player per day and exposes only completion totals", async () => {
+  it("creates one habit per player and shares completion history with challenge progress", async () => {
     const {challenge, invites} = await (await make()).json()
     const id = challenge.id
     expect((await join(invites.player, outsider, "B")).status).toBe(200)
@@ -184,13 +186,75 @@ describe.skipIf(!testUrl)("private challenge routes", () => {
     expect((await publicMatch(id))?.race).toBeUndefined()
     await apply(id,outsider,{action:"fund",token:"raceB"})
     await apply(id,outsider,{action:"fund",token:"raceB"})
-    const rows = await db`SELECT user_id,body FROM habit_todos WHERE body->>'challengeId'=${id}`
-    expect(rows).toHaveLength(28)
-    const day = rows.find(row => row.body.challengeDay === 1)!
-    await db`UPDATE habit_todos SET status='completed' WHERE user_id=${day.user_id} AND id=${day.body.id}`
-    const progress = (await publicMatch(id))!.race!
-    expect(progress.creator+progress.player).toBe(1)
-    expect(Object.keys(progress).sort()).toEqual(["creator","player"])
+    expect(await db`SELECT id FROM habit_todos WHERE body->>'challengeId'=${id}`).toHaveLength(0)
+    const users = await db`SELECT id,data FROM habit_users WHERE id IN (1,2)`
+    for (const user of users) {
+      const habits = user.data.habits.filter((h: {id:string}) => h.id === "challenge-"+id)
+      expect(habits).toHaveLength(1)
+      expect(habits[0].schedule.type).toBe("daily")
+      expect(habits[0].challenge.id).toBe(id)
+    }
+    const params = {params:Promise.resolve({id})}
+    const read = async (headers: Record<string, string> = creator) => (await (await GET(req("GET","/"+id,headers),params)).json()).challenge
+    expect((await read()).tracking.kind).toBe("habit")
+    expect((await read()).tracking.days).toHaveLength(14)
+    expect((await apply(id,creator,{action:"completeDay",day:1,complete:true})).status).toBe(200)
+    expect((await read()).race).toEqual({creator:1,player:0})
+    expect((await read()).tracking.days[0].completed).toBe(true)
+    expect((await read(outsider)).tracking.days[0].completed).toBe(false)
+    expect((await read(moderator)).tracking).toBeUndefined()
+    const [stored] = await db`SELECT data FROM habit_users WHERE id=1`
+    expect(stored.data.completions.some((c:{habitId:string;completed:boolean})=>c.habitId==="challenge-"+id && c.completed)).toBe(true)
+    // A completion from the ordinary habit path immediately drives the race too.
+    await upsertCompletionRow(db,2,{habitId:"challenge-"+id,date:(await read(outsider)).tracking.days[0].date,completed:true,completedAt:new Date().toISOString()})
+    await refreshStorageJsonFromOptimizedTables(db,2,["completions"])
+    expect((await publicMatch(id))?.race).toEqual({creator:1,player:1})
+    expect((await apply(id,creator,{action:"completeDay",day:14,complete:true})).status).toBe(409)
+    expect((await apply(id,creator,{action:"completeDay",day:0,complete:true})).status).toBe(400)
+    expect((await apply(id,moderator,{action:"completeDay",day:1,complete:true})).status).toBe(403)
+    await apply(id,creator,{action:"completeDay",day:1,complete:false})
+    expect((await read()).race.creator).toBe(0)
+    expect(Object.keys((await publicMatch(id))!.race!).sort()).toEqual(["creator","player"])
+  })
+  it("converts legacy daily todos once, retaining completed days, notes, and deletion tombstones", async () => {
+    const {id,player} = await ready()
+    await apply(id,creator,{action:"fund",token:"legacyA"})
+    await apply(id,player,{action:"fund",token:"legacyB"})
+    const [user] = await db`SELECT data FROM habit_users WHERE id=1`
+    const habit = user.data.habits.find((h:{id:string})=>h.id==="challenge-"+id)
+    const stale = {id:`challenge-${id}-1`,challengeId:id,challengeDay:1,title:"Two weeks",dueDate:habit.challenge.startDate,status:"completed" as const,priority:3 as const,notes:"Walked with a friend",createdAt:"2026-11-01T00:00:00Z",completedAt:new Date().toISOString()}
+    await db`UPDATE habit_users SET data=jsonb_set(data,'{habits}',${JSON.stringify(user.data.habits.filter((h:{id:string})=>h.id!==habit.id))}::jsonb) WHERE id=1`
+    // A changed time zone must not move the legacy task's calendar date.
+    await db`UPDATE habit_users SET data=jsonb_set(data,'{preferences}', '{"timeZone":"Pacific/Kiritimati"}'::jsonb) WHERE id=1`
+    await upsertTodoRow(db,1,stale)
+    await refreshStorageJsonFromOptimizedTables(db,1,["todos"])
+    await db`UPDATE tracker_challenges SET state=state-'raceTrackingVersion' WHERE id=${id}`
+    const params = {params:Promise.resolve({id})}
+    const migrated = (await (await GET(req("GET","/"+id,creator),params)).json()).challenge
+    expect(migrated.race.creator).toBe(1)
+    expect(migrated.tracking.days[0].completed).toBe(true)
+    expect(migrated.tracking.days[0].date).toBe(stale.dueDate)
+    const [after] = await db`SELECT data FROM habit_users WHERE id=1`
+    expect(after.data.habits.filter((h:{id:string})=>h.id===habit.id)).toHaveLength(1)
+    expect(after.data.completions.find((c:{habitId:string})=>c.habitId===habit.id).context).toBe(stale.notes)
+    expect(after.data.todoTombstones[stale.id]).toBeTruthy()
+    expect(mergeTodos({clientTodos:[stale],serverTodos:after.data.todos,clientLastUpdated:"2026-11-01T00:00:00Z",serverTombstones:after.data.todoTombstones}).todos.some(t=>t.id===stale.id)).toBe(false)
+    expect((await (await GET(req("GET","/"+id,creator),params)).json()).challenge.revision).toBe(migrated.revision)
+    expect((await apply(id,player,{action:"guestDay",day:1,complete:true})).status).toBe(200)
+    expect(await publicMatch(id)).toBeNull() // Not shared publicly.
+    expect((await apply(id,player,{action:"completeDay",day:14,complete:true})).status).toBe(409)
+  })
+  it("keeps a one-day challenge as one todo per registered participant", async () => {
+    const {challenge,invites} = await (await createWithInvite(req("POST","",creator,{title:"One walk",rules:"Walk once",name:"A",pubkey:pubkey(),stake:10,durationDays:1}))).json()
+    const id=challenge.id
+    await join(invites.player,outsider,"B")
+    await apply(id,creator,{action:"fund",token:"singleA"})
+    await apply(id,outsider,{action:"fund",token:"singleB"})
+    expect(await db`SELECT id FROM habit_todos WHERE body->>'challengeId'=${id}`).toHaveLength(2)
+    const params={params:Promise.resolve({id})}
+    expect((await (await GET(req("GET","/"+id,creator),params)).json()).challenge.tracking.kind).toBe("todo")
+    expect((await apply(id,creator,{action:"completeDay",day:1,complete:true})).status).toBe(200)
+    expect((await (await GET(req("GET","/"+id,creator),params)).json()).challenge.race.creator).toBe(1)
   })
   it("settles a mutually agreed winner with both players independently signing", async () => {
     const { id, player } = await ready()

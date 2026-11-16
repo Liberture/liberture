@@ -34,6 +34,7 @@ export function isHabitActiveOnDate(habit: Habit | undefined, date: Date, now: D
   if (!habit) return false
 
   const day = startOfLocalDay(date)
+  if (habit.challenge && (day < startOfLocalDay(habit.challenge.startDate) || day > startOfLocalDay(habit.challenge.endDate) || day > startOfLocalDay(now))) return false
   const createdAt = habit.createdAt ? startOfLocalDay(habit.createdAt) : new Date(0)
   const startDate = habit.startDate ? startOfLocalDay(habit.startDate) : null
   const activeFrom = startDate && startDate < createdAt ? startDate : createdAt

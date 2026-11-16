@@ -21,7 +21,14 @@ export interface ChallengeTerms {
 
 export type RaceProgress = Record<Player, number>
 
+export interface ChallengeTracking {
+  kind: "habit" | "todo"
+  days: Array<{ day: number; date: string; completed: boolean; available: boolean }>
+}
+
 export interface Challenge extends ChallengeTerms {
+  tracking?: ChallengeTracking
+  raceTrackingVersion?: number
   race?: RaceProgress
   guestDays?: number[]
   raceTasksCreated?: boolean
@@ -56,6 +63,7 @@ export interface ChallengeSettlement {
 
 export type ChallengeAction =
   | { action: "publish"; quote?: string }
+  | { action: "completeDay"; day: number; complete: boolean }
   | { action: "guestDay"; day: number; complete: boolean }
   | { action: "invite"; quote?: string; role: Exclude<Role, "creator"> }
   | { action: "fund"; token: string }

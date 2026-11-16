@@ -8,10 +8,16 @@
     "dmRejected": "This person’s Nostr inbox relays rejected the message. Copy the invitation link to send it directly.",
     "chooseLinkOpponent": "Invite someone without Nostr by link",
     "opponentRequired": "Choose your opponent or select an invitation by link.",
+    "completionHistory": "Challenge completion history",
+    "habitCompletions": "Your daily habit",
+    "todoCompletion": "Your one-time task",
+    "openRaceHabits": "Open habits",
+    "dayCompleted": "Day {day}, {date}: completed. Undo completion",
+    "dayIncomplete": "Day {day}, {date}: incomplete. Mark complete",
     "race": "Challenge race",
     "raceDays": "{count} of {total} days",
     "raceDay": "Day {day}",
-    "openRaceTasks": "Open daily tasks",
+    "openRaceTasks": "Open to-dos",
     "payBeforeInvite": "Pay your stake to unlock invitations.",
     "title": "Challenges",
     "new": "New challenge",
@@ -239,7 +245,7 @@
       "waitPaymentTitle": "Waiting for the other stake",
       "waitPaymentBody": "Your stake is confirmed. The race starts automatically once both stakes are confirmed.",
       "dailyTaskTitle": "Your next step",
-      "dailyTaskBody": "Complete today’s challenge task to move forward in the race.",
+      "dailyTaskBody": "Complete today’s challenge goal here or in your tracker to move forward in the race.",
       "watchRaceTitle": "The race is on",
       "watchRaceBody": "The players record their daily progress. You only step in if they ask for a decision.",
       "waitResultTitle": "Waiting for {name}",
@@ -3533,7 +3539,8 @@
         "tracker": "My tracker",
         "admin": "Admin panel",
         "signOut": "Sign out",
-        "toggleMenu": "Toggle menu"
+        "toggleMenu": "Toggle menu",
+        "challenges": "Challenges"
       },
       "language": "Language",
       "footer": {
@@ -4008,6 +4015,54 @@
       "back": "All protocols",
       "duration": "Duration",
       "difficulty": "Difficulty"
+    },
+    "challengeDiscovery": {
+      "eyebrow": "A little friendly competition",
+      "title": "Build better habits, together",
+      "intro": "Turn a daily goal into a challenge with a friend. Agree on the rules, put sats on the line, and follow your progress together.",
+      "metaTitle": "Habit challenges with friends",
+      "metaDescription": "Create a habit challenge with a friend: agree on daily goals, fund Cashu stakes, track progress, and settle the result together.",
+      "imageAlt": "Two Liberture challenge characters competing toward a shared goal",
+      "learnMore": "Explore challenges",
+      "create": "Create a challenge",
+      "browse": "My challenges",
+      "stepsHeading": "From a shared goal to the finish line",
+      "steps": [
+        {
+          "title": "Agree on the challenge",
+          "body": "Choose a goal, duration, and clear rules with your opponent. Decide how you will judge a win or a draw, and whether to invite a moderator."
+        },
+        {
+          "title": "Fund, invite, and keep going",
+          "body": "Pay your stake to unlock invitations. The race starts when both stakes are confirmed. Multi-day challenges create one daily habit. Complete its days here or in your habit tracker to advance your runner. A one-day challenge creates a single to-do."
+        },
+        {
+          "title": "Agree on the result",
+          "body": "Players vote for a winner or a draw. An invited moderator can help resolve disagreement. Complete settlement and collect any sats owed to you."
+        }
+      ],
+      "examplesHeading": "Small goals. Shared commitment.",
+      "examplesIntro": "Start with something you can repeat each day. These are examples; you agree on the final rules together.",
+      "examples": [
+        {
+          "title": "Walk 8,000 steps",
+          "body": "Count the days each person reaches the goal. Equal totals mean a draw."
+        },
+        {
+          "title": "Read 10 pages",
+          "body": "Make time for a book each day and compare your completed days."
+        },
+        {
+          "title": "Focus for 20 minutes",
+          "body": "Protect an uninterrupted work session and build a daily rhythm."
+        }
+      ],
+      "stakesHeading": "Understand the stakes",
+      "stakesBody": "Challenges use Cashu ecash. Test sats are for practice and have no monetary value; live sats are real funds. Check the selected mint and stake before paying. Daily completion is reported by participants, not independently verified.",
+      "resolutionHeading": "Clear rules matter",
+      "resolutionBody": "Agree on evidence and how to resolve disagreements before funding. Moderation is optional. Payouts require the challenge’s voting and signing steps; a progress bar alone does not release funds.",
+      "closingHeading": "Ready to challenge a friend?",
+      "closingBody": "Choose a goal you both care about and make your next few days count."
     }
   },
   "breadcrumbs": {

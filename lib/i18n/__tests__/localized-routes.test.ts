@@ -14,7 +14,7 @@ vi.mock("../entity-slugs.server", () => ({
 
 describe("public language URLs", () => {
   it("round-trips translated sections, guides and pillars", () => {
-    for (const path of ["/", "/books", "/pillars/exercise", "/docs/permissions", "/guides/read-your-habit-statistics"]) {
+    for (const path of ["/", "/challenges", "/books", "/pillars/exercise", "/docs/permissions", "/guides/read-your-habit-statistics"]) {
       for (const locale of ["es", "en"] as const) {
         expect(parsePublicPath(localizedPath(path, locale))).toMatchObject({ internalPath: path, locale: locale === "es" ? "es" : undefined })
       }
@@ -43,6 +43,26 @@ describe("public language URLs", () => {
       const result = await proxy(new NextRequest("https://liberture.com" + old + "?q=test"))
       expect(result.status).toBe(308)
       expect(result.headers.get("location")).toBe("https://liberture.com" + path + "?q=test")
+    }
+  })
+
+  it("localizes only the public challenges index", async () => {
+    expect(localizedHref("/challenges", "es", new Map())).toBe("/es/desafios")
+    expect(languageAlternates("/challenges")).toEqual({
+      en: "https://liberture.com/challenges", es: "https://liberture.com/es/desafios",
+      "x-default": "https://liberture.com/challenges",
+    })
+    const result = await proxy(new NextRequest("https://liberture.com/es/desafios"))
+    expect(result.headers.get("x-middleware-rewrite")).toBe("https://liberture.com/challenges")
+    expect(result.headers.get("x-middleware-request-x-liberture-page-language")).toBe("es")
+    expect(result.headers.get("x-middleware-request-x-liberture-private-invite")).toBeNull()
+    for (const path of ["/challenges/join", "/challenges/example-id", "/challenges/watch/example-id", "/tracker/challenges", "/tracker/challenges/new"]) {
+      expect(localizedHref(path, "es", new Map())).toBe(path)
+      expect(parsePublicPath(path)).toBeNull()
+      const response = await proxy(new NextRequest("https://liberture.com" + path))
+      expect(response.headers.get("location")).toBeNull()
+      expect(response.headers.get("x-middleware-rewrite")).toBeNull()
+      if (path.startsWith("/challenges/")) expect(response.headers.get("x-middleware-request-x-liberture-private-invite")).toBe("1")
     }
   })
 

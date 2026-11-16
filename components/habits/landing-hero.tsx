@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { ArrowRight, Bot, Check, ExternalLink, Github, KeyRound, Mic, Zap } from "lucide-react"
 
 import { ChatGPTLogo, ClaudeLogo } from "@/components/habits/brand-logos"
+import { ChallengeDiscovery } from "@/components/habits/challenges/challenge-discovery"
 import { FeaturesSection } from "@/components/habits/landing/features-section"
 import { HeroBackground, HeroPillarButtons } from "@/components/habits/landing/liberture-hero-art"
 import { PillarsShowcase } from "@/components/habits/pillars-showcase"
@@ -112,6 +113,8 @@ export function LandingHero({ locale, origin }: { locale: Locale; origin: string
 
         {/* ---------- Features (Liberture's section, animated) ---------- */}
         <FeaturesSection heading={t.featuresHeading} description={t.featuresBody} items={t.features} />
+
+        <ChallengeDiscovery copy={dict.challengeDiscovery} />
 
         {/* ---------- The six pillars (Liberture's section, same code) ---------- */}
         <PillarsShowcase badge={t.pillarsEyebrow} heading={t.pillarsHeading} description={t.pillarsBody} descriptions={t.pillarCards} />

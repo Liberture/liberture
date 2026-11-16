@@ -1,7 +1,8 @@
 import { getLocale, getTranslations as getUiCopy } from "next-intl/server"
 import { CoverArtwork } from "@/components/habits/marketplace/protocol-artwork"
 import Markdown from "react-markdown"
-import { profilePillars } from "@/lib/pillars"
+import { PillarIcon } from "@/components/pillars/PillarIcon"
+import { PILLAR_STYLES, profilePillars } from "@/lib/pillars"
 import { articleTags } from "@/lib/article-tags"
 import { LanguageSwitch } from "@/components/habits/site/language-switch"
 import { getSiteMessages } from "@/lib/i18n/messages.server"
@@ -241,8 +242,12 @@ export default async function ArticlePage({ params }: PageProps) {
             <div className="flex items-center justify-between"><span className="font-semibold">{copy.language}</span><LanguageSwitch locale={locale} label={copy.language} /></div>
             <nav aria-label={copy.categories}>
               <h2 className="mb-2 font-semibold">{copy.categories}</h2>
-              <ul className="flex flex-wrap gap-2">{categories.map((pillar) => (
-                <li key={pillar}><Link href={`/articles?pillar=${encodeURIComponent(pillar)}`} className="text-sm capitalize text-primary hover:underline">{pillarTag.pillars[pillar]}</Link></li>
+              <ul className="grid grid-cols-1 gap-2 min-[360px]:grid-cols-2">{categories.map((pillar) => (
+                <li key={pillar} className="min-w-0"><Link href={`/articles?pillar=${encodeURIComponent(pillar)}`}
+                  className={`group flex min-h-11 items-center gap-2 rounded-md px-2 py-2 text-sm font-medium hover:bg-accent/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${PILLAR_STYLES[pillar].text}`}>
+                  <PillarIcon pillarId={pillar} size="sm" inline />
+                  <span>{pillarTag.pillars[pillar]}</span>
+                </Link></li>
               ))}</ul>
             </nav>
           </aside>
